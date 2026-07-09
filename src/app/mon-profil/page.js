@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TabBar from "@/components/TabBar";
+import Photo from "./Photo";
+import Parcours from "./Parcours";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { SITUATIONS } from "@/lib/donnees";
 
@@ -100,6 +102,13 @@ export default function MonProfil() {
 
       <div className="f-corps">
         <div className="champ">
+          <label>Ma photo</label>
+          <Photo profil={profil}
+            onPhoto={(url) => setProfil({ ...profil, photo_url: url })}
+            signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
+        </div>
+
+        <div className="champ">
           <label htmlFor="titre">En une ligne (poste, école…)</label>
           <input id="titre" className="saisie" placeholder="Ex. : Data scientist — M2 IA à Montréal"
             value={profil.statut_titre ?? ""} onChange={majChamp("statut_titre")} />
@@ -130,6 +139,12 @@ export default function MonProfil() {
           <label htmlFor="conseil">Mon conseil aux cadets</label>
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
+        </div>
+
+        <div className="champ">
+          <label>Mon parcours</label>
+          <Parcours profilId={profil.id}
+            signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
         </div>
 
         <div className="e-ligne">

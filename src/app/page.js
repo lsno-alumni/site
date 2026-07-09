@@ -1,4 +1,7 @@
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
+import Compteur from "@/components/Compteur";
+import Poussiere from "@/components/Poussiere";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques } from "@/lib/api";
 
@@ -12,6 +15,7 @@ export default async function Accueil() {
   return (
     <main className="page">
       <header className="a-hero">
+        <Poussiere />
         <div className="a-nav">
           <div className="a-marque">
             <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Alumni
@@ -29,12 +33,13 @@ export default async function Accueil() {
           <Link href="/connexion" className="btn btn-nu">Se connecter</Link>
         </div>
         <div className="a-stats">
-          <div className="a-stat"><b>{stats.anciens}</b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
-          <div className="a-stat"><b>{stats.pays}</b><span>pays</span></div>
-          <div className="a-stat"><b>{stats.promotions}</b><span>promotions</span></div>
+          <div className="a-stat"><b><Compteur valeur={stats.anciens} /></b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
+          <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
+          <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
         </div>
       </header>
 
+      <Reveal>
       <section className="a-section">
         <h2 className="a-titre">Qui fait quoi ?</h2>
         <p className="a-sous">Choisis un domaine, découvre qui contacter.</p>
@@ -43,13 +48,15 @@ export default async function Accueil() {
             <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
               <span className="pictol" aria-hidden>{d.icone}</span>
               <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
-              <span className="nb">{parDomaine[d.cle] ?? 0}</span>
+              <span className="nb"><Compteur valeur={parDomaine[d.cle] ?? 0} /></span>
               <span className="fl" aria-hidden>→</span>
             </Link>
           ))}
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="a-monde">
         <p className="tagline">Le réseau dans le monde</p>
         <h4 className="serif">
@@ -71,7 +78,9 @@ export default async function Accueil() {
           <span>et ailleurs…</span>
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="a-temoin">
         <p>
           Un ancien m&apos;a orientée vers la bourse qui a changé ma vie.
@@ -81,6 +90,7 @@ export default async function Accueil() {
           <div><b>Une ancienne de la promotion 4</b><span>Génie civil, Rabat</span></div>
         </div>
       </section>
+      </Reveal>
 
       <footer className="pied-public">
         <img className="ecusson" src="/img/logo.jpg" alt="" />

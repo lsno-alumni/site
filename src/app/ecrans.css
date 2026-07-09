@@ -90,7 +90,18 @@
 .pied-public .ecusson { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #fff; margin: 0 auto 14px; border: 2px solid rgba(232,179,60,.5); }
 
 /* ---------- ANNUAIRE ---------- */
-.n-tete { padding: 26px 22px 0; background: linear-gradient(180deg, var(--encre-2), var(--encre)); }
+.n-tete {
+  padding: 26px 22px 18px; position: relative; isolation: isolate; overflow: hidden;
+}
+.n-tete::before {
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  background: url("/img/v3_06.jpg") center/cover;
+  animation: kb 30s ease-in-out infinite alternate;
+}
+.n-tete::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(10,27,51,.78) 0%, rgba(10,27,51,.92) 55%, var(--encre) 100%);
+}
 .n-tete h1 { font-size: 27px; }
 .n-tete .cpt { font-size: 12.5px; color: var(--brume); margin-top: 3px; }
 .n-cherche {
@@ -175,7 +186,7 @@
 
 /* ---------- FORMULAIRES (inscription / connexion / édition) ---------- */
 .f-tete { padding: 26px 24px 8px; position: relative; isolation: isolate; overflow: hidden; }
-.f-tete::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/img/bg_study.jpg") center/cover; }
+.f-tete::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/img/v3_07.jpg") center/cover; animation: kb 30s ease-in-out infinite alternate; }
 .f-tete::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,27,51,.72) 0%, rgba(10,27,51,.9) 55%, var(--encre) 100%); }
 .f-tete .retour { color: var(--brume); font-size: 13px; display: inline-block; padding: 4px 0; }
 .f-tete h1 { font-size: 26px; margin-top: 16px; line-height: 1.15; }
@@ -243,3 +254,77 @@
 }
 .e-stat b { font-family: var(--font-titres), serif; font-size: 26px; color: var(--or-clair); font-variant-numeric: tabular-nums; }
 .e-stat span { font-size: 11.5px; color: var(--brume); }
+
+/* ============================================================
+   ANIMATIONS (portées de la maquette v3, optimisées mobile :
+   transform/opacity uniquement — composées par le GPU)
+   ============================================================ */
+@keyframes kb { from { transform: scale(1); } to { transform: scale(1.07); } }
+.a-hero::before, .a-monde::before { animation: kb 30s ease-in-out infinite alternate; will-change: transform; }
+.n-tete::before, .f-tete::before { will-change: transform; }
+
+/* apparition au défilement (composant Reveal) */
+.rev { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); }
+.rev.vu { opacity: 1; transform: none; }
+.rev .dom { opacity: 0; transform: translateY(14px); transition: opacity .55s ease, transform .55s cubic-bezier(.22,1,.36,1); }
+.rev.vu .dom { opacity: 1; transform: none; }
+.rev.vu .dom:nth-child(1) { transition-delay: .1s; }
+.rev.vu .dom:nth-child(2) { transition-delay: .2s; }
+.rev.vu .dom:nth-child(3) { transition-delay: .3s; }
+.rev.vu .dom:nth-child(4) { transition-delay: .4s; }
+.rev.vu .dom:nth-child(5) { transition-delay: .5s; }
+.rev.vu .dom:nth-child(6) { transition-delay: .6s; }
+.rev.vu .dom:nth-child(7) { transition-delay: .7s; }
+
+/* reflet balayant les boutons or */
+.btn-or { position: relative; overflow: hidden; }
+.btn-or::after {
+  content: ""; position: absolute; top: 0; left: -70%; width: 45%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg); animation: balaie 4.6s ease-in-out infinite;
+}
+@keyframes balaie { 0%, 55% { left: -70%; } 100% { left: 140%; } }
+
+/* pastille « répond » qui pulse */
+@keyframes pulse-vert { 0%, 100% { box-shadow: 0 0 0 0 rgba(99,199,132,.55); } 55% { box-shadow: 0 0 0 5px rgba(99,199,132,0); } }
+.fiche .pied .dispo::before { animation: pulse-vert 2.2s ease-out infinite; }
+
+/* fil doré du parcours qui se trace (page profil, au chargement) */
+@keyframes trace { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.chemin::before { transform-origin: top; animation: trace 1.2s cubic-bezier(.22,1,.36,1) .2s both; }
+@keyframes pointe { from { transform: scale(0); } to { transform: scale(1); } }
+.pas::before { animation: pointe .4s cubic-bezier(.34,1.56,.64,1) both; }
+.pas:nth-child(1)::before { animation-delay: .3s; }
+.pas:nth-child(2)::before { animation-delay: .55s; }
+.pas:nth-child(3)::before { animation-delay: .8s; }
+.pas:nth-child(4)::before { animation-delay: 1.05s; }
+.pas:nth-child(5)::before { animation-delay: 1.3s; }
+
+/* barres de progression d'inscription qui se remplissent */
+@keyframes remplir { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.f-prog i.fait { position: relative; overflow: hidden; background: rgba(147,165,192,.18); }
+.f-prog i.fait::after {
+  content: ""; position: absolute; inset: 0; background: var(--or); border-radius: 4px;
+  transform-origin: left; animation: remplir .9s cubic-bezier(.22,1,.36,1) both;
+}
+.f-prog i.fait:nth-child(2)::after { animation-delay: .2s; }
+.f-prog i.fait:nth-child(3)::after { animation-delay: .4s; }
+
+/* écusson qui respire */
+@keyframes halo-or {
+  0%, 100% { box-shadow: 0 10px 30px -8px rgba(0,0,0,.6), 0 0 0 0 rgba(232,179,60,.35); }
+  50% { box-shadow: 0 10px 30px -8px rgba(0,0,0,.6), 0 0 0 10px rgba(232,179,60,0); }
+}
+.pied-public .ecusson { animation: halo-or 3.6s ease-in-out infinite; }
+
+/* poussière d'or (héros de l'accueil) */
+.pouss {
+  position: absolute; bottom: -10px; border-radius: 50%; background: var(--or-clair);
+  opacity: 0; pointer-events: none; animation: monter linear infinite; z-index: 1;
+}
+@keyframes monter {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: .7; }
+  85% { opacity: .2; }
+  100% { transform: translate3d(30px, -70vh, 0); opacity: 0; }
+}

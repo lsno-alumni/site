@@ -17,7 +17,9 @@ export default async function Accueil() {
             <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Alumni
           </div>
         </div>
-        <p className="tagline">{stats.anciens} anciens · {stats.pays} pays</p>
+        <p className="tagline">
+          {stats.anciens} ancien{stats.anciens > 1 ? "s" : ""} · {stats.pays} pays
+        </p>
         <h1>Tes aînés sont<br />déjà <em>passés par là.</em></h1>
         <p className="pitch">
           Retrouve les anciens du Lycée Scientifique National, par domaine, promotion ou pays.
@@ -27,7 +29,7 @@ export default async function Accueil() {
           <Link href="/connexion" className="btn btn-nu">Se connecter</Link>
         </div>
         <div className="a-stats">
-          <div className="a-stat"><b>{stats.anciens}</b><span>anciens</span></div>
+          <div className="a-stat"><b>{stats.anciens}</b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
           <div className="a-stat"><b>{stats.pays}</b><span>pays</span></div>
           <div className="a-stat"><b>{stats.promotions}</b><span>promotions</span></div>
         </div>

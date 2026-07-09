@@ -1,16 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
+
+// Purge les cookies de session résiduels/corrompus (vieilles sessions,
+// changement de mot de passe…) — sinon ils empêchent la nouvelle session
+// de s'établir et l'utilisateur semble « déconnecté en boucle ».
+function purgeSessionInvalide(supabase) {
+  supabase.auth.getUser().then(({ data: { user }, error }) => {
+    if (user && !error) return; // session valide : on n'y touche pas
+    document.cookie.split(";").forEach((c) => {
+      const nom = c.split("=")[0].trim();
+      if (nom.startsWith("sb-")) {
+        document.cookie = `${nom}=; path=/; max-age=0`;
+      }
+    });
+  });
+}
 
 export default function Connexion() {
   const routeur = useRouter();
   const [form, setForm] = useState({ email: "", motDePasse: "" });
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
+
+  useEffect(() => {
+    purgeSessionInvalide(creerClientNavigateur());
+  }, []);
 
   const connecter = async (e) => {
     e.preventDefault();

@@ -52,15 +52,23 @@ export default async function Accueil() {
 
       <section className="a-monde">
         <p className="tagline">Le réseau dans le monde</p>
-        <h4 className="serif">17 pays, 4 continents</h4>
-        <p>Où que tu veuilles aller, un ancien y est déjà.</p>
+        <h4 className="serif">
+          {stats.pays > 1
+            ? `${stats.pays} pays et ça continue`
+            : "Un réseau qui s'étend"}
+        </h4>
+        <p>
+          {stats.pays > 1
+            ? "Où que tu veuilles aller, un ancien y est peut-être déjà."
+            : "Du Burkina vers le monde : chaque nouvel inscrit étend la carte."}
+        </p>
         <div className="a-pays">
-          <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina · 168</span>
-          <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc · 74</span>
-          <span><img className="drapo" src={PAYS.FR.drapeau} alt="" /> France · 58</span>
-          <span><img className="drapo" src={PAYS.CA.drapeau} alt="" /> Canada · 32</span>
-          <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal · 21</span>
-          <span>+ 12 pays</span>
+          <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina Faso</span>
+          <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc</span>
+          <span><img className="drapo" src={PAYS.FR.drapeau} alt="" /> France</span>
+          <span><img className="drapo" src={PAYS.CA.drapeau} alt="" /> Canada</span>
+          <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal</span>
+          <span>et ailleurs…</span>
         </div>
       </section>
 

@@ -181,6 +181,9 @@ export default function MonProfil() {
         </div>
 
         <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>
+        <Link href="/mot-de-passe/nouveau" className="btn btn-nu btn-bloc">
+          Changer mon mot de passe
+        </Link>
         <button className="btn btn-nu btn-bloc" onClick={deconnecter}>Se déconnecter</button>
         <button className="e-danger" onClick={supprimerCompte}>
           Supprimer mon compte et mes données

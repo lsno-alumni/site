@@ -2,6 +2,7 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import Compteur from "@/components/Compteur";
 import Poussiere from "@/components/Poussiere";
+import MenuPublic from "@/components/MenuPublic";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques } from "@/lib/api";
 
@@ -20,6 +21,7 @@ export default async function Accueil() {
           <div className="a-marque">
             <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Alumni
           </div>
+          <MenuPublic />
         </div>
         <p className="tagline">
           {stats.anciens} ancien{stats.anciens > 1 ? "s" : ""} · {stats.pays} pays

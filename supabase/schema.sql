@@ -65,6 +65,19 @@ create table parcours (
 );
 
 -- ============================================================
+-- DROITS D'ACCÈS API
+-- Le projet est configuré sans exposition automatique des tables
+-- (« Automatically expose new tables » décoché) : on accorde donc
+-- explicitement l'accès aux rôles API. La RLS ci-dessous reste le
+-- vrai gardien — ces GRANT ne donnent accès qu'aux lignes autorisées.
+-- ============================================================
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on profiles to authenticated;
+grant select on promotions to authenticated;
+grant select, insert, update, delete on parcours to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+
+-- ============================================================
 -- SÉCURITÉ (Row Level Security)
 -- Principe : rien n'est visible sans compte validé ;
 -- chacun n'écrit que chez soi ; délégués/admins valident.

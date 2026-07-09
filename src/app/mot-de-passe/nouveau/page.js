@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import ChampMotDePasse from "@/components/ChampMotDePasse";
 
 // Page d'atterrissage du lien de récupération (et du changement volontaire :
 // accessible aussi connecté). Le client Supabase échange automatiquement le
@@ -74,16 +75,10 @@ export default function NouveauMotDePasse() {
         </div>
       ) : (
         <form className="f-corps" onSubmit={valider} style={{ paddingTop: 26 }}>
-          <div className="champ">
-            <label htmlFor="mdp">Nouveau mot de passe</label>
-            <input id="mdp" type="password" className="saisie" required autoComplete="new-password"
-              value={mdp} onChange={(e) => setMdp(e.target.value)} />
-          </div>
-          <div className="champ">
-            <label htmlFor="conf">Confirme-le</label>
-            <input id="conf" type="password" className="saisie" required autoComplete="new-password"
-              value={confirmation} onChange={(e) => setConfirmation(e.target.value)} />
-          </div>
+          <ChampMotDePasse id="mdp" label="Nouveau mot de passe" valeur={mdp}
+            onChange={(e) => setMdp(e.target.value)} autoComplete="new-password" />
+          <ChampMotDePasse id="conf" label="Confirme-le" valeur={confirmation}
+            onChange={(e) => setConfirmation(e.target.value)} autoComplete="new-password" />
           {erreur && (
             <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
           )}

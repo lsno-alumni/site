@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import ChampMotDePasse from "@/components/ChampMotDePasse";
 import { DOMAINES, PROMOTIONS } from "@/lib/donnees";
 
 // Flux d'inscription en 3 étapes (maquette v3 validée).
@@ -98,10 +99,8 @@ export default function Inscription() {
                 <label htmlFor="email">Email</label>
                 <input id="email" type="email" className="saisie" value={form.email} onChange={maj("email")} autoComplete="email" />
               </div>
-              <div className="champ">
-                <label htmlFor="mdp">Mot de passe (8 caractères min.)</label>
-                <input id="mdp" type="password" className="saisie" value={form.motDePasse} onChange={maj("motDePasse")} autoComplete="new-password" />
-              </div>
+              <ChampMotDePasse id="mdp" label="Mot de passe (8 caractères min.)"
+                valeur={form.motDePasse} onChange={maj("motDePasse")} autoComplete="new-password" />
               <button className="btn btn-or btn-bloc" disabled={!etape1Ok} onClick={() => setEtape(2)}
                 style={{ opacity: etape1Ok ? 1 : 0.5 }}>
                 Continuer →

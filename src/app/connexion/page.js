@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import ChampMotDePasse from "@/components/ChampMotDePasse";
 
 export default function Connexion() {
   const routeur = useRouter();
@@ -48,11 +49,8 @@ export default function Connexion() {
           <input id="email" type="email" className="saisie" required autoComplete="email"
             value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
-        <div className="champ">
-          <label htmlFor="mdp">Mot de passe</label>
-          <input id="mdp" type="password" className="saisie" required autoComplete="current-password"
-            value={form.motDePasse} onChange={(e) => setForm({ ...form, motDePasse: e.target.value })} />
-        </div>
+        <ChampMotDePasse id="mdp" label="Mot de passe" valeur={form.motDePasse}
+          onChange={(e) => setForm({ ...form, motDePasse: e.target.value })} />
         {erreur && (
           <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
         )}

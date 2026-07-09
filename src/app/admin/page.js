@@ -3,61 +3,104 @@
 import { useEffect, useRef, useState } from "react";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
-import { demandesEnAttente } from "@/lib/donnees";
+import { creerClientNavigateur } from "@/lib/supabase/client";
 
-// Espace délégué / admin : file de validation des inscriptions,
-// avec annulation (undo) — maquette v3 validée.
+// Espace délégué / admin : validation des inscriptions, avec annulation.
+// La RLS limite un délégué à sa promotion ; un admin voit tout.
 export default function Validation() {
+  const supabase = creerClientNavigateur();
+  const [moi, setMoi] = useState(null);
   const [demandes, setDemandes] = useState([]);
-  const [traitees, setTraitees] = useState({});   // id -> "valide" | "refuse"
-  const [membres, setMembres] = useState(52);
-  const [snack, setSnack] = useState(null);       // { id, valide }
+  const [stats, setStats] = useState({ valides: 0 });
+  const [snack, setSnack] = useState(null); // { demande, valide }
   const minuteur = useRef(null);
 
-  useEffect(() => {
-    demandesEnAttente().then(setDemandes);
-  }, []);
+  const charger = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: profil } = await supabase
+      .from("profiles").select("id, role, promotions(numero)").eq("id", user.id).maybeSingle();
+    setMoi(profil);
+    if (!profil || profil.role === "membre") return;
 
-  const traiter = (d, valide) => {
-    // TODO Supabase : update profiles set statut_compte = valide ? 'valide' : refus
-    setTraitees((t) => ({ ...t, [d.id]: valide ? "valide" : "refuse" }));
-    if (valide) setMembres((m) => m + 1);
-    setSnack({ id: d.id, valide });
+    const { data: attente } = await supabase
+      .from("profiles")
+      .select("id, prenom, nom, photo_url, promotions(numero, annee_bac)")
+      .eq("statut_compte", "en_attente")
+      .order("cree_le");
+    setDemandes(attente ?? []);
+
+    const { count } = await supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("statut_compte", "valide");
+    setStats({ valides: count ?? 0 });
+  };
+
+  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const traiter = async (d, valide) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ statut_compte: valide ? "valide" : "suspendu" })
+      .eq("id", d.id);
+    if (error) {
+      setSnack({ erreur: "Action refusée : " + error.message });
+      clearTimeout(minuteur.current);
+      minuteur.current = setTimeout(() => setSnack(null), 4200);
+      return;
+    }
+    setDemandes((l) => l.filter((x) => x.id !== d.id));
+    if (valide) setStats((s) => ({ valides: s.valides + 1 }));
+    setSnack({ demande: d, valide });
     clearTimeout(minuteur.current);
     minuteur.current = setTimeout(() => setSnack(null), 4200);
   };
 
-  const annuler = () => {
-    const { id, valide } = snack;
-    setTraitees((t) => {
-      const copie = { ...t };
-      delete copie[id];
-      return copie;
-    });
-    if (valide) setMembres((m) => m - 1);
+  const annuler = async () => {
+    const { demande, valide } = snack;
+    await supabase.from("profiles").update({ statut_compte: "en_attente" }).eq("id", demande.id);
+    setDemandes((l) => [...l, demande]);
+    if (valide) setStats((s) => ({ valides: s.valides - 1 }));
     setSnack(null);
   };
 
-  const enAttente = demandes.filter((d) => !traitees[d.id]);
+  if (moi && moi.role === "membre") {
+    return (
+      <main className="page avec-tabbar">
+        <div className="vide" style={{ paddingTop: 100 }}>
+          <div className="gros" aria-hidden>🔒</div>
+          <b>Espace réservé</b>
+          Cette page est réservée aux délégués de promotion et aux administrateurs.
+        </div>
+        <TabBar actif="Validation" />
+      </main>
+    );
+  }
 
   return (
     <main className="page avec-tabbar">
       <header className="n-tete" style={{ paddingBottom: 18 }}>
-        <p className="tagline">Espace délégué · Promo 3</p>
+        <p className="tagline">
+          {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
+        </p>
         <h1 style={{ marginTop: 8 }}>Demandes<br />d&apos;inscription</h1>
         <p className="cpt">
-          {enAttente.length > 0 ? `${enAttente.length} en attente` : "Tout est à jour ✓"}
+          {demandes.length > 0 ? `${demandes.length} en attente` : "Tout est à jour ✓"}
         </p>
       </header>
 
       <div className="n-liste">
-        {enAttente.map((d) => (
+        {demandes.map((d) => (
           <div key={d.id} className="fiche demande">
             <div className="haut">
-              <Avatar profil={d} className="init" />
+              <Avatar profil={{ prenom: d.prenom, nom: d.nom, photo: d.photo_url }} className="init" />
               <div>
                 <b>{d.prenom} {d.nom}</b>
-                <div className="role">Se déclare Promo {d.promotion} · Bac {d.anneeBac}</div>
+                <div className="role">
+                  Se déclare Promo {d.promotions?.numero}
+                  {d.promotions?.annee_bac ? ` · Bac ${d.promotions.annee_bac}` : ""}
+                </div>
               </div>
             </div>
             <div className="pied" style={{ gap: 10 }}>
@@ -71,16 +114,16 @@ export default function Validation() {
           </div>
         ))}
 
-        <h2 className="a-titre" style={{ marginTop: 18 }}>Ma promotion</h2>
-        <div className="e-stat">
-          <b>{membres}</b><span>membres validés</span>
-          <b>81%</b><span>profils complets</span>
+        <h2 className="a-titre" style={{ marginTop: 18 }}>Le réseau</h2>
+        <div className="e-stat" style={{ gridTemplateColumns: "auto 1fr" }}>
+          <b>{stats.valides}</b><span>membres validés</span>
         </div>
       </div>
 
       <div className={`toast${snack ? " la" : ""}`} role="status">
-        {snack && (snack.valide ? "Membre validé ✓" : "Demande refusée")}
-        {snack && (
+        {snack?.erreur}
+        {snack && !snack.erreur && (snack.valide ? "Membre validé ✓" : "Demande refusée")}
+        {snack && !snack.erreur && (
           <button onClick={annuler} style={{
             border: "none", background: "none", fontWeight: 800, color: "#8A6A1D",
             marginLeft: 12, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3,

@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { DOMAINES, PAYS, statsPubliques, comptesParDomaine } from "@/lib/donnees";
+import { DOMAINES, PAYS } from "@/lib/donnees";
+import { statsPubliques } from "@/lib/api";
 
 // Accueil PUBLIC : aucune donnée personnelle — uniquement des agrégats anonymes
 // (exigence du cahier des charges ; le carrousel « nouveaux membres » vit sur
 // l'accueil connecté, pas ici).
 export default async function Accueil() {
   const stats = await statsPubliques();
-  const parDomaine = await comptesParDomaine();
+  const parDomaine = stats.parDomaine;
 
   return (
     <main className="page">
@@ -40,7 +41,7 @@ export default async function Accueil() {
             <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
               <span className="pictol" aria-hidden>{d.icone}</span>
               <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
-              <span className="nb">{parDomaine[d.cle]}</span>
+              <span className="nb">{parDomaine[d.cle] ?? 0}</span>
               <span className="fl" aria-hidden>→</span>
             </Link>
           ))}

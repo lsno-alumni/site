@@ -159,6 +159,45 @@ end $$;
 create trigger profiles_protege before update on profiles
   for each row execute function protege_colonnes();
 
+-- ---------- création automatique du profil à l'inscription ----------
+-- L'app passe prenom/nom/promotion/domaine dans les métadonnées de signUp ;
+-- ce trigger crée le profil en_attente, même si l'email n'est pas encore confirmé.
+create or replace function handle_new_user() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, prenom, nom, promotion_id, domaine, email_contact)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'prenom', 'Prénom'),
+    coalesce(new.raw_user_meta_data->>'nom', ''),
+    (select id from promotions
+      where numero = coalesce((new.raw_user_meta_data->>'promotion')::int, 1)),
+    coalesce(new.raw_user_meta_data->>'domaine', 'autre'),
+    new.email
+  );
+  return new;
+end $$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function handle_new_user();
+
+-- ---------- statistiques publiques (page d'accueil, sans connexion) ----------
+-- Uniquement des agrégats anonymes — aucun accès aux lignes.
+create or replace function stats_publiques()
+returns json language sql stable security definer set search_path = public as $$
+  select json_build_object(
+    'anciens',    (select count(*) from profiles where statut_compte = 'valide'),
+    'pays',       (select count(distinct pays) from profiles where statut_compte = 'valide' and pays is not null),
+    'promotions', (select count(*) from promotions),
+    'par_domaine', (select coalesce(json_object_agg(domaine, n), '{}'::json)
+                    from (select domaine, count(*) n from profiles
+                          where statut_compte = 'valide' group by domaine) d)
+  );
+$$;
+
+grant execute on function stats_publiques() to anon, authenticated;
+
 -- ============================================================
 -- AMORÇAGE — après création de ton compte via l'app :
 --   update profiles set role='admin', statut_compte='valide' where id='<ton-uuid>';

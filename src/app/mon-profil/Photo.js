@@ -35,13 +35,13 @@ export default function Photo({ profil, onPhoto, signale }) {
       const { error } = await supabase.storage
         .from("photos")
         .upload(chemin, blob, { upsert: true, contentType: "image/jpeg" });
-      if (error) throw error;
+      if (error) throw new Error(`[stockage:${chemin}] ${error.message}`);
       const { data } = supabase.storage.from("photos").getPublicUrl(chemin);
       // cache-buster : l'URL publique reste identique après remplacement
       const url = `${data.publicUrl}?v=${Date.now()}`;
       const { error: errMaj } = await supabase
         .from("profiles").update({ photo_url: url }).eq("id", profil.id);
-      if (errMaj) throw errMaj;
+      if (errMaj) throw new Error(`[profil] ${errMaj.message}`);
       onPhoto(url);
       signale("Photo mise à jour ✓");
     } catch (err) {

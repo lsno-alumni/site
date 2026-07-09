@@ -11,6 +11,13 @@
 -- sur tout réseau social). L'URL contient l'UUID du membre, non
 -- devinable ; la liste des fichiers n'est pas accessible au public.
 
+-- Lecture par les membres connectés : indispensable aussi pour l'upload,
+-- car le service relit la ligne créée juste après l'écriture (sans cette
+-- règle : « new row violates row-level security policy »).
+create policy "photos_lecture" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'photos');
+
 -- Chacun ne peut écrire QUE son propre fichier (nommé <son-uuid>.jpg)
 create policy "photos_ajout" on storage.objects
   for insert to authenticated

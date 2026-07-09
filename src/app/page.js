@@ -1,66 +1,84 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { DOMAINES, PAYS, statsPubliques, comptesParDomaine } from "@/lib/donnees";
 
-export default function Home() {
+// Accueil PUBLIC : aucune donnée personnelle — uniquement des agrégats anonymes
+// (exigence du cahier des charges ; le carrousel « nouveaux membres » vit sur
+// l'accueil connecté, pas ici).
+export default async function Accueil() {
+  const stats = await statsPubliques();
+  const parDomaine = await comptesParDomaine();
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="page">
+      <header className="a-hero">
+        <div className="a-nav">
+          <div className="a-marque">
+            <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Alumni
+          </div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <p className="tagline">{stats.anciens} anciens · {stats.pays} pays</p>
+        <h1>Tes aînés sont<br />déjà <em>passés par là.</em></h1>
+        <p className="pitch">
+          Retrouve les anciens du Lycée Scientifique National, par domaine, promotion ou pays.
+        </p>
+        <div className="a-cta">
+          <Link href="/inscription" className="btn btn-or">Rejoindre le réseau</Link>
+          <Link href="/connexion" className="btn btn-nu">Se connecter</Link>
         </div>
-      </main>
-    </div>
+        <div className="a-stats">
+          <div className="a-stat"><b>{stats.anciens}</b><span>anciens</span></div>
+          <div className="a-stat"><b>{stats.pays}</b><span>pays</span></div>
+          <div className="a-stat"><b>{stats.promotions}</b><span>promotions</span></div>
+        </div>
+      </header>
+
+      <section className="a-section">
+        <h2 className="a-titre">Qui fait quoi ?</h2>
+        <p className="a-sous">Choisis un domaine, découvre qui contacter.</p>
+        <div className="doms">
+          {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
+            <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
+              <span className="pictol" aria-hidden>{d.icone}</span>
+              <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
+              <span className="nb">{parDomaine[d.cle]}</span>
+              <span className="fl" aria-hidden>→</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="a-monde">
+        <p className="tagline">Le réseau dans le monde</p>
+        <h4 className="serif">17 pays, 4 continents</h4>
+        <p>Où que tu veuilles aller, un ancien y est déjà.</p>
+        <div className="a-pays">
+          <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina · 168</span>
+          <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc · 74</span>
+          <span><img className="drapo" src={PAYS.FR.drapeau} alt="" /> France · 58</span>
+          <span><img className="drapo" src={PAYS.CA.drapeau} alt="" /> Canada · 32</span>
+          <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal · 21</span>
+          <span>+ 12 pays</span>
+        </div>
+      </section>
+
+      <section className="a-temoin">
+        <p>
+          Un ancien m&apos;a orientée vers la bourse qui a changé ma vie.
+          C&apos;est exactement pour ça que ce réseau existe.
+        </p>
+        <div className="qui">
+          <div><b>Une ancienne de la promotion 4</b><span>Génie civil, Rabat</span></div>
+        </div>
+      </section>
+
+      <footer className="pied-public">
+        <img className="ecusson" src="/img/logo.jpg" alt="" />
+        <p className="tagline" style={{ color: "var(--or)" }}>Travail · Excellence · Discipline</p>
+        <p style={{ marginTop: 8 }}>
+          Lycée Scientifique National de Ouagadougou<br />
+          Ouagadougou, Burkina Faso · Série C · Promotions 2017 → aujourd&apos;hui
+        </p>
+      </footer>
+    </main>
   );
 }

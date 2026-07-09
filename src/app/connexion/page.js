@@ -60,6 +60,11 @@ export default function Connexion() {
           style={{ opacity: enCours ? 0.6 : 1 }}>
           {enCours ? "Connexion…" : "Se connecter"}
         </button>
+        <p style={{ textAlign: "center", fontSize: 13 }}>
+          <Link href="/mot-de-passe/oubli" style={{ color: "var(--brume)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+            Mot de passe oublié ?
+          </Link>
+        </p>
         <p style={{ textAlign: "center", fontSize: 13, color: "var(--brume)" }}>
           Pas encore de compte ?{" "}
           <Link href="/inscription" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>

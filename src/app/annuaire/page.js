@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import TabBar from "@/components/TabBar";
 import Annuaire from "./Annuaire";
-import { listeMembres } from "@/lib/donnees";
+import { listeMembres } from "@/lib/api";
 
 export const metadata = { title: "Annuaire — LSNO Alumni" };
+export const dynamic = "force-dynamic";
 
 export default async function PageAnnuaire() {
-  // NOTE Supabase : cette liste ne sera renvoyée qu'aux comptes validés (RLS).
+  // La RLS ne renvoie cette liste qu'aux comptes validés.
   const membres = await listeMembres();
   return (
     <main className="page avec-tabbar">

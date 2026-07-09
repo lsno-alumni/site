@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, PROMOTIONS } from "@/lib/donnees";
 
 // Flux d'inscription en 3 étapes (maquette v3 validée).
-// L'envoi réel créera le compte Supabase Auth + le profil en statut « en_attente ».
+// signUp crée le compte Auth ; un trigger côté base crée le profil
+// « en_attente » à partir des métadonnées.
 export default function Inscription() {
   const [etape, setEtape] = useState(1);
   const [envoye, setEnvoye] = useState(false);
+  const [erreur, setErreur] = useState("");
+  const [enCours, setEnCours] = useState(false);
   const [form, setForm] = useState({
     prenom: "", nom: "", email: "", motDePasse: "",
     promotion: null, domaine: "info",
@@ -18,8 +22,31 @@ export default function Inscription() {
   const etape1Ok = form.prenom && form.nom && form.email.includes("@") && form.motDePasse.length >= 8;
   const etape2Ok = form.promotion !== null;
 
-  const envoyer = () => {
-    // TODO Supabase : supabase.auth.signUp + insertion profil en_attente
+  const envoyer = async () => {
+    setEnCours(true);
+    setErreur("");
+    const supabase = creerClientNavigateur();
+    const { error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.motDePasse,
+      options: {
+        data: {
+          prenom: form.prenom,
+          nom: form.nom,
+          promotion: form.promotion,
+          domaine: form.domaine,
+        },
+      },
+    });
+    setEnCours(false);
+    if (error) {
+      setErreur(
+        error.message.includes("already registered")
+          ? "Un compte existe déjà avec cet email. Essaie de te connecter."
+          : "L'inscription a échoué : " + error.message
+      );
+      return;
+    }
     setEnvoye(true);
   };
 
@@ -47,8 +74,9 @@ export default function Inscription() {
           <div className="coche" aria-hidden>✓</div>
           <h2>Demande envoyée</h2>
           <p>
-            Le délégué de la promo {form.promotion} a reçu ta demande.<br />
-            Tu recevras un email dès validation — en général sous 24 h.
+            Confirme d&apos;abord ton adresse : un email vient de t&apos;être envoyé.<br />
+            Ensuite, le délégué de la promo {form.promotion} validera ta demande —
+            en général sous 24 h.
           </p>
           <Link href="/" className="btn btn-nu" style={{ marginTop: 18 }}>
             Retour à l&apos;accueil
@@ -127,8 +155,14 @@ export default function Inscription() {
                   Promotion {form.promotion} · {DOMAINES.find((d) => d.cle === form.domaine)?.nom}
                 </span>
               </div>
-              <button className="btn btn-or btn-bloc" onClick={envoyer}>
-                Envoyer ma demande
+              {erreur && (
+                <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>
+                  {erreur}
+                </p>
+              )}
+              <button className="btn btn-or btn-bloc" onClick={envoyer} disabled={enCours}
+                style={{ opacity: enCours ? 0.6 : 1 }}>
+                {enCours ? "Envoi…" : "Envoyer ma demande"}
               </button>
               <button className="btn btn-nu btn-bloc" onClick={() => setEtape(2)}>
                 ← Corriger

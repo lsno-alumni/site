@@ -3,15 +3,36 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { creerClientNavigateur } from "@/lib/supabase/client";
 
 export default function Connexion() {
   const routeur = useRouter();
   const [form, setForm] = useState({ email: "", motDePasse: "" });
+  const [erreur, setErreur] = useState("");
+  const [enCours, setEnCours] = useState(false);
 
-  const connecter = (e) => {
+  const connecter = async (e) => {
     e.preventDefault();
-    // TODO Supabase : supabase.auth.signInWithPassword
+    setEnCours(true);
+    setErreur("");
+    const supabase = creerClientNavigateur();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: form.email,
+      password: form.motDePasse,
+    });
+    setEnCours(false);
+    if (error) {
+      setErreur(
+        error.message.includes("Invalid login")
+          ? "Email ou mot de passe incorrect."
+          : error.message.includes("not confirmed")
+            ? "Confirme d'abord ton adresse email (regarde ta boîte de réception)."
+            : "Connexion impossible : " + error.message
+      );
+      return;
+    }
     routeur.push("/annuaire");
+    routeur.refresh();
   };
 
   return (
@@ -32,7 +53,13 @@ export default function Connexion() {
           <input id="mdp" type="password" className="saisie" required autoComplete="current-password"
             value={form.motDePasse} onChange={(e) => setForm({ ...form, motDePasse: e.target.value })} />
         </div>
-        <button type="submit" className="btn btn-or btn-bloc">Se connecter</button>
+        {erreur && (
+          <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
+        )}
+        <button type="submit" className="btn btn-or btn-bloc" disabled={enCours}
+          style={{ opacity: enCours ? 0.6 : 1 }}>
+          {enCours ? "Connexion…" : "Se connecter"}
+        </button>
         <p style={{ textAlign: "center", fontSize: 13, color: "var(--brume)" }}>
           Pas encore de compte ?{" "}
           <Link href="/inscription" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
-import { DOMAINES, PAYS, lireProfil } from "@/lib/donnees";
+import { DOMAINES, PAYS } from "@/lib/donnees";
+import { lireProfil } from "@/lib/api";
 
 const LIBELLE_VISI = {
   membres: "visible des membres",

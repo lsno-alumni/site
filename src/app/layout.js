@@ -16,9 +16,20 @@ const ui = Space_Grotesk({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://lsno-alumni.vercel.app"),
   title: "LSNO Alumni — Le réseau des anciens du Lycée Scientifique National de Ouagadougou",
   description:
-    "Retrouve les anciens du LSNO par domaine, promotion ou pays. Travail · Excellence · Discipline.",
+    "Retrouve les anciens du Lycée Scientifique National de Ouagadougou par domaine, promotion ou pays. Parcours, conseils aux cadets et mise en réseau. Travail · Excellence · Discipline.",
+  openGraph: {
+    title: "LSNO Alumni — Le réseau des anciens du LSNO",
+    description:
+      "Retrouve les anciens du Lycée Scientifique National de Ouagadougou par domaine, promotion ou pays.",
+    url: "/",
+    siteName: "LSNO Alumni",
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }) {

@@ -27,7 +27,12 @@ function profilVersUI(p) {
       email: p.email_visi,
     },
     parcours: (p.parcours ?? [])
-      .sort((a, b) => a.ordre - b.ordre)
+      // du présent vers le passé, quel que soit l'ordre de saisie :
+      // « en cours » (annee_fin null) d'abord, puis années décroissantes
+      .sort((a, b) =>
+        (b.annee_fin ?? 9999) - (a.annee_fin ?? 9999) ||
+        (b.annee_debut ?? 0) - (a.annee_debut ?? 0)
+      )
       .map((e) => ({
         annees: e.annee_fin
           ? `${e.annee_debut} — ${e.annee_fin}`

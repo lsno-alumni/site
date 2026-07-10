@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -8,16 +8,15 @@ import ChampMotDePasse from "@/components/ChampMotDePasse";
 
 // Purge les cookies de session résiduels/corrompus (vieilles sessions,
 // changement de mot de passe…) — sinon ils empêchent la nouvelle session
-// de s'établir et l'utilisateur semble « déconnecté en boucle ».
-function purgeSessionInvalide(supabase) {
-  supabase.auth.getUser().then(({ data: { user }, error }) => {
-    if (user && !error) return; // session valide : on n'y touche pas
-    document.cookie.split(";").forEach((c) => {
-      const nom = c.split("=")[0].trim();
-      if (nom.startsWith("sb-")) {
-        document.cookie = `${nom}=; path=/; max-age=0`;
-      }
-    });
+// de s'établir. Appelée AU CLIC, jamais en tâche de fond : une purge
+// asynchrone au chargement pouvait effacer la session fraîchement créée
+// si elle se terminait après la connexion.
+function purgeCookiesSession() {
+  document.cookie.split(";").forEach((c) => {
+    const nom = c.split("=")[0].trim();
+    if (nom.startsWith("sb-")) {
+      document.cookie = `${nom}=; path=/; max-age=0`;
+    }
   });
 }
 
@@ -27,15 +26,17 @@ export default function Connexion() {
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
 
-  useEffect(() => {
-    purgeSessionInvalide(creerClientNavigateur());
-  }, []);
-
   const connecter = async (e) => {
     e.preventDefault();
     setEnCours(true);
     setErreur("");
-    const supabase = creerClientNavigateur();
+    // repartir d'un état propre AVANT de créer la session (synchrone : aucune course)
+    let supabase = creerClientNavigateur();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      purgeCookiesSession();
+      supabase = creerClientNavigateur();
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email: form.email,
       password: form.motDePasse,

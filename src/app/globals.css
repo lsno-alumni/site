@@ -111,6 +111,9 @@ select.saisie { appearance: none; cursor: pointer; }
   transition: color .2s; background: none; border: none; cursor: pointer;
 }
 .tab .tico { font-size: 17px; line-height: 1; }
+.tab svg { display: block; }
+.menu-panneau a svg { color: var(--brume); }
+.menu-panneau a.dore svg { color: var(--or-clair); }
 .tab.on { color: var(--or-clair); }
 .tab.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--or); }
 .avec-tabbar { padding-bottom: 90px; }

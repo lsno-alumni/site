@@ -7,6 +7,8 @@ import TabBar from "@/components/TabBar";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { Mail, Handshake } from "lucide-react";
+import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { SITUATIONS, LISTE_PAYS } from "@/lib/donnees";
 
 const VISIBILITES = [
@@ -16,9 +18,9 @@ const VISIBILITES = [
 ];
 
 const CONTACTS = [
-  { cle: "whatsapp_visi", valeur: "whatsapp", ico: "💬", nom: "WhatsApp", exemple: "WhatsApp : +226 70 00 00 00" },
-  { cle: "email_visi", valeur: "email_contact", ico: "✉️", nom: "Email", exemple: "Email de contact" },
-  { cle: "linkedin_visi", valeur: "linkedin", ico: "💼", nom: "LinkedIn", exemple: "LinkedIn : lien ou pseudo" },
+  { cle: "whatsapp_visi", valeur: "whatsapp", Ico: IconeWhatsApp, nom: "WhatsApp", exemple: "WhatsApp : +226 70 00 00 00" },
+  { cle: "email_visi", valeur: "email_contact", Ico: Mail, nom: "Email", exemple: "Email de contact" },
+  { cle: "linkedin_visi", valeur: "linkedin", Ico: IconeLinkedin, nom: "LinkedIn", exemple: "LinkedIn : lien ou pseudo" },
 ];
 
 export default function MonProfil() {
@@ -160,7 +162,7 @@ export default function MonProfil() {
         </div>
 
         <div className="e-ligne">
-          <span className="ico" aria-hidden>🤝</span>
+          <span className="ico"><Handshake size={16} strokeWidth={1.8} aria-hidden /></span>
           <span className="val">Je réponds aux cadets</span>
           <div className="seg">
             <button className={profil.repond_cadets ? "on" : ""}
@@ -175,7 +177,7 @@ export default function MonProfil() {
           <div className="e-visi">
             {CONTACTS.map((c) => (
               <div key={c.cle} className="e-ligne" style={{ rowGap: 8 }}>
-                <span className="ico" aria-hidden>{c.ico}</span>
+                <span className="ico"><c.Ico size={16} aria-hidden /></span>
                 <input
                   className="saisie"
                   style={{ flex: 1, minWidth: 140, padding: "10px 12px", fontSize: 13 }}

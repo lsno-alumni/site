@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
+import { Mail, Lock } from "lucide-react";
+import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { lireProfil, lireContacts } from "@/lib/api";
 
@@ -21,25 +23,30 @@ export default async function PageProfil({ params }) {
 
   const domaine = DOMAINES.find((d) => d.cle === p.domaine);
 
+  const verrou = (
+    <>
+      <Lock size={11} aria-hidden style={{ verticalAlign: "-1px" }} /> sur demande
+    </>
+  );
   const lignes = [
     contacts?.whatsapp && {
-      ico: "💬", nom: "WhatsApp", href: lienWhatsApp(contacts.whatsapp), note: "ouvrir la discussion",
+      Ico: IconeWhatsApp, nom: "WhatsApp", href: lienWhatsApp(contacts.whatsapp), note: "ouvrir la discussion",
     },
     contacts?.linkedin && {
-      ico: "💼", nom: "LinkedIn", href: lienLinkedIn(contacts.linkedin), note: "voir le profil",
+      Ico: IconeLinkedin, nom: "LinkedIn", href: lienLinkedIn(contacts.linkedin), note: "voir le profil",
     },
     contacts?.email && {
-      ico: "✉️", nom: "Email", href: `mailto:${contacts.email}`, note: contacts.email,
+      Ico: Mail, nom: "Email", href: `mailto:${contacts.email}`, note: contacts.email,
     },
     // « sur demande » : la ligne existe, la valeur reste dans la base
     !contacts?.whatsapp && contacts?.visi?.whatsapp === "demande" && {
-      ico: "💬", nom: "WhatsApp", note: "🔒 sur demande",
+      Ico: IconeWhatsApp, nom: "WhatsApp", note: verrou,
     },
     !contacts?.linkedin && contacts?.visi?.linkedin === "demande" && {
-      ico: "💼", nom: "LinkedIn", note: "🔒 sur demande",
+      Ico: IconeLinkedin, nom: "LinkedIn", note: verrou,
     },
     !contacts?.email && contacts?.visi?.email === "demande" && {
-      ico: "✉️", nom: "Email", note: "🔒 sur demande",
+      Ico: Mail, nom: "Email", note: verrou,
     },
   ].filter(Boolean);
 
@@ -97,13 +104,13 @@ export default async function PageProfil({ params }) {
           {lignes.map((l) =>
             l.href ? (
               <a key={l.nom} className="contact" href={l.href} target="_blank" rel="noopener noreferrer">
-                <span className="ico" aria-hidden>{l.ico}</span>
+                <span className="ico"><l.Ico size={17} aria-hidden /></span>
                 <span className="val">{l.nom}</span>
                 <span className="visi">{l.note} ↗</span>
               </a>
             ) : (
               <div key={l.nom} className="contact" style={{ cursor: "default" }}>
-                <span className="ico" aria-hidden>{l.ico}</span>
+                <span className="ico"><l.Ico size={17} aria-hidden /></span>
                 <span className="val">{l.nom}</span>
                 <span className="visi">{l.note}</span>
               </div>

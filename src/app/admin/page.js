@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
+import { Lock, Search } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 // Espace délégué / admin : validation des inscriptions, avec annulation.
@@ -96,7 +97,7 @@ export default function Validation() {
     return (
       <main className="page avec-tabbar">
         <div className="vide" style={{ paddingTop: 100 }}>
-          <div className="gros" aria-hidden>🔒</div>
+          <div className="gros" aria-hidden><Lock size={30} strokeWidth={1.6} /></div>
           <b>Espace réservé</b>
           Cette page est réservée aux délégués de promotion et aux administrateurs.
         </div>
@@ -154,7 +155,7 @@ export default function Validation() {
             </p>
             <input
               className="saisie"
-              placeholder="⌕ Chercher un membre…"
+              placeholder="Chercher un membre…"
               value={rechercheRole}
               onChange={(e) => setRechercheRole(e.target.value)}
               aria-label="Chercher un membre"

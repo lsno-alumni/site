@@ -3,6 +3,7 @@ import Reveal from "@/components/Reveal";
 import Compteur from "@/components/Compteur";
 import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
+import IconeDomaine from "@/components/IconeDomaine";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques } from "@/lib/api";
 
@@ -48,7 +49,7 @@ export default async function Accueil() {
         <div className="doms">
           {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
             <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
-              <span className="pictol" aria-hidden>{d.icone}</span>
+              <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
               <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
               <span className="nb"><Compteur valeur={parDomaine[d.cle] ?? 0} /></span>
               <span className="fl" aria-hidden>→</span>

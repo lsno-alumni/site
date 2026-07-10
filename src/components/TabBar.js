@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Users, Info, CircleUser, ShieldCheck } from "lucide-react";
 
 const ONGLETS = [
-  { href: "/annuaire", ico: "⌕", nom: "Annuaire" },
-  { href: "/a-propos", ico: "ⓘ", nom: "À propos" },
-  { href: "/mon-profil", ico: "◍", nom: "Mon profil" },
-  { href: "/admin", ico: "✓", nom: "Validation" },
+  { href: "/annuaire", Icone: Users, nom: "Annuaire" },
+  { href: "/a-propos", Icone: Info, nom: "À propos" },
+  { href: "/mon-profil", Icone: CircleUser, nom: "Mon profil" },
+  { href: "/admin", Icone: ShieldCheck, nom: "Validation" },
 ];
 
 export default function TabBar({ actif }) {
@@ -12,7 +13,7 @@ export default function TabBar({ actif }) {
     <nav className="tabbar" aria-label="Navigation principale">
       {ONGLETS.map((o) => (
         <Link key={o.href} href={o.href} className={`tab${actif === o.nom ? " on" : ""}`}>
-          <span className="tico" aria-hidden>{o.ico}</span>
+          <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
         </Link>
       ))}

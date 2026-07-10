@@ -13,7 +13,7 @@
 }
 .a-hero::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
-  background: url("/img/hero1.jpg") 60% 20%/cover;
+  background: url("/img/lsno_hero.jpg") center 25%/cover;
 }
 .a-hero::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
@@ -126,7 +126,7 @@
 }
 .n-tete::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
-  background: url("/img/v3_06.jpg") center/cover;
+  background: url("/img/lsno_portail.jpg") center 35%/cover;
   animation: kb 30s ease-in-out infinite alternate;
 }
 .n-tete::after {
@@ -181,7 +181,7 @@
 .vide b { color: var(--craie); display: block; font-size: 16px; font-family: var(--font-titres), serif; margin-bottom: 4px; }
 
 /* ---------- PROFIL ---------- */
-.p-cover { height: 150px; background: url("/img/bg_study.jpg") center/cover; position: relative; }
+.p-cover { height: 150px; background: url("/img/lsno_promo1.jpg") center 30%/cover; position: relative; }
 .p-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,27,51,.25), var(--encre)); }
 .p-retour {
   position: absolute; top: 18px; left: 18px; z-index: 5; width: 36px; height: 36px; border-radius: 50%;
@@ -217,7 +217,9 @@
 
 /* ---------- FORMULAIRES (inscription / connexion / édition) ---------- */
 .f-tete { padding: 26px 24px 8px; position: relative; isolation: isolate; overflow: hidden; }
-.f-tete::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/img/v3_07.jpg") center/cover; animation: kb 30s ease-in-out infinite alternate; }
+.f-tete::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/img/lsno_groupe.jpg") center 30%/cover; animation: kb 30s ease-in-out infinite alternate; }
+/* variante campus (page À propos) */
+.tete-campus::before { background-image: url("/img/lsno_campus.jpg"); background-position: center 60%; }
 .f-tete::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,27,51,.72) 0%, rgba(10,27,51,.9) 55%, var(--encre) 100%); }
 .f-tete .retour { color: var(--brume); font-size: 13px; display: inline-block; padding: 4px 0; }
 .f-tete h1 { font-size: 26px; margin-top: 16px; line-height: 1.15; }

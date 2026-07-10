@@ -23,6 +23,24 @@ export default function APropos() {
           confirmée par un délégué de promotion.
         </p>
         <p className="tagline" style={{ marginTop: 10 }}>Travail · Excellence · Discipline</p>
+
+        <div style={{ borderTop: "1px solid var(--ligne)", paddingTop: 18, marginTop: 10, fontSize: 12.5, color: "var(--brume)", lineHeight: 1.65 }}>
+          <p style={{ fontSize: 11, letterSpacing: ".25em", textTransform: "uppercase", color: "var(--or)", marginBottom: 8 }}>
+            Mentions
+          </p>
+          <p>
+            Plateforme associative à but non lucratif, éditée et administrée bénévolement par
+            des anciens élèves du LSNO — indépendante de l&apos;administration du lycée.
+            Contact : <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>lsno.alumni@gmail.com</a>.
+          </p>
+          <p style={{ marginTop: 8 }}>
+            Hébergement : Vercel Inc. · données stockées chez Supabase (Union européenne).
+            Chaque membre choisit la visibilité de ses informations, peut les rectifier à tout
+            moment et supprimer définitivement son compte et ses données depuis « Mon profil ».
+            Le site n&apos;utilise que des cookies de session, indispensables à la connexion —
+            aucun traceur publicitaire.
+          </p>
+        </div>
       </div>
       <TabBar actif="À propos" />
     </main>

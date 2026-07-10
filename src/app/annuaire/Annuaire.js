@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
-import { DOMAINES, PAYS, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
+import { DOMAINES, PAYS, LISTE_PAYS, nomPays, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
   { cle: "tous", nom: "Tous" },
@@ -27,7 +27,7 @@ export default function Annuaire({ membres }) {
       if (pays && m.pays !== pays) return false;
       if (situation && m.situation !== situation) return false;
       if (t) {
-        const texte = [m.prenom, m.nom, m.statut, m.ville, PAYS[m.pays]?.nom]
+        const texte = [m.prenom, m.nom, m.statut, m.ville, nomPays(m.pays ?? "")]
           .join(" ").toLowerCase();
         if (!texte.includes(t)) return false;
       }
@@ -81,8 +81,8 @@ export default function Annuaire({ membres }) {
         </select>
         <select className="puce" value={pays} onChange={(e) => setPays(e.target.value)} aria-label="Filtrer par pays">
           <option value="">Pays — tous</option>
-          {Object.entries(PAYS).map(([code, p]) => (
-            <option key={code} value={code}>{p.nom}</option>
+          {LISTE_PAYS.filter(([code]) => membres.some((m) => m.pays === code)).map(([code, nom]) => (
+            <option key={code} value={code}>{nom}</option>
           ))}
         </select>
         <select className="puce" value={situation} onChange={(e) => setSituation(e.target.value)} aria-label="Filtrer par situation">

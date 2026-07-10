@@ -7,7 +7,7 @@ import TabBar from "@/components/TabBar";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { SITUATIONS } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -136,9 +136,14 @@ export default function MonProfil() {
             <input id="ville" className="saisie" value={profil.ville ?? ""} onChange={majChamp("ville")} />
           </div>
           <div>
-            <label htmlFor="pays">Pays (code : BF, MA…)</label>
-            <input id="pays" className="saisie" maxLength={2} placeholder="BF"
-              value={profil.pays ?? ""} onChange={(e) => setProfil({ ...profil, pays: e.target.value.toUpperCase() })} />
+            <label htmlFor="pays">Pays</label>
+            <select id="pays" className="saisie" value={profil.pays ?? ""}
+              onChange={(e) => setProfil({ ...profil, pays: e.target.value || null })}>
+              <option value="">— Choisir —</option>
+              {LISTE_PAYS.map(([code, nom]) => (
+                <option key={code} value={code}>{nom}</option>
+              ))}
+            </select>
           </div>
         </div>
 

@@ -80,7 +80,7 @@ export default function Validation() {
 
   return (
     <main className="page avec-tabbar">
-      <header className="n-tete" style={{ paddingBottom: 18 }}>
+      <header className="n-tete tete-eleves" style={{ paddingBottom: 18 }}>
         <p className="tagline">
           {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
         </p>

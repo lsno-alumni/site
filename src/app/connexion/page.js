@@ -57,7 +57,7 @@ export default function Connexion() {
 
   return (
     <main className="page">
-      <header className="f-tete" style={{ paddingTop: 20 }}>
+      <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <Link href="/" className="retour">← Retour</Link>
         <h1>Content de<br />te <em>revoir.</em></h1>
         <p>Connecte-toi pour retrouver le réseau.</p>

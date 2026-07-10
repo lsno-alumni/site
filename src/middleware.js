@@ -38,5 +38,7 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|img/).*)"],
+  // exclut les internes Next, les images ET tout fichier statique
+  // (robots.txt, sitemap.xml, vérification Google… : chemins avec extension)
+  matcher: ["/((?!_next/static|_next/image|img/|.*\\..*).*)"],
 };

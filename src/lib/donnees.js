@@ -6,14 +6,14 @@
 // ============================================================
 
 export const DOMAINES = [
-  { cle: "info", nom: "Informatique & numérique", detail: "Dév, data, cybersécurité…", icone: "💻" },
-  { cle: "sante", nom: "Santé & médecine", detail: "Médecine, pharmacie…", icone: "⚕️" },
-  { cle: "inge", nom: "Ingénierie", detail: "Génie civil, élec, méca…", icone: "⚙️" },
-  { cle: "maths", nom: "Maths & recherche", detail: "Prépa, enseignement sup…", icone: "📐" },
-  { cle: "eco", nom: "Économie & finance", detail: "Éco, gestion, banque…", icone: "📊" },
-  { cle: "agro", nom: "Agronomie & environnement", detail: "Agro, eau, énergie…", icone: "🌱" },
-  { cle: "enseignement", nom: "Enseignement", detail: "Professorat, pédagogie…", icone: "📚" },
-  { cle: "autre", nom: "Autre", detail: "Tous les autres horizons", icone: "✦" },
+  { cle: "info", nom: "Informatique & numérique", detail: "Dév, data, cybersécurité…" },
+  { cle: "sante", nom: "Santé & médecine", detail: "Médecine, pharmacie…" },
+  { cle: "inge", nom: "Ingénierie", detail: "Génie civil, élec, méca…" },
+  { cle: "maths", nom: "Maths & recherche", detail: "Prépa, enseignement sup…" },
+  { cle: "eco", nom: "Économie & finance", detail: "Éco, gestion, banque…" },
+  { cle: "agro", nom: "Agronomie & environnement", detail: "Agro, eau, énergie…" },
+  { cle: "enseignement", nom: "Enseignement", detail: "Professorat, pédagogie…" },
+  { cle: "autre", nom: "Autre", detail: "Tous les autres horizons" },
 ];
 
 export const SITUATIONS = [

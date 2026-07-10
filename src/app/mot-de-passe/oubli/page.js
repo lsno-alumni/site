@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { MailCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 export default function MotDePasseOublie() {
@@ -36,7 +37,7 @@ export default function MotDePasseOublie() {
 
       {envoye ? (
         <div className="succes">
-          <div className="coche" aria-hidden>✉️</div>
+          <div className="coche" aria-hidden><MailCheck size={30} strokeWidth={2} /></div>
           <h2>Email envoyé</h2>
           <p>
             Si un compte existe pour <b>{email}</b>, tu recevras un lien

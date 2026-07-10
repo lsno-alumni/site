@@ -129,7 +129,7 @@ export default function Inscription() {
                 <label htmlFor="domaine">Domaine principal</label>
                 <select id="domaine" className="saisie" value={form.domaine} onChange={maj("domaine")}>
                   {DOMAINES.map((d) => (
-                    <option key={d.cle} value={d.cle}>{d.icone} {d.nom}</option>
+                    <option key={d.cle} value={d.cle}>{d.nom}</option>
                   ))}
                 </select>
               </div>

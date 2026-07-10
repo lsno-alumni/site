@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
+import { Search } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
@@ -47,7 +48,7 @@ export default function Annuaire({ membres }) {
             : "Aucun profil"}
         </p>
         <div className="n-cherche">
-          <span aria-hidden>⌕</span>
+          <Search size={16} strokeWidth={1.8} aria-hidden style={{ color: "var(--brume)", flexShrink: 0 }} />
           <input
             type="search"
             placeholder="Nom, école, ville, spécialité…"
@@ -117,7 +118,7 @@ export default function Annuaire({ membres }) {
         ))}
         {resultats.length === 0 && (
           <div className="vide">
-            <div className="gros" aria-hidden>⌕</div>
+            <div className="gros" aria-hidden><Search size={30} strokeWidth={1.6} /></div>
             <b>Personne ne correspond</b>
             Essaie un autre nom, une autre ville,<br />ou retire les filtres.
             <div style={{ marginTop: 14 }}>

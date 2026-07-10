@@ -34,7 +34,7 @@ export default function APropos() {
             Contact : <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>lsno.alumni@gmail.com</a>.
           </p>
           <p style={{ marginTop: 8 }}>
-            Hébergement : Vercel Inc. · données stockées chez Supabase (Union européenne).
+            Hébergement : Vercel · données stockées chez Supabase.
             Chaque membre choisit la visibilité de ses informations, peut les rectifier à tout
             moment et supprimer définitivement son compte et ses données depuis « Mon profil ».
             Le site n&apos;utilise que des cookies de session, indispensables à la connexion —

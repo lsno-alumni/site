@@ -11,8 +11,10 @@ export default function Validation() {
   const supabase = creerClientNavigateur();
   const [moi, setMoi] = useState(null);
   const [demandes, setDemandes] = useState([]);
+  const [membres, setMembres] = useState([]);
+  const [rechercheRole, setRechercheRole] = useState("");
   const [stats, setStats] = useState({ valides: 0 });
-  const [snack, setSnack] = useState(null); // { demande, valide }
+  const [snack, setSnack] = useState(null); // { demande, valide } ou { info }
   const minuteur = useRef(null);
 
   const charger = async () => {
@@ -35,6 +37,15 @@ export default function Validation() {
       .select("id", { count: "exact", head: true })
       .eq("statut_compte", "valide");
     setStats({ valides: count ?? 0 });
+
+    if (profil.role === "admin") {
+      const { data: valides } = await supabase
+        .from("profiles")
+        .select("id, prenom, nom, role, promotions(numero)")
+        .eq("statut_compte", "valide")
+        .order("prenom");
+      setMembres(valides ?? []);
+    }
   };
 
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -55,6 +66,22 @@ export default function Validation() {
     setSnack({ demande: d, valide });
     clearTimeout(minuteur.current);
     minuteur.current = setTimeout(() => setSnack(null), 4200);
+  };
+
+  const membresFiltres = membres.filter((m) =>
+    `${m.prenom} ${m.nom}`.toLowerCase().includes(rechercheRole.trim().toLowerCase())
+  );
+
+  const changerRole = async (m, role) => {
+    const { error } = await supabase.from("profiles").update({ role }).eq("id", m.id);
+    if (error) {
+      setSnack({ erreur: "Refusé : " + error.message });
+    } else {
+      setMembres((l) => l.map((x) => (x.id === m.id ? { ...x, role } : x)));
+      setSnack({ info: `${m.prenom} ${m.nom} → ${role === "delegue" ? "délégué·e ✓" : "membre"}` });
+    }
+    clearTimeout(minuteur.current);
+    minuteur.current = setTimeout(() => setSnack(null), 3500);
   };
 
   const annuler = async () => {
@@ -118,12 +145,54 @@ export default function Validation() {
         <div className="e-stat" style={{ gridTemplateColumns: "auto 1fr" }}>
           <b>{stats.valides}</b><span>membres validés</span>
         </div>
+
+        {moi?.role === "admin" && (
+          <>
+            <h2 className="a-titre" style={{ marginTop: 18 }}>Rôles</h2>
+            <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6 }}>
+              Un délégué valide les inscriptions de sa promotion.
+            </p>
+            <input
+              className="saisie"
+              placeholder="⌕ Chercher un membre…"
+              value={rechercheRole}
+              onChange={(e) => setRechercheRole(e.target.value)}
+              aria-label="Chercher un membre"
+            />
+            {membresFiltres.map((m) => (
+              <div key={m.id} className="e-ligne">
+                <span className="val">
+                  <b style={{ fontSize: 13.5 }}>{m.prenom} {m.nom}</b>
+                  <span style={{ color: "var(--brume)", fontSize: 12 }}>
+                    {" "}· Promo {m.promotions?.numero}
+                    {m.role === "admin" && " · admin"}
+                    {m.role === "delegue" && " · délégué·e"}
+                  </span>
+                </span>
+                {m.role === "admin" ? (
+                  <span style={{ fontSize: 11, color: "var(--or-clair)" }}>—</span>
+                ) : m.role === "delegue" ? (
+                  <button className="btn btn-nu" style={{ padding: "8px 14px", fontSize: 12 }}
+                    onClick={() => changerRole(m, "membre")}>
+                    Retirer délégué
+                  </button>
+                ) : (
+                  <button className="btn btn-or" style={{ padding: "8px 14px", fontSize: 12 }}
+                    onClick={() => changerRole(m, "delegue")}>
+                    Faire délégué·e
+                  </button>
+                )}
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       <div className={`toast${snack ? " la" : ""}`} role="status">
         {snack?.erreur}
-        {snack && !snack.erreur && (snack.valide ? "Membre validé ✓" : "Demande refusée")}
-        {snack && !snack.erreur && (
+        {snack?.info}
+        {snack && !snack.erreur && !snack.info && (snack.valide ? "Membre validé ✓" : "Demande refusée")}
+        {snack && !snack.erreur && !snack.info && (
           <button onClick={annuler} style={{
             border: "none", background: "none", fontWeight: 800, color: "#8A6A1D",
             marginLeft: 12, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3,

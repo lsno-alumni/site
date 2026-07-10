@@ -31,6 +31,23 @@ export const PAYS = {
   SN: { nom: "Sénégal", drapeau: "/img/v3_04.png" },
 };
 
+// Liste de sélection du profil (destinations fréquentes des anciens).
+// Un pays sans drapeau dans PAYS s'affiche simplement sans icône.
+export const LISTE_PAYS = [
+  ["BF", "Burkina Faso"], ["MA", "Maroc"], ["SN", "Sénégal"], ["CI", "Côte d'Ivoire"],
+  ["TN", "Tunisie"], ["DZ", "Algérie"], ["TG", "Togo"], ["BJ", "Bénin"],
+  ["NE", "Niger"], ["ML", "Mali"], ["GH", "Ghana"], ["CM", "Cameroun"],
+  ["RW", "Rwanda"], ["ZA", "Afrique du Sud"], ["EG", "Égypte"],
+  ["FR", "France"], ["BE", "Belgique"], ["DE", "Allemagne"], ["CH", "Suisse"],
+  ["GB", "Royaume-Uni"], ["US", "États-Unis"], ["CA", "Canada"],
+  ["CN", "Chine"], ["JP", "Japon"], ["TR", "Turquie"], ["RU", "Russie"],
+  ["SA", "Arabie saoudite"], ["AE", "Émirats arabes unis"], ["XX", "Autre pays"],
+];
+
+export function nomPays(code) {
+  return LISTE_PAYS.find(([c]) => c === code)?.[1] ?? code;
+}
+
 export const PROMOTIONS = Array.from({ length: 9 }, (_, i) => ({
   numero: i + 1,
   anneeEntree: 2017 + i,

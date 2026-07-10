@@ -90,6 +90,18 @@ export async function statsPubliques() {
   };
 }
 
+export async function lireContacts(id) {
+  // Valeurs filtrées PAR LA BASE selon la visibilité choisie par le membre :
+  // une valeur « demande » ou « masqué » ne quitte jamais Postgres.
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("contacts_de", { cible: id });
+  if (error) {
+    console.error("lireContacts:", error.message);
+    return null;
+  }
+  return data;
+}
+
 export async function utilisateurCourant() {
   const supabase = await creerClientServeur();
   const { data: { user } } = await supabase.auth.getUser();

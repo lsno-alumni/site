@@ -16,9 +16,9 @@ const VISIBILITES = [
 ];
 
 const CONTACTS = [
-  { cle: "whatsapp_visi", ico: "💬", nom: "WhatsApp" },
-  { cle: "email_visi", ico: "✉️", nom: "Email" },
-  { cle: "linkedin_visi", ico: "💼", nom: "LinkedIn" },
+  { cle: "whatsapp_visi", valeur: "whatsapp", ico: "💬", nom: "WhatsApp", exemple: "WhatsApp : +226 70 00 00 00" },
+  { cle: "email_visi", valeur: "email_contact", ico: "✉️", nom: "Email", exemple: "Email de contact" },
+  { cle: "linkedin_visi", valeur: "linkedin", ico: "💼", nom: "LinkedIn", exemple: "LinkedIn : lien ou pseudo" },
 ];
 
 export default function MonProfil() {
@@ -36,7 +36,14 @@ export default function MonProfil() {
         .select("id, prenom, nom, situation, statut_titre, conseil, ville, pays, repond_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
         .eq("id", user.id)
         .maybeSingle();
-      setProfil(data);
+      // les valeurs de contact ne sont lisibles que via cette fonction
+      const { data: contacts } = await supabase.rpc("mes_contacts");
+      setProfil({
+        ...data,
+        whatsapp: contacts?.whatsapp ?? "",
+        email_contact: contacts?.email ?? "",
+        linkedin: contacts?.linkedin ?? "",
+      });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -159,12 +166,19 @@ export default function MonProfil() {
         </div>
 
         <div className="champ">
-          <label>Qui peut voir mes contacts ?</label>
+          <label>Mes contacts — et qui peut les voir</label>
           <div className="e-visi">
             {CONTACTS.map((c) => (
-              <div key={c.cle} className="e-ligne">
+              <div key={c.cle} className="e-ligne" style={{ rowGap: 8 }}>
                 <span className="ico" aria-hidden>{c.ico}</span>
-                <span className="val">{c.nom}</span>
+                <input
+                  className="saisie"
+                  style={{ flex: 1, minWidth: 140, padding: "10px 12px", fontSize: 13 }}
+                  placeholder={c.exemple}
+                  aria-label={c.nom}
+                  value={profil[c.valeur] ?? ""}
+                  onChange={majChamp(c.valeur)}
+                />
                 <div className="seg" role="radiogroup" aria-label={`Visibilité ${c.nom}`}>
                   {VISIBILITES.map((v) => (
                     <button key={v.cle}
@@ -178,6 +192,10 @@ export default function MonProfil() {
               </div>
             ))}
           </div>
+          <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
+            « Membres » : cliquable par les membres validés · « Demande » : ils voient que le
+            contact existe, pas sa valeur · « Masqué » : invisible.
+          </p>
         </div>
 
         <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>

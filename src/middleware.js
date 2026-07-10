@@ -25,11 +25,22 @@ export async function middleware(req) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // getClaims : vérifie le jeton LOCALEMENT (signature ES256) — pas d'appel
+  // réseau vers Supabase à chaque navigation. Sur mobile hésitant, l'ancien
+  // getUser() expirait parfois et éjectait des membres pourtant connectés.
+  let connecte = false;
+  try {
+    const { data } = await supabase.auth.getClaims();
+    connecte = Boolean(data?.claims);
+  } catch {
+    // vérification impossible (réseau) : on laisse passer — la RLS de la
+    // base reste le vrai gardien des données, le middleware n'est que l'UX.
+    connecte = true;
+  }
 
   const chemin = req.nextUrl.pathname;
   const publique = PUBLIQUES.includes(chemin);
-  if (!user && !publique) {
+  if (!connecte && !publique) {
     const url = req.nextUrl.clone();
     url.pathname = "/connexion";
     return NextResponse.redirect(url);

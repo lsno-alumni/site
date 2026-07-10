@@ -52,8 +52,9 @@ export default function Connexion() {
       );
       return;
     }
-    routeur.push("/annuaire");
-    routeur.refresh();
+    // navigation complète (pas côté client) : les cookies de session partent
+    // à coup sûr avec la requête — fiable même sur Samsung Internet / réseau lent
+    window.location.assign("/annuaire");
   };
 
   return (

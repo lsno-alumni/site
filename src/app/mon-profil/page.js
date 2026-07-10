@@ -87,7 +87,7 @@ export default function MonProfil() {
 
   return (
     <main className="page avec-tabbar">
-      <header className="f-tete" style={{ paddingTop: 20 }}>
+      <header className="f-tete tete-etude" style={{ paddingTop: 20 }}>
         <Link href="/annuaire" className="retour">← Annuaire</Link>
         <h1>Modifier<br />mon <em>profil</em></h1>
         <p>

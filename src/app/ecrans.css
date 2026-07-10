@@ -13,7 +13,7 @@
 }
 .a-hero::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
-  background: url("/img/lsno_hero.jpg") center 25%/cover;
+  background: url("/img/hero1.jpg") 60% 20%/cover;
 }
 .a-hero::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
@@ -126,9 +126,11 @@
 }
 .n-tete::before {
   content: ""; position: absolute; inset: 0; z-index: -2;
-  background: url("/img/lsno_portail.jpg") center 35%/cover;
+  background: url("/img/lsno_promo1.jpg") center 30%/cover;
   animation: kb 30s ease-in-out infinite alternate;
 }
+/* variante « élèves en marche » (espace Validation) */
+.tete-eleves::before { background-image: url("/img/lsno_hero.jpg"); background-position: center 25%; }
 .n-tete::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(180deg, rgba(10,27,51,.78) 0%, rgba(10,27,51,.92) 55%, var(--encre) 100%);
@@ -220,6 +222,8 @@
 .f-tete::before { content: ""; position: absolute; inset: 0; z-index: -2; background: url("/img/lsno_groupe.jpg") center 30%/cover; animation: kb 30s ease-in-out infinite alternate; }
 /* variante campus (page À propos) */
 .tete-campus::before { background-image: url("/img/lsno_campus.jpg"); background-position: center 60%; }
+/* variante portail (page Connexion) */
+.tete-portail::before { background-image: url("/img/lsno_portail.jpg"); background-position: center 35%; }
 .f-tete::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(10,27,51,.72) 0%, rgba(10,27,51,.9) 55%, var(--encre) 100%); }
 .f-tete .retour { color: var(--brume); font-size: 13px; display: inline-block; padding: 4px 0; }
 .f-tete h1 { font-size: 26px; margin-top: 16px; line-height: 1.15; }

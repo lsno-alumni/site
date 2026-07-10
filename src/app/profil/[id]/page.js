@@ -3,26 +3,45 @@ import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
 import { DOMAINES, PAYS } from "@/lib/donnees";
-import { lireProfil } from "@/lib/api";
+import { lireProfil, lireContacts } from "@/lib/api";
 
-const LIBELLE_VISI = {
-  membres: "visible des membres",
-  demande: "🔒 sur demande",
-  masque: null, // masqué : la ligne n'apparaît pas du tout
-};
-
-const CONTACTS = [
-  { cle: "whatsapp", ico: "💬", nom: "WhatsApp" },
-  { cle: "linkedin", ico: "💼", nom: "LinkedIn" },
-  { cle: "email", ico: "✉️", nom: "Email" },
-];
+function lienWhatsApp(v) {
+  const chiffres = v.replace(/[^\d+]/g, "").replace(/^\+/, "");
+  return `https://wa.me/${chiffres}`;
+}
+function lienLinkedIn(v) {
+  if (v.startsWith("http")) return v;
+  return `https://www.linkedin.com/in/${v.replace(/^@/, "")}`;
+}
 
 export default async function PageProfil({ params }) {
   const { id } = await params;
-  const p = await lireProfil(id);
+  const [p, contacts] = await Promise.all([lireProfil(id), lireContacts(id)]);
   if (!p) notFound();
 
   const domaine = DOMAINES.find((d) => d.cle === p.domaine);
+
+  const lignes = [
+    contacts?.whatsapp && {
+      ico: "💬", nom: "WhatsApp", href: lienWhatsApp(contacts.whatsapp), note: "ouvrir la discussion",
+    },
+    contacts?.linkedin && {
+      ico: "💼", nom: "LinkedIn", href: lienLinkedIn(contacts.linkedin), note: "voir le profil",
+    },
+    contacts?.email && {
+      ico: "✉️", nom: "Email", href: `mailto:${contacts.email}`, note: contacts.email,
+    },
+    // « sur demande » : la ligne existe, la valeur reste dans la base
+    !contacts?.whatsapp && contacts?.visi?.whatsapp === "demande" && {
+      ico: "💬", nom: "WhatsApp", note: "🔒 sur demande",
+    },
+    !contacts?.linkedin && contacts?.visi?.linkedin === "demande" && {
+      ico: "💼", nom: "LinkedIn", note: "🔒 sur demande",
+    },
+    !contacts?.email && contacts?.visi?.email === "demande" && {
+      ico: "✉️", nom: "Email", note: "🔒 sur demande",
+    },
+  ].filter(Boolean);
 
   return (
     <main className="page avec-tabbar">
@@ -35,15 +54,13 @@ export default async function PageProfil({ params }) {
         <p className="statut">{p.statut}</p>
         <div className="p-meta">
           <span className="meta doree">Promotion {p.promotion}</span>
-          <span className="meta">
-            {PAYS[p.pays] && <img className="drapo" src={PAYS[p.pays].drapeau} alt="" />} {p.ville}
-          </span>
+          {p.ville && (
+            <span className="meta">
+              {PAYS[p.pays] && <img className="drapo" src={PAYS[p.pays].drapeau} alt="" />} {p.ville}
+            </span>
+          )}
           <span className="meta">{domaine?.nom}</span>
           {p.repondAuxCadets && <span className="meta verte">● Répond aux cadets</span>}
-        </div>
-        <div className="p-actions">
-          <button className="btn btn-or">Prendre contact</button>
-          <button className="btn btn-nu">Partager</button>
         </div>
       </div>
 
@@ -72,19 +89,28 @@ export default async function PageProfil({ params }) {
         </section>
       )}
 
-      <section className="p-contacts">
-        {CONTACTS.map((c) => {
-          const visi = LIBELLE_VISI[p.contacts[c.cle]];
-          if (!visi) return null;
-          return (
-            <button key={c.cle} className="contact">
-              <span className="ico" aria-hidden>{c.ico}</span>
-              <span className="val">{c.nom}</span>
-              <span className="visi">{visi}</span>
-            </button>
-          );
-        })}
-      </section>
+      {lignes.length > 0 && (
+        <section className="p-contacts">
+          <h4 style={{ fontSize: 11, letterSpacing: ".3em", textTransform: "uppercase", color: "var(--or)", marginBottom: 6 }}>
+            Contact
+          </h4>
+          {lignes.map((l) =>
+            l.href ? (
+              <a key={l.nom} className="contact" href={l.href} target="_blank" rel="noopener noreferrer">
+                <span className="ico" aria-hidden>{l.ico}</span>
+                <span className="val">{l.nom}</span>
+                <span className="visi">{l.note} ↗</span>
+              </a>
+            ) : (
+              <div key={l.nom} className="contact" style={{ cursor: "default" }}>
+                <span className="ico" aria-hidden>{l.ico}</span>
+                <span className="val">{l.nom}</span>
+                <span className="visi">{l.note}</span>
+              </div>
+            )
+          )}
+        </section>
+      )}
 
       <TabBar actif="Annuaire" />
     </main>

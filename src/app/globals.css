@@ -17,7 +17,9 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: var(--encre); }
+/* supprime l'étirement élastique Android qui découvre les bords des dégradés */
+body { overscroll-behavior-y: none; }
 body {
   background: var(--encre);
   color: var(--craie);

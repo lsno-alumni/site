@@ -302,6 +302,17 @@
 .a-hero::before, .a-monde::before { animation: kb 30s ease-in-out infinite alternate; will-change: transform; }
 .n-tete::before, .f-tete::before { will-change: transform; }
 
+/* anti-couture : les fonds photo et leurs dégradés débordent de 3px
+   (les arrondis de rendu découvraient un liseré au bord des en-têtes),
+   et le dégradé atteint l'encre pleine avant le bord bas */
+.n-tete::before, .n-tete::after, .f-tete::before, .f-tete::after { inset: -3px; }
+.n-tete::after {
+  background: linear-gradient(180deg, rgba(10,27,51,.78) 0%, rgba(10,27,51,.94) 55%, var(--encre) 92%);
+}
+.f-tete::after {
+  background: linear-gradient(180deg, rgba(10,27,51,.72) 0%, rgba(10,27,51,.94) 55%, var(--encre) 92%);
+}
+
 /* apparition au défilement (composant Reveal) */
 .rev { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1); }
 .rev.vu { opacity: 1; transform: none; }

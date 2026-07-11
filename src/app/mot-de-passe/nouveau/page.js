@@ -35,7 +35,10 @@ export default function NouveauMotDePasse() {
 
   const valider = async (e) => {
     e.preventDefault();
-    if (mdp.length < 8) { setErreur("8 caractères minimum."); return; }
+    if (mdp.length < 8 || !/[A-Z]/.test(mdp) || !/\d/.test(mdp)) {
+      setErreur("Le mot de passe doit faire au moins 8 caractères et contenir une majuscule et un chiffre.");
+      return;
+    }
     if (mdp !== confirmation) { setErreur("Les deux saisies ne correspondent pas."); return; }
     setEnCours(true);
     setErreur("");
@@ -54,7 +57,7 @@ export default function NouveauMotDePasse() {
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <Link href="/connexion" className="retour">← Connexion</Link>
         <h1>Nouveau<br /><em>mot de passe</em></h1>
-        <p>Choisis un mot de passe solide (8 caractères minimum).</p>
+        <p>Au moins 8 caractères, avec une majuscule et un chiffre.</p>
       </header>
 
       {fini ? (

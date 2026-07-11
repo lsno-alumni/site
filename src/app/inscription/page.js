@@ -20,7 +20,13 @@ export default function Inscription() {
   });
 
   const maj = (champ) => (e) => setForm({ ...form, [champ]: e.target.value });
-  const etape1Ok = form.prenom && form.nom && form.email.includes("@") && form.motDePasse.length >= 8;
+  const reglesMdp = [
+    { ok: form.motDePasse.length >= 8, txt: "8 caractères" },
+    { ok: /[A-Z]/.test(form.motDePasse), txt: "une majuscule" },
+    { ok: /\d/.test(form.motDePasse), txt: "un chiffre" },
+  ];
+  const mdpOk = reglesMdp.every((r) => r.ok);
+  const etape1Ok = form.prenom && form.nom && form.email.includes("@") && mdpOk;
   const etape2Ok = form.promotion !== null;
 
   const envoyer = async () => {
@@ -99,8 +105,15 @@ export default function Inscription() {
                 <label htmlFor="email">Email</label>
                 <input id="email" type="email" className="saisie" value={form.email} onChange={maj("email")} autoComplete="email" />
               </div>
-              <ChampMotDePasse id="mdp" label="Mot de passe (8 caractères min.)"
+              <ChampMotDePasse id="mdp" label="Mot de passe"
                 valeur={form.motDePasse} onChange={maj("motDePasse")} autoComplete="new-password" />
+              <p style={{ fontSize: 12, lineHeight: 1.6, marginTop: -8 }}>
+                {reglesMdp.map((r, i) => (
+                  <span key={r.txt} style={{ color: r.ok ? "#9FD8B4" : "var(--brume)" }}>
+                    {r.ok ? "✓" : "·"} {r.txt}{i < reglesMdp.length - 1 ? "   " : ""}
+                  </span>
+                ))}
+              </p>
               <button className="btn btn-or btn-bloc" disabled={!etape1Ok} onClick={() => setEtape(2)}
                 style={{ opacity: etape1Ok ? 1 : 0.5 }}>
                 Continuer →

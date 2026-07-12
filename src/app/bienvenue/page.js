@@ -58,7 +58,7 @@ export default function Bienvenue() {
               </span>
               <span>
                 <b>En attendant, prends de l&apos;avance :</b> complète ton profil (photo, parcours,
-                conseil aux cadets) — il sera prêt à briller dès ta validation.
+                conseil aux cadets) — dès ta validation, les autres membres pourront te trouver.
               </span>
             </div>
             <Link href="/mon-profil" className="btn btn-or" style={{ marginTop: 22 }}>

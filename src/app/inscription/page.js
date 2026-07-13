@@ -33,7 +33,7 @@ export default function Inscription() {
     setEnCours(true);
     setErreur("");
     const supabase = creerClientNavigateur();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.motDePasse,
       options: {
@@ -53,6 +53,13 @@ export default function Inscription() {
           ? "Un compte existe déjà avec cet email. Essaie de te connecter."
           : "L'inscription a échoué : " + error.message
       );
+      return;
+    }
+    // Supabase ne renvoie pas d'erreur si l'email existe déjà (anti-énumération) :
+    // il renvoie un utilisateur sans « identities ». On le détecte pour ne pas
+    // laisser croire à une nouvelle inscription.
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      setErreur("Un compte existe déjà avec cet email. Connecte-toi, ou récupère ton mot de passe si tu l'as oublié.");
       return;
     }
     setEnvoye(true);
@@ -171,6 +178,14 @@ export default function Inscription() {
               {erreur && (
                 <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>
                   {erreur}
+                  {erreur.includes("existe déjà") && (
+                    <>
+                      {" "}
+                      <Link href="/connexion" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>Se connecter</Link>
+                      {" · "}
+                      <Link href="/mot-de-passe/oubli" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>Mot de passe oublié ?</Link>
+                    </>
+                  )}
                 </p>
               )}
               <button className="btn btn-or btn-bloc" onClick={envoyer} disabled={enCours}

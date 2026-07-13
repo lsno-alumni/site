@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TabBar from "@/components/TabBar";
+import Carrousel from "@/components/Carrousel";
 
 export const metadata = { title: "À propos — LSNO Amicale" };
 
@@ -23,6 +24,8 @@ export default function APropos() {
           confirmée par un délégué de promotion.
         </p>
         <p className="tagline" style={{ marginTop: 10 }}>Travail · Excellence · Discipline</p>
+
+        <Carrousel />
 
         <div style={{ borderTop: "1px solid var(--ligne)", paddingTop: 18, marginTop: 10, fontSize: 12.5, color: "var(--brume)", lineHeight: 1.65 }}>
           <p style={{ fontSize: 11, letterSpacing: ".25em", textTransform: "uppercase", color: "var(--or)", marginBottom: 8 }}>

@@ -6,11 +6,11 @@ import { useEffect, useRef, useState } from "react";
 // avance automatique toutes les 4 s, se met en pause dès que l'utilisateur
 // touche/survole, et reprend après. Points de navigation cliquables.
 const PHOTOS = [
-  { src: "/img/lsno_portail.jpg", legende: "Le portail du Lycée Scientifique National" },
-  { src: "/img/lsno_campus.jpg", legende: "Le campus vu du ciel" },
-  { src: "/img/lsno_promo1.jpg", legende: "Une promotion au grand complet" },
-  { src: "/img/lsno_groupe.jpg", legende: "Les élèves et leur encadrement" },
-  { src: "/img/lsno_hero.jpg", legende: "Sur le chemin des cours" },
+  { src: "/img/lsno_portail.jpg", alt: "Le portail du Lycée Scientifique National" },
+  { src: "/img/lsno_campus.jpg", alt: "Le campus vu du ciel" },
+  { src: "/img/lsno_promo1.jpg", alt: "Une promotion au grand complet" },
+  { src: "/img/lsno_groupe.jpg", alt: "Les élèves et leur encadrement" },
+  { src: "/img/lsno_hero.jpg", alt: "Sur le chemin des cours" },
 ];
 
 export default function Carrousel() {
@@ -56,8 +56,7 @@ export default function Carrousel() {
       >
         {PHOTOS.map((ph, i) => (
           <figure className="carrousel-item" key={ph.src}>
-            <img src={ph.src} alt={ph.legende} loading={i === 0 ? "eager" : "lazy"} draggable="false" />
-            <figcaption>{ph.legende}</figcaption>
+            <img src={ph.src} alt={ph.alt} loading={i === 0 ? "eager" : "lazy"} draggable="false" />
           </figure>
         ))}
       </div>

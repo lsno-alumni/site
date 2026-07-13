@@ -67,9 +67,16 @@ export default function MonProfil() {
 
   const supprimerCompte = async () => {
     if (!confirm("Supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.")) return;
-    await supabase.from("profiles").delete().eq("id", profil.id);
+    // supprime le compte auth (profil + parcours + photo partent en cascade)
+    const { error } = await supabase.rpc("supprimer_mon_compte");
+    if (error) {
+      setToast("La suppression a échoué : " + error.message);
+      setTimeout(() => setToast(""), 4000);
+      return;
+    }
     await supabase.auth.signOut();
     routeur.push("/");
+    routeur.refresh();
   };
 
   if (!profil) {

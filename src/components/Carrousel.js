@@ -12,6 +12,7 @@ const PHOTOS = [
   { src: "/img/lsno_jardin.jpg", alt: "Le jardin « LSN » du lycée" },
   { src: "/img/lsno_promo1.jpg", alt: "Une promotion au grand complet" },
   { src: "/img/lsno_promo2.jpg", alt: "Une promotion réunie" },
+  { src: "/img/lsno_promo3.jpg", alt: "Une promotion sous le manguier" },
   { src: "/img/lsno_groupe.jpg", alt: "Les élèves et leur encadrement" },
   { src: "/img/lsno_hero.jpg", alt: "Sur le chemin des cours" },
 ];

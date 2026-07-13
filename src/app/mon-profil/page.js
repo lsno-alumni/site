@@ -95,7 +95,7 @@ export default function MonProfil() {
         <p>
           {profil.statut_compte === "en_attente"
             ? "Ton compte est en attente de validation par un délégué — tu peux déjà compléter ton profil."
-            : "Un profil complet aide les cadets à te trouver."}
+            : "Un profil complet et à jour aide les autres à te trouver."}
         </p>
       </header>
 

@@ -67,7 +67,12 @@ export default function MonProfil() {
 
   const supprimerCompte = async () => {
     if (!confirm("Supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.")) return;
-    // supprime le compte auth (profil + parcours + photo partent en cascade)
+    // la photo se supprime via l'API Storage tant que la session existe
+    // (le DELETE direct en base est interdit par Supabase)
+    if (profil.photo_url) {
+      await supabase.storage.from("photos").remove([`${profil.id}.jpg`]);
+    }
+    // puis le compte auth (profil + parcours partent en cascade)
     const { error } = await supabase.rpc("supprimer_mon_compte");
     if (error) {
       setToast("La suppression a échoué : " + error.message);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import TabBar from "@/components/TabBar";
 
-export const metadata = { title: "À propos — LSNO Alumni" };
+export const metadata = { title: "À propos — LSNO Amicale" };
 
 export default function APropos() {
   return (
@@ -12,7 +12,7 @@ export default function APropos() {
       </header>
       <div className="f-corps" style={{ fontSize: 14.5, lineHeight: 1.7, color: "var(--craie-2)" }}>
         <p>
-          <b>LSNO Alumni</b>{" "}est le réseau des anciens du Lycée Scientifique National
+          <b>LSNO Amicale</b>{" "}est le réseau des anciens du Lycée Scientifique National
           de Ouagadougou. Né d&apos;une discussion entre promotions, il centralise les
           parcours des anciens pour que chaque cadet trouve le bon interlocuteur —
           sans que les conseils se perdent dans le flux des messages.

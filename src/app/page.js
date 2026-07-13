@@ -20,7 +20,7 @@ export default async function Accueil() {
         <Poussiere />
         <div className="a-nav">
           <div className="a-marque">
-            <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Alumni
+            <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
           </div>
           <MenuPublic />
         </div>

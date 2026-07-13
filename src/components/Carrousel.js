@@ -6,9 +6,12 @@ import { useEffect, useRef, useState } from "react";
 // avance automatique toutes les 4 s, se met en pause dès que l'utilisateur
 // touche/survole, et reprend après. Points de navigation cliquables.
 const PHOTOS = [
-  { src: "/img/lsno_portail.jpg", alt: "Le portail du Lycée Scientifique National" },
+  { src: "/img/lsno_enseigne.jpg", alt: "Le Lycée Scientifique National de Ouagadougou" },
+  { src: "/img/lsno_portail.jpg", alt: "Le portail du lycée" },
   { src: "/img/lsno_campus.jpg", alt: "Le campus vu du ciel" },
+  { src: "/img/lsno_jardin.jpg", alt: "Le jardin « LSN » du lycée" },
   { src: "/img/lsno_promo1.jpg", alt: "Une promotion au grand complet" },
+  { src: "/img/lsno_promo2.jpg", alt: "Une promotion réunie" },
   { src: "/img/lsno_groupe.jpg", alt: "Les élèves et leur encadrement" },
   { src: "/img/lsno_hero.jpg", alt: "Sur le chemin des cours" },
 ];

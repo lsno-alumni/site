@@ -5,7 +5,7 @@ import TabBar from "@/components/TabBar";
 import Annuaire from "./Annuaire";
 import { listeMembres, utilisateurCourant } from "@/lib/api";
 
-export const metadata = { title: "Annuaire — LSNO Alumni" };
+export const metadata = { title: "Annuaire — LSNO Amicale" };
 export const dynamic = "force-dynamic";
 
 export default async function PageAnnuaire() {

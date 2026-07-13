@@ -27,7 +27,7 @@ begin
     url     := 'https://api.brevo.com/v3/smtp/email',
     headers := jsonb_build_object('api-key', cle, 'Content-Type', 'application/json'),
     body    := jsonb_build_object(
-      'sender',      jsonb_build_object('name', 'LSNO Alumni', 'email', 'lsno.alumni@gmail.com'),
+      'sender',      jsonb_build_object('name', 'LSNO Amicale', 'email', 'lsno.alumni@gmail.com'),
       'to',          jsonb_build_array(jsonb_build_object('email', dest, 'name', coalesce(dest_nom, dest))),
       'subject',     sujet,
       'htmlContent', corps_html));

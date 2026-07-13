@@ -1,5 +1,5 @@
 // ============================================================
-// Couche de données LSNO Alumni.
+// Couche de données LSNO Amicale.
 // Aujourd'hui : données de démonstration en mémoire.
 // Demain : chaque fonction bascule sur Supabase (même signature),
 // le reste de l'application ne change pas.

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
-import Avatar from "@/components/Avatar";
+import PhotoProfil from "@/components/PhotoProfil";
 import { Mail, Lock } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { DOMAINES, PAYS } from "@/lib/donnees";
@@ -56,7 +56,7 @@ export default async function PageProfil({ params }) {
         <Link href="/annuaire" className="p-retour" aria-label="Retour à l'annuaire">←</Link>
       </div>
       <div className="p-corps">
-        <Avatar profil={p} className="p-photo" />
+        <PhotoProfil profil={p} />
         <h1>{p.prenom} {p.nom}</h1>
         <p className="statut">{p.statut}</p>
         <div className="p-meta">

@@ -365,13 +365,14 @@
    ============================================================ */
 .cv3d { margin: 26px 0 8px; }
 .cv3d-scene {
-  position: relative; height: 240px; perspective: 1100px;
+  position: relative; height: 210px; perspective: 1100px;
   transform-style: preserve-3d; touch-action: pan-y; cursor: grab;
   display: flex; align-items: center; justify-content: center;
 }
 .cv3d-scene:active { cursor: grabbing; }
 .cv3d-carte {
-  position: absolute; width: 74%; max-width: 320px; height: 210px; margin: 0;
+  /* carte centrale réduite + ratio photo 3:2 (plus de hauteur figée qui rognait) */
+  position: absolute; width: 58%; max-width: 250px; aspect-ratio: 3 / 2; margin: 0;
   border-radius: 20px; overflow: hidden;
   transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .55s ease;
   will-change: transform, opacity;

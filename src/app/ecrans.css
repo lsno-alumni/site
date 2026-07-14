@@ -361,6 +361,37 @@
 .visionneuse-fermer:hover { background: rgba(245,241,232,.2); }
 
 /* ============================================================
+   CARROUSEL 3D « coverflow » (page À propos)
+   ============================================================ */
+.cv3d { margin: 26px 0 8px; }
+.cv3d-scene {
+  position: relative; height: 240px; perspective: 1100px;
+  transform-style: preserve-3d; touch-action: pan-y; cursor: grab;
+  display: flex; align-items: center; justify-content: center;
+}
+.cv3d-scene:active { cursor: grabbing; }
+.cv3d-carte {
+  position: absolute; width: 74%; max-width: 320px; height: 210px; margin: 0;
+  border-radius: 20px; overflow: hidden;
+  transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .55s ease;
+  will-change: transform, opacity;
+  box-shadow: 0 24px 50px -18px rgba(0,0,0,.7);
+  background: var(--carte);
+}
+.cv3d-carte img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }
+.cv3d-carte.actif { box-shadow: 0 30px 60px -16px rgba(0,0,0,.8), 0 0 0 1px rgba(232,179,60,.35); cursor: default; }
+/* léger voile sur les cartes latérales pour renforcer la profondeur */
+.cv3d-carte:not(.actif)::after {
+  content: ""; position: absolute; inset: 0; background: rgba(10,27,51,.35);
+}
+.cv3d-points { display: flex; justify-content: center; gap: 7px; margin-top: 16px; }
+.cv3d-points button {
+  width: 7px; height: 7px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
+  background: rgba(147,165,192,.35); transition: width .3s, background .3s;
+}
+.cv3d-points button.on { width: 20px; border-radius: 4px; background: var(--or); }
+
+/* ============================================================
    CARROUSEL PHOTOS (page À propos)
    ============================================================ */
 .carrousel { margin: 22px 0; }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TabBar from "@/components/TabBar";
-import Carrousel from "@/components/Carrousel";
+import Carrousel from "@/components/Carrousel3D";
 
 export const metadata = { title: "À propos — LSNO Amicale" };
 

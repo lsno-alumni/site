@@ -363,7 +363,7 @@
 /* ============================================================
    CARROUSEL 3D « coverflow » (page À propos)
    ============================================================ */
-.cv3d { margin: 26px 0 8px; overflow-x: clip; }
+.cv3d { margin: 12px 0 8px; overflow-x: clip; }
 .cv3d-scene {
   position: relative; height: 210px; perspective: 1100px;
   transform-style: preserve-3d; touch-action: pan-y; cursor: grab;

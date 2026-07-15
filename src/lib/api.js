@@ -143,6 +143,8 @@ export async function donneesAccueilMembre(moi) {
       .select("id, prenom, nom, photo_url, domaine, promotions(numero)")
       .eq("statut_compte", "valide")
       .neq("id", moi.id)
+      // « nouveau » = validé depuis moins de 30 jours (sinon la section se retire)
+      .gte("valide_le", new Date(Date.now() - 30 * 86400000).toISOString())
       .order("valide_le", { ascending: false, nullsFirst: false })
       .limit(5),
     supabase

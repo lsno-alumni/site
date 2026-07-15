@@ -24,6 +24,9 @@ export default function AccueilMembre({ moi, donnees }) {
   return (
     <main className="page avec-tabbar">
       <header className="am-tete">
+        <div className="a-marque" style={{ marginBottom: 26 }}>
+          <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
+        </div>
         <h1><Salutation prenom={moi.prenom} /></h1>
         <p className="am-sous">Que peut le réseau pour toi aujourd&apos;hui ?</p>
 
@@ -45,7 +48,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Souhaite-leur la bienvenue.</p>
+          <p className="a-sous">Tu peux consulter leurs profils.</p>
           <div className="am-nouveaux">
             {nouveaux.map((m) => (
               <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">

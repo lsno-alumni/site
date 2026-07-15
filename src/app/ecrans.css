@@ -104,6 +104,56 @@
   display: inline-flex; align-items: center; gap: 6px;
 }
 
+/* ---------- ACCUEIL MEMBRE (connecté + validé) ---------- */
+.am-tete {
+  position: relative; isolation: isolate; overflow: hidden;
+  padding: 64px 24px 26px;
+}
+.am-tete::before {
+  content: ""; position: absolute; inset: -3px; z-index: -2;
+  background: url("/img/hero1.jpg") 60% 20%/cover;
+}
+.am-tete::after {
+  content: ""; position: absolute; inset: -3px; z-index: -1;
+  background: linear-gradient(178deg, rgba(10,27,51,.45) 0%, rgba(10,27,51,.9) 60%, var(--encre) 96%);
+}
+.am-tete h1 { font-size: clamp(28px, 5vw, 38px); font-weight: 500; }
+.am-sous { color: var(--brume); font-size: 13.5px; margin-top: 6px; }
+.am-alerte {
+  display: flex; align-items: center; gap: 8px; margin-top: 18px;
+  background: rgba(232,179,60,.14); border: 1px solid rgba(232,179,60,.4);
+  color: var(--or-clair); border-radius: 16px; padding: 13px 15px;
+  font-size: 13px; font-weight: 600;
+}
+.am-rappel {
+  display: inline-block; margin-top: 12px; font-size: 12.5px; color: var(--brume);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.am-nouveaux { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+.am-nouveaux::-webkit-scrollbar { display: none; }
+.am-nouveau {
+  flex: 0 0 auto; width: 104px; text-align: center; padding: 14px 8px 12px;
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: 20px;
+  transition: border-color .25s, transform .25s;
+}
+.am-nouveau:hover { border-color: rgba(232,179,60,.4); transform: translateY(-2px); }
+.am-nouveau-photo { width: 48px !important; height: 48px !important; border-radius: 16px; object-fit: cover; margin: 0 auto 8px; font-size: 15px; display: grid; place-items: center; }
+.am-nouveau b { font-size: 12.5px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.am-nouveau span { font-size: 10px; color: var(--brume); display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.am-offres { display: grid; gap: 9px; }
+.am-offre {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: 16px;
+  transition: border-color .25s;
+}
+.am-offre:hover { border-color: rgba(232,179,60,.4); }
+.am-offre-titre { font-size: 13px; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.am-tout {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 12px;
+  font-size: 12.5px; color: var(--or-clair); text-decoration: underline; text-underline-offset: 3px;
+}
+.am-conseil-photo { width: 42px !important; height: 42px !important; border-radius: 50%; object-fit: cover; font-size: 13px; display: grid; place-items: center; }
+
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);
   padding: 24px 22px; position: relative; overflow: hidden;

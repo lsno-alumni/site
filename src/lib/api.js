@@ -124,8 +124,56 @@ export async function utilisateurCourant() {
   if (!user) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, role, statut_compte, situation, whatsapp_visi, email_visi, linkedin_visi, promotions(numero)")
+    .select("id, prenom, nom, role, statut_compte, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, promotions(numero)")
     .eq("id", user.id)
     .maybeSingle();
   return data;
+}
+
+// Tout ce qu'affiche l'accueil d'un membre connecté (chaque bloc est
+// naturellement protégé par la RLS).
+export async function donneesAccueilMembre(moi) {
+  const supabase = await creerClientServeur();
+  const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+
+  const [nouveaux, offres, conseils, demandes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, prenom, nom, photo_url, domaine, promotions(numero)")
+      .eq("statut_compte", "valide")
+      .neq("id", moi.id)
+      .order("valide_le", { ascending: false, nullsFirst: false })
+      .limit(5),
+    supabase
+      .from("offres")
+      .select("id, type, titre, posteur:profiles!offres_posteur_fkey(prenom, nom)")
+      .eq("statut", "active")
+      .or(`date_limite.gte.${aujourdhui},and(date_limite.is.null,cree_le.gte.${limite60})`)
+      .order("cree_le", { ascending: false })
+      .limit(3),
+    supabase
+      .from("profiles")
+      .select("id, prenom, nom, photo_url, conseil, promotions(numero)")
+      .eq("statut_compte", "valide")
+      .not("conseil", "is", null)
+      .neq("conseil", "")
+      .limit(50),
+    ["delegue", "admin"].includes(moi.role)
+      ? supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("statut_compte", "en_attente")
+      : Promise.resolve({ count: 0 }),
+  ]);
+
+  const listeConseils = conseils.data ?? [];
+  return {
+    nouveaux: nouveaux.data ?? [],
+    offres: offres.data ?? [],
+    conseil: listeConseils.length
+      ? listeConseils[Math.floor(Math.random() * listeConseils.length)]
+      : null,
+    demandesEnAttente: demandes.count ?? 0,
+  };
 }

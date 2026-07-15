@@ -5,12 +5,21 @@ import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
 import { DOMAINES, PAYS } from "@/lib/donnees";
-import { statsPubliques } from "@/lib/api";
+import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
+import AccueilMembre from "./AccueilMembre";
 
-// Accueil PUBLIC : aucune donnée personnelle — uniquement des agrégats anonymes
-// (exigence du cahier des charges ; le carrousel « nouveaux membres » vit sur
-// l'accueil connecté, pas ici).
+export const dynamic = "force-dynamic";
+
+// La même adresse sert deux accueils :
+//  - membre VALIDÉ connecté  -> accueil personnel (nouveaux, offres, conseil)
+//  - visiteur / compte en attente -> la vitrine publique (agrégats anonymes)
 export default async function Accueil() {
+  const moi = await utilisateurCourant();
+  if (moi && moi.statut_compte === "valide") {
+    const donnees = await donneesAccueilMembre(moi);
+    return <AccueilMembre moi={moi} donnees={donnees} />;
+  }
+
   const stats = await statsPubliques();
   const parDomaine = stats.parDomaine;
 

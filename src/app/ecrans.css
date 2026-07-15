@@ -301,6 +301,22 @@
 .e-stat b { font-family: var(--font-titres), serif; font-size: 26px; color: var(--or-clair); font-variant-numeric: tabular-nums; }
 .e-stat span { font-size: 11.5px; color: var(--brume); }
 
+/* ============================================================
+   SKELETON LOADING — silhouettes animées pendant le chargement
+   ============================================================ */
+.sk {
+  position: relative; overflow: hidden;
+  background: rgba(147, 165, 192, .12); border-radius: 8px;
+}
+.sk::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(245, 241, 232, .09), transparent);
+  transform: translateX(-100%); animation: sk-balaie 1.4s infinite;
+}
+@keyframes sk-balaie { to { transform: translateX(100%); } }
+.sk-rond { border-radius: 18px; width: 52px; height: 52px; flex-shrink: 0; }
+.sk-ligne { height: 12px; }
+
 /* ---------- OFFRES ---------- */
 .offre-avatar {
   width: 34px; height: 34px; min-width: 34px; min-height: 34px; flex-shrink: 0;

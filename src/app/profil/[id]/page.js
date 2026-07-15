@@ -67,7 +67,7 @@ export default async function PageProfil({ params }) {
             </span>
           )}
           <span className="meta">{domaine?.nom}</span>
-          {p.repondAuxCadets && <span className="meta verte">● Répond aux cadets</span>}
+          {p.repondAuxCadets && <span className="meta verte">Répond aux cadets</span>}
         </div>
       </div>
 

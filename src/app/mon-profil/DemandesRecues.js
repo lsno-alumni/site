@@ -52,7 +52,7 @@ export default function DemandesRecues({ signale }) {
             <div style={{ display: "flex", gap: 11, alignItems: "center" }}>
               <Avatar
                 profil={{ prenom: d.demandeur.prenom, nom: d.demandeur.nom, photo: d.demandeur.photo_url }}
-                className="init"
+                className="offre-avatar"
               />
               <div>
                 <b style={{ fontSize: 14 }}>{d.demandeur.prenom} {d.demandeur.nom}</b>

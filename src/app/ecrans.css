@@ -104,46 +104,6 @@
   display: inline-flex; align-items: center; gap: 6px;
 }
 
-/* ---------- STATS VISUELLES (accueil) ---------- */
-/* barres par pays, dans le bloc monde */
-.pays-barres { display: grid; gap: 9px; margin-top: 16px; }
-.pays-barre { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
-.pays-nom { width: 108px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pays-jauge { flex: 1; height: 8px; border-radius: 100px; background: rgba(5,13,27,.5); overflow: hidden; }
-.pays-jauge i {
-  display: block; height: 100%; border-radius: 100px;
-  background: linear-gradient(90deg, var(--or), var(--or-clair));
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 1s cubic-bezier(.22,1,.36,1) .3s;
-}
-.rev.vu .pays-jauge i { transform: scaleX(1); }
-.pays-barre b { font-family: var(--font-titres), serif; color: var(--or-clair); min-width: 18px; text-align: right; font-variant-numeric: tabular-nums; }
-
-/* histogramme des promotions */
-.promo-histo {
-  display: flex; align-items: flex-end; justify-content: space-between; gap: 6px;
-  padding: 10px 4px 0;
-}
-.promo-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
-.promo-col b { font-family: var(--font-titres), serif; font-size: 13px; color: var(--or-clair); min-height: 17px; font-variant-numeric: tabular-nums; }
-.promo-jauge {
-  width: 100%; max-width: 26px; border-radius: 6px 6px 3px 3px;
-  background: rgba(147,165,192,.28);
-  transform: scaleY(0); transform-origin: bottom;
-  transition: transform .9s cubic-bezier(.22,1,.36,1);
-}
-.promo-jauge.tete { background: linear-gradient(180deg, var(--or-clair), var(--or)); box-shadow: 0 0 14px rgba(232,179,60,.35); }
-.rev.vu .promo-jauge { transform: scaleY(1); }
-.rev.vu .promo-col:nth-child(2) .promo-jauge { transition-delay: .07s; }
-.rev.vu .promo-col:nth-child(3) .promo-jauge { transition-delay: .14s; }
-.rev.vu .promo-col:nth-child(4) .promo-jauge { transition-delay: .21s; }
-.rev.vu .promo-col:nth-child(5) .promo-jauge { transition-delay: .28s; }
-.rev.vu .promo-col:nth-child(6) .promo-jauge { transition-delay: .35s; }
-.rev.vu .promo-col:nth-child(7) .promo-jauge { transition-delay: .42s; }
-.rev.vu .promo-col:nth-child(8) .promo-jauge { transition-delay: .49s; }
-.rev.vu .promo-col:nth-child(9) .promo-jauge { transition-delay: .56s; }
-.promo-col span { font-size: 10.5px; color: var(--brume); letter-spacing: .05em; }
-
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);
   padding: 24px 22px; position: relative; overflow: hidden;

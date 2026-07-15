@@ -54,7 +54,7 @@ export default function AccueilMembre({ moi, donnees }) {
               <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
                 <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
                 <b>{m.prenom}</b>
-                <span>P{m.promotions?.numero} · {DOMAINES.find((d) => d.cle === m.domaine)?.nom.split(" &")[0]}</span>
+                <span className="am-nouveau-detail">P{m.promotions?.numero} · {DOMAINES.find((d) => d.cle === m.domaine)?.nom.split(" &")[0]}</span>
               </Link>
             ))}
           </div>

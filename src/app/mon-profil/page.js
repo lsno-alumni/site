@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
+import DemandesRecues from "./DemandesRecues";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
@@ -122,6 +123,8 @@ export default function MonProfil() {
       </div>
 
       <div className="f-corps">
+        <DemandesRecues signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3500); }} />
+
         <div className="champ">
           <label>Ma photo</label>
           <Photo profil={profil}

@@ -102,6 +102,20 @@ export async function lireContacts(id) {
   return data;
 }
 
+export async function statutDemande(cibleId) {
+  // Ma demande de mise en relation vers ce profil (null si aucune)
+  const supabase = await creerClientServeur();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from("demandes_contact")
+    .select("statut")
+    .eq("demandeur", user.id)
+    .eq("cible", cibleId)
+    .maybeSingle();
+  return data?.statut ?? null;
+}
+
 export async function utilisateurCourant() {
   const supabase = await creerClientServeur();
   const { data: { user } } = await supabase.auth.getUser();

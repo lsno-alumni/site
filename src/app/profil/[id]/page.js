@@ -5,7 +5,8 @@ import PhotoProfil from "@/components/PhotoProfil";
 import { Mail, Lock, BadgeCheck } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { DOMAINES, PAYS } from "@/lib/donnees";
-import { lireProfil, lireContacts } from "@/lib/api";
+import { lireProfil, lireContacts, statutDemande } from "@/lib/api";
+import DemandeContact from "./DemandeContact";
 
 function lienWhatsApp(v) {
   const chiffres = v.replace(/[^\d+]/g, "").replace(/^\+/, "");
@@ -18,8 +19,16 @@ function lienLinkedIn(v) {
 
 export default async function PageProfil({ params }) {
   const { id } = await params;
-  const [p, contacts] = await Promise.all([lireProfil(id), lireContacts(id)]);
+  const [p, contacts, demande] = await Promise.all([
+    lireProfil(id),
+    lireContacts(id),
+    statutDemande(id),
+  ]);
   if (!p) notFound();
+
+  // des contacts « sur demande » existent-ils chez ce membre ?
+  const aSurDemande = ["whatsapp", "email", "linkedin"]
+    .some((c) => contacts?.visi?.[c] === "demande");
 
   const domaine = DOMAINES.find((d) => d.cle === p.domaine);
 
@@ -73,6 +82,12 @@ export default async function PageProfil({ params }) {
             </span>
           )}
         </div>
+        <DemandeContact
+          cibleId={id}
+          prenom={p.prenom}
+          statutInitial={demande}
+          aSurDemande={aSurDemande}
+        />
       </div>
 
       <section className="p-bloc">

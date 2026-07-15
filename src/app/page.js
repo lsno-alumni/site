@@ -4,7 +4,7 @@ import Compteur from "@/components/Compteur";
 import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
-import { DOMAINES, PAYS } from "@/lib/donnees";
+import { DOMAINES, PAYS, LISTE_PAYS, nomPays } from "@/lib/donnees";
 import { statsPubliques } from "@/lib/api";
 
 // Accueil PUBLIC : aucune donnée personnelle — uniquement des agrégats anonymes
@@ -72,13 +72,45 @@ export default async function Accueil() {
             ? "Où que tu veuilles aller, un ancien y est peut-être déjà."
             : "Du Burkina vers le monde : chaque nouvel inscrit étend la carte."}
         </p>
-        <div className="a-pays">
-          <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina Faso</span>
-          <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc</span>
-          <span><img className="drapo" src={PAYS.FR.drapeau} alt="" /> France</span>
-          <span><img className="drapo" src={PAYS.CA.drapeau} alt="" /> Canada</span>
-          <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal</span>
-          <span>et ailleurs…</span>
+        {(() => {
+          const entrees = Object.entries(stats.parPays).sort((a, b) => b[1] - a[1]);
+          const max = entrees[0]?.[1] ?? 1;
+          return (
+            <div className="pays-barres">
+              {entrees.map(([code, n]) => (
+                <div className="pays-barre" key={code}>
+                  <span className="pays-nom">
+                    {PAYS[code] && <img className="drapo" src={PAYS[code].drapeau} alt="" />} {nomPays(code)}
+                  </span>
+                  <span className="pays-jauge">
+                    <i style={{ width: `${(n / max) * 100}%` }} />
+                  </span>
+                  <b>{n}</b>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </section>
+      </Reveal>
+
+      <Reveal>
+      <section className="a-section">
+        <h2 className="a-titre">Les promotions</h2>
+        <p className="a-sous">Quelle promo répondra le plus présent ?</p>
+        <div className="promo-histo">
+          {Array.from({ length: stats.promotions }, (_, i) => i + 1).map((num) => {
+            const n = stats.parPromo[num] ?? 0;
+            const max = Math.max(1, ...Object.values(stats.parPromo));
+            return (
+              <div className="promo-col" key={num}>
+                <b>{n || ""}</b>
+                <div className={`promo-jauge${n === max && n > 0 ? " tete" : ""}`}
+                  style={{ height: `${Math.max(4, (n / max) * 72)}px` }} />
+                <span>P{num}</span>
+              </div>
+            );
+          })}
         </div>
       </section>
       </Reveal>

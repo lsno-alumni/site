@@ -80,13 +80,15 @@ export async function statsPubliques() {
   const { data, error } = await supabase.rpc("stats_publiques");
   if (error || !data) {
     console.error("statsPubliques:", error?.message);
-    return { anciens: 0, pays: 0, promotions: 9, parDomaine: {} };
+    return { anciens: 0, pays: 0, promotions: 9, parDomaine: {}, parPays: {}, parPromo: {} };
   }
   return {
     anciens: data.anciens,
     pays: data.pays,
     promotions: data.promotions,
     parDomaine: data.par_domaine ?? {},
+    parPays: data.par_pays ?? {},
+    parPromo: data.par_promo ?? {},
   };
 }
 

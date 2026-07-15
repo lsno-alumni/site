@@ -111,7 +111,7 @@ export default function Offres() {
         <h1>Offres &amp; opportunités</h1>
         <p className="cpt">Stages, bourses, cooptations — partagés entre anciens.</p>
         {moi?.statut_compte === "valide" && !formulaire && (
-          <button className="btn btn-or" style={{ marginTop: 14, padding: "11px 18px", fontSize: 13.5 }}
+          <button className="btn btn-or" style={{ marginTop: 14, padding: "11px 18px", fontSize: 13.5, boxShadow: "0 4px 12px -4px rgba(232,179,60,.35)" }}
             onClick={() => setFormulaire(true)}>
             <Plus size={15} aria-hidden /> Proposer une offre
           </button>

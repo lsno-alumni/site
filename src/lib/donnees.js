@@ -48,12 +48,26 @@ export function nomPays(code) {
   return LISTE_PAYS.find(([c]) => c === code)?.[1] ?? code;
 }
 
-export const PROMOTIONS = Array.from({ length: 9 }, (_, i) => ({
-  numero: i + 1,
-  anneeEntree: 2017 + i,
-  anneeBac: 2020 + i,
-  enCours: 2020 + i > 2025,
-}));
+// Calendrier vivant des promotions — rien à retoucher chaque année :
+//  - P1 entrée en octobre 2017, bac 3 ans plus tard ; une nouvelle promo
+//    entre chaque OCTOBRE (la liste s'allonge d'elle-même) ;
+//  - une promo cesse d'être « en cours » dès JUILLET de son année de bac
+//    (sortie fin juin).
+const _auj = new Date();
+const _annee = _auj.getFullYear();
+const _mois = _auj.getMonth() + 1;
+export const PROMOTIONS = Array.from(
+  { length: _annee - 2017 + (_mois >= 10 ? 1 : 0) },
+  (_, i) => {
+    const anneeBac = 2020 + i;
+    return {
+      numero: i + 1,
+      anneeEntree: 2017 + i,
+      anneeBac,
+      enCours: anneeBac > _annee || (anneeBac === _annee && _mois < 7),
+    };
+  }
+);
 
 // --- profils de démonstration (remplacés par la base réelle) ---
 const PROFILS = [

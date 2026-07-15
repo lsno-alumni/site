@@ -82,10 +82,10 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
             />
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <button className="btn btn-or" style={{ flex: 1 }} onClick={envoyer} disabled={enCours}>
+            <button className="btn btn-or" style={{ flex: 1, padding: "10px 16px", fontSize: 13.5 }} onClick={envoyer} disabled={enCours}>
               <Send size={14} aria-hidden /> {enCours ? "Envoi…" : "Envoyer la demande"}
             </button>
-            <button className="btn btn-nu" onClick={() => setFormulaire(false)}>Annuler</button>
+            <button className="btn btn-nu" style={{ padding: "10px 16px", fontSize: 13.5 }} onClick={() => setFormulaire(false)}>Annuler</button>
           </div>
         </div>
       )}

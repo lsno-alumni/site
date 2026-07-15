@@ -180,8 +180,8 @@
 }
 .fiche .pied .sep { opacity: .4; }
 .fiche .pied .promo { color: var(--or-clair); font-weight: 600; }
-.fiche .pied .dispo { margin-left: auto; display: flex; align-items: center; gap: 5px; color: #9FD8B4; }
-.fiche .pied .dispo::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--vert-ok); }
+/* « répond » : texte vert seul — pas de rond, qui évoquait un statut « en ligne » */
+.fiche .pied .dispo { margin-left: auto; color: #9FD8B4; }
 
 .vide { text-align: center; padding: 36px 20px; color: var(--brume); font-size: 13px; line-height: 1.6; }
 .vide .gros { font-size: 30px; margin-bottom: 8px; color: var(--or-clair); }
@@ -439,8 +439,6 @@
 @keyframes balaie { 0%, 55% { left: -70%; } 100% { left: 140%; } }
 
 /* pastille « répond » qui pulse */
-@keyframes pulse-vert { 0%, 100% { box-shadow: 0 0 0 0 rgba(99,199,132,.55); } 55% { box-shadow: 0 0 0 5px rgba(99,199,132,0); } }
-.fiche .pied .dispo::before { animation: pulse-vert 2.2s ease-out infinite; }
 
 /* fil doré du parcours qui se trace (page profil, au chargement) */
 @keyframes trace { from { transform: scaleY(0); } to { transform: scaleY(1); } }

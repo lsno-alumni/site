@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Users, Info, CircleUser, ShieldCheck } from "lucide-react";
+import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
 
 const ONGLETS = [
   { href: "/annuaire", Icone: Users, nom: "Annuaire" },
+  { href: "/offres", Icone: Megaphone, nom: "Offres" },
   { href: "/a-propos", Icone: Info, nom: "À propos" },
   { href: "/mon-profil", Icone: CircleUser, nom: "Mon profil" },
   { href: "/admin", Icone: ShieldCheck, nom: "Validation" },

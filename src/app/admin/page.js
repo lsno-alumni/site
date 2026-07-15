@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
-import { Lock, Search } from "lucide-react";
+import { Lock } from "lucide-react";
+import { SqueletteEnTeteListe, SqueletteFiche } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 // Espace délégué / admin : validation des inscriptions, avec annulation.
@@ -92,6 +93,18 @@ export default function Validation() {
     if (valide) setStats((s) => ({ valides: s.valides - 1 }));
     setSnack(null);
   };
+
+  if (moi === null) {
+    return (
+      <main className="page avec-tabbar">
+        <SqueletteEnTeteListe avecRecherche={false} />
+        <div className="n-liste" style={{ paddingTop: 16 }}>
+          {[0, 1].map((i) => <SqueletteFiche key={i} />)}
+        </div>
+        <TabBar actif="Validation" />
+      </main>
+    );
+  }
 
   if (moi && moi.role === "membre") {
     return (

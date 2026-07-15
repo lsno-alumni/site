@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, LISTE_PAYS, nomPays } from "@/lib/donnees";
 
@@ -203,7 +204,7 @@ export default function Offres() {
       </div>
 
       <div className="n-liste">
-        {offres === null && <p style={{ textAlign: "center", color: "var(--brume)", padding: 30 }}>Chargement…</p>}
+        {offres === null && [0, 1, 2].map((i) => <SqueletteOffre key={i} />)}
 
         {visibles.map((o) => {
           const mienne = moi?.id === o.posteur?.id;

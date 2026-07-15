@@ -7,6 +7,7 @@ import TabBar from "@/components/TabBar";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
+import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
@@ -88,7 +89,8 @@ export default function MonProfil() {
   if (!profil) {
     return (
       <main className="page avec-tabbar">
-        <p style={{ padding: 40, color: "var(--brume)", textAlign: "center" }}>Chargement…</p>
+        <SqueletteEnTeteListe avecRecherche={false} />
+        <SqueletteFormulaire />
         <TabBar actif="Mon profil" />
       </main>
     );

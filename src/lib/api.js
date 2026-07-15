@@ -137,7 +137,7 @@ export async function donneesAccueilMembre(moi) {
   const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
   const aujourdhui = new Date().toISOString().slice(0, 10);
 
-  const [nouveaux, offres, conseils, demandes] = await Promise.all([
+  const [nouveaux, offres, conseils, demandes, stats] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, prenom, nom, photo_url, domaine, promotions(numero)")
@@ -167,6 +167,7 @@ export async function donneesAccueilMembre(moi) {
           .select("id", { count: "exact", head: true })
           .eq("statut_compte", "en_attente")
       : Promise.resolve({ count: 0 }),
+    supabase.rpc("stats_publiques"),
   ]);
 
   const listeConseils = conseils.data ?? [];
@@ -177,5 +178,6 @@ export async function donneesAccueilMembre(moi) {
       ? listeConseils[Math.floor(Math.random() * listeConseils.length)]
       : null,
     demandesEnAttente: demandes.count ?? 0,
+    parPromo: stats.data?.par_promo ?? {},
   };
 }

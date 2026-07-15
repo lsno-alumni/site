@@ -15,7 +15,7 @@ const FILTRES_DOMAINE = [
 export default function Annuaire({ membres }) {
   const params = useSearchParams();
   const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
-  const [promo, setPromo] = useState("");
+  const [promo, setPromo] = useState(params.get("promo") ?? "");
   const [pays, setPays] = useState("");
   const [situation, setSituation] = useState("");
   const [q, setQ] = useState("");

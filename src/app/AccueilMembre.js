@@ -13,7 +13,11 @@ const TYPES_OFFRE = {
 };
 
 export default function AccueilMembre({ moi, donnees }) {
-  const { nouveaux, offres, conseil, demandesEnAttente } = donnees;
+  const { nouveaux, offres, conseil, demandesEnAttente, parPromo } = donnees;
+  const promos = Object.entries(parPromo ?? {})
+    .map(([num, n]) => [Number(num), n])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => a[0] - b[0]);
 
   // complétion du profil (mêmes critères que Mon profil)
   const aRemplir = ["statut_titre", "ville", "pays", "conseil", "photo_url"];
@@ -108,6 +112,23 @@ export default function AccueilMembre({ moi, donnees }) {
         </div>
       </section>
       </Reveal>
+
+      {promos.length > 0 && (
+        <Reveal>
+        <section className="a-section" style={{ paddingBottom: 30 }}>
+          <h2 className="a-titre">Le réseau par promotion</h2>
+          <p className="a-sous">Membres inscrits — touche une promotion pour la parcourir.</p>
+          <div className="am-promos">
+            {promos.map(([num, n]) => (
+              <Link key={num} href={`/annuaire?promo=${num}`} className="am-promo">
+                <b>P{num}</b>
+                <span>{n} membre{n > 1 ? "s" : ""}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+        </Reveal>
+      )}
 
       <TabBar />
     </main>

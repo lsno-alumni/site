@@ -163,6 +163,18 @@
 }
 .am-conseil-photo { width: 42px !important; height: 42px !important; border-radius: 50%; object-fit: cover; font-size: 13px; display: grid; place-items: center; }
 
+/* réseau par promotion — médaillons, pas de barres */
+.am-promos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.am-promo {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 86px; padding: 13px 14px 11px;
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: 18px;
+  transition: border-color .25s, transform .25s;
+}
+.am-promo:hover { border-color: rgba(232,179,60,.4); transform: translateY(-2px); }
+.am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
+.am-promo span { font-size: 11.5px; color: var(--brume); }
+
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);
   padding: 24px 22px; position: relative; overflow: hidden;

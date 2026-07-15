@@ -180,8 +180,8 @@
 }
 .fiche .pied .sep { opacity: .4; }
 .fiche .pied .promo { color: var(--or-clair); font-weight: 600; }
-/* « répond » : texte vert seul — pas de rond, qui évoquait un statut « en ligne » */
-.fiche .pied .dispo { margin-left: auto; color: #9FD8B4; }
+/* « répond » : icône poignée de main + texte (le rond évoquait un statut « en ligne ») */
+.fiche .pied .dispo { margin-left: auto; display: flex; align-items: center; gap: 5px; color: #9FD8B4; }
 
 .vide { text-align: center; padding: 36px 20px; color: var(--brume); font-size: 13px; line-height: 1.6; }
 .vide .gros { font-size: 30px; margin-bottom: 8px; color: var(--or-clair); }

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
-import { Search } from "lucide-react";
+import { Search, Handshake } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
@@ -112,7 +112,11 @@ export default function Annuaire({ membres }) {
               </span>
               <span className="sep">·</span>
               <span>{DOMAINES.find((d) => d.cle === m.domaine)?.nom.split(" &")[0]}</span>
-              {m.repondAuxCadets && <span className="dispo">répond</span>}
+              {m.repondAuxCadets && (
+                <span className="dispo">
+                  <Handshake size={13} strokeWidth={2} aria-hidden /> répond
+                </span>
+              )}
             </div>
           </Link>
         ))}

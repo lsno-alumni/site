@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import PhotoProfil from "@/components/PhotoProfil";
-import { Mail, Lock, Handshake } from "lucide-react";
+import { Mail, Lock, BadgeCheck } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { lireProfil, lireContacts } from "@/lib/api";
@@ -69,7 +69,7 @@ export default async function PageProfil({ params }) {
           <span className="meta">{domaine?.nom}</span>
           {p.repondAuxCadets && (
             <span className="meta verte">
-              <Handshake size={13} strokeWidth={2} aria-hidden /> Répond aux cadets
+              <BadgeCheck size={13} strokeWidth={2} aria-hidden /> Répond aux cadets
             </span>
           )}
         </div>

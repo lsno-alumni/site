@@ -33,6 +33,7 @@ export default function Offres() {
   const [type, setType] = useState("tous");
   const [domaine, setDomaine] = useState("");
   const [formulaire, setFormulaire] = useState(false);
+  const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
   const [enCours, setEnCours] = useState(false);
   const [toast, setToast] = useState("");
@@ -223,9 +224,17 @@ export default function Offres() {
                   )}
                 </div>
                 <b style={{ fontSize: 15, lineHeight: 1.3, display: "block" }}>{o.titre}</b>
-                <p style={{ fontSize: 13, color: "var(--craie-2)", lineHeight: 1.55, marginTop: 6, whiteSpace: "pre-line" }}>
+                <p className={`offre-desc${depliees[o.id] ? " ouverte" : ""}`}>
                   {o.description}
                 </p>
+                {o.description.length > 120 && (
+                  <button
+                    className="offre-lire-plus"
+                    onClick={() => setDepliees((d) => ({ ...d, [o.id]: !d[o.id] }))}
+                  >
+                    {depliees[o.id] ? "Réduire" : "Lire plus"}
+                  </button>
+                )}
                 {o.lien && (
                   <a href={o.lien} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize: 12.5, color: "var(--or-clair)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
@@ -236,7 +245,7 @@ export default function Offres() {
               <div className="pied" style={{ gap: 9 }}>
                 <Link href={`/profil/${o.posteur?.id}`} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <Avatar profil={{ prenom: o.posteur?.prenom ?? "?", nom: o.posteur?.nom ?? "", photo: o.posteur?.photo_url }}
-                    className="init" />
+                    className="offre-avatar" />
                   <span style={{ fontSize: 11.5 }}>
                     <b style={{ fontSize: 12 }}>{o.posteur?.prenom} {o.posteur?.nom}</b>
                     <span style={{ color: "var(--brume)" }}> · Promo {o.posteur?.promotions?.numero} · {ilYA(o.cree_le)}</span>

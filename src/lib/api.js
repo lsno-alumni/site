@@ -19,7 +19,9 @@ function profilVersUI(p) {
     ville: p.ville,
     statut: p.statut_titre,
     conseil: p.conseil,
+    histoire: p.histoire,
     repondAuxCadets: p.repond_cadets,
+    sujetsCadets: p.sujets_cadets ?? [],
     role: p.role,
     contacts: {
       whatsapp: p.whatsapp_visi,
@@ -45,7 +47,7 @@ function profilVersUI(p) {
 }
 
 const CHAMPS_PROFIL =
-  "id, prenom, nom, photo_url, domaine, situation, statut_titre, conseil, repond_cadets, ville, pays, whatsapp_visi, email_visi, linkedin_visi, role, promotions(numero), parcours(titre, etablissement, ville, annee_debut, annee_fin, ordre)";
+  "id, prenom, nom, photo_url, domaine, situation, statut_titre, conseil, histoire, repond_cadets, sujets_cadets, ville, pays, whatsapp_visi, email_visi, linkedin_visi, role, promotions(numero), parcours(titre, etablissement, ville, annee_debut, annee_fin, ordre)";
 
 export async function listeMembres() {
   const supabase = await creerClientServeur();

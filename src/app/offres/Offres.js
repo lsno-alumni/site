@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2 } from "lucide-react";
+import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -33,6 +33,7 @@ export default function Offres() {
   const [offres, setOffres] = useState(null); // null = chargement
   const [type, setType] = useState("tous");
   const [domaine, setDomaine] = useState("");
+  const [triLimite, setTriLimite] = useState(false); // date limite la plus proche d'abord
   const [formulaire, setFormulaire] = useState(false);
   const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
@@ -61,9 +62,19 @@ export default function Offres() {
   };
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const visibles = useMemo(() => (offres ?? []).filter((o) =>
-    (type === "tous" || o.type === type) && (!domaine || o.domaine === domaine)
-  ), [offres, type, domaine]);
+  const visibles = useMemo(() => {
+    const liste = (offres ?? []).filter((o) =>
+      (type === "tous" || o.type === type) && (!domaine || o.domaine === domaine)
+    );
+    if (triLimite) {
+      // échéance la plus proche d'abord ; les offres sans date limite à la fin
+      return [...liste].sort((a, b) =>
+        (a.date_limite ? new Date(a.date_limite).getTime() : Infinity) -
+        (b.date_limite ? new Date(b.date_limite).getTime() : Infinity)
+      );
+    }
+    return liste; // plus récentes d'abord (ordre de la requête)
+  }, [offres, type, domaine, triLimite]);
 
   const publier = async () => {
     if (!form.titre.trim() || !form.description.trim()) {
@@ -201,6 +212,11 @@ export default function Offres() {
           <option value="">Domaine — tous</option>
           {DOMAINES.map((d) => <option key={d.cle} value={d.cle}>{d.nom}</option>)}
         </select>
+        <button className={`puce${triLimite ? " active" : ""}`} onClick={() => setTriLimite(!triLimite)}
+          aria-pressed={triLimite}>
+          <Hourglass size={12} strokeWidth={2} aria-hidden style={{ verticalAlign: "-1.5px", marginRight: 4 }} />
+          Échéance proche d&apos;abord
+        </button>
       </div>
 
       <div className="n-liste">

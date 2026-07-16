@@ -11,7 +11,7 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -30,6 +30,7 @@ export default function MonProfil() {
   const supabase = creerClientNavigateur();
   const [profil, setProfil] = useState(null);
   const [toast, setToast] = useState("");
+  const [sujetLibre, setSujetLibre] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -37,7 +38,7 @@ export default function MonProfil() {
       if (!user) return routeur.push("/connexion");
       const { data } = await supabase
         .from("profiles")
-        .select("id, prenom, nom, situation, statut_titre, conseil, ville, pays, repond_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
+        .select("id, prenom, nom, situation, statut_titre, conseil, histoire, ville, pays, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
         .eq("id", user.id)
         .maybeSingle();
       // les valeurs de contact ne sont lisibles que via cette fonction
@@ -53,6 +54,22 @@ export default function MonProfil() {
   }, []);
 
   const majChamp = (champ) => (e) => setProfil({ ...profil, [champ]: e.target.value });
+
+  const sujets = profil?.sujets_cadets ?? [];
+  const basculeSujet = (s) => {
+    const apres = sujets.includes(s) ? sujets.filter((x) => x !== s) : [...sujets, s];
+    if (apres.length > 8) {
+      setToast("8 sujets maximum."); setTimeout(() => setToast(""), 2500);
+      return;
+    }
+    setProfil({ ...profil, sujets_cadets: apres });
+  };
+  const ajouteSujetLibre = () => {
+    const s = sujetLibre.trim().slice(0, 40);
+    if (!s) return;
+    setSujetLibre("");
+    if (!sujets.includes(s)) basculeSujet(s);
+  };
 
   const enregistrer = async () => {
     const { id, promotions, statut_compte, photo_url, ...champs } = profil;
@@ -173,6 +190,18 @@ export default function MonProfil() {
         </div>
 
         <div className="champ">
+          <label htmlFor="histoire">Mon histoire (optionnel)</label>
+          <textarea id="histoire" className="saisie" rows={6} maxLength={2000}
+            placeholder="Raconte ton chemin depuis le LSNO : les choix, les doutes, les déclics… Ce qui pourrait inspirer un cadet ou un jeune ancien."
+            value={profil.histoire ?? ""} onChange={majChamp("histoire")} />
+          {(profil.histoire ?? "").length > 1700 && (
+            <p style={{ fontSize: 11.5, color: "var(--brume)", marginTop: 5 }}>
+              {2000 - profil.histoire.length} caractères restants
+            </p>
+          )}
+        </div>
+
+        <div className="champ">
           <label>Mon parcours</label>
           <Parcours profilId={profil.id}
             signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
@@ -188,6 +217,35 @@ export default function MonProfil() {
               onClick={() => setProfil({ ...profil, repond_cadets: false })}>Non</button>
           </div>
         </div>
+
+        {profil.repond_cadets && (
+          <div className="champ">
+            <label>Sur quels sujets ? (8 max)</label>
+            <div className="sujets-choix">
+              {/* pastilles proposées + celles que le membre a créées */}
+              {[...SUJETS_CADETS, ...sujets.filter((s) => !SUJETS_CADETS.includes(s))].map((s) => (
+                <button key={s} type="button"
+                  className={`sujet-case${sujets.includes(s) ? " choisi" : ""}`}
+                  onClick={() => basculeSujet(s)} aria-pressed={sujets.includes(s)}>
+                  {s}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <input className="saisie" style={{ flex: 1, padding: "10px 12px", fontSize: 13 }}
+                placeholder="Ajouter mon propre sujet…" maxLength={40}
+                value={sujetLibre} onChange={(e) => setSujetLibre(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); ajouteSujetLibre(); } }} />
+              <button type="button" className="btn btn-nu" style={{ padding: "10px 14px", fontSize: 13 }}
+                onClick={ajouteSujetLibre}>
+                Ajouter
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
+              Affichés sur ton profil sous « Répond aux cadets » — ça aide à oser te contacter.
+            </p>
+          </div>
+        )}
 
         <div className="champ">
           <label>Mes contacts — et qui peut les voir</label>

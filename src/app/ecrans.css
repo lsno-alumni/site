@@ -203,9 +203,8 @@
 /* « Mon histoire » sur le profil consulté */
 .p-histoire .recit {
   font-size: 13.5px; line-height: 1.7; color: var(--craie-2); white-space: pre-line;
-  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
 }
-.p-histoire .recit.ouvert { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.p-histoire .offre-lire-plus { display: inline-flex; align-items: center; gap: 3px; }
 
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);

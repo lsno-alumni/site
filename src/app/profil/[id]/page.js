@@ -4,7 +4,7 @@ import TabBar from "@/components/TabBar";
 import PhotoProfil from "@/components/PhotoProfil";
 import { Mail, Lock, BadgeCheck } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { DOMAINES, PAYS } from "@/lib/donnees";
+import { PAYS, nomDomaine } from "@/lib/donnees";
 import { lireProfil, lireContacts, statutDemande } from "@/lib/api";
 import DemandeContact from "./DemandeContact";
 import Histoire from "./Histoire";
@@ -31,7 +31,7 @@ export default async function PageProfil({ params }) {
   const aSurDemande = ["whatsapp", "email", "linkedin"]
     .some((c) => contacts?.visi?.[c] === "demande");
 
-  const domaine = DOMAINES.find((d) => d.cle === p.domaine);
+  const domaine = nomDomaine(p.domaine, p.domainePrecision);
 
   const verrou = (
     <>
@@ -76,7 +76,7 @@ export default async function PageProfil({ params }) {
               {PAYS[p.pays] && <img className="drapo" src={PAYS[p.pays].drapeau} alt="" />} {p.ville}
             </span>
           )}
-          <span className="meta">{domaine?.nom}</span>
+          <span className="meta">{domaine}</span>
           {p.repondAuxCadets && (
             <span className="meta verte">
               <BadgeCheck size={13} strokeWidth={2} aria-hidden /> Répond aux cadets

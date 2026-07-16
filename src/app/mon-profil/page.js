@@ -11,7 +11,7 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -38,7 +38,7 @@ export default function MonProfil() {
       if (!user) return routeur.push("/connexion");
       const { data } = await supabase
         .from("profiles")
-        .select("id, prenom, nom, situation, statut_titre, conseil, histoire, ville, pays, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
+        .select("id, prenom, nom, situation, statut_titre, conseil, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
         .eq("id", user.id)
         .maybeSingle();
       // les valeurs de contact ne sont lisibles que via cette fonction
@@ -164,6 +164,27 @@ export default function MonProfil() {
               <option key={s.cle} value={s.cle}>{s.nom}</option>
             ))}
           </select>
+        </div>
+
+        <div className="champ">
+          <label htmlFor="mp-domaine">Domaine principal</label>
+          <select id="mp-domaine" className="saisie" value={profil.domaine}
+            onChange={(e) => setProfil({
+              ...profil, domaine: e.target.value,
+              // la précision n'a de sens que pour « Autre »
+              domaine_precision: e.target.value === "autre" ? profil.domaine_precision : null,
+            })}>
+            {DOMAINES.map((d) => (
+              <option key={d.cle} value={d.cle}>{d.nom}</option>
+            ))}
+          </select>
+          {profil.domaine === "autre" && (
+            <input className="saisie" style={{ marginTop: 10 }} maxLength={40}
+              placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
+              aria-label="Précision du domaine"
+              value={profil.domaine_precision ?? ""}
+              onChange={(e) => setProfil({ ...profil, domaine_precision: e.target.value || null })} />
+          )}
         </div>
 
         <div className="champ" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

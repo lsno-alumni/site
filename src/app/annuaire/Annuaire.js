@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
 import { Search, BadgeCheck } from "lucide-react";
-import { DOMAINES, PAYS, LISTE_PAYS, nomPays, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
+import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
   { cle: "tous", nom: "Tous" },
@@ -111,7 +111,7 @@ export default function Annuaire({ membres }) {
                 {PAYS[m.pays] && <img className="drapo" src={PAYS[m.pays].drapeau} alt="" />} {m.ville}
               </span>
               <span className="sep">·</span>
-              <span>{DOMAINES.find((d) => d.cle === m.domaine)?.nom.split(" &")[0]}</span>
+              <span>{nomDomaine(m.domaine, m.domainePrecision, true)}</span>
               {m.repondAuxCadets && (
                 <span className="dispo">
                   <BadgeCheck size={13} strokeWidth={2} aria-hidden /> répond

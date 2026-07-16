@@ -13,6 +13,9 @@ export const DOMAINES = [
   { cle: "eco", nom: "Économie & finance", detail: "Éco, gestion, banque…" },
   { cle: "agro", nom: "Agronomie & environnement", detail: "Agro, eau, énergie…" },
   { cle: "enseignement", nom: "Enseignement", detail: "Professorat, pédagogie…" },
+  { cle: "droit", nom: "Droit & sciences politiques", detail: "Magistrature, barreau, administration…" },
+  { cle: "defense", nom: "Défense & sécurité", detail: "Armée, gendarmerie, police, douanes…" },
+  { cle: "arts", nom: "Arts, communication & médias", detail: "Journalisme, design, audiovisuel…" },
   { cle: "autre", nom: "Autre", detail: "Tous les autres horizons" },
 ];
 
@@ -68,6 +71,14 @@ export const PROMOTIONS = Array.from(
     };
   }
 );
+
+// Nom de domaine à afficher : la précision saisie remplace « Autre »
+// (le filtre, lui, continue de regrouper sous Autre).
+export function nomDomaine(cle, precision, court = false) {
+  if (cle === "autre" && precision) return precision;
+  const nom = DOMAINES.find((d) => d.cle === cle)?.nom ?? cle;
+  return court ? nom.split(" &")[0] : nom;
+}
 
 // Sujets proposés pour « discuter avec les cadets » (le membre peut
 // aussi ajouter les siens ; 8 au total max, appliqué en base)

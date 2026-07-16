@@ -5,7 +5,7 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import IconeDomaine from "@/components/IconeDomaine";
-import { DOMAINES } from "@/lib/donnees";
+import { DOMAINES, nomDomaine } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
   stage: "Stage", emploi: "Emploi", bourse: "Bourse",
@@ -58,7 +58,7 @@ export default function AccueilMembre({ moi, donnees }) {
               <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
                 <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
                 <b>{m.prenom}</b>
-                <span className="am-nouveau-detail">P{m.promotions?.numero} · {DOMAINES.find((d) => d.cle === m.domaine)?.nom.split(" &")[0]}</span>
+                <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
               </Link>
             ))}
           </div>

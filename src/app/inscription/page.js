@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
-import { DOMAINES, PROMOTIONS } from "@/lib/donnees";
+import { DOMAINES, PROMOTIONS, nomDomaine } from "@/lib/donnees";
 
 // Flux d'inscription en 3 étapes (maquette v3 validée).
 // signUp crée le compte Auth ; un trigger côté base crée le profil
@@ -16,7 +16,7 @@ export default function Inscription() {
   const [enCours, setEnCours] = useState(false);
   const [form, setForm] = useState({
     prenom: "", nom: "", email: "", motDePasse: "",
-    promotion: null, domaine: "info",
+    promotion: null, domaine: "info", domainePrecision: "",
   });
 
   const maj = (champ) => (e) => setForm({ ...form, [champ]: e.target.value });
@@ -43,6 +43,7 @@ export default function Inscription() {
           nom: form.nom,
           promotion: form.promotion,
           domaine: form.domaine,
+          domaine_precision: form.domaine === "autre" ? form.domainePrecision.trim() : "",
         },
       },
     });
@@ -153,6 +154,14 @@ export default function Inscription() {
                     <option key={d.cle} value={d.cle}>{d.nom}</option>
                   ))}
                 </select>
+                {form.domaine === "autre" && (
+                  <input
+                    className="saisie" style={{ marginTop: 10 }} maxLength={40}
+                    placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
+                    aria-label="Précision du domaine"
+                    value={form.domainePrecision} onChange={maj("domainePrecision")}
+                  />
+                )}
               </div>
               <div className="f-note">
                 <span>
@@ -172,7 +181,7 @@ export default function Inscription() {
               <div className="f-note">
                 <span>
                   <b>{form.prenom} {form.nom}</b> · {form.email}<br />
-                  Promotion {form.promotion} · {DOMAINES.find((d) => d.cle === form.domaine)?.nom}
+                  Promotion {form.promotion} · {nomDomaine(form.domaine, form.domainePrecision.trim())}
                 </span>
               </div>
               {erreur && (

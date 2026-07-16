@@ -69,6 +69,21 @@ export const PROMOTIONS = Array.from(
   }
 );
 
+// Sujets proposés pour « discuter avec les cadets » (le membre peut
+// aussi ajouter les siens ; 8 au total max, appliqué en base)
+export const SUJETS_CADETS = [
+  "Orientation post-bac",
+  "Études à l'étranger",
+  "Bourses & financements",
+  "Classes préparatoires",
+  "Concours d'entrée",
+  "Mon métier au quotidien",
+  "Choix de filière",
+  "Vie étudiante",
+  "Premier emploi & CV",
+  "Entrepreneuriat",
+];
+
 // --- profils de démonstration (remplacés par la base réelle) ---
 const PROFILS = [
   {

@@ -175,6 +175,38 @@
 .am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
+/* sujets de discussion avec les cadets */
+.p-sujets {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 6px; margin: 12px 0 2px;
+}
+.p-sujets .lbl {
+  flex-basis: 100%; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--brume); margin-bottom: 2px;
+}
+.p-sujet {
+  font-size: 11.5px; padding: 6px 11px; border-radius: 100px;
+  background: rgba(99, 199, 132, .1); border: 1px solid rgba(99, 199, 132, .3);
+  color: #9FD8B4;
+}
+.sujets-choix { display: flex; flex-wrap: wrap; gap: 7px; }
+.sujet-case {
+  font-size: 12.5px; padding: 9px 13px; border-radius: 100px; cursor: pointer;
+  background: var(--carte); border: 1px solid var(--ligne); color: var(--craie-2);
+  transition: border-color .2s, background .2s, color .2s;
+}
+.sujet-case.choisi {
+  background: rgba(232, 179, 60, .14); border-color: rgba(232, 179, 60, .5);
+  color: var(--or-clair);
+}
+
+/* « Mon histoire » sur le profil consulté */
+.p-histoire .recit {
+  font-size: 13.5px; line-height: 1.7; color: var(--craie-2); white-space: pre-line;
+  display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+}
+.p-histoire .recit.ouvert { display: block; -webkit-line-clamp: unset; overflow: visible; }
+
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);
   padding: 24px 22px; position: relative; overflow: hidden;

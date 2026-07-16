@@ -7,6 +7,7 @@ import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { lireProfil, lireContacts, statutDemande } from "@/lib/api";
 import DemandeContact from "./DemandeContact";
+import Histoire from "./Histoire";
 
 function lienWhatsApp(v) {
   const chiffres = v.replace(/[^\d+]/g, "").replace(/^\+/, "");
@@ -82,6 +83,12 @@ export default async function PageProfil({ params }) {
             </span>
           )}
         </div>
+        {p.repondAuxCadets && p.sujetsCadets.length > 0 && (
+          <div className="p-sujets">
+            <span className="lbl">On peut discuter de</span>
+            {p.sujetsCadets.map((s) => <span key={s} className="p-sujet">{s}</span>)}
+          </div>
+        )}
         <DemandeContact
           cibleId={id}
           prenom={p.prenom}
@@ -114,6 +121,8 @@ export default async function PageProfil({ params }) {
           <p>« {p.conseil} »</p>
         </section>
       )}
+
+      {p.histoire && <Histoire prenom={p.prenom} texte={p.histoire} />}
 
       {lignes.length > 0 && (
         <section className="p-contacts">

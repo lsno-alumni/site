@@ -14,6 +14,7 @@ function profilVersUI(p) {
     photo: p.photo_url,
     promotion: p.promotions?.numero ?? null,
     domaine: p.domaine,
+    domainePrecision: p.domaine_precision,
     situation: p.situation,
     pays: p.pays,
     ville: p.ville,
@@ -47,7 +48,7 @@ function profilVersUI(p) {
 }
 
 const CHAMPS_PROFIL =
-  "id, prenom, nom, photo_url, domaine, situation, statut_titre, conseil, histoire, repond_cadets, sujets_cadets, ville, pays, whatsapp_visi, email_visi, linkedin_visi, role, promotions(numero), parcours(titre, etablissement, ville, annee_debut, annee_fin, ordre)";
+  "id, prenom, nom, photo_url, domaine, domaine_precision, situation, statut_titre, conseil, histoire, repond_cadets, sujets_cadets, ville, pays, whatsapp_visi, email_visi, linkedin_visi, role, promotions(numero), parcours(titre, etablissement, ville, annee_debut, annee_fin, ordre)";
 
 export async function listeMembres() {
   const supabase = await creerClientServeur();
@@ -142,7 +143,7 @@ export async function donneesAccueilMembre(moi) {
   const [nouveaux, offres, conseils, demandes, stats] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, prenom, nom, photo_url, domaine, promotions(numero)")
+      .select("id, prenom, nom, photo_url, domaine, domaine_precision, promotions(numero)")
       .eq("statut_compte", "valide")
       .neq("id", moi.id)
       // « nouveau » = validé depuis moins de 30 jours (sinon la section se retire)

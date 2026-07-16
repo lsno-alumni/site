@@ -1,5 +1,6 @@
 import {
-  Laptop, Stethoscope, Cog, Sigma, ChartColumn, Sprout, BookOpen, Sparkles,
+  Laptop, Stethoscope, Cog, Sigma, ChartColumn, Sprout, BookOpen,
+  Scale, Shield, Palette, Sparkles,
 } from "lucide-react";
 
 const ICONES = {
@@ -10,6 +11,9 @@ const ICONES = {
   eco: ChartColumn,
   agro: Sprout,
   enseignement: BookOpen,
+  droit: Scale,
+  defense: Shield,
+  arts: Palette,
   autre: Sparkles,
 };
 

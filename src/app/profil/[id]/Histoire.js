@@ -3,21 +3,27 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const APERCU = 200; // caractères visibles quand le récit est replié
+const APERCU_CAR = 200; // caractères visibles quand le récit est replié
+const APERCU_LIGNES = 4; // ... et lignes max (des lignes courtes prennent peu
+                         // de caractères mais beaucoup de hauteur)
 
 // Récit replié par défaut pour ne pas noyer le profil sur mobile.
 // La coupure est faite dans le texte (pas en CSS) : fiable partout.
 export default function Histoire({ prenom, texte }) {
   const [ouverte, setOuverte] = useState(false);
-  const longue = texte.length > APERCU + 60; // pas de bouton pour 2 lignes de plus
+  const lignes = texte.split("\n");
+  const longue = texte.length > APERCU_CAR + 60 || lignes.length > APERCU_LIGNES + 1;
 
-  // coupe au dernier espace pour ne pas trancher un mot
   let apercu = texte;
   if (longue && !ouverte) {
-    apercu = texte.slice(0, APERCU);
-    const espace = apercu.lastIndexOf(" ");
-    if (espace > APERCU - 40) apercu = apercu.slice(0, espace);
-    apercu += "…";
+    apercu = lignes.slice(0, APERCU_LIGNES).join("\n");
+    if (apercu.length > APERCU_CAR) {
+      // coupe au dernier espace pour ne pas trancher un mot
+      apercu = apercu.slice(0, APERCU_CAR);
+      const espace = apercu.lastIndexOf(" ");
+      if (espace > APERCU_CAR - 40) apercu = apercu.slice(0, espace);
+    }
+    apercu = apercu.trimEnd() + "…";
   }
 
   return (

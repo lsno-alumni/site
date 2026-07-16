@@ -201,8 +201,10 @@
 }
 
 /* « Mon histoire » sur le profil consulté */
+.p-histoire { padding-bottom: 10px; }
 .p-histoire .recit {
   font-size: 13.5px; line-height: 1.7; color: var(--craie-2); white-space: pre-line;
+  margin-bottom: 4px;
 }
 .p-histoire .offre-lire-plus { display: inline-flex; align-items: center; gap: 3px; }
 

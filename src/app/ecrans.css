@@ -349,7 +349,14 @@
 .f-prog i.fait { background: var(--or); }
 .f-corps { padding: 16px 24px 40px; display: grid; gap: 18px; }
 
-.promos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.promos {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px;
+  /* prêt pour les promos futures : au-delà de 3 rangées (P10+), la grille
+     défile en interne — la 4e rangée dépasse à moitié pour le suggérer */
+  max-height: 292px; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: thin; scrollbar-color: rgba(232, 179, 60, .45) transparent;
+  padding-right: 2px;
+}
 .pcase {
   border: 1px solid var(--ligne); border-radius: 18px; padding: 13px 6px; text-align: center;
   background: var(--carte); cursor: pointer; transition: all .25s; color: var(--craie);

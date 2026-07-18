@@ -126,8 +126,9 @@ export default function Validation() {
 
   return (
     <main className="page avec-tabbar">
-      <header className="n-tete tete-eleves" style={{ paddingBottom: 18, position: "relative" }} id="sec-demandes">
-        {moi?.role === "admin" && <MenuAdmin />}
+      {/* hors de l'en-tête : ses fonds photo rognent tout débord (le panneau était coupé) */}
+      {moi?.role === "admin" && <MenuAdmin />}
+      <header className="n-tete tete-eleves" style={{ paddingBottom: 18 }} id="sec-demandes">
         <p className="tagline">
           {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
         </p>

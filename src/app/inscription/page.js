@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
@@ -18,6 +18,24 @@ export default function Inscription() {
     prenom: "", nom: "", email: "", motDePasse: "",
     promotion: null, domaine: "info", domainePrecision: "",
   });
+
+  // la progression survit à un aller-retour (conditions) ou un rechargement :
+  // brouillon dans sessionStorage (onglet courant seulement, jamais le mot de passe)
+  useEffect(() => {
+    try {
+      const brouillon = JSON.parse(sessionStorage.getItem("inscription") ?? "null");
+      if (brouillon) {
+        setForm((f) => ({ ...f, ...brouillon.form, motDePasse: "" }));
+        // le mot de passe n'est jamais sauvegardé : retour à l'étape 1,
+        // tout est prérempli, il n'y a que lui à retaper
+      }
+    } catch { /* brouillon illisible : on repart de zéro */ }
+  }, []);
+  useEffect(() => {
+    if (envoye) { sessionStorage.removeItem("inscription"); return; }
+    const { motDePasse, ...sans } = form;
+    sessionStorage.setItem("inscription", JSON.stringify({ etape, form: sans }));
+  }, [form, etape, envoye]);
 
   const maj = (champ) => (e) => setForm({ ...form, [champ]: e.target.value });
   const reglesMdp = [
@@ -168,7 +186,7 @@ export default function Inscription() {
                   <b>Un délégué de ta promotion</b> validera ta demande.
                   Ton profil n&apos;est visible d&apos;aucun visiteur extérieur.
                   En envoyant ta demande, tu acceptes les{" "}
-                  <Link href="/conditions" style={{
+                  <Link href="/conditions" target="_blank" rel="noopener" style={{
                     color: "var(--or-clair)", textDecoration: "underline", textUnderlineOffset: 3,
                     display: "inline-block", padding: "4px 2px", margin: "-2px 0",
                   }}>

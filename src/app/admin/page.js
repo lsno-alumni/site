@@ -10,6 +10,7 @@ import GestionMembre from "./GestionMembre";
 import Sauvegarde from "./Sauvegarde";
 import Annonce from "./Annonce";
 import EtatSysteme from "./EtatSysteme";
+import MenuAdmin from "./MenuAdmin";
 
 // Espace délégué / admin : validation des inscriptions, avec annulation.
 // La RLS limite un délégué à sa promotion ; un admin voit tout.
@@ -125,7 +126,8 @@ export default function Validation() {
 
   return (
     <main className="page avec-tabbar">
-      <header className="n-tete tete-eleves" style={{ paddingBottom: 18 }}>
+      <header className="n-tete tete-eleves" style={{ paddingBottom: 18, position: "relative" }} id="sec-demandes">
+        {moi?.role === "admin" && <MenuAdmin />}
         <p className="tagline">
           {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
         </p>
@@ -166,7 +168,7 @@ export default function Validation() {
 
         {moi?.role === "admin" && (
           <>
-            <h2 className="a-titre" style={{ marginTop: 18 }}>Rôles</h2>
+            <h2 className="a-titre" style={{ marginTop: 18, scrollMarginTop: 12 }} id="sec-roles">Rôles</h2>
             <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6 }}>
               Un délégué valide les inscriptions de sa promotion.
             </p>
@@ -203,22 +205,30 @@ export default function Validation() {
               </div>
             ))}
 
-            <GestionMembre moiId={moi.id} signale={(m) => {
-              setSnack({ info: m });
-              clearTimeout(minuteur.current);
-              minuteur.current = setTimeout(() => setSnack(null), 4200);
-            }} />
-            <Annonce signale={(m) => {
-              setSnack({ info: m });
-              clearTimeout(minuteur.current);
-              minuteur.current = setTimeout(() => setSnack(null), 4200);
-            }} />
-            <Sauvegarde signale={(m) => {
-              setSnack({ info: m });
-              clearTimeout(minuteur.current);
-              minuteur.current = setTimeout(() => setSnack(null), 4200);
-            }} />
-            <EtatSysteme />
+            <div id="sec-gerer" style={{ scrollMarginTop: 12 }}>
+              <GestionMembre moiId={moi.id} signale={(m) => {
+                setSnack({ info: m });
+                clearTimeout(minuteur.current);
+                minuteur.current = setTimeout(() => setSnack(null), 4200);
+              }} />
+            </div>
+            <div id="sec-annonce" style={{ scrollMarginTop: 12 }}>
+              <Annonce signale={(m) => {
+                setSnack({ info: m });
+                clearTimeout(minuteur.current);
+                minuteur.current = setTimeout(() => setSnack(null), 4200);
+              }} />
+            </div>
+            <div id="sec-sauvegarde" style={{ scrollMarginTop: 12 }}>
+              <Sauvegarde signale={(m) => {
+                setSnack({ info: m });
+                clearTimeout(minuteur.current);
+                minuteur.current = setTimeout(() => setSnack(null), 4200);
+              }} />
+            </div>
+            <div id="sec-etat" style={{ scrollMarginTop: 12 }}>
+              <EtatSysteme />
+            </div>
           </>
         )}
       </div>

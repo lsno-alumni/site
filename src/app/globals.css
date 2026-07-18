@@ -104,8 +104,10 @@ select.saisie { appearance: none; cursor: pointer; }
   display: flex; justify-content: space-around; align-items: center;
   max-width: 480px; margin: 0 auto;
   padding: 10px 6px calc(14px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(5, 13, 27, .72), rgba(5, 13, 27, .96));
-  backdrop-filter: blur(14px);
+  /* fond quasi opaque SANS backdrop-filter : le flou en direct du contenu
+     défilant corrompait le rendu GPU (bandes de neige) sur les Mali
+     (Redmi/Tecno/Infinix) — annuaire, défilement rapide */
+  background: linear-gradient(180deg, rgba(5, 13, 27, .93), rgba(5, 13, 27, .99));
   border-top: 1px solid rgba(245, 241, 232, .1);
 }
 .tab {

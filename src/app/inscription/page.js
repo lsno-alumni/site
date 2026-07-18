@@ -167,6 +167,10 @@ export default function Inscription() {
                 <span>
                   <b>Un délégué de ta promotion</b> validera ta demande.
                   Ton profil n&apos;est visible d&apos;aucun visiteur extérieur.
+                  En envoyant ta demande, tu acceptes les{" "}
+                  <Link href="/conditions" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>
+                    conditions d&apos;utilisation
+                  </Link>.
                 </span>
               </div>
               <button className="btn btn-or btn-bloc" disabled={!etape2Ok} onClick={() => setEtape(3)}

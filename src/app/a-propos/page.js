@@ -43,6 +43,11 @@ export default function APropos() {
             Le site n&apos;utilise que des cookies de session, indispensables à la connexion —
             aucun traceur publicitaire.
           </p>
+          <p style={{ marginTop: 8 }}>
+            <Link href="/conditions" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>
+              Conditions d&apos;utilisation &amp; confidentialité
+            </Link>
+          </p>
         </div>
       </div>
       <TabBar actif="À propos" />

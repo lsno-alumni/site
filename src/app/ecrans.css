@@ -175,6 +175,13 @@
 .am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
+/* avatar de la gestion admin (taille et coins explicites hors .fiche) */
+.gm-avatar {
+  width: 40px !important; height: 40px !important; min-width: 40px; min-height: 40px;
+  flex-shrink: 0; border-radius: 14px; object-fit: cover;
+  font-size: 14px; display: grid; place-items: center;
+}
+
 /* sujets de discussion avec les cadets */
 .p-sujets {
   display: flex; flex-wrap: wrap; justify-content: center; align-items: center;

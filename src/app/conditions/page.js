@@ -24,17 +24,19 @@ export default function Conditions() {
 
         <Titre>1. Ce qu&apos;est LSNO Amicale</Titre>
         <p>
-          Une plateforme associative, gratuite et à but non lucratif, réservée aux ancien·nes
-          élèves du Lycée Scientifique National de Ouagadougou. Elle est éditée et administrée
-          bénévolement par des anciens, indépendamment de l&apos;administration du lycée.
-          Son but : permettre aux anciens de se retrouver et aux cadets de trouver le bon interlocuteur.
+          Une plateforme associative, gratuite et à but non lucratif, réservée à la communauté
+          du Lycée Scientifique National de Ouagadougou — celles et ceux qui y sont passés comme
+          celles et ceux qui y étudient encore. Elle est éditée et administrée bénévolement par
+          des anciens, indépendamment de l&apos;administration du lycée. Son but : permettre à la
+          communauté de se retrouver et aux cadets de trouver le bon interlocuteur.
         </p>
 
         <Titre>2. Qui peut s&apos;inscrire</Titre>
         <p>
-          Uniquement les ancien·nes élèves du LSNO. Chaque inscription est vérifiée par un
-          délégué de la promotion concernée (ou un administrateur), qui reconnaît ses camarades.
-          Un compte créé sous une fausse identité ou par une personne extérieure sera refusé ou supprimé.
+          Toute personne qui est ou a été élève du LSNO, de la première promotion à celle en
+          cours. Chaque inscription est vérifiée par un délégué de la promotion concernée (ou un
+          administrateur), qui reconnaît ses camarades. Un compte créé sous une fausse identité
+          ou par une personne extérieure au lycée sera refusé ou supprimé.
         </p>
 
         <Titre>3. Les données que nous collectons</Titre>

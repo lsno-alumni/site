@@ -142,7 +142,7 @@ export default function GestionMembre({ moiId, signale }) {
       {!choisi && resultats.map((m) => (
         <button key={m.id} className="e-ligne" style={{ width: "100%", textAlign: "left", cursor: "pointer", background: "var(--carte)", border: "1px solid var(--ligne)" }}
           onClick={() => ouvrir(m)}>
-          <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="init" />
+          <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="gm-avatar" />
           <span className="val">
             <b style={{ fontSize: 13.5 }}>{m.prenom} {m.nom}</b>
             <span style={{ color: "var(--brume)", fontSize: 12 }}>
@@ -155,7 +155,7 @@ export default function GestionMembre({ moiId, signale }) {
       {choisi && (
         <div className="carte-sombre" style={{ padding: 16, display: "grid", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Avatar profil={{ prenom: choisi.prenom, nom: choisi.nom, photo: choisi.photo_url }} className="init" />
+            <Avatar profil={{ prenom: choisi.prenom, nom: choisi.nom, photo: choisi.photo_url }} className="gm-avatar" />
             <div style={{ flex: 1, minWidth: 0 }}>
               <b>{choisi.prenom} {choisi.nom}</b>
               <div style={{ fontSize: 12, color: "var(--brume)" }}>

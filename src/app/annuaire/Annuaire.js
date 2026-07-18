@@ -20,16 +20,21 @@ export default function Annuaire({ membres }) {
   const [situation, setSituation] = useState("");
   const [q, setQ] = useState("");
 
+  // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)
+  const plat = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
   const resultats = useMemo(() => {
-    const t = q.trim().toLowerCase();
+    const t = plat(q.trim());
     return membres.filter((m) => {
       if (domaine !== "tous" && m.domaine !== domaine) return false;
       if (promo && m.promotion !== Number(promo)) return false;
       if (pays && m.pays !== pays) return false;
       if (situation && m.situation !== situation) return false;
       if (t) {
-        const texte = [m.prenom, m.nom, m.statut, m.ville, nomPays(m.pays ?? "")]
-          .join(" ").toLowerCase();
+        const texte = plat([
+          m.prenom, m.nom, m.statut, m.ville, nomPays(m.pays ?? ""),
+          nomDomaine(m.domaine, m.domainePrecision), // « informatique », « aviation »…
+        ].join(" "));
         if (!texte.includes(t)) return false;
       }
       return true;

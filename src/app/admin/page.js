@@ -206,28 +206,28 @@ export default function Validation() {
               </div>
             ))}
 
-            <div id="sec-gerer" style={{ scrollMarginTop: 12 }}>
+            <div id="sec-gerer" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <GestionMembre moiId={moi.id} signale={(m) => {
                 setSnack({ info: m });
                 clearTimeout(minuteur.current);
                 minuteur.current = setTimeout(() => setSnack(null), 4200);
               }} />
             </div>
-            <div id="sec-annonce" style={{ scrollMarginTop: 12 }}>
+            <div id="sec-annonce" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <Annonce signale={(m) => {
                 setSnack({ info: m });
                 clearTimeout(minuteur.current);
                 minuteur.current = setTimeout(() => setSnack(null), 4200);
               }} />
             </div>
-            <div id="sec-sauvegarde" style={{ scrollMarginTop: 12 }}>
+            <div id="sec-sauvegarde" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <Sauvegarde signale={(m) => {
                 setSnack({ info: m });
                 clearTimeout(minuteur.current);
                 minuteur.current = setTimeout(() => setSnack(null), 4200);
               }} />
             </div>
-            <div id="sec-etat" style={{ scrollMarginTop: 12 }}>
+            <div id="sec-etat" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <EtatSysteme />
             </div>
           </>

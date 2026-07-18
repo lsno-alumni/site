@@ -175,6 +175,10 @@
 .am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
+/* sections de l'espace admin : de l'air entre les blocs empilés */
+.sec-admin { display: grid; gap: 12px; margin-top: 14px; }
+.sec-admin .a-titre { margin-top: 10px; }
+
 /* avatar de la gestion admin (taille et coins explicites hors .fiche) */
 .gm-avatar {
   width: 40px !important; height: 40px !important; min-width: 40px; min-height: 40px;

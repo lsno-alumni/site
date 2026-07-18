@@ -60,7 +60,8 @@ const _auj = new Date();
 const _annee = _auj.getFullYear();
 const _mois = _auj.getMonth() + 1;
 export const PROMOTIONS = Array.from(
-  { length: _annee - 2017 + (_mois >= 10 ? 1 : 0) },
+  // TEMPORAIRE (démo rapporteur) : + 6 promos fictives — RETIRER le « + 6 »
+  { length: _annee - 2017 + (_mois >= 10 ? 1 : 0) + 6 },
   (_, i) => {
     const anneeBac = 2020 + i;
     return {

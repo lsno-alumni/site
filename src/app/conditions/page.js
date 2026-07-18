@@ -13,7 +13,7 @@ const Titre = ({ children }) => (
 export default function Conditions() {
   return (
     <main className="page">
-      <header className="f-tete tete-etude" style={{ paddingTop: 20, paddingBottom: 24 }}>
+      <header className="f-tete tete-portail" style={{ paddingTop: 20, paddingBottom: 24 }}>
         <Link href="/" className="retour">← Accueil</Link>
         <h1>Conditions<br />&amp; <em>confidentialité</em></h1>
         <p>Ce que tu acceptes en rejoignant le réseau — et ce que nous faisons de tes données.</p>
@@ -86,8 +86,8 @@ export default function Conditions() {
 
         <Titre>8. Hébergement</Titre>
         <p>
-          Le site est hébergé par Vercel et les données stockées chez Supabase (serveurs situés
-          en Europe), deux services professionnels appliquant les standards de sécurité actuels.
+          Le site est hébergé par Vercel et les données stockées chez Supabase, deux services
+          professionnels appliquant les standards de sécurité actuels.
           Le code du site est public ; tes données, elles, ne le sont jamais.
         </p>
 

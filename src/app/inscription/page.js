@@ -168,7 +168,10 @@ export default function Inscription() {
                   <b>Un délégué de ta promotion</b> validera ta demande.
                   Ton profil n&apos;est visible d&apos;aucun visiteur extérieur.
                   En envoyant ta demande, tu acceptes les{" "}
-                  <Link href="/conditions" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>
+                  <Link href="/conditions" style={{
+                    color: "var(--or-clair)", textDecoration: "underline", textUnderlineOffset: 3,
+                    display: "inline-block", padding: "4px 2px", margin: "-2px 0",
+                  }}>
                     conditions d&apos;utilisation
                   </Link>.
                 </span>

@@ -90,6 +90,19 @@ export default function GestionMembre({ moiId, signale }) {
     setMdp("");
   }, "Mot de passe temporaire défini ✓ — communique-le au membre");
 
+  const changerEmail = () => {
+    const nouveau = prompt(
+      `Nouvel email de connexion pour ${choisi.prenom} ${choisi.nom} ?\n(Pour le membre qui a perdu l'accès à sa boîte — vérifie son identité d'abord.)`
+    );
+    if (!nouveau) return;
+    action(async () => {
+      const { error } = await supabase.rpc("admin_change_email", { cible: choisi.id, nouvel_email: nouveau });
+      if (error) throw error;
+      setEmail(nouveau.trim().toLowerCase());
+      setConfirme(true);
+    }, "Email de connexion changé ✓");
+  };
+
   const suspendre = (suspendu) => action(async () => {
     const { error } = await supabase
       .from("profiles").update({ statut_compte: suspendu ? "suspendu" : "valide" }).eq("id", choisi.id);
@@ -188,6 +201,7 @@ export default function GestionMembre({ moiId, signale }) {
             <button className="btn btn-nu" style={btn} onClick={renvoyerConfirmation} disabled={enCours}>Renvoyer l&apos;email de confirmation</button>
             <button className="btn btn-nu" style={btn} onClick={confirmerEmail} disabled={enCours}>Confirmer l&apos;email à la main</button>
             <button className="btn btn-nu" style={btn} onClick={emailReinit} disabled={enCours}>Email de réinit. mot de passe</button>
+            <button className="btn btn-nu" style={btn} onClick={changerEmail} disabled={enCours}>Changer l&apos;email de connexion</button>
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>

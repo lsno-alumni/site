@@ -8,6 +8,8 @@ import { SqueletteEnTeteListe, SqueletteFiche } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import Sauvegarde from "./Sauvegarde";
+import Annonce from "./Annonce";
+import EtatSysteme from "./EtatSysteme";
 
 // Espace délégué / admin : validation des inscriptions, avec annulation.
 // La RLS limite un délégué à sa promotion ; un admin voit tout.
@@ -206,11 +208,17 @@ export default function Validation() {
               clearTimeout(minuteur.current);
               minuteur.current = setTimeout(() => setSnack(null), 4200);
             }} />
+            <Annonce signale={(m) => {
+              setSnack({ info: m });
+              clearTimeout(minuteur.current);
+              minuteur.current = setTimeout(() => setSnack(null), 4200);
+            }} />
             <Sauvegarde signale={(m) => {
               setSnack({ info: m });
               clearTimeout(minuteur.current);
               minuteur.current = setTimeout(() => setSnack(null), 4200);
             }} />
+            <EtatSysteme />
           </>
         )}
       </div>

@@ -30,7 +30,11 @@ export default function MenuAdmin() {
   };
 
   return (
-    <div ref={zone} style={{ position: "absolute", top: 18, right: 22, zIndex: 60 }}>
+    <div ref={zone} style={{
+      // fixé : le menu reste accessible en cours de défilement ; calé sur la
+      // colonne de 480px de l'app, sous la ligne « Espace admin »
+      position: "fixed", top: 58, right: "max(22px, calc((100vw - 480px) / 2 + 22px))", zIndex: 60,
+    }}>
       <button className="a-menu" aria-label="Sections de la page" aria-expanded={ouvert}
         onClick={() => setOuvert(!ouvert)}>
         {ouvert ? <X size={17} aria-hidden /> : <Menu size={17} aria-hidden />}

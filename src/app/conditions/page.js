@@ -52,7 +52,10 @@ export default function Conditions() {
         <Titre>4. Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b> Ton profil n&apos;est
-          visible que des membres validés du réseau. Tes contacts obéissent en plus à TES
+          visible que des membres validés du réseau. Seule exception, voulue : quand un membre
+          partage le lien d&apos;un profil (WhatsApp…), l&apos;aperçu du lien affiche la « vitrine »
+          du profil — prénom, nom, photo, promotion et la ligne de présentation — rien d&apos;autre ;
+          ouvrir le lien sans être connecté mène à la page de connexion. Tes contacts obéissent en plus à TES
           réglages, appliqués par la base de données elle-même : « Membres » (cliquable par les
           membres validés), « Sur demande » (partagé seulement si tu acceptes une demande de mise
           en relation), « Masqué » (invisible de tous). Les pages publiques du site n&apos;affichent

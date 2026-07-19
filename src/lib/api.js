@@ -107,6 +107,18 @@ export async function lireContacts(id) {
   return data;
 }
 
+export async function apercuProfil(id) {
+  // Vitrine publique volontaire (nom, photo, promo, une ligne) pour les
+  // aperçus de partage — fonctionne SANS session (fonction dédiée en base).
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("apercu_profil", { cible: id });
+  if (error) {
+    console.error("apercuProfil:", error.message);
+    return null;
+  }
+  return data;
+}
+
 export async function statutDemande(cibleId) {
   // Ma demande de mise en relation vers ce profil (null si aucune)
   const supabase = await creerClientServeur();

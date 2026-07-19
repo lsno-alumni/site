@@ -20,7 +20,7 @@ export default function Validation() {
   const [demandes, setDemandes] = useState([]);
   const [membres, setMembres] = useState([]);
   const [rechercheRole, setRechercheRole] = useState("");
-  const [stats, setStats] = useState({ valides: 0 });
+  const [stats, setStats] = useState({ valides: 0, promo: null });
   const [snack, setSnack] = useState(null); // { demande, valide } ou { info }
   const minuteur = useRef(null);
 
@@ -28,7 +28,7 @@ export default function Validation() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data: profil } = await supabase
-      .from("profiles").select("id, role, promotions(numero)").eq("id", user.id).maybeSingle();
+      .from("profiles").select("id, role, promotion_id, promotions(numero)").eq("id", user.id).maybeSingle();
     setMoi(profil);
     if (!profil || profil.role === "membre") return;
 
@@ -43,7 +43,17 @@ export default function Validation() {
       .from("profiles")
       .select("id", { count: "exact", head: true })
       .eq("statut_compte", "valide");
-    setStats({ valides: count ?? 0 });
+    // le délégué voit aussi le compte de SA promotion
+    let promo = null;
+    if (profil.role === "delegue") {
+      const { count: n } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("statut_compte", "valide")
+        .eq("promotion_id", profil.promotion_id);
+      promo = n ?? 0;
+    }
+    setStats({ valides: count ?? 0, promo });
 
     if (profil.role === "admin") {
       const { data: valides } = await supabase
@@ -166,6 +176,11 @@ export default function Validation() {
         <div className="e-stat" style={{ gridTemplateColumns: "auto 1fr" }}>
           <b>{stats.valides}</b><span>membres validés</span>
         </div>
+        {stats.promo !== null && (
+          <div className="e-stat" style={{ gridTemplateColumns: "auto 1fr", marginTop: 10 }}>
+            <b>{stats.promo}</b><span>de ta promo {moi?.promotions?.numero}</span>
+          </div>
+        )}
 
         {moi?.role === "admin" && (
           <>

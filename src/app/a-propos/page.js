@@ -32,8 +32,9 @@ export default function APropos() {
             Mentions
           </p>
           <p>
-            Plateforme associative à but non lucratif, éditée et administrée bénévolement par
-            des anciens élèves du LSNO — indépendante de l&apos;administration du lycée.
+            LSNO Amicale (aussi appelée LSNO Alumni) est une plateforme associative à but non
+            lucratif, éditée et administrée bénévolement par des anciens élèves du Lycée
+            Scientifique National de Ouagadougou — indépendante de l&apos;administration du lycée.
             Contact : <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>lsno.alumni@gmail.com</a>.
           </p>
           <p style={{ marginTop: 8 }}>

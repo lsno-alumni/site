@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass } from "lucide-react";
+import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -35,6 +35,7 @@ export default function Offres() {
   const [domaine, setDomaine] = useState("");
   const [triLimite, setTriLimite] = useState(false); // date limite la plus proche d'abord
   const [formulaire, setFormulaire] = useState(false);
+  const [edition, setEdition] = useState(null); // id de l'offre en cours de modification
   const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
   const [enCours, setEnCours] = useState(false);
@@ -82,8 +83,7 @@ export default function Offres() {
       return;
     }
     setEnCours(true);
-    const { error } = await supabase.from("offres").insert({
-      posteur: moi.id,
+    const valeurs = {
       type: form.type,
       titre: form.titre.trim(),
       description: form.description.trim(),
@@ -92,16 +92,31 @@ export default function Offres() {
       ville: form.ville.trim() || null,
       date_limite: form.date_limite || null,
       lien: form.lien.trim() || null,
-    });
+    };
+    // même formulaire pour publier et corriger (la RLS limite au posteur)
+    const { error } = edition
+      ? await supabase.from("offres").update(valeurs).eq("id", edition)
+      : await supabase.from("offres").insert({ posteur: moi.id, ...valeurs });
     setEnCours(false);
     if (error) {
-      signale("Publication impossible : " + error.message);
+      signale((edition ? "Modification" : "Publication") + " impossible : " + error.message);
       return;
     }
     setForm(VIERGE);
     setFormulaire(false);
-    signale("Offre publiée ✓");
+    setEdition(null);
+    signale(edition ? "Offre modifiée ✓" : "Offre publiée ✓");
     charger();
+  };
+
+  const modifier = (o) => {
+    setForm({
+      type: o.type, titre: o.titre, description: o.description, domaine: o.domaine,
+      pays: o.pays ?? "", ville: o.ville ?? "", date_limite: o.date_limite ?? "", lien: o.lien ?? "",
+    });
+    setEdition(o.id);
+    setFormulaire(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const cloturer = async (o) => {
@@ -186,10 +201,10 @@ export default function Offres() {
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-or" style={{ flex: 1, padding: "11px 16px", fontSize: 13.5 }}
               onClick={publier} disabled={enCours}>
-              {enCours ? "Publication…" : "Publier l'offre"}
+              {enCours ? "Enregistrement…" : edition ? "Enregistrer les modifications" : "Publier l'offre"}
             </button>
             <button className="btn btn-nu" style={{ padding: "11px 16px", fontSize: 13.5 }}
-              onClick={() => setFormulaire(false)}>
+              onClick={() => { setFormulaire(false); setEdition(null); setForm(VIERGE); }}>
               Annuler
             </button>
           </div>
@@ -269,6 +284,12 @@ export default function Offres() {
                   </span>
                 </Link>
                 <span style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                  {mienne && (
+                    <button className="btn btn-nu" style={{ padding: "8px 10px", fontSize: 12 }}
+                      onClick={() => modifier(o)} aria-label="Modifier l'offre">
+                      <Pencil size={13} aria-hidden />
+                    </button>
+                  )}
                   {mienne && (
                     <button className="btn btn-nu" style={{ padding: "8px 12px", fontSize: 12 }} onClick={() => cloturer(o)}>
                       <CheckCheck size={13} aria-hidden /> Pourvu

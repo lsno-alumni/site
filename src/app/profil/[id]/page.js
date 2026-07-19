@@ -15,11 +15,15 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const p = await apercuProfil(id);
   if (!p) return { title: "LSNO Amicale", robots: { index: false } };
+  const titre = `${p.prenom} ${p.nom} — Promo ${p.promo} · LSNO Amicale`;
+  const desc = p.statut
+    ? `${p.statut}. Découvre son parcours sur le réseau des anciens du LSNO.`
+    : "Découvre son parcours sur le réseau des anciens du LSNO.";
   return {
-    title: `${p.prenom} ${p.nom} — Promo ${p.promo} · LSNO Amicale`,
-    description: p.statut
-      ? `${p.statut}. Découvre son parcours sur le réseau des anciens du LSNO.`
-      : "Découvre son parcours sur le réseau des anciens du LSNO.",
+    title: titre,
+    description: desc,
+    // sans surcharge explicite, WhatsApp affiche le og:title hérité du layout
+    openGraph: { title: titre, description: desc },
     robots: { index: false },
   };
 }

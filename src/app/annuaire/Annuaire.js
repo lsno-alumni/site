@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
@@ -16,9 +16,22 @@ export default function Annuaire({ membres }) {
   const params = useSearchParams();
   const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
   const [promo, setPromo] = useState(params.get("promo") ?? "");
-  const [pays, setPays] = useState("");
-  const [situation, setSituation] = useState("");
-  const [q, setQ] = useState("");
+  const [pays, setPays] = useState(params.get("pays") ?? "");
+  const [situation, setSituation] = useState(params.get("situation") ?? "");
+  const [q, setQ] = useState(params.get("q") ?? "");
+
+  // les filtres vivent dans l'URL (sans navigation) : le retour depuis un
+  // profil retrouve exactement la même liste
+  useEffect(() => {
+    const u = new URLSearchParams();
+    if (domaine !== "tous") u.set("domaine", domaine);
+    if (promo) u.set("promo", promo);
+    if (pays) u.set("pays", pays);
+    if (situation) u.set("situation", situation);
+    if (q.trim()) u.set("q", q.trim());
+    const suffixe = u.toString();
+    window.history.replaceState(null, "", suffixe ? `/annuaire?${suffixe}` : "/annuaire");
+  }, [domaine, promo, pays, situation, q]);
 
   // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)
   const plat = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");

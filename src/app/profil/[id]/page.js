@@ -8,6 +8,7 @@ import { PAYS, nomDomaine } from "@/lib/donnees";
 import { lireProfil, lireContacts, statutDemande, apercuProfil } from "@/lib/api";
 import DemandeContact from "./DemandeContact";
 import Histoire from "./Histoire";
+import Retour from "./Retour";
 
 // Aperçu de partage : titre/description personnalisés (vitrine choisie),
 // jamais indexé par les moteurs.
@@ -99,7 +100,7 @@ export default async function PageProfil({ params }) {
   return (
     <main className="page avec-tabbar">
       <div className="p-cover">
-        <Link href="/annuaire" className="p-retour" aria-label="Retour à l'annuaire">←</Link>
+        <Retour />
       </div>
       <div className="p-corps">
         <PhotoProfil profil={p} />

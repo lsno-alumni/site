@@ -12,6 +12,10 @@ export default function manifest() {
     icons: [
       { src: "/icone-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icone-512.png", sizes: "512x512", type: "image/png" },
+      // versions « maskable » : blason en médaillon rond sur fond encre —
+      // Android les utilise pour l'icône ET le splash d'installation
+      { src: "/icone-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: "/icone-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

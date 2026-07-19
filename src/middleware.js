@@ -45,7 +45,7 @@ export async function middleware(req) {
     // profil partagé (vitrine choisie) ; les humains vont à la connexion
     const ua = req.headers.get("user-agent") ?? "";
     const robotApercu = /whatsapp|facebookexternalhit|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|skypeuripreview|pinterestbot/i.test(ua);
-    if (robotApercu && chemin.startsWith("/profil/")) return res;
+    if (robotApercu && (chemin.startsWith("/profil/") || /^\/offres\/\d+/.test(chemin))) return res;
     const url = req.nextUrl.clone();
     url.pathname = "/connexion";
     return NextResponse.redirect(url);

@@ -119,6 +119,17 @@ export async function apercuProfil(id) {
   return data;
 }
 
+export async function apercuOffre(id) {
+  // Vitrine d'une offre pour les aperçus de partage (sans session).
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("apercu_offre", { cible: Number(id) });
+  if (error) {
+    console.error("apercuOffre:", error.message);
+    return null;
+  }
+  return data;
+}
+
 export async function statutDemande(cibleId) {
   // Ma demande de mise en relation vers ce profil (null si aucune)
   const supabase = await creerClientServeur();

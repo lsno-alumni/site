@@ -69,10 +69,10 @@ export default function AccueilMembre({ moi, donnees }) {
       {offres.length > 0 && (
         <Reveal>
         <section className="a-section">
-          <h2 className="a-titre">Dernières opportunités</h2>
+          <h2 className="a-titre" style={{ marginBottom: 12 }}>Dernières opportunités</h2>
           <div className="am-offres">
             {offres.map((o) => (
-              <Link key={o.id} href="/offres" className="am-offre">
+              <Link key={o.id} href={`/offres#o-${o.id}`} className="am-offre">
                 <span className="meta doree" style={{ flexShrink: 0 }}>{TYPES_OFFRE[o.type]}</span>
                 <span className="am-offre-titre">{o.titre}</span>
               </Link>

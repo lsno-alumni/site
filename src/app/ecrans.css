@@ -175,6 +175,9 @@
 .am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
+/* offre ciblée par un lien de partage : halo doré temporaire */
+.offre-focus { border-color: var(--or) !important; box-shadow: 0 0 0 3px rgba(232, 179, 60, .25); }
+
 /* sections de l'espace admin : de l'air entre les blocs empilés */
 .sec-admin { display: grid; gap: 12px; margin-top: 14px; }
 .sec-admin .a-titre { margin-top: 10px; }

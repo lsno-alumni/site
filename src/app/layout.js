@@ -15,6 +15,9 @@ const ui = Space_Grotesk({
   variable: "--font-ui",
 });
 
+// la barre du navigateur prend la couleur encre du site
+export const viewport = { themeColor: "#0A1B33" };
+
 export const metadata = {
   metadataBase: new URL("https://lsno-alumni.vercel.app"),
   title: "LSNO Amicale — Le réseau des anciens du Lycée Scientifique National de Ouagadougou",

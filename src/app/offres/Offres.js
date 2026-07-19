@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil } from "lucide-react";
+import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -69,6 +69,31 @@ export default function Offres() {
     setOffres(data ?? []);
   };
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // lien de partage /offres/ID → arrivée sur #o-ID : défile et surligne l'offre
+  useEffect(() => {
+    if (offres === null) return;
+    const h = window.location.hash;
+    if (!h.startsWith("#o-")) return;
+    const el = document.getElementById(h.slice(1));
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("offre-focus");
+      setTimeout(() => el.classList.remove("offre-focus"), 2600);
+    }
+  }, [offres]);
+
+  const partager = async (o) => {
+    const url = `${window.location.origin}/offres/${o.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: o.titre, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        signale("Lien de l'offre copié ✓");
+      }
+    } catch { /* partage annulé */ }
+  };
 
   const visibles = useMemo(() => {
     const liste = (offres ?? []).filter((o) =>
@@ -248,7 +273,7 @@ export default function Offres() {
           const mienne = moi?.id === o.posteur?.id;
           const admin = moi?.role === "admin";
           return (
-            <article key={o.id} className="fiche demande" style={{ cursor: "default" }}>
+            <article key={o.id} id={`o-${o.id}`} className="fiche demande" style={{ cursor: "default" }}>
               <div style={{ padding: "15px 16px 12px" }}>
                 <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 9 }}>
                   <span className="meta doree">{nomType(o.type)}</span>
@@ -291,6 +316,10 @@ export default function Offres() {
                   </span>
                 </Link>
                 <span style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                  <button className="btn btn-nu" style={{ padding: "8px 10px", fontSize: 12 }}
+                    onClick={() => partager(o)} aria-label="Partager l'offre">
+                    <Share2 size={13} aria-hidden />
+                  </button>
                   {mienne && (
                     <button className="btn btn-nu" style={{ padding: "8px 10px", fontSize: 12 }}
                       onClick={() => modifier(o)} aria-label="Modifier l'offre">

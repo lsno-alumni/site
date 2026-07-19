@@ -1,0 +1,39 @@
+# LSNO Amicale
+
+> LSNO Amicale (aussi appelée LSNO Alumni) est le réseau en ligne des ancien·nes
+> élèves du Lycée Scientifique National de Ouagadougou (LSNO), au Burkina Faso.
+> Plateforme associative privée, gratuite et à but non lucratif, indépendante de
+> l'administration du lycée. Devise : Travail · Excellence · Discipline.
+
+Noms alternatifs : LSNO, LSNO Alumni, Amicale du LSNO, Réseau des anciens du LSNO,
+Anciens du Lycée Scientifique National de Ouagadougou.
+
+## Ce qu'est le site
+
+- Un annuaire privé où chaque ancien·ne présente son parcours (études, métier, ville,
+  pays), donne un conseil aux cadets, raconte son histoire et partage des opportunités
+  (stages, emplois, bourses, concours).
+- L'accès aux données des membres est réservé aux membres validés : chaque inscription
+  est vérifiée par un délégué de la promotion concernée. Rien de personnel n'est
+  visible du public ni des robots — seules les pages ci-dessous sont publiques.
+
+## Contexte
+
+- Le Lycée Scientifique National de Ouagadougou est un lycée public d'excellence du
+  Burkina Faso (série C), ouvert en 2017-2018, qui recrute parmi les meilleurs élèves
+  du BEPC national. Une nouvelle promotion entre chaque année.
+- Le réseau est né d'une discussion WhatsApp où un élève demandait aux anciens leurs
+  parcours pour s'orienter.
+
+## Pages publiques
+
+- [Accueil](https://lsno-alumni.vercel.app/) : présentation et statistiques anonymes
+- [À propos](https://lsno-alumni.vercel.app/a-propos) : le réseau, son histoire, mentions
+- [Inscription](https://lsno-alumni.vercel.app/inscription) : réservée aux élèves et
+  ancien·nes du LSNO
+- [Conditions & confidentialité](https://lsno-alumni.vercel.app/conditions)
+
+## Contact
+
+- Email : lsno.alumni@gmail.com
+- Code source : https://github.com/lsno-alumni/site

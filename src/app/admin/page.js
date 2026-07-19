@@ -174,9 +174,10 @@ export default function Validation() {
 
         <h2 className="a-titre" style={{ marginTop: 18 }}>Le réseau</h2>
         <div className="e-stat" style={stats.promo === null ? { gridTemplateColumns: "auto 1fr" } : undefined}>
-          <b>{stats.valides}</b><span>membres validés</span>
+          {/* libellés courts côté délégué : à 340px avec de grands nombres, les longs replient */}
+          <b>{stats.valides}</b><span>{stats.promo === null ? "membres validés" : "membres"}</span>
           {stats.promo !== null && (
-            <><b>{stats.promo}</b><span>de ta promo {moi?.promotions?.numero}</span></>
+            <><b>{stats.promo}</b><span>promo {moi?.promotions?.numero}</span></>
           )}
         </div>
 

@@ -27,6 +27,13 @@ function ilYA(date) {
 
 const VIERGE = { type: "stage", titre: "", description: "", domaine: "info", pays: "", ville: "", date_limite: "", lien: "" };
 
+// sans protocole, un lien serait pris pour un chemin DU site (→ 404)
+function lienAbsolu(v) {
+  const l = (v ?? "").trim();
+  if (!l) return null;
+  return /^https?:\/\//i.test(l) ? l : `https://${l}`;
+}
+
 export default function Offres() {
   const supabase = creerClientNavigateur();
   const [moi, setMoi] = useState(null);
@@ -91,7 +98,7 @@ export default function Offres() {
       pays: form.pays || null,
       ville: form.ville.trim() || null,
       date_limite: form.date_limite || null,
-      lien: form.lien.trim() || null,
+      lien: lienAbsolu(form.lien),
     };
     // même formulaire pour publier et corriger (la RLS limite au posteur)
     const { error } = edition
@@ -268,7 +275,7 @@ export default function Offres() {
                   </button>
                 )}
                 {o.lien && (
-                  <a href={o.lien} target="_blank" rel="noopener noreferrer"
+                  <a href={lienAbsolu(o.lien)} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize: 12.5, color: "var(--or-clair)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
                     Voir l&apos;annonce <ExternalLink size={12} aria-hidden />
                   </a>

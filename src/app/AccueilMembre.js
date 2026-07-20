@@ -94,6 +94,9 @@ export default function AccueilMembre({ moi, donnees }) {
               <span>Promotion {conseil.promotions?.numero} · voir son parcours</span>
             </div>
           </Link>
+          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--encre)", opacity: .75 }}>
+            Tous les conseils par thème <ArrowRight size={13} aria-hidden />
+          </Link>
         </section>
         </Reveal>
       )}

@@ -107,6 +107,23 @@ export async function lireContacts(id) {
   return data;
 }
 
+export async function listeConseils() {
+  // Tous les conseils aux cadets, pour la page /conseils (groupés par domaine côté UI).
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, prenom, nom, photo_url, domaine, domaine_precision, conseil, promotions(numero)")
+    .eq("statut_compte", "valide")
+    .not("conseil", "is", null)
+    .neq("conseil", "")
+    .order("prenom");
+  if (error) {
+    console.error("listeConseils:", error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
 export async function apercuProfil(id) {
   // Vitrine publique volontaire (nom, photo, promo, une ligne) pour les
   // aperçus de partage — fonctionne SANS session (fonction dédiée en base).

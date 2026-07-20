@@ -249,6 +249,7 @@
 }
 /* variante « élèves en marche » (espace Validation) */
 .tete-eleves::before { background-image: url("/img/lsno_hero.jpg"); background-position: center 25%; }
+.tete-promo1::before { background-image: url("/img/lsno_promo1.jpg"); background-position: center 30%; }
 .n-tete::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(180deg, rgba(10,27,51,.78) 0%, rgba(10,27,51,.92) 55%, var(--encre) 100%);

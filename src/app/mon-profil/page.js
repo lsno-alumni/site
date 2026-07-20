@@ -11,7 +11,7 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -38,7 +38,7 @@ export default function MonProfil() {
       if (!user) return routeur.push("/connexion");
       const { data } = await supabase
         .from("profiles")
-        .select("id, prenom, nom, situation, statut_titre, conseil, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
+        .select("id, prenom, nom, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, promotions(numero)")
         .eq("id", user.id)
         .maybeSingle();
       // les valeurs de contact ne sont lisibles que via cette fonction
@@ -73,6 +73,8 @@ export default function MonProfil() {
 
   const enregistrer = async () => {
     const { id, promotions, statut_compte, photo_url, ...champs } = profil;
+    // thème vide ou seulement des espaces (« Autre » non rempli) → Général (null)
+    champs.conseil_theme = (champs.conseil_theme ?? "").trim() || null;
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);
     setToast(error ? "Échec de l'enregistrement : " + error.message : "Profil enregistré ✓");
     setTimeout(() => setToast(""), 3000);
@@ -208,6 +210,32 @@ export default function MonProfil() {
           <label htmlFor="conseil">Mon conseil aux cadets</label>
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
+          {(profil.conseil ?? "").trim() && (
+            <div style={{ marginTop: 10 }}>
+              <label htmlFor="conseil-theme" style={{ fontSize: 12.5, color: "var(--brume)", display: "block", marginBottom: 6 }}>
+                Sur quoi porte-t-il ? (aide les cadets à le retrouver)
+              </label>
+              <select id="conseil-theme" className="saisie"
+                value={THEMES_CONSEIL.includes(profil.conseil_theme) ? profil.conseil_theme : (profil.conseil_theme ? "__autre__" : "")}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "__autre__") setProfil({ ...profil, conseil_theme: " " }); // ouvre le champ libre
+                  else setProfil({ ...profil, conseil_theme: v || null });
+                }}>
+                <option value="">Général</option>
+                {THEMES_CONSEIL.map((t) => <option key={t} value={t}>{t}</option>)}
+                <option value="__autre__">Autre thème…</option>
+              </select>
+              {profil.conseil_theme !== null && profil.conseil_theme !== undefined
+                && !THEMES_CONSEIL.includes(profil.conseil_theme) && profil.conseil_theme !== "" && (
+                <input className="saisie" style={{ marginTop: 8 }} maxLength={40} autoFocus
+                  placeholder="Précise le thème de ton conseil"
+                  aria-label="Thème du conseil"
+                  value={profil.conseil_theme.trimStart()}
+                  onChange={(e) => setProfil({ ...profil, conseil_theme: e.target.value || null })} />
+              )}
+            </div>
+          )}
         </div>
 
         <div className="champ">

@@ -112,7 +112,7 @@ export async function listeConseils() {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, photo_url, domaine, domaine_precision, conseil, promotions(numero)")
+    .select("id, prenom, nom, photo_url, domaine, domaine_precision, conseil, conseil_theme, promotions(numero)")
     .eq("statut_compte", "valide")
     .not("conseil", "is", null)
     .neq("conseil", "")

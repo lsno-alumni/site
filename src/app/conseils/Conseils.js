@@ -3,39 +3,47 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
-import IconeDomaine from "@/components/IconeDomaine";
-import { DOMAINES, nomDomaine } from "@/lib/donnees";
+import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
+
+const GENERAL = "Général";
 
 export default function Conseils({ conseils }) {
-  const [domaine, setDomaine] = useState("tous");
+  const [theme, setTheme] = useState("tous");
 
-  // domaines réellement présents (dans l'ordre de DOMAINES), + compte
+  // regroupe par thème choisi par l'auteur (défaut « Général ») ; ordre :
+  // thèmes proposés d'abord, puis thèmes libres alpha, puis Général en dernier
   const groupes = useMemo(() => {
-    return DOMAINES
-      .map((d) => ({ ...d, items: conseils.filter((c) => c.domaine === d.cle) }))
-      .filter((g) => g.items.length > 0);
+    const parTheme = {};
+    for (const c of conseils) {
+      const t = (c.conseil_theme ?? "").trim() || GENERAL;
+      (parTheme[t] ??= []).push(c);
+    }
+    const noms = Object.keys(parTheme);
+    const libres = noms
+      .filter((n) => n !== GENERAL && !THEMES_CONSEIL.includes(n))
+      .sort((a, b) => a.localeCompare(b, "fr"));
+    const ordre = [...THEMES_CONSEIL.filter((t) => parTheme[t]), ...libres];
+    if (parTheme[GENERAL]) ordre.push(GENERAL);
+    return ordre.map((t) => ({ theme: t, items: parTheme[t] }));
   }, [conseils]);
 
-  const visibles = domaine === "tous" ? groupes : groupes.filter((g) => g.cle === domaine);
+  const visibles = theme === "tous" ? groupes : groupes.filter((g) => g.theme === theme);
 
   return (
     <>
       <div className="n-filtres" style={{ position: "static" }}>
-        <button className={`puce${domaine === "tous" ? " active" : ""}`} onClick={() => setDomaine("tous")}>Tous</button>
+        <button className={`puce${theme === "tous" ? " active" : ""}`} onClick={() => setTheme("tous")}>Tous</button>
         {groupes.map((g) => (
-          <button key={g.cle} className={`puce${domaine === g.cle ? " active" : ""}`} onClick={() => setDomaine(g.cle)}>
-            {g.nom.split(" &")[0]}
+          <button key={g.theme} className={`puce${theme === g.theme ? " active" : ""}`} onClick={() => setTheme(g.theme)}>
+            {g.theme}
           </button>
         ))}
       </div>
 
       <div className="n-liste" style={{ paddingTop: 4 }}>
         {visibles.map((g) => (
-          <section key={g.cle} style={{ marginBottom: 8 }}>
-            <h2 className="a-titre" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <span className="pictol" style={{ display: "inline-flex" }}><IconeDomaine domaine={g.cle} taille={17} /></span>
-              {g.nom.split(" &")[0]}
-            </h2>
+          <section key={g.theme} style={{ marginBottom: 8 }}>
+            <h2 className="a-titre" style={{ marginBottom: 10 }}>{g.theme}</h2>
             {g.items.map((c) => (
               <div key={c.id} className="a-temoin" style={{ margin: "0 0 12px" }}>
                 <p>{c.conseil}</p>

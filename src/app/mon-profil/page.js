@@ -213,7 +213,7 @@ export default function MonProfil() {
           {(profil.conseil ?? "").trim() && (
             <div style={{ marginTop: 10 }}>
               <label htmlFor="conseil-theme" style={{ fontSize: 12.5, color: "var(--brume)", display: "block", marginBottom: 6 }}>
-                Sur quoi porte-t-il ? (aide les cadets à le retrouver)
+                Sur quoi porte ton conseil ? (aide les cadets à le retrouver)
               </label>
               <select id="conseil-theme" className="saisie"
                 value={THEMES_CONSEIL.includes(profil.conseil_theme) ? profil.conseil_theme : (profil.conseil_theme ? "__autre__" : "")}

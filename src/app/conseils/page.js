@@ -13,7 +13,7 @@ export default async function PageConseils() {
       <header className="n-tete tete-promo1" style={{ paddingBottom: 18 }}>
         <Link href="/" className="retour">← Accueil</Link>
         <h1 style={{ marginTop: 8 }}>Conseils<br />aux <em>cadets</em></h1>
-        <p className="cpt">La sagesse des anciens, réunie par domaine.</p>
+        <p className="cpt">La sagesse des anciens, réunie par thème.</p>
       </header>
       <Conseils conseils={conseils} />
       <TabBar />

@@ -80,6 +80,20 @@ export function nomDomaine(cle, precision, court = false) {
   return court ? nom.split(" &")[0] : nom;
 }
 
+// Thèmes proposés pour ranger son conseil aux cadets (choix unique ;
+// « Autre » ouvre un champ libre). « Général » = défaut si rien de choisi.
+export const THEMES_CONSEIL = [
+  "Orientation post-bac",
+  "Choix de filière",
+  "Bourses & financements",
+  "Études à l'étranger",
+  "Classes préparatoires",
+  "Concours d'entrée",
+  "Vie étudiante",
+  "Le métier au quotidien",
+  "Réussir au LSNO",
+];
+
 // Sujets proposés pour « discuter avec les cadets » (le membre peut
 // aussi ajouter les siens ; 8 au total max, appliqué en base)
 export const SUJETS_CADETS = [

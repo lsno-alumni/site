@@ -59,7 +59,12 @@ export default function Annuaire({ membres }) {
   return (
     <>
       <header className="n-tete">
-        <h1>Les anciens</h1>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <h1>Les anciens</h1>
+          <Link href="/conseils" className="n-vers-conseils">
+            <Lightbulb size={14} strokeWidth={1.9} aria-hidden /> Conseils
+          </Link>
+        </div>
         <p className="cpt">
           {resultats.length > 0
             ? `${resultats.length} profil${resultats.length > 1 ? "s" : ""}`
@@ -75,11 +80,6 @@ export default function Annuaire({ membres }) {
             aria-label="Rechercher un ancien"
           />
         </div>
-        <Link href="/conseils" className="n-vers-conseils">
-          <Lightbulb size={15} strokeWidth={1.9} aria-hidden />
-          Leurs conseils aux cadets
-          <ArrowRight size={14} aria-hidden style={{ marginLeft: "auto" }} />
-        </Link>
       </header>
 
       <div className="n-filtres" role="group" aria-label="Filtrer par domaine">

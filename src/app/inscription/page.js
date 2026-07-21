@@ -14,6 +14,7 @@ export default function Inscription() {
   const [envoye, setEnvoye] = useState(false);
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
+  const [blocage, setBlocage] = useState(false);
   const [form, setForm] = useState({
     prenom: "", nom: "", email: "", motDePasse: "",
     promotion: null, domaine: "info", domainePrecision: "",
@@ -156,14 +157,24 @@ export default function Inscription() {
                   {PROMOTIONS.map((p) => (
                     <button
                       key={p.numero}
-                      className={`pcase${form.promotion === p.numero ? " choisie" : ""}`}
-                      onClick={() => setForm({ ...form, promotion: p.numero })}
+                      type="button"
+                      className={`pcase${form.promotion === p.numero ? " choisie" : ""}${p.autoriseeInscription ? "" : " verrouillee"}`}
+                      aria-disabled={!p.autoriseeInscription}
+                      onClick={() => p.autoriseeInscription
+                        ? setForm({ ...form, promotion: p.numero })
+                        : setBlocage(true)}
                     >
                       <b>P{p.numero}</b>
-                      <span>{p.enCours ? "en cours" : `Bac ${p.anneeBac}`}</span>
+                      <span>{p.autoriseeInscription ? (p.enCours ? "en cours" : `Bac ${p.anneeBac}`) : "🔒 Bientôt"}</span>
                     </button>
                   ))}
                 </div>
+                {blocage && (
+                  <p style={{ fontSize: 12.5, color: "var(--or-clair)", lineHeight: 1.5, marginTop: 10 }}>
+                    Le réseau s&apos;ouvre à partir de la <b>première</b> 🎓 — reviens à la rentrée
+                    prochaine, ta place t&apos;attend !
+                  </p>
+                )}
               </div>
               <div className="champ">
                 <label htmlFor="domaine">Domaine principal</label>

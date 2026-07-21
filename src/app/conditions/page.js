@@ -35,7 +35,9 @@ export default function Conditions() {
         <Titre>2. Qui peut s&apos;inscrire</Titre>
         <p>
           Toute personne qui est ou a été élève du LSNO, de la première promotion à celle en
-          cours. Chaque inscription est vérifiée par un délégué de la promotion concernée (ou un
+          cours. Pour les élèves encore au lycée, l&apos;inscription est ouverte <b>à partir de la
+          classe de première</b> (les élèves de seconde pourront nous rejoindre à leur passage en
+          première). Chaque inscription est vérifiée par un délégué de la promotion concernée (ou un
           administrateur), qui reconnaît ses camarades. Un compte créé sous une fausse identité
           ou par une personne extérieure au lycée sera refusé ou supprimé.
         </p>

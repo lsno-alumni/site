@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
-import { Search, BadgeCheck } from "lucide-react";
+import { Search, BadgeCheck, Lightbulb, ArrowRight } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
@@ -75,6 +75,11 @@ export default function Annuaire({ membres }) {
             aria-label="Rechercher un ancien"
           />
         </div>
+        <Link href="/conseils" className="n-vers-conseils">
+          <Lightbulb size={15} strokeWidth={1.9} aria-hidden />
+          Leurs conseils aux cadets
+          <ArrowRight size={14} aria-hidden style={{ marginLeft: "auto" }} />
+        </Link>
       </header>
 
       <div className="n-filtres" role="group" aria-label="Filtrer par domaine">

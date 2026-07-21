@@ -1,4 +1,5 @@
 import Link from "next/link";
+import RetourDynamique from "@/components/RetourDynamique";
 
 export const metadata = {
   title: "Conditions & confidentialité — LSNO Amicale",
@@ -14,7 +15,7 @@ export default function Conditions() {
   return (
     <main className="page">
       <header className="f-tete tete-portail" style={{ paddingTop: 20, paddingBottom: 24 }}>
-        <Link href="/" className="retour">← Accueil</Link>
+        <RetourDynamique secours="/" libelle="Retour" />
         <h1>Conditions<br />&amp; <em>confidentialité</em></h1>
         <p>Ce que tu acceptes en rejoignant le réseau — et ce que nous faisons de tes données.</p>
       </header>

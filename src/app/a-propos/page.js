@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TabBar from "@/components/TabBar";
 import Carrousel from "@/components/Carrousel3D";
+import RetourDynamique from "@/components/RetourDynamique";
 
 export const metadata = { title: "À propos — LSNO Amicale" };
 
@@ -8,7 +9,7 @@ export default function APropos() {
   return (
     <main className="page avec-tabbar">
       <header className="f-tete tete-campus" style={{ paddingTop: 20, paddingBottom: 26 }}>
-        <Link href="/" className="retour">← Accueil</Link>
+        <RetourDynamique secours="/" libelle="Retour" />
         <h1>À propos<br />du <em>réseau</em></h1>
       </header>
       <div className="f-corps" style={{ fontSize: 14.5, lineHeight: 1.7, color: "var(--craie-2)" }}>

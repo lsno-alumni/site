@@ -7,6 +7,7 @@ import TabBar from "@/components/TabBar";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
+import RetourDynamique from "@/components/RetourDynamique";
 import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
@@ -124,7 +125,7 @@ export default function MonProfil() {
   return (
     <main className="page avec-tabbar">
       <header className="f-tete tete-etude" style={{ paddingTop: 20 }}>
-        <Link href="/annuaire" className="retour">← Annuaire</Link>
+        <RetourDynamique secours="/annuaire" libelle="Retour" />
         <h1>Modifier<br />mon <em>profil</em></h1>
         <p>
           {profil.statut_compte === "en_attente"

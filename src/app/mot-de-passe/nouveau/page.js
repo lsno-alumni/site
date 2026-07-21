@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
+import RetourDynamique from "@/components/RetourDynamique";
 
 // Page d'atterrissage du lien de récupération (et du changement volontaire :
 // accessible aussi connecté). Le client Supabase échange automatiquement le
@@ -55,7 +56,7 @@ export default function NouveauMotDePasse() {
   return (
     <main className="page">
       <header className="f-tete" style={{ paddingTop: 20 }}>
-        <Link href="/connexion" className="retour">← Connexion</Link>
+        <RetourDynamique secours="/connexion" libelle="Retour" />
         <h1>Nouveau<br /><em>mot de passe</em></h1>
         <p>Au moins 8 caractères, avec une majuscule et un chiffre.</p>
       </header>

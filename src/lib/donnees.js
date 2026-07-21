@@ -63,11 +63,16 @@ export const PROMOTIONS = Array.from(
   { length: _annee - 2017 + (_mois >= 10 ? 1 : 0) },
   (_, i) => {
     const anneeBac = 2020 + i;
+    const ecart = anneeBac - _annee; // années civiles avant le bac
     return {
       numero: i + 1,
       anneeEntree: 2017 + i,
       anneeBac,
       enCours: anneeBac > _annee || (anneeBac === _annee && _mois < 7),
+      // Inscription réservée à partir de la PREMIÈRE (vote 20/07) : une promo
+      // en seconde (écart +3, ou +2 avant la rentrée d'octobre) est bloquée ;
+      // elle se débloque à la rentrée d'octobre où elle passe en première.
+      autoriseeInscription: ecart < 2 || (ecart === 2 && _mois >= 10),
     };
   }
 );

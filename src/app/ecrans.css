@@ -389,6 +389,9 @@
 .pcase span { font-size: 10.5px; color: var(--brume); }
 .pcase.choisie { border-color: var(--or); background: rgba(232,179,60,.12); box-shadow: 0 0 0 3px rgba(232,179,60,.12); }
 .pcase.choisie b { color: var(--or-clair); }
+/* promotion pas encore autorisée à l'inscription (élèves de seconde) */
+.pcase.verrouillee { opacity: .45; cursor: not-allowed; }
+.pcase.verrouillee span { color: var(--brume); }
 
 .f-note {
   display: flex; gap: 12px; background: var(--carte); border: 1px solid var(--ligne);

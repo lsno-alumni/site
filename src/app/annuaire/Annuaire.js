@@ -10,6 +10,7 @@ import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS
 const FILTRES_DOMAINE = [
   { cle: "tous", nom: "Tous" },
   ...DOMAINES.map((d) => ({ cle: d.cle, nom: d.nom.split(" &")[0] })),
+  { cle: "eleve", nom: "Élèves" }, // membres encore au lycée (pas encore de domaine)
 ];
 
 export default function Annuaire({ membres }) {

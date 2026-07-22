@@ -1,6 +1,6 @@
 import {
   Laptop, Stethoscope, Cog, Sigma, ChartColumn, Sprout, BookOpen,
-  Scale, Shield, Palette, Sparkles,
+  Scale, Shield, Palette, Sparkles, GraduationCap,
 } from "lucide-react";
 
 const ICONES = {
@@ -14,6 +14,7 @@ const ICONES = {
   droit: Scale,
   defense: Shield,
   arts: Palette,
+  eleve: GraduationCap,
   autre: Sparkles,
 };
 

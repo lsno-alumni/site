@@ -12,7 +12,7 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -116,8 +116,15 @@ export default function MonProfil() {
     );
   }
 
-  // complétion : proportion de champs remplis
-  const aRemplir = ["statut_titre", "ville", "pays", "conseil", "photo_url"];
+  // encore élève ? (piloté par la promotion + la date, bascule à la rentrée d'octobre)
+  const estEleve = estEncoreEleve(profil.promotions?.numero);
+  // il vient de sortir mais son domaine/situation valent encore « élève » : à mettre à jour
+  const aMigrer = !estEleve && (profil.domaine === "eleve" || profil.situation === "eleve");
+
+  // complétion : un élève n'a ni poste ni conseil → on n'en tient pas compte pour lui
+  const aRemplir = estEleve
+    ? ["ville", "pays", "photo_url"]
+    : ["statut_titre", "ville", "pays", "conseil", "photo_url"];
   const completion = Math.round(
     ((aRemplir.filter((c) => profil[c]).length + 3) / (aRemplir.length + 3)) * 100
   );
@@ -147,6 +154,13 @@ export default function MonProfil() {
       <div className="f-corps">
         <DemandesRecues signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3500); }} />
 
+        {aMigrer && (
+          <div style={{ background: "rgba(232,179,60,.12)", border: "1px solid rgba(232,179,60,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--craie)", lineHeight: 1.55 }}>
+            🎉 Tu es maintenant un ancien ! Choisis ton <b>domaine</b> et ta <b>situation</b>
+            ci-dessous, et n&apos;hésite pas à ajouter ton poste et un conseil aux cadets.
+          </div>
+        )}
+
         <div className="champ">
           <label>Ma photo</label>
           <Photo profil={profil}
@@ -154,20 +168,22 @@ export default function MonProfil() {
             signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
         </div>
 
-        <div className="champ">
-          <label htmlFor="titre">En une ligne (poste, école…)</label>
-          <input id="titre" className="saisie" placeholder="Ex. : Data scientist — M2 IA à Montréal"
-            value={profil.statut_titre ?? ""} onChange={majChamp("statut_titre")} />
-        </div>
+        {!estEleve && (
+          <div className="champ">
+            <label htmlFor="titre">En une ligne (poste, école…)</label>
+            <input id="titre" className="saisie" placeholder="Ex. : Data scientist — M2 IA à Montréal"
+              value={profil.statut_titre ?? ""} onChange={majChamp("statut_titre")} />
+          </div>
+        )}
 
         <div className="champ">
           <label htmlFor="situation">Situation actuelle</label>
-          {profil.domaine === "eleve" ? (
+          {estEleve ? (
             <p style={{ fontSize: 13, color: "var(--craie-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
-              🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études.
+              🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études supérieures.
             </p>
           ) : (
-            <select id="situation" className="saisie" value={profil.situation} onChange={majChamp("situation")}>
+            <select id="situation" className="saisie" value={profil.situation === "eleve" ? "etudiant" : profil.situation} onChange={majChamp("situation")}>
               {SITUATIONS.map((s) => (
                 <option key={s.cle} value={s.cle}>{s.nom}</option>
               ))}
@@ -177,23 +193,31 @@ export default function MonProfil() {
 
         <div className="champ">
           <label htmlFor="mp-domaine">Domaine principal</label>
-          <select id="mp-domaine" className="saisie" value={profil.domaine}
-            onChange={(e) => setProfil({
-              ...profil, domaine: e.target.value,
-              // la précision n'a de sens que pour « Autre »
-              domaine_precision: e.target.value === "autre" ? profil.domaine_precision : null,
-            })}>
-            <option value="eleve">Encore élève / pas encore de domaine</option>
-            {DOMAINES.map((d) => (
-              <option key={d.cle} value={d.cle}>{d.nom}</option>
-            ))}
-          </select>
-          {profil.domaine === "autre" && (
-            <input className="saisie" style={{ marginTop: 10 }} maxLength={40}
-              placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
-              aria-label="Précision du domaine"
-              value={profil.domaine_precision ?? ""}
-              onChange={(e) => setProfil({ ...profil, domaine_precision: e.target.value || null })} />
+          {estEleve ? (
+            <p style={{ fontSize: 13, color: "var(--craie-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
+              🎓 Élève — ton domaine s&apos;ouvrira quand tu entreras dans les études supérieures.
+            </p>
+          ) : (
+            <>
+              <select id="mp-domaine" className="saisie" value={profil.domaine === "eleve" ? "" : profil.domaine}
+                onChange={(e) => setProfil({
+                  ...profil, domaine: e.target.value,
+                  // la précision n'a de sens que pour « Autre »
+                  domaine_precision: e.target.value === "autre" ? profil.domaine_precision : null,
+                })}>
+                {profil.domaine === "eleve" && <option value="">— Choisis ton domaine —</option>}
+                {DOMAINES.map((d) => (
+                  <option key={d.cle} value={d.cle}>{d.nom}</option>
+                ))}
+              </select>
+              {profil.domaine === "autre" && (
+                <input className="saisie" style={{ marginTop: 10 }} maxLength={40}
+                  placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
+                  aria-label="Précision du domaine"
+                  value={profil.domaine_precision ?? ""}
+                  onChange={(e) => setProfil({ ...profil, domaine_precision: e.target.value || null })} />
+              )}
+            </>
           )}
         </div>
 
@@ -214,6 +238,7 @@ export default function MonProfil() {
           </div>
         </div>
 
+        {!estEleve && (
         <div className="champ">
           <label htmlFor="conseil">Mon conseil aux cadets</label>
           <textarea id="conseil" className="saisie" rows={3}
@@ -246,6 +271,8 @@ export default function MonProfil() {
           )}
         </div>
 
+        )}
+
         <div className="champ">
           <label htmlFor="histoire">Mon histoire (optionnel)</label>
           <textarea id="histoire" className="saisie" rows={6} maxLength={2000}
@@ -264,6 +291,7 @@ export default function MonProfil() {
             signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
         </div>
 
+        {!estEleve && (<>
         <div className="e-ligne">
           <span className="ico"><Handshake size={16} strokeWidth={1.8} aria-hidden /></span>
           <span className="val">Je réponds aux cadets</span>
@@ -303,6 +331,7 @@ export default function MonProfil() {
             </p>
           </div>
         )}
+        </>)}
 
         <div className="champ">
           <label>Mes contacts — et qui peut les voir</label>

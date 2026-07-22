@@ -73,15 +73,26 @@ export const PROMOTIONS = Array.from(
       // en seconde (écart +3, ou +2 avant la rentrée d'octobre) est bloquée ;
       // elle se débloque à la rentrée d'octobre où elle passe en première.
       autoriseeInscription: ecart < 2 || (ecart === 2 && _mois >= 10),
-      // Élève ou bachelier de l'année (bac cette année ou à venir) : pas encore
-      // de domaine → on ne le demande pas à l'inscription (domaine = « eleve »).
-      eleveActuel: ecart >= 0,
+      // Encore élève (au lycée) : bac à venir, ou bac cette année mais avant
+      // la rentrée d'octobre. Bascule en ANCIEN dès la rentrée d'octobre qui
+      // suit le bac (entrée dans le supérieur) → il a alors un domaine.
+      eleveActuel: anneeBac > _annee || (anneeBac === _annee && _mois < 10),
     };
   }
 );
 
 // Nom de domaine à afficher : la précision saisie remplace « Autre »
 // (le filtre, lui, continue de regrouper sous Autre).
+// Encore élève au lycée ? Déterminé par la promotion + la date (bascule en
+// ancien à la rentrée d'octobre suivant le bac). anneeBac = 2019 + numero.
+export function estEncoreEleve(promoNumero) {
+  if (!promoNumero) return false;
+  const anneeBac = 2019 + Number(promoNumero);
+  const d = new Date();
+  const a = d.getFullYear(), m = d.getMonth() + 1;
+  return anneeBac > a || (anneeBac === a && m < 10);
+}
+
 export function nomDomaine(cle, precision, court = false) {
   if (cle === "eleve") return "Élève";
   if (cle === "autre" && precision) return precision;

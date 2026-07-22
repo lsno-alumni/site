@@ -43,9 +43,12 @@ export default function Annuaire({ membres }) {
       if (domaine !== "tous" && m.domaine !== domaine) return false;
       if (promo && m.promotion !== Number(promo)) return false;
       if (pays && m.pays !== pays) return false;
-      // un élève n'a pas de vraie situation (« etudiant » n'est qu'un défaut en base) :
-      // on l'exclut des filtres par situation — il se retrouve via le filtre « Élèves »
-      if (situation && (m.domaine === "eleve" || m.situation !== situation)) return false;
+      // filtre situation : « Élève » = les lycéens ; les 4 vraies situations
+      // excluent les élèves (leur « etudiant » en base n'est qu'un défaut)
+      if (situation) {
+        const estEleveMembre = m.domaine === "eleve" || m.situation === "eleve";
+        if (situation === "eleve" ? !estEleveMembre : (estEleveMembre || m.situation !== situation)) return false;
+      }
       if (t) {
         const texte = plat([
           m.prenom, m.nom, m.statut, m.ville, nomPays(m.pays ?? ""),
@@ -117,6 +120,7 @@ export default function Annuaire({ membres }) {
           {SITUATIONS.map((s) => (
             <option key={s.cle} value={s.cle}>{s.nom}</option>
           ))}
+          <option value="eleve">Élève</option>
         </select>
       </div>
 

@@ -162,11 +162,17 @@ export default function MonProfil() {
 
         <div className="champ">
           <label htmlFor="situation">Situation actuelle</label>
-          <select id="situation" className="saisie" value={profil.situation} onChange={majChamp("situation")}>
-            {SITUATIONS.map((s) => (
-              <option key={s.cle} value={s.cle}>{s.nom}</option>
-            ))}
-          </select>
+          {profil.domaine === "eleve" ? (
+            <p style={{ fontSize: 13, color: "var(--craie-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
+              🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études.
+            </p>
+          ) : (
+            <select id="situation" className="saisie" value={profil.situation} onChange={majChamp("situation")}>
+              {SITUATIONS.map((s) => (
+                <option key={s.cle} value={s.cle}>{s.nom}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="champ">

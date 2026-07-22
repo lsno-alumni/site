@@ -57,8 +57,8 @@ export default function Bienvenue() {
                 <Hourglass size={16} strokeWidth={1.8} aria-hidden />
               </span>
               <span>
-                <b>En attendant, prends de l&apos;avance :</b> complète ton profil (photo, parcours,
-                conseil aux cadets) — dès ta validation, les autres membres pourront te trouver.
+                <b>En attendant, prends de l&apos;avance :</b> complète ton profil (photo, parcours…)
+                — dès ta validation, les autres membres pourront te trouver.
               </span>
             </div>
             <Link href="/mon-profil" className="btn btn-or" style={{ marginTop: 22 }}>

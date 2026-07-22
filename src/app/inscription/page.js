@@ -47,6 +47,7 @@ export default function Inscription() {
   const mdpOk = reglesMdp.every((r) => r.ok);
   const etape1Ok = form.prenom && form.nom && form.email.includes("@") && mdpOk;
   const etape2Ok = form.promotion !== null;
+  const promoChoisie = PROMOTIONS.find((p) => p.numero === form.promotion);
 
   const envoyer = async () => {
     setEnCours(true);
@@ -160,9 +161,16 @@ export default function Inscription() {
                       type="button"
                       className={`pcase${form.promotion === p.numero ? " choisie" : ""}${p.autoriseeInscription ? "" : " verrouillee"}`}
                       aria-disabled={!p.autoriseeInscription}
-                      onClick={() => p.autoriseeInscription
-                        ? (setForm({ ...form, promotion: p.numero }), setBlocage(false))
-                        : setBlocage(true)}
+                      onClick={() => {
+                        if (!p.autoriseeInscription) { setBlocage(true); return; }
+                        setBlocage(false);
+                        // élève/bachelier de l'année : pas de domaine encore → « eleve »
+                        setForm((f) => ({
+                          ...f,
+                          promotion: p.numero,
+                          domaine: p.eleveActuel ? "eleve" : (f.domaine === "eleve" ? "info" : f.domaine),
+                        }));
+                      }}
                     >
                       <b>P{p.numero}</b>
                       <span>{p.autoriseeInscription ? (p.enCours ? "en cours" : `Bac ${p.anneeBac}`) : "🔒 L'an prochain"}</span>
@@ -176,22 +184,33 @@ export default function Inscription() {
                   </p>
                 )}
               </div>
-              <div className="champ">
-                <label htmlFor="domaine">Domaine principal</label>
-                <select id="domaine" className="saisie" value={form.domaine} onChange={maj("domaine")}>
-                  {DOMAINES.map((d) => (
-                    <option key={d.cle} value={d.cle}>{d.nom}</option>
-                  ))}
-                </select>
-                {form.domaine === "autre" && (
-                  <input
-                    className="saisie" style={{ marginTop: 10 }} maxLength={40}
-                    placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
-                    aria-label="Précision du domaine"
-                    value={form.domainePrecision} onChange={maj("domainePrecision")}
-                  />
-                )}
-              </div>
+              {/* domaine demandé seulement aux anciens ; un élève n'en a pas encore */}
+              {promoChoisie?.eleveActuel ? (
+                <div className="champ">
+                  <label>Domaine</label>
+                  <p style={{ fontSize: 12.5, color: "var(--brume)", lineHeight: 1.5 }}>
+                    Tu es encore au lycée — tu préciseras ton domaine plus tard, quand tu
+                    commenceras tes études. Rien à choisir ici pour l&apos;instant.
+                  </p>
+                </div>
+              ) : (
+                <div className="champ">
+                  <label htmlFor="domaine">Domaine principal</label>
+                  <select id="domaine" className="saisie" value={form.domaine} onChange={maj("domaine")}>
+                    {DOMAINES.map((d) => (
+                      <option key={d.cle} value={d.cle}>{d.nom}</option>
+                    ))}
+                  </select>
+                  {form.domaine === "autre" && (
+                    <input
+                      className="saisie" style={{ marginTop: 10 }} maxLength={40}
+                      placeholder="Précise ton domaine (ex. : Droit, Aviation…)"
+                      aria-label="Précision du domaine"
+                      value={form.domainePrecision} onChange={maj("domainePrecision")}
+                    />
+                  )}
+                </div>
+              )}
               <div className="f-note">
                 <span>
                   <b>Un délégué de ta promotion</b> validera ta demande.

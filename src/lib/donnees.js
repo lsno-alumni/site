@@ -73,6 +73,9 @@ export const PROMOTIONS = Array.from(
       // en seconde (écart +3, ou +2 avant la rentrée d'octobre) est bloquée ;
       // elle se débloque à la rentrée d'octobre où elle passe en première.
       autoriseeInscription: ecart < 2 || (ecart === 2 && _mois >= 10),
+      // Élève ou bachelier de l'année (bac cette année ou à venir) : pas encore
+      // de domaine → on ne le demande pas à l'inscription (domaine = « eleve »).
+      eleveActuel: ecart >= 0,
     };
   }
 );
@@ -80,6 +83,7 @@ export const PROMOTIONS = Array.from(
 // Nom de domaine à afficher : la précision saisie remplace « Autre »
 // (le filtre, lui, continue de regrouper sous Autre).
 export function nomDomaine(cle, precision, court = false) {
+  if (cle === "eleve") return "Élève";
   if (cle === "autre" && precision) return precision;
   const nom = DOMAINES.find((d) => d.cle === cle)?.nom ?? cle;
   return court ? nom.split(" &")[0] : nom;

@@ -177,6 +177,7 @@ export default function MonProfil() {
               // la précision n'a de sens que pour « Autre »
               domaine_precision: e.target.value === "autre" ? profil.domaine_precision : null,
             })}>
+            <option value="eleve">Encore élève / pas encore de domaine</option>
             {DOMAINES.map((d) => (
               <option key={d.cle} value={d.cle}>{d.nom}</option>
             ))}

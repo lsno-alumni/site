@@ -190,7 +190,7 @@ export default function Inscription() {
                   <label>Domaine</label>
                   <p style={{ fontSize: 12.5, color: "var(--brume)", lineHeight: 1.5 }}>
                     Tu es encore au lycée — tu préciseras ton domaine plus tard, quand tu
-                    commenceras tes études. Rien à choisir ici pour l&apos;instant.
+                    commenceras tes études supérieures. Rien à choisir ici pour l&apos;instant.
                   </p>
                 </div>
               ) : (

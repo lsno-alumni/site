@@ -93,6 +93,17 @@ export function estEncoreEleve(promoNumero) {
   return anneeBac > a || (anneeBac === a && m < 10);
 }
 
+// Taux de complétion du profil — UNE seule source de vérité, utilisée par
+// Mon profil ET l'accueil connecté (sinon deux calculs divergent). Un élève
+// n'a ni poste ni conseil : on ne les compte pas pour lui.
+export function tauxCompletion(p) {
+  const champs = estEncoreEleve(p?.promotions?.numero)
+    ? ["ville", "pays", "photo_url"]
+    : ["statut_titre", "ville", "pays", "conseil", "photo_url"];
+  const remplis = champs.filter((c) => p?.[c]).length;
+  return Math.round(((remplis + 3) / (champs.length + 3)) * 100);
+}
+
 export function nomDomaine(cle, precision, court = false) {
   if (cle === "eleve") return "Élève";
   if (cle === "autre" && precision) return precision;

@@ -12,7 +12,7 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve } from "@/lib/donnees";
+import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion } from "@/lib/donnees";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -76,6 +76,8 @@ export default function MonProfil() {
     const { id, promotions, statut_compte, photo_url, ...champs } = profil;
     // thème vide ou seulement des espaces (« Autre » non rempli) → Général (null)
     champs.conseil_theme = (champs.conseil_theme ?? "").trim() || null;
+    // un ancien ne garde pas la situation « élève » : défaut sensé = étudiant
+    if (!estEleve && champs.situation === "eleve") champs.situation = "etudiant";
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);
     setToast(error ? "Échec de l'enregistrement : " + error.message : "Profil enregistré ✓");
     setTimeout(() => setToast(""), 3000);
@@ -118,16 +120,10 @@ export default function MonProfil() {
 
   // encore élève ? (piloté par la promotion + la date, bascule à la rentrée d'octobre)
   const estEleve = estEncoreEleve(profil.promotions?.numero);
-  // il vient de sortir mais son domaine/situation valent encore « élève » : à mettre à jour
-  const aMigrer = !estEleve && (profil.domaine === "eleve" || profil.situation === "eleve");
-
-  // complétion : un élève n'a ni poste ni conseil → on n'en tient pas compte pour lui
-  const aRemplir = estEleve
-    ? ["ville", "pays", "photo_url"]
-    : ["statut_titre", "ville", "pays", "conseil", "photo_url"];
-  const completion = Math.round(
-    ((aRemplir.filter((c) => profil[c]).length + 3) / (aRemplir.length + 3)) * 100
-  );
+  // il vient de sortir mais son domaine vaut encore « élève » → à choisir (la
+  // situation, elle, a un défaut sensé : on ne bloque la bannière que sur le domaine)
+  const aMigrer = !estEleve && profil.domaine === "eleve";
+  const completion = tauxCompletion(profil);
 
   return (
     <main className="page avec-tabbar">
@@ -183,8 +179,7 @@ export default function MonProfil() {
               🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études supérieures.
             </p>
           ) : (
-            <select id="situation" className="saisie" value={profil.situation === "eleve" ? "" : profil.situation} onChange={majChamp("situation")}>
-              {profil.situation === "eleve" && <option value="">— Choisis ta situation —</option>}
+            <select id="situation" className="saisie" value={profil.situation === "eleve" ? "etudiant" : profil.situation} onChange={majChamp("situation")}>
               {SITUATIONS.map((s) => (
                 <option key={s.cle} value={s.cle}>{s.nom}</option>
               ))}

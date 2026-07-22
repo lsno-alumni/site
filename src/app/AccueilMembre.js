@@ -5,7 +5,7 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import IconeDomaine from "@/components/IconeDomaine";
-import { DOMAINES, nomDomaine } from "@/lib/donnees";
+import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
   stage: "Stage", emploi: "Emploi", bourse: "Bourse",
@@ -19,11 +19,8 @@ export default function AccueilMembre({ moi, donnees }) {
     .filter(([, n]) => n > 0)
     .sort((a, b) => a[0] - b[0]);
 
-  // complétion du profil (mêmes critères que Mon profil)
-  const aRemplir = ["statut_titre", "ville", "pays", "conseil", "photo_url"];
-  const completion = Math.round(
-    ((aRemplir.filter((c) => moi[c]).length + 3) / (aRemplir.length + 3)) * 100
-  );
+  // complétion : même fonction que Mon profil (source de vérité unique)
+  const completion = tauxCompletion(moi);
 
   return (
     <main className="page avec-tabbar">

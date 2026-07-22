@@ -120,9 +120,10 @@ export default function MonProfil() {
 
   // encore élève ? (piloté par la promotion + la date, bascule à la rentrée d'octobre)
   const estEleve = estEncoreEleve(profil.promotions?.numero);
-  // il vient de sortir mais son domaine vaut encore « élève » → à choisir (la
-  // situation, elle, a un défaut sensé : on ne bloque la bannière que sur le domaine)
-  const aMigrer = !estEleve && profil.domaine === "eleve";
+  // il vient de sortir : on l'accueille tant qu'il n'a RIEN mis à jour. Dès qu'il
+  // touche l'un des trois (en une ligne / situation / domaine), le message disparaît.
+  const aMigrer = !estEleve && profil.domaine === "eleve"
+    && profil.situation === "eleve" && !profil.statut_titre;
   const completion = tauxCompletion(profil);
 
   return (

@@ -117,10 +117,10 @@ export default function Annuaire({ membres }) {
         </select>
         <select className="puce" value={situation} onChange={(e) => setSituation(e.target.value)} aria-label="Filtrer par situation">
           <option value="">Situation — toutes</option>
+          <option value="eleve">Élève</option>
           {SITUATIONS.map((s) => (
             <option key={s.cle} value={s.cle}>{s.nom}</option>
           ))}
-          <option value="eleve">Élève</option>
         </select>
       </div>
 

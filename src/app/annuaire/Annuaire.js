@@ -43,7 +43,9 @@ export default function Annuaire({ membres }) {
       if (domaine !== "tous" && m.domaine !== domaine) return false;
       if (promo && m.promotion !== Number(promo)) return false;
       if (pays && m.pays !== pays) return false;
-      if (situation && m.situation !== situation) return false;
+      // un élève n'a pas de vraie situation (« etudiant » n'est qu'un défaut en base) :
+      // on l'exclut des filtres par situation — il se retrouve via le filtre « Élèves »
+      if (situation && (m.domaine === "eleve" || m.situation !== situation)) return false;
       if (t) {
         const texte = plat([
           m.prenom, m.nom, m.statut, m.ville, nomPays(m.pays ?? ""),

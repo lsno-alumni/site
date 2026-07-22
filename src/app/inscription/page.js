@@ -161,11 +161,11 @@ export default function Inscription() {
                       className={`pcase${form.promotion === p.numero ? " choisie" : ""}${p.autoriseeInscription ? "" : " verrouillee"}`}
                       aria-disabled={!p.autoriseeInscription}
                       onClick={() => p.autoriseeInscription
-                        ? setForm({ ...form, promotion: p.numero })
+                        ? (setForm({ ...form, promotion: p.numero }), setBlocage(false))
                         : setBlocage(true)}
                     >
                       <b>P{p.numero}</b>
-                      <span>{p.autoriseeInscription ? (p.enCours ? "en cours" : `Bac ${p.anneeBac}`) : "🔒 Bientôt"}</span>
+                      <span>{p.autoriseeInscription ? (p.enCours ? "en cours" : `Bac ${p.anneeBac}`) : "🔒 L'an prochain"}</span>
                     </button>
                   ))}
                 </div>

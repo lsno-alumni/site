@@ -183,7 +183,8 @@ export default function MonProfil() {
               🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études supérieures.
             </p>
           ) : (
-            <select id="situation" className="saisie" value={profil.situation === "eleve" ? "etudiant" : profil.situation} onChange={majChamp("situation")}>
+            <select id="situation" className="saisie" value={profil.situation === "eleve" ? "" : profil.situation} onChange={majChamp("situation")}>
+              {profil.situation === "eleve" && <option value="">— Choisis ta situation —</option>}
               {SITUATIONS.map((s) => (
                 <option key={s.cle} value={s.cle}>{s.nom}</option>
               ))}

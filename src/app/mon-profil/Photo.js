@@ -1,41 +1,54 @@
 "use client";
 
 import { useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { Camera } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import Visionneuse from "@/components/Visionneuse";
 
-// Redimensionne l'image côté client (512px max, JPEG ~80%) :
-// upload léger même en 3G, et stockage minimal.
-async function compresser(fichier) {
-  const image = await createImageBitmap(fichier);
-  const max = 512;
-  const ratio = Math.min(1, max / Math.max(image.width, image.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(image.width * ratio);
-  canvas.height = Math.round(image.height * ratio);
-  canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
-  return new Promise((ok) => canvas.toBlob(ok, "image/jpeg", 0.8));
-}
+// Recadreur chargé UNIQUEMENT quand on ouvre le recadrage (react-easy-crop
+// n'entre donc pas dans le bundle de la page — zéro impact au chargement).
+const RecadrerPhoto = dynamic(() => import("./RecadrerPhoto"), { ssr: false });
 
 export default function Photo({ profil, onPhoto, signale }) {
   const supabase = creerClientNavigateur();
   const entree = useRef(null);
   const [enCours, setEnCours] = useState(false);
   const [agrandie, setAgrandie] = useState(false);
+  const [srcRecadrage, setSrcRecadrage] = useState(null); // object URL en attente de recadrage
 
   const initiales = (profil.prenom[0] + (profil.nom[0] || "")).toUpperCase();
 
-  const choisir = async (e) => {
+  // 1) choix du fichier -> on n'envoie rien : on ouvre le recadrage
+  const choisir = (e) => {
     const fichier = e.target.files?.[0];
     if (!fichier) return;
     if (!fichier.type.startsWith("image/")) {
       signale("Choisis une image (JPG, PNG…).");
+      e.target.value = "";
       return;
     }
+    setSrcRecadrage(URL.createObjectURL(fichier));
+    e.target.value = "";
+  };
+
+  const fermerRecadrage = () => {
+    if (srcRecadrage) URL.revokeObjectURL(srcRecadrage);
+    setSrcRecadrage(null);
+  };
+
+  // 2) l'utilisateur valide son cadrage -> on reçoit un carré 512x512 à envoyer
+  const validerRecadrage = async (blob) => {
+    const s = srcRecadrage;
+    setSrcRecadrage(null);
+    if (s) URL.revokeObjectURL(s);
+    await televerser(blob);
+  };
+
+  // 3) envoi du carré recadré (le blob est déjà dimensionné/compressé)
+  const televerser = async (blob) => {
     setEnCours(true);
     try {
-      const blob = await compresser(fichier);
       const chemin = `${profil.id}.jpg`;
       const { error } = await supabase.storage
         .from("photos")
@@ -52,7 +65,6 @@ export default function Photo({ profil, onPhoto, signale }) {
       signale("Échec de l'envoi : " + err.message);
     } finally {
       setEnCours(false);
-      e.target.value = "";
     }
   };
 
@@ -115,6 +127,9 @@ export default function Photo({ profil, onPhoto, signale }) {
       <input ref={entree} type="file" accept="image/*" onChange={choisir} hidden />
       {agrandie && (
         <Visionneuse src={profil.photo_url} alt="Ma photo de profil" onClose={() => setAgrandie(false)} />
+      )}
+      {srcRecadrage && (
+        <RecadrerPhoto src={srcRecadrage} onValider={validerRecadrage} onAnnuler={fermerRecadrage} />
       )}
     </div>
   );

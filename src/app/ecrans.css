@@ -520,6 +520,24 @@
   font-size: 12px; color: var(--rouge); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* recadrage de la photo (react-easy-crop) — overlay plein écran, fond solide
+   (pas de backdrop-filter : rien ne défile derrière, et on évite le glitch GPU Mali) */
+.recadre {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(5, 13, 27, .96);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  padding: 22px;
+}
+.recadre-aide { color: var(--brume); font-size: 13px; text-align: center; }
+.recadre-scene {
+  position: relative; width: min(86vw, 360px); height: min(86vw, 360px);
+  background: #000; border-radius: 20px; overflow: hidden;
+}
+.recadre-ctrl { width: min(86vw, 360px); display: flex; flex-direction: column; gap: 16px; }
+.recadre-ctrl input[type="range"] { width: 100%; accent-color: var(--or); cursor: pointer; }
+.recadre-actions { display: flex; gap: 12px; }
+.recadre-actions .btn { flex: 1; padding: 13px; }
+
 /* visionneuse plein écran (lightbox) */
 .visionneuse {
   position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;

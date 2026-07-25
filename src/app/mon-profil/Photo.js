@@ -56,6 +56,27 @@ export default function Photo({ profil, onPhoto, signale }) {
     }
   };
 
+  const supprimer = async () => {
+    if (!profil.photo_url) return;
+    if (!window.confirm("Supprimer ta photo de profil ?")) return;
+    setEnCours(true);
+    try {
+      // best-effort : on retire l'objet du stockage (l'API client est autorisée,
+      // le DELETE direct sur storage.objects ne l'est pas) ; une erreur ici
+      // (objet déjà absent) ne doit pas empêcher de vider le profil.
+      await supabase.storage.from("photos").remove([`${profil.id}.jpg`]);
+      const { error } = await supabase
+        .from("profiles").update({ photo_url: null }).eq("id", profil.id);
+      if (error) throw new Error(`[profil] ${error.message}`);
+      onPhoto(null);
+      signale("Photo supprimée ✓");
+    } catch (err) {
+      signale("Échec de la suppression : " + err.message);
+    } finally {
+      setEnCours(false);
+    }
+  };
+
   return (
     <div className="photo-edit">
       <div className="photo-edit-cadre">
@@ -86,6 +107,11 @@ export default function Photo({ profil, onPhoto, signale }) {
             ? "Touche l'appareil pour changer · la photo pour l'agrandir"
             : "Touche l'appareil photo pour en ajouter une"}
       </span>
+      {profil.photo_url && !enCours && (
+        <button type="button" className="photo-edit-suppr" onClick={supprimer}>
+          Supprimer la photo
+        </button>
+      )}
       <input ref={entree} type="file" accept="image/*" onChange={choisir} hidden />
       {agrandie && (
         <Visionneuse src={profil.photo_url} alt="Ma photo de profil" onClose={() => setAgrandie(false)} />

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2 } from "lucide-react";
+import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -26,6 +26,9 @@ function ilYA(date) {
 }
 
 const VIERGE = { type: "stage", titre: "", description: "", domaine: "info", pays: "", ville: "", date_limite: "", lien: "" };
+const MAX_FICHIERS = 5;
+const MAX_TAILLE = 10 * 1024 * 1024; // 10 Mo
+const fichierOk = (f) => f.type === "application/pdf" || f.type.startsWith("image/");
 
 // sans protocole, un lien serait pris pour un chemin DU site (→ 404)
 function lienAbsolu(v) {
@@ -45,10 +48,41 @@ export default function Offres() {
   const [edition, setEdition] = useState(null); // id de l'offre en cours de modification
   const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
+  const [fichiers, setFichiers] = useState([]);              // nouveaux File à téléverser
+  const [fichiersExistants, setFichiersExistants] = useState([]); // {id, chemin, nom, type} (édition)
+  const [fichiersASupprimer, setFichiersASupprimer] = useState([]); // {id, chemin} retirés en édition
+  const champFichier = useRef(null);
   const [enCours, setEnCours] = useState(false);
   const [toast, setToast] = useState("");
 
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 3200); };
+  const urlPublique = (chemin) => supabase.storage.from("ressources").getPublicUrl(chemin).data.publicUrl;
+
+  const ajouterFichiers = (e) => {
+    const choisis = Array.from(e.target.files || []);
+    e.target.value = "";
+    const valides = [];
+    for (const f of choisis) {
+      if (!fichierOk(f)) { signale(`${f.name} : format refusé (PDF ou image).`); continue; }
+      if (f.size > MAX_TAILLE) { signale(`${f.name} : trop lourd (10 Mo max).`); continue; }
+      valides.push(f);
+    }
+    const max = MAX_FICHIERS - fichiersExistants.length;
+    setFichiers((l) => {
+      const combi = [...l, ...valides];
+      if (combi.length > max) signale(`Maximum ${MAX_FICHIERS} fichiers au total.`);
+      return combi.slice(0, max);
+    });
+  };
+  const retirerNouveau = (i) => setFichiers((l) => l.filter((_, k) => k !== i));
+  const retirerExistant = (f) => {
+    setFichiersExistants((l) => l.filter((x) => x.id !== f.id));
+    setFichiersASupprimer((l) => [...l, f]);
+  };
+  const reinitialiser = () => {
+    setForm(VIERGE); setFormulaire(false); setEdition(null);
+    setFichiers([]); setFichiersExistants([]); setFichiersASupprimer([]);
+  };
 
   const charger = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -62,7 +96,7 @@ export default function Offres() {
     const aujourdhui = new Date().toISOString().slice(0, 10);
     const { data } = await supabase
       .from("offres")
-      .select("id, type, titre, description, domaine, pays, ville, date_limite, lien, statut, cree_le, posteur:profiles!offres_posteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
+      .select("id, type, titre, description, domaine, pays, ville, date_limite, lien, statut, cree_le, posteur:profiles!offres_posteur_fkey(id, prenom, nom, photo_url, promotions(numero)), fichiers:offre_fichiers(id, chemin, nom, type)")
       .eq("statut", "active")
       .or(`date_limite.gte.${aujourdhui},and(date_limite.is.null,cree_le.gte.${limite60})`)
       .order("cree_le", { ascending: false });
@@ -126,17 +160,36 @@ export default function Offres() {
       lien: lienAbsolu(form.lien),
     };
     // même formulaire pour publier et corriger (la RLS limite au posteur)
-    const { error } = edition
-      ? await supabase.from("offres").update(valeurs).eq("id", edition)
-      : await supabase.from("offres").insert({ posteur: moi.id, ...valeurs });
-    setEnCours(false);
-    if (error) {
-      signale((edition ? "Modification" : "Publication") + " impossible : " + error.message);
+    let offreId = edition;
+    let error;
+    if (edition) {
+      ({ error } = await supabase.from("offres").update(valeurs).eq("id", edition));
+    } else {
+      const res = await supabase.from("offres").insert({ posteur: moi.id, ...valeurs }).select("id").single();
+      error = res.error; offreId = res.data?.id;
+    }
+    if (error || !offreId) {
+      setEnCours(false);
+      signale((edition ? "Modification" : "Publication") + " impossible : " + (error?.message ?? ""));
       return;
     }
-    setForm(VIERGE);
-    setFormulaire(false);
-    setEdition(null);
+
+    // pièces jointes : retirer les fichiers supprimés (édition), puis téléverser les nouveaux
+    if (fichiersASupprimer.length) {
+      await supabase.storage.from("ressources").remove(fichiersASupprimer.map((f) => f.chemin));
+      await supabase.from("offre_fichiers").delete().in("id", fichiersASupprimer.map((f) => f.id));
+    }
+    for (let i = 0; i < fichiers.length; i++) {
+      const f = fichiers[i];
+      const nomSafe = f.name.replace(/[^\w.\-]+/g, "_").slice(-80);
+      const chemin = `${moi.id}/${offreId}/${Date.now()}-${i}-${nomSafe}`;
+      const up = await supabase.storage.from("ressources").upload(chemin, f, { contentType: f.type });
+      if (up.error) { signale(`Échec de l'envoi de ${f.name}`); continue; }
+      await supabase.from("offre_fichiers").insert({ offre_id: offreId, chemin, nom: f.name, type: f.type, taille: f.size });
+    }
+
+    setEnCours(false);
+    reinitialiser();
     signale(edition ? "Offre modifiée ✓" : "Offre publiée ✓");
     charger();
   };
@@ -146,6 +199,9 @@ export default function Offres() {
       type: o.type, titre: o.titre, description: o.description, domaine: o.domaine,
       pays: o.pays ?? "", ville: o.ville ?? "", date_limite: o.date_limite ?? "", lien: o.lien ?? "",
     });
+    setFichiers([]);
+    setFichiersExistants(o.fichiers ?? []);
+    setFichiersASupprimer([]);
     setEdition(o.id);
     setFormulaire(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -159,6 +215,10 @@ export default function Offres() {
 
   const supprimer = async (o) => {
     if (!confirm("Supprimer définitivement cette offre ?")) return;
+    // retire d'abord les pièces jointes du stockage (les lignes partent en cascade)
+    if (o.fichiers?.length) {
+      await supabase.storage.from("ressources").remove(o.fichiers.map((f) => f.chemin));
+    }
     await supabase.from("offres").delete().eq("id", o.id);
     setOffres((l) => l.filter((x) => x.id !== o.id));
     signale("Offre supprimée");
@@ -230,13 +290,39 @@ export default function Offres() {
                 value={form.lien} onChange={(e) => setForm({ ...form, lien: e.target.value })} />
             </div>
           </div>
+          <div className="champ">
+            <label>Fichiers joints (optionnel) — PDF ou images, 10 Mo max, 5 max</label>
+            {(fichiersExistants.length > 0 || fichiers.length > 0) && (
+              <div className="o-joint-liste">
+                {fichiersExistants.map((f) => (
+                  <span key={`e-${f.id}`} className="o-joint">
+                    <span className="o-joint-nom">{f.nom}</span>
+                    <button type="button" onClick={() => retirerExistant(f)} aria-label={`Retirer ${f.nom}`}>×</button>
+                  </span>
+                ))}
+                {fichiers.map((f, i) => (
+                  <span key={`n-${i}`} className="o-joint">
+                    <span className="o-joint-nom">{f.name}</span>
+                    <button type="button" onClick={() => retirerNouveau(i)} aria-label={`Retirer ${f.name}`}>×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {fichiersExistants.length + fichiers.length < MAX_FICHIERS && (
+              <button type="button" className="btn btn-nu" style={{ padding: "10px 14px", fontSize: 13 }}
+                onClick={() => champFichier.current?.click()}>
+                <Paperclip size={13} aria-hidden /> Joindre des fichiers
+              </button>
+            )}
+            <input ref={champFichier} type="file" accept="application/pdf,image/*" multiple hidden onChange={ajouterFichiers} />
+          </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-or" style={{ flex: 1, padding: "11px 16px", fontSize: 13.5 }}
               onClick={publier} disabled={enCours}>
               {enCours ? "Enregistrement…" : edition ? "Enregistrer les modifications" : "Publier l'offre"}
             </button>
             <button className="btn btn-nu" style={{ padding: "11px 16px", fontSize: 13.5 }}
-              onClick={() => { setFormulaire(false); setEdition(null); setForm(VIERGE); }}>
+              onClick={reinitialiser}>
               Annuler
             </button>
           </div>
@@ -304,6 +390,19 @@ export default function Offres() {
                     style={{ fontSize: 12.5, color: "var(--or-clair)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
                     Voir l&apos;annonce <ExternalLink size={12} aria-hidden />
                   </a>
+                )}
+                {o.fichiers?.length > 0 && (
+                  <div className="o-fichiers">
+                    {o.fichiers.map((f) => (
+                      <a key={f.id} className="o-fichier" href={urlPublique(f.chemin)}
+                        target="_blank" rel="noopener noreferrer" download={f.nom}>
+                        {f.type === "application/pdf"
+                          ? <FileText size={14} aria-hidden />
+                          : <ImageIcon size={14} aria-hidden />}
+                        <span className="o-fichier-nom">{f.nom}</span>
+                      </a>
+                    ))}
+                  </div>
                 )}
               </div>
               <div className="pied" style={{ gap: 9 }}>

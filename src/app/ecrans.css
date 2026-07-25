@@ -520,6 +520,30 @@
   font-size: 12px; color: var(--rouge); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* pièces jointes des offres */
+.o-fichiers { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.o-fichier {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--craie-2);
+  background: rgba(245, 241, 232, .05); border: 1px solid var(--ligne); border-radius: 10px;
+  padding: 8px 11px; transition: border-color .2s, color .2s;
+}
+.o-fichier svg { color: var(--or-clair); flex-shrink: 0; }
+.o-fichier-nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.o-fichier:hover { border-color: rgba(232, 179, 60, .4); color: var(--craie); }
+
+.o-joint-liste { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.o-joint {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 100%;
+  font-size: 12px; color: var(--craie-2);
+  background: var(--carte); border: 1px solid var(--ligne); border-radius: 10px; padding: 6px 6px 6px 11px;
+}
+.o-joint-nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+.o-joint button {
+  background: none; border: none; color: var(--brume); cursor: pointer;
+  font-size: 16px; line-height: 1; padding: 0 4px; flex-shrink: 0;
+}
+.o-joint button:hover { color: var(--rouge); }
+
 /* recadrage de la photo (react-easy-crop) — overlay plein écran, fond solide
    (pas de backdrop-filter : rien ne défile derrière, et on évite le glitch GPU Mali) */
 .recadre {

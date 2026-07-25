@@ -13,6 +13,7 @@ const NOMS = {
   "cloture-offres": "Clôture des offres expirées (mensuel)",
   "garde-vivant-brevo": "Contrôle des clés email (bimestriel)",
   "envoi-annonces": "Envoi des annonces (quotidien)",
+  "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
 };
 
 export default function EtatSysteme() {

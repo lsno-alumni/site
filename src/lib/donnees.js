@@ -16,6 +16,10 @@ export const DOMAINES = [
   { cle: "droit", nom: "Droit & sciences politiques", detail: "Magistrature, barreau, administration…" },
   { cle: "defense", nom: "Défense & sécurité", detail: "Armée, gendarmerie, police, douanes…" },
   { cle: "arts", nom: "Arts, communication & médias", detail: "Journalisme, design, audiovisuel…" },
+  { cle: "commerce", nom: "Commerce, management & stratégie", detail: "Commerce, management, entrepreneuriat…" },
+  { cle: "archi", nom: "Architecture & urbanisme", detail: "Architecture, urbanisme, design bâti…" },
+  { cle: "aero", nom: "Aéronautique & aviation", detail: "Pilotage, aviation, aérospatial…" },
+  { cle: "stats", nom: "Statistiques & data science", detail: "Statistique, data, IA appliquée…" },
   { cle: "autre", nom: "Autre", detail: "Tous les autres horizons" },
 ];
 

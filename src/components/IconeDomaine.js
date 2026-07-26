@@ -1,6 +1,7 @@
 import {
   Laptop, Stethoscope, Cog, Sigma, ChartColumn, Sprout, BookOpen,
   Scale, Shield, Palette, Sparkles, GraduationCap,
+  Briefcase, Building2, Plane, ChartPie,
 } from "lucide-react";
 
 const ICONES = {
@@ -14,6 +15,10 @@ const ICONES = {
   droit: Scale,
   defense: Shield,
   arts: Palette,
+  commerce: Briefcase,
+  archi: Building2,
+  aero: Plane,
+  stats: ChartPie,
   eleve: GraduationCap,
   autre: Sparkles,
 };

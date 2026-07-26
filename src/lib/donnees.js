@@ -5,20 +5,21 @@
 // le reste de l'application ne change pas.
 // ============================================================
 
+// Classés par ordre alphabétique du nom ; « Autre » toujours en dernier (fourre-tout).
 export const DOMAINES = [
-  { cle: "info", nom: "Informatique & numérique", detail: "Dév, data, cybersécurité…" },
-  { cle: "sante", nom: "Santé & médecine", detail: "Médecine, pharmacie…" },
-  { cle: "inge", nom: "Ingénierie", detail: "Génie civil, élec, méca…" },
-  { cle: "maths", nom: "Maths & recherche", detail: "Prépa, enseignement sup…" },
-  { cle: "eco", nom: "Économie & finance", detail: "Éco, gestion, banque…" },
+  { cle: "aero", nom: "Aéronautique & aviation", detail: "Pilotage, aviation, aérospatial…" },
   { cle: "agro", nom: "Agronomie & environnement", detail: "Agro, eau, énergie…" },
-  { cle: "enseignement", nom: "Enseignement", detail: "Professorat, pédagogie…" },
-  { cle: "droit", nom: "Droit & sciences politiques", detail: "Magistrature, barreau, administration…" },
-  { cle: "defense", nom: "Défense & sécurité", detail: "Armée, gendarmerie, police, douanes…" },
+  { cle: "archi", nom: "Architecture & urbanisme", detail: "Architecture, urbanisme, design bâti…" },
   { cle: "arts", nom: "Arts, communication & médias", detail: "Journalisme, design, audiovisuel…" },
   { cle: "commerce", nom: "Commerce, management & stratégie", detail: "Commerce, management, entrepreneuriat…" },
-  { cle: "archi", nom: "Architecture & urbanisme", detail: "Architecture, urbanisme, design bâti…" },
-  { cle: "aero", nom: "Aéronautique & aviation", detail: "Pilotage, aviation, aérospatial…" },
+  { cle: "defense", nom: "Défense & sécurité", detail: "Armée, gendarmerie, police, douanes…" },
+  { cle: "droit", nom: "Droit & sciences politiques", detail: "Magistrature, barreau, administration…" },
+  { cle: "eco", nom: "Économie & finance", detail: "Éco, gestion, banque…" },
+  { cle: "enseignement", nom: "Enseignement", detail: "Professorat, pédagogie…" },
+  { cle: "info", nom: "Informatique & numérique", detail: "Dév, data, cybersécurité…" },
+  { cle: "inge", nom: "Ingénierie", detail: "Génie civil, élec, méca…" },
+  { cle: "maths", nom: "Maths & recherche", detail: "Prépa, enseignement sup…" },
+  { cle: "sante", nom: "Santé & médecine", detail: "Médecine, pharmacie…" },
   { cle: "stats", nom: "Statistiques & data science", detail: "Statistique, data, IA appliquée…" },
   { cle: "autre", nom: "Autre", detail: "Tous les autres horizons" },
 ];

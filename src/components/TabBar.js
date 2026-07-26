@@ -16,15 +16,22 @@ const ONGLETS = [
 ];
 const VALIDATION = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 
+// Cache au niveau MODULE : survit aux navigations client (contrairement à
+// l'état React qui se réinitialise à chaque remontage de la TabBar) → dès la
+// 2e page, le rôle est connu au 1er rendu = plus aucun clignotement 4→5.
+// Écrit UNIQUEMENT dans le useEffect (côté client) → jamais côté serveur
+// (pas de fuite entre utilisateurs, pas de décalage d'hydratation).
+let roleCache = null;
+
 export default function TabBar({ actif }) {
-  // null tant qu'inconnu (rendu serveur = 4 onglets, pas de décalage d'hydratation)
-  const [role, setRole] = useState(null);
+  const [role, setRole] = useState(roleCache);
 
   useEffect(() => {
+    if (role) return; // rôle déjà connu (cache module) : rien à faire
     let vivant = true;
-    // affichage immédiat depuis le cache de session (évite le clignotement 4→5)
+    // secours immédiat depuis la session (rechargement dur) avant le réseau
     const cache = sessionStorage.getItem("lsno_role");
-    if (cache) setRole(cache);
+    if (cache) { roleCache = cache; setRole(cache); }
     (async () => {
       const supabase = creerClientNavigateur();
       const { data: { user } } = await supabase.auth.getUser();
@@ -33,10 +40,12 @@ export default function TabBar({ actif }) {
         .from("profiles").select("role").eq("id", user.id).maybeSingle();
       if (!vivant) return;
       const r = data?.role ?? null;
+      roleCache = r;
       setRole(r);
       if (r) sessionStorage.setItem("lsno_role", r);
     })();
     return () => { vivant = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, LISTE_PAYS, nomPays } from "@/lib/donnees";
@@ -457,6 +458,7 @@ export default function Offres() {
         )}
       </div>
 
+      <RestaurerDefilement />
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
     </>
   );

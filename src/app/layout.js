@@ -1,4 +1,5 @@
 import { Fraunces, Space_Grotesk } from "next/font/google";
+import SuiviNavigation from "@/components/SuiviNavigation";
 import "./globals.css";
 import "./ecrans.css";
 
@@ -69,6 +70,9 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANISATION) }}
         />
         {children}
+        {/* mémorise la profondeur de navigation et les positions de défilement,
+            pour un « ← Retour » fiable (voir SuiviNavigation.js) */}
+        <SuiviNavigation />
       </body>
     </html>
   );

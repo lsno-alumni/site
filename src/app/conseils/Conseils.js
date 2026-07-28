@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
 
 const GENERAL = "Général";
@@ -66,6 +67,7 @@ export default function Conseils({ conseils }) {
           </div>
         )}
       </div>
+      <RestaurerDefilement />
     </>
   );
 }

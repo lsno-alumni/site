@@ -13,6 +13,8 @@ const FILTRES_DOMAINE = [
   { cle: "eleve", nom: "Élèves" }, // membres encore au lycée (pas encore de domaine)
 ];
 
+const CLE_RETOUR = "annuaire_retour_y"; // position mémorisée avant d'ouvrir un profil
+
 export default function Annuaire({ membres }) {
   const params = useSearchParams();
   const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
@@ -39,6 +41,20 @@ export default function Annuaire({ membres }) {
     // Next.js, qui y garde la position de défilement pour le retour arrière.
     window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
+
+  // Retour depuis un profil : on restaure la position exacte de la liste.
+  // Nécessaire car la page est « force-dynamic » — au retour elle est
+  // re-demandée au serveur, donc le contenu est momentanément vide et la
+  // restauration automatique échoue (on atterrissait en haut de la liste).
+  // La position n'est mémorisée QU'au clic sur un profil : arriver par la barre
+  // d'onglets affiche donc toujours le haut de la liste, comme avant.
+  useEffect(() => {
+    const y = sessionStorage.getItem(CLE_RETOUR);
+    if (!y) return;
+    sessionStorage.removeItem(CLE_RETOUR);
+    // après le premier rendu (la liste vient des props : elle est déjà complète)
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, Number(y))));
+  }, []);
 
   // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)
   const plat = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -132,7 +148,8 @@ export default function Annuaire({ membres }) {
 
       <div className="n-liste">
         {resultats.map((m) => (
-          <Link key={m.id} href={`/profil/${m.id}`} className="fiche">
+          <Link key={m.id} href={`/profil/${m.id}`} className="fiche"
+            onClick={() => sessionStorage.setItem(CLE_RETOUR, String(window.scrollY))}>
             <div className="haut">
               <Avatar profil={m} className="init" />
               <div>

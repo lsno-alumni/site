@@ -20,6 +20,8 @@ export default function Validation() {
   const [demandes, setDemandes] = useState([]);
   const [membres, setMembres] = useState([]);
   const [rechercheRole, setRechercheRole] = useState("");
+  const [promoRole, setPromoRole] = useState("");   // filtre promotion des rôles
+  const [triPromo, setTriPromo] = useState(false);  // classer par promotion
   const [stats, setStats] = useState({ valides: 0, promo: null });
   const [snack, setSnack] = useState(null); // { demande, valide } ou { info }
   const minuteur = useRef(null);
@@ -85,9 +87,20 @@ export default function Validation() {
     minuteur.current = setTimeout(() => setSnack(null), 4200);
   };
 
-  const membresFiltres = membres.filter((m) =>
-    `${m.prenom} ${m.nom}`.toLowerCase().includes(rechercheRole.trim().toLowerCase())
-  );
+  // promotions présentes parmi les membres validés (pour le filtre des rôles)
+  const promosMembres = [...new Set(membres.map((m) => m.promotions?.numero).filter(Boolean))]
+    .sort((a, b) => a - b);
+
+  const membresFiltres = membres
+    .filter((m) => `${m.prenom} ${m.nom}`.toLowerCase().includes(rechercheRole.trim().toLowerCase()))
+    .filter((m) => !promoRole || String(m.promotions?.numero) === promoRole)
+    .sort((a, b) =>
+      triPromo
+        // par promotion croissante, puis alphabétique à l'intérieur
+        ? (a.promotions?.numero ?? 99) - (b.promotions?.numero ?? 99) ||
+          a.prenom.localeCompare(b.prenom, "fr")
+        : 0 // ordre de la requête (alphabétique)
+    );
 
   const changerRole = async (m, role) => {
     const { error } = await supabase.from("profiles").update({ role }).eq("id", m.id);
@@ -194,6 +207,21 @@ export default function Validation() {
               onChange={(e) => setRechercheRole(e.target.value)}
               aria-label="Chercher un membre"
             />
+            {/* filtrer par promotion et/ou regrouper la liste par promotion */}
+            <div className="n-filtres" style={{ position: "static", padding: "10px 0" }}>
+              <select className="puce" value={promoRole} onChange={(e) => setPromoRole(e.target.value)}
+                aria-label="Filtrer les rôles par promotion">
+                <option value="">Promo — toutes</option>
+                {promosMembres.map((n) => <option key={n} value={String(n)}>Promo {n}</option>)}
+              </select>
+              <button className={`puce${triPromo ? " active" : ""}`} onClick={() => setTriPromo(!triPromo)}
+                aria-pressed={triPromo}>
+                Classer par promotion
+              </button>
+              <span className="puce" style={{ borderStyle: "dashed", cursor: "default" }}>
+                {membresFiltres.length} membre{membresFiltres.length > 1 ? "s" : ""}
+              </span>
+            </div>
             {membresFiltres.map((m) => (
               <div key={m.id} className="e-ligne">
                 <span className="val">

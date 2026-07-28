@@ -33,7 +33,9 @@ img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, .serif { font-family: var(--font-titres), serif; font-weight: 600; }
 h1 em, h2 em, h3 em { font-style: italic; color: var(--or-clair); }
-button { font-family: inherit; }
+/* color: inherit — sans ça, un <button> servant de conteneur (résultat de
+   recherche admin…) prend le noir par défaut du navigateur au lieu de la craie */
+button { font-family: inherit; color: inherit; }
 
 /* ---------- boutons ---------- */
 .btn {

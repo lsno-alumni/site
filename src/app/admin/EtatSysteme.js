@@ -16,14 +16,28 @@ const NOMS = {
   "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
 };
 
+const CLE_EMAILS = "emails_inscription_admins";
+
 export default function EtatSysteme() {
   const supabase = creerClientNavigateur();
   const [etat, setEtat] = useState(null);
+  const [emailsAdmins, setEmailsAdmins] = useState(null); // null = réglage absent
+  const [bascule, setBascule] = useState(false);
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
+    supabase.from("reglages").select("actif").eq("cle", CLE_EMAILS).maybeSingle()
+      .then(({ data }) => setEmailsAdmins(data ? data.actif : null));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const basculerEmails = async () => {
+    setBascule(true);
+    const { error } = await supabase.from("reglages")
+      .update({ actif: !emailsAdmins, maj_le: new Date().toISOString() }).eq("cle", CLE_EMAILS);
+    if (!error) setEmailsAdmins((v) => !v);
+    setBascule(false);
+  };
 
   if (etat === null) return null;
   if (etat === false) return null; // migration 19 pas encore exécutée
@@ -55,6 +69,34 @@ export default function EtatSysteme() {
           <span>Offres expirant sous 14 j : <b style={{ color: "var(--craie)" }}>{etat.offres_expirent_14j}</b></span>
         </div>
       </div>
+
+      {/* interrupteur : emails « nouvelle inscription » vers les admins.
+          À couper le jour d'un lancement de promo entière (les délégués prennent
+          le relais) — les emails des délégués ne changent pas. */}
+      {emailsAdmins !== null && (
+        <div className="carte-sombre" style={{ padding: 14, marginTop: 12, display: "grid", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
+              <b>Emails d&apos;inscription aux admins</b>
+              <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
+                {emailsAdmins
+                  ? "Actifs : tu reçois un email à chaque nouvelle demande."
+                  : "En pause : seuls les délégués sont prévenus (les promotions sans délégué te sont quand même signalées)."}
+              </span>
+            </span>
+            <button className={`btn ${emailsAdmins ? "btn-nu" : "btn-or"}`}
+              style={{ padding: "9px 15px", fontSize: 12.5 }}
+              onClick={basculerEmails} disabled={bascule}>
+              {bascule ? "…" : emailsAdmins ? "Mettre en pause" : "Réactiver"}
+            </button>
+          </div>
+          {!emailsAdmins && (
+            <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
+              ⏸ Pense à réactiver après le lancement, une fois les délégués en place.
+            </p>
+          )}
+        </div>
+      )}
     </>
   );
 }

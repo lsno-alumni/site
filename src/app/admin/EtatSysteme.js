@@ -92,7 +92,7 @@ export default function EtatSysteme() {
           </div>
           {!emailsAdmins && (
             <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
-              ⏸ Pense à réactiver après le lancement, une fois les délégués en place.
+              ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription.
             </p>
           )}
         </div>

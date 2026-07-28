@@ -31,7 +31,13 @@ export default function Annuaire({ membres }) {
     if (situation) u.set("situation", situation);
     if (q.trim()) u.set("q", q.trim());
     const suffixe = u.toString();
-    window.history.replaceState(null, "", suffixe ? `/annuaire?${suffixe}` : "/annuaire");
+    const cible = suffixe ? `/annuaire?${suffixe}` : "/annuaire";
+    // ne pas toucher à l'historique si l'URL est déjà la bonne (cas du montage) :
+    // chaque replaceState réinitialise la position de défilement mémorisée.
+    if (window.location.pathname + window.location.search === cible) return;
+    // ⚠ conserver l'état existant : passer null effacerait l'état interne de
+    // Next.js, qui y garde la position de défilement pour le retour arrière.
+    window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
 
   // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)

@@ -60,10 +60,14 @@ export default function GestionMembre({ moiId, signale }) {
   };
 
   const enregistrer = () => action(async () => {
-    const { error } = await supabase.from("profiles").update(form).eq("id", choisi.id);
+    // espaces en trop nettoyés (début, fin, doublons internes)
+    const propre = (v) => (v ?? "").trim().replace(/\s+/g, " ");
+    const valeurs = { ...form, prenom: propre(form.prenom), nom: propre(form.nom) };
+    const { error } = await supabase.from("profiles").update(valeurs).eq("id", choisi.id);
     if (error) throw error;
-    setTous((l) => l.map((x) => (x.id === choisi.id ? { ...x, ...form, promotions: { numero: promos.find((p) => p.id === form.promotion_id)?.numero } } : x)));
-    setChoisi((c) => ({ ...c, ...form }));
+    setForm(valeurs);
+    setTous((l) => l.map((x) => (x.id === choisi.id ? { ...x, ...valeurs, promotions: { numero: promos.find((p) => p.id === valeurs.promotion_id)?.numero } } : x)));
+    setChoisi((c) => ({ ...c, ...valeurs }));
   }, "Identité enregistrée ✓");
 
   const renvoyerConfirmation = () => action(async () => {

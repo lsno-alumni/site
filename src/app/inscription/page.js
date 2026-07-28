@@ -39,6 +39,8 @@ export default function Inscription() {
   }, [form, etape, envoye]);
 
   const maj = (champ) => (e) => setForm({ ...form, [champ]: e.target.value });
+  // nettoie les espaces en trop (début, fin, doublons internes) avant d'enregistrer
+  const propre = (v) => (v ?? "").trim().replace(/\s+/g, " ");
   const reglesMdp = [
     { ok: form.motDePasse.length >= 8, txt: "8 caractères" },
     { ok: /[A-Z]/.test(form.motDePasse), txt: "une majuscule" },
@@ -54,13 +56,13 @@ export default function Inscription() {
     setErreur("");
     const supabase = creerClientNavigateur();
     const { data, error } = await supabase.auth.signUp({
-      email: form.email,
+      email: form.email.trim(),
       password: form.motDePasse,
       options: {
         emailRedirectTo: `${window.location.origin}/bienvenue`,
         data: {
-          prenom: form.prenom,
-          nom: form.nom,
+          prenom: propre(form.prenom),
+          nom: propre(form.nom),
           promotion: form.promotion,
           domaine: form.domaine,
           domaine_precision: form.domaine === "autre" ? form.domainePrecision.trim() : "",

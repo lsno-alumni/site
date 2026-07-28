@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { Search, BadgeCheck, Lightbulb, ArrowRight } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
@@ -12,8 +13,6 @@ const FILTRES_DOMAINE = [
   ...DOMAINES.map((d) => ({ cle: d.cle, nom: d.nom.split(" &")[0] })),
   { cle: "eleve", nom: "Élèves" }, // membres encore au lycée (pas encore de domaine)
 ];
-
-const CLE_RETOUR = "annuaire_retour_y"; // position mémorisée avant d'ouvrir un profil
 
 export default function Annuaire({ membres }) {
   const params = useSearchParams();
@@ -42,19 +41,6 @@ export default function Annuaire({ membres }) {
     window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
 
-  // Retour depuis un profil : on restaure la position exacte de la liste.
-  // Nécessaire car la page est « force-dynamic » — au retour elle est
-  // re-demandée au serveur, donc le contenu est momentanément vide et la
-  // restauration automatique échoue (on atterrissait en haut de la liste).
-  // La position n'est mémorisée QU'au clic sur un profil : arriver par la barre
-  // d'onglets affiche donc toujours le haut de la liste, comme avant.
-  useEffect(() => {
-    const y = sessionStorage.getItem(CLE_RETOUR);
-    if (!y) return;
-    sessionStorage.removeItem(CLE_RETOUR);
-    // après le premier rendu (la liste vient des props : elle est déjà complète)
-    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, Number(y))));
-  }, []);
 
   // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)
   const plat = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -148,8 +134,7 @@ export default function Annuaire({ membres }) {
 
       <div className="n-liste">
         {resultats.map((m) => (
-          <Link key={m.id} href={`/profil/${m.id}`} className="fiche"
-            onClick={() => sessionStorage.setItem(CLE_RETOUR, String(window.scrollY))}>
+          <Link key={m.id} href={`/profil/${m.id}`} className="fiche">
             <div className="haut">
               <Avatar profil={m} className="init" />
               <div>
@@ -184,6 +169,7 @@ export default function Annuaire({ membres }) {
           </div>
         )}
       </div>
+      <RestaurerDefilement />
     </>
   );
 }

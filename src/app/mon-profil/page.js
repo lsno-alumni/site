@@ -40,7 +40,7 @@ export default function MonProfil() {
       if (!user) return routeur.push("/connexion");
       const { data } = await supabase
         .from("profiles")
-        .select("id, prenom, nom, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, promotions(numero)")
+        .select("id, prenom, nom, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, push_reseau_portee, promotions(numero)")
         .eq("id", user.id)
         .maybeSingle();
       // les valeurs de contact ne sont lisibles que via cette fonction

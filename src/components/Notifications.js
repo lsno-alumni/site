@@ -23,9 +23,18 @@ function nomAppareil(ua = "") {
   return sys ? `${nav} sur ${sys}` : nav;
 }
 
+// portées possibles pour la famille « Le réseau » (un seul choix, pas de
+// chevauchement possible entre les options)
+const PORTEES = [
+  { cle: "promo_domaine", nom: "Ma promo et mon domaine" },
+  { cle: "promo", nom: "Ma promo seulement" },
+  { cle: "domaine", nom: "Mon domaine seulement" },
+  { cle: "tout", nom: "Tout le réseau" },
+];
+
 const FAMILLES = [
   { cle: "push_mes_demandes", nom: "Mes demandes", detail: "Mise en relation, validation de mon compte, mon rôle" },
-  { cle: "push_reseau", nom: "Le réseau", detail: "Nouveaux membres de ma promo ou de mon domaine" },
+  { cle: "push_reseau", nom: "Le réseau", detail: "Arrivées de nouveaux membres (portée réglable ci-dessous)" },
   { cle: "push_offres", nom: "Offres", detail: "Nouvelles opportunités partagées" },
   { cle: "push_annonces", nom: "Annonces", detail: "Messages adressés à tout le réseau" },
 ];
@@ -70,6 +79,7 @@ export default function Notifications({ profil }) {
       push_reseau: profil?.push_reseau ?? true,
       push_offres: profil?.push_offres ?? true,
       push_annonces: profil?.push_annonces ?? true,
+      push_reseau_portee: profil?.push_reseau_portee ?? "promo_domaine",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -120,6 +130,11 @@ export default function Notifications({ profil }) {
     } finally {
       setEnCours(false);
     }
+  };
+
+  const majPortee = async (valeur) => {
+    setPrefs((p) => ({ ...p, push_reseau_portee: valeur }));
+    await supabase.from("profiles").update({ push_reseau_portee: valeur }).eq("id", profil.id);
   };
 
   const majPref = async (cle) => {
@@ -207,6 +222,21 @@ export default function Notifications({ profil }) {
                       Non
                     </button>
                   </div>
+                  {f.cle === "push_reseau" && prefs.push_reseau && (
+                    <div style={{ flexBasis: "100%", marginTop: 8 }}>
+                      <select className="saisie" style={{ padding: "9px 12px", fontSize: 12.5 }}
+                        value={prefs.push_reseau_portee}
+                        onChange={(e) => majPortee(e.target.value)}
+                        aria-label="De qui veux-tu être prévenu ?">
+                        {PORTEES.map((o) => <option key={o.cle} value={o.cle}>{o.nom}</option>)}
+                      </select>
+                      {prefs.push_reseau_portee === "tout" && (
+                        <span style={{ display: "block", fontSize: 11.5, color: "var(--brume)", marginTop: 5 }}>
+                          Bavard à l&apos;arrivée d&apos;une nouvelle promo.
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

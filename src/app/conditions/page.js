@@ -21,7 +21,7 @@ export default function Conditions() {
       </header>
 
       <div className="f-corps" style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--craie-2)", paddingBottom: 48 }}>
-        <p style={{ fontSize: 12, color: "var(--brume)" }}>Dernière mise à jour : 18 juillet 2026</p>
+        <p style={{ fontSize: 12, color: "var(--brume)" }}>Dernière mise à jour : 29 juillet 2026</p>
 
         <Titre>1. Ce qu&apos;est LSNO Amicale</Titre>
         <p>
@@ -51,6 +51,15 @@ export default function Conditions() {
           revente, pas de statistiques individuelles. Les seuls cookies utilisés sont ceux de ta
           session de connexion, indispensables au fonctionnement.
         </p>
+        <p style={{ marginTop: 10 }}>
+          <b>Notifications.</b> Si tu choisis de les activer, ton navigateur nous remet une
+          adresse d&apos;envoi technique propre à cet appareil (avec ses clés de chiffrement) ;
+          nous l&apos;enregistrons pour pouvoir t&apos;écrire, avec le nom abrégé du navigateur
+          pour que tu t&apos;y retrouves. Elle ne permet pas de te suivre ailleurs sur le web,
+          n&apos;est jamais partagée, et les notifications sont envoyées par nos propres serveurs
+          — sans prestataire tiers. Tu peux les couper à tout moment (voir §5), et l&apos;adresse
+          est alors supprimée.
+        </p>
 
         <Titre>4. Qui voit tes informations</Titre>
         <p>
@@ -68,7 +77,9 @@ export default function Conditions() {
         <Titre>5. Tes droits sur tes données</Titre>
         <p>
           Tu peux à tout moment, depuis « Mon profil » : <b>consulter et rectifier</b> chaque
-          information, <b>changer la visibilité</b> de chaque contact, et <b>supprimer
+          information, <b>changer la visibilité</b> de chaque contact, <b>activer ou couper les
+          notifications</b> (globalement sur un appareil, ou par famille : mes demandes, le
+          réseau, les offres, les annonces), et <b>supprimer
           définitivement ton compte</b> — l&apos;effacement est immédiat, total (profil, parcours,
           photo, compte de connexion) et irréversible. Pour toute autre demande liée à tes
           données : lsno.alumni@gmail.com.

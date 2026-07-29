@@ -20,7 +20,8 @@ le bon interlocuteur et que le réseau de tous se renforce.
 - **Accueil personnalisé** pour les membres connectés ; vitrine anonyme pour les visiteurs
 - **Espace délégué/admin** : validation des inscriptions par promotion, gestion complète des
   membres, annonces, sauvegarde, état du système
-- **8 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances, purges…
+- **13 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances, purges, notifications…
+- **Notifications push auto-hebergees** (service worker + route `/api/push`, cles VAPID) : aucun prestataire tiers
 
 ## Architecture
 

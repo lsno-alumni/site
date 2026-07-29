@@ -48,6 +48,13 @@ de la base, pas par le secret de ces clés.
   vraies photos du lycée.
 - **Jamais de secret dans le code** — le dépôt est public. Les clés vivent dans les
   variables d'environnement Vercel et le Vault Supabase. Un secret committé = compromis.
+- **Notifications push** : pour y toucher il faut des cles VAPID et le secret partage
+  (`NEXT_PUBLIC_VAPID_PUBLIC`, `VAPID_PUBLIC`, `VAPID_PRIVATE`, `PUSH_SECRET`,
+  `SUPABASE_SERVICE_ROLE_KEY`) : demande-les a un admin, elles ne sont pas publiques.
+  Sans elles, tout le reste du site fonctionne — seul le bouton d'activation echouera.
+- **Toute nouvelle table** : penser aux `grant` explicites pour `authenticated` ET pour
+  `service_role` si une route serveur la lit (« Automatically expose new tables » est
+  desactive, volontairement). Un `upsert` exige en plus le privilege `update`.
 - **Migrations SQL toujours additives** (`supabase/migration-XX-….sql`) : on ajoute des
   tables ou des colonnes, on ne renomme ni ne supprime jamais un champ en production.
   Tu écris la migration, un admin l'exécute — tu n'as pas accès à la base, c'est normal.

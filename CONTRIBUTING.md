@@ -8,7 +8,8 @@ et t'évite les pièges connus du projet.
 Le code est public, les contributions viennent en priorité des **ancien·nes du LSNO**.
 Avant de coder une nouvelle fonctionnalité, ouvre une *issue* GitHub (ou écris à
 lsno.alumni@gmail.com) pour en discuter — beaucoup d'idées ont déjà été étudiées,
-certaines volontairement écartées.
+certaines volontairement écartées (messagerie interne, statistiques visuelles,
+notifications de « qui a vu mon profil »…).
 
 ## Installation
 
@@ -35,6 +36,30 @@ de la base, pas par le secret de ces clés.
 4. `npm run dev` → http://localhost:3000. Tu es branché sur la vraie base, avec les
    droits de **ton propre compte membre** — connecte-toi avec, tu verras ce qu'un membre voit.
 
+### Cas particulier : les notifications push
+
+Elles exigent des clés que seuls les admins détiennent (`NEXT_PUBLIC_VAPID_PUBLIC`,
+`VAPID_PUBLIC`, `VAPID_PRIVATE`, `PUSH_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`). Sans elles,
+**tout le reste du site fonctionne** : seul le bouton d'activation échouera. Si ta
+contribution les concerne, demande-les — et sache que les notifications ne marchent
+qu'en HTTPS (ou sur `localhost`, exception des navigateurs).
+
+## Où vit quoi
+
+```
+src/app/            pages (App Router)          src/components/  composants partagés
+src/app/api/push/   envoi des notifications     src/lib/         domaines, pays, promos, Supabase
+src/middleware.js   protection des routes       supabase/        tables, RLS, triggers, crons
+public/             images, icônes, sw.js
+```
+
+Deux réflexes utiles :
+
+- **Les emails et les notifications partent de la BASE** (triggers + pg_cron), pas du
+  front. Si tu cherches « qui envoie ce message ? », regarde dans `supabase/`.
+- **La liste des domaines** (`src/lib/donnees.js`) est du texte libre côté base : en
+  ajouter un ne demande aucune migration, juste une icône dans `IconeDomaine.js`.
+
 ## Les règles maison (non négociables)
 
 - **CSS pur** — pas de Tailwind, pas de framework CSS. Les styles vivent dans
@@ -46,32 +71,53 @@ de la base, pas par le secret de ces clés.
   pas d'image non compressée.
 - **Design sobre** : 3 couleurs, icônes Lucide (jamais d'emojis dans l'interface),
   vraies photos du lycée.
+- **Pas de nouvelle dépendance** sans en discuter d'abord. Hors Next et React, le projet
+  n'en compte que cinq : `@supabase/ssr`, `@supabase/supabase-js`, `lucide-react`,
+  `react-easy-crop` et `web-push` (serveur). Si une librairie est indispensable et lourde,
+  la charger en **import dynamique** (c'est le cas de `react-easy-crop`).
 - **Jamais de secret dans le code** — le dépôt est public. Les clés vivent dans les
   variables d'environnement Vercel et le Vault Supabase. Un secret committé = compromis.
-- **Notifications push** : pour y toucher il faut des cles VAPID et le secret partage
-  (`NEXT_PUBLIC_VAPID_PUBLIC`, `VAPID_PUBLIC`, `VAPID_PRIVATE`, `PUSH_SECRET`,
-  `SUPABASE_SERVICE_ROLE_KEY`) : demande-les a un admin, elles ne sont pas publiques.
-  Sans elles, tout le reste du site fonctionne — seul le bouton d'activation echouera.
-- **Toute nouvelle table** : penser aux `grant` explicites pour `authenticated` ET pour
-  `service_role` si une route serveur la lit (« Automatically expose new tables » est
-  desactive, volontairement). Un `upsert` exige en plus le privilege `update`.
 - **Migrations SQL toujours additives** (`supabase/migration-XX-….sql`) : on ajoute des
   tables ou des colonnes, on ne renomme ni ne supprime jamais un champ en production.
   Tu écris la migration, un admin l'exécute — tu n'as pas accès à la base, c'est normal.
 - **La confidentialité se joue dans la base** : si ta fonctionnalité touche aux données
   personnelles, la règle d'accès doit être une policy RLS ou une fonction SQL, pas un
   `if` côté client.
+- **Pas de mise en cache du contenu** : ni côté client, ni dans le service worker. La
+  fraîcheur des données prime (un membre validé doit apparaître immédiatement).
 
 ## Pièges connus (tu gagneras du temps)
 
-- Toute **nouvelle table** doit recevoir des `GRANT` explicites (l'exposition automatique
-  est désactivée) ; toute **nouvelle colonne de `profiles`** doit être ajoutée au
-  `grant select (…)` — sinon l'API renvoie vide, sans erreur.
-- Le composant `Avatar` doit toujours recevoir une **classe de taille dédiée** quand il
-  sort des fiches de l'annuaire (le bug de « l'avatar géant » a frappé 4 fois).
+**Base de données**
+
+- Toute **nouvelle table** doit recevoir des `GRANT` explicites — l'exposition automatique
+  est **désactivée volontairement** (un oubli de RLS ne peut donc pas ouvrir la table).
+  Penser à `authenticated` **et** à `service_role` si une route serveur la lit, sinon :
+  `permission denied for table …`.
+- Un **`upsert`** (`insert … on conflict do update`) exige en plus le privilège `update`.
+- Toute **nouvelle colonne de `profiles`** doit être ajoutée au `grant select (…)` —
+  sinon l'API la renvoie vide, sans erreur.
+- **`on conflict` n'existe pas sur un `select`** : pour créer un secret du Vault une seule
+  fois, utiliser `do $$ begin if not exists (select 1 from vault.decrypted_secrets
+  where name = '…') then … end if; end $$;`.
 - Éviter `alter type … add value` dans l'éditeur SQL Supabase (transaction) — réutiliser
   les valeurs d'enum existantes.
+- Pour déboguer un envoi (email ou notification) déclenché par la base :
+  `select id, status_code, content from net._http_response order by id desc limit 5;`
+
+**Front**
+
+- Le composant `Avatar` doit toujours recevoir une **classe de taille dédiée** quand il
+  sort des fiches de l'annuaire (le bug de « l'avatar géant » a frappé 4 fois).
+- **Ne jamais se fier à `document.referrer`** : la navigation Next est côté client, il ne
+  change jamais et il est vide quand le site est ouvert depuis l'écran d'accueil. Pour
+  savoir si l'on peut revenir en arrière, utiliser `components/SuiviNavigation.js`
+  (compteur de navigations internes), qui gère aussi la restauration de la position.
+- Un `<button>` servant de conteneur hérite du **noir par défaut** du navigateur si aucune
+  couleur n'est fixée (`globals.css` impose désormais `color: inherit`).
 - Icônes Next.js : PNG en mode **RGBA** obligatoire, sinon le build échoue.
+- Icône de notification Android : seule la **transparence** est utilisée — une image à fond
+  plein apparaît en carré blanc (d'où `public/badge-notif.png`, une silhouette).
 
 ## Le circuit d'une contribution
 
@@ -81,7 +127,9 @@ de la base, pas par le secret de ces clés.
    la solution, ce que tu as testé. Une capture d'écran mobile aide beaucoup.
 4. Un mainteneur relit, discute si besoin, et merge. **Le merge sur `main` déploie
    automatiquement en production** — c'est pour ça que tout passe par relecture.
-5. S'il y a une migration SQL, un admin l'exécute au moment du merge.
+5. S'il y a une migration SQL, un admin l'exécute au moment du merge. Précise dans la PR
+   si elle doit être exécutée **avant** ou **après** le déploiement du code (une requête
+   qui lit une table encore inexistante casse la page concernée).
 
 Petites PR ciblées > grosses PR fourre-tout. Une PR = un sujet.
 

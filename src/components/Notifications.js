@@ -1,13 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, BellOff } from "lucide-react";
+import { Bell, BellOff, X } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { pushDispo, abonnementLocal, abonner, desabonner } from "@/lib/push";
 
 // Activation des notifications sur CET appareil + choix des familles.
 // iOS : ne fonctionne que si le site a été ajouté à l'écran d'accueil
 // (iOS 16.4+) — un simple onglet Safari ne peut pas recevoir de push.
+
+// nom lisible à partir du user-agent enregistré
+function nomAppareil(ua = "") {
+  const nav = /Edg\//.test(ua) ? "Edge"
+    : /SamsungBrowser/.test(ua) ? "Samsung Internet"
+    : /OPR\//.test(ua) ? "Opera"
+    : /Firefox/.test(ua) ? "Firefox"
+    : /Chrome/.test(ua) ? "Chrome"
+    : /Safari/.test(ua) ? "Safari" : "Navigateur";
+  const sys = /iPhone/.test(ua) ? "iPhone" : /iPad/.test(ua) ? "iPad"
+    : /Android/.test(ua) ? "Android" : /Windows/.test(ua) ? "Windows"
+    : /Mac OS X/.test(ua) ? "Mac" : /Linux/.test(ua) ? "Linux" : "";
+  return sys ? `${nav} sur ${sys}` : nav;
+}
 
 const FAMILLES = [
   { cle: "push_mes_demandes", nom: "Mes demandes", detail: "Mise en relation, validation de mon compte, mon rôle" },
@@ -23,18 +37,33 @@ export default function Notifications({ profil }) {
   const [enCours, setEnCours] = useState(false);
   const [message, setMessage] = useState("");
   const [prefs, setPrefs] = useState(null);
+  const [appareils, setAppareils] = useState([]);   // tous les appareils abonnés
+  const [ici, setIci] = useState(null);             // endpoint de CET appareil
 
   useEffect(() => {
     const dispo = pushDispo();
     setPossible(dispo);
     if (!dispo) return;
     (async () => {
+      const liste = await chargerAppareils();
       const abo = await abonnementLocal();
-      if (abo) { setActif(true); return; }
+      if (abo) {
+        setIci(abo.endpoint);
+        // si l'appareil a été retiré depuis un AUTRE appareil, on respecte ce
+        // retrait : on ne le réinscrit pas en silence
+        setActif(liste.some((a) => a.endpoint === abo.endpoint));
+        return;
+      }
       // autorisation déjà accordée mais appareil pas encore enregistré :
       // on l'abonne SANS rien demander (notifications actives par défaut)
-      try { if (await abonner(supabase, profil.id, { silencieux: true })) setActif(true); }
-      catch { /* rien : l'utilisateur gardera le bouton */ }
+      try {
+        if (await abonner(supabase, profil.id, { silencieux: true })) {
+          setActif(true);
+          const a = await abonnementLocal();
+          setIci(a?.endpoint ?? null);
+          await chargerAppareils();
+        }
+      } catch { /* rien : l'utilisateur gardera le bouton */ }
     })();
     setPrefs({
       push_mes_demandes: profil?.push_mes_demandes ?? true,
@@ -45,11 +74,30 @@ export default function Notifications({ profil }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const chargerAppareils = async () => {
+    const { data } = await supabase
+      .from("push_abonnements").select("id, endpoint, appareil, cree_le")
+      .order("cree_le", { ascending: false });
+    setAppareils(data ?? []);
+    return data ?? [];
+  };
+
+  // retire un appareil (le sien ou un autre, à distance)
+  const retirer = async (a) => {
+    if (a.endpoint === ici) { await desactiver(); return; }
+    await supabase.from("push_abonnements").delete().eq("id", a.id);
+    setAppareils((l) => l.filter((x) => x.id !== a.id));
+    setMessage("Appareil retiré — il ne recevra plus de notifications.");
+  };
+
   const activer = async () => {
     setEnCours(true); setMessage("");
     try {
       await abonner(supabase, profil.id);
       setActif(true);
+      const a = await abonnementLocal();
+      setIci(a?.endpoint ?? null);
+      await chargerAppareils();
       setMessage("Notifications activées sur cet appareil ✓");
     } catch (e) {
       setMessage(e?.message === "autorisation refusée"
@@ -65,6 +113,7 @@ export default function Notifications({ profil }) {
     try {
       await desabonner(supabase);
       setActif(false);
+      await chargerAppareils();
       setMessage("Notifications désactivées sur cet appareil.");
     } catch (e) {
       setMessage("Échec : " + (e?.message ?? ""));
@@ -104,6 +153,38 @@ export default function Notifications({ profil }) {
           </p>
           {message && (
             <p style={{ fontSize: 12, color: "var(--or-clair)", marginTop: 6, lineHeight: 1.5 }}>{message}</p>
+          )}
+
+          {/* appareils abonnés : un par navigateur. Utile quand on a activé les
+              notifications dans plusieurs navigateurs et qu'on reçoit en double. */}
+          {appareils.length > 0 && (
+            <div className="e-visi" style={{ marginTop: 12 }}>
+              <p style={{ fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
+                {appareils.length} appareil{appareils.length > 1 ? "s" : ""} recevant tes notifications
+              </p>
+              {appareils.map((a) => (
+                <div key={a.id} className="e-ligne">
+                  <span className="val">
+                    <b style={{ fontSize: 13 }}>{nomAppareil(a.appareil)}</b>
+                    <span style={{ display: "block", color: "var(--brume)", fontSize: 11.5 }}>
+                      {a.endpoint === ici ? "cet appareil" : "ajouté le " +
+                        new Date(a.cree_le).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                    </span>
+                  </span>
+                  <button type="button" onClick={() => retirer(a)}
+                    aria-label={`Retirer ${nomAppareil(a.appareil)}`}
+                    style={{ background: "none", border: "none", color: "var(--brume)", cursor: "pointer", padding: 6 }}>
+                    <X size={15} aria-hidden />
+                  </button>
+                </div>
+              ))}
+              {appareils.length > 1 && (
+                <p style={{ fontSize: 11.5, color: "var(--brume)", lineHeight: 1.45 }}>
+                  Chaque navigateur reçoit sa propre notification. Retire ceux que tu n&apos;utilises
+                  plus pour ne plus recevoir en double.
+                </p>
+              )}
+            </div>
           )}
 
           {actif && prefs && (

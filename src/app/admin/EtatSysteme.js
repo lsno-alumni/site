@@ -14,6 +14,11 @@ const NOMS = {
   "garde-vivant-brevo": "Contrôle des clés email (bimestriel)",
   "envoi-annonces": "Envoi des annonces (quotidien)",
   "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
+  // notifications push
+  "push-rappels-quotidiens": "Notifications : profils incomplets, offres qui expirent (quotidien)",
+  "push-rappel-annuel": "Notification : profils à jour ? (1er septembre)",
+  "push-controle-cles": "Notification : contrôle des clés (bimestriel)",
+  "push-rentree-octobre": "Notifications de la rentrée (1er octobre)",
 };
 
 const CLE_EMAILS = "emails_inscription_admins";

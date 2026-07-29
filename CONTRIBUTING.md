@@ -122,6 +122,13 @@ Deux réflexes utiles :
   réabonnement « automatique » doit donc vérifier le refus explicite mémorisé sur
   l'appareil (`refusLocal()` dans `src/lib/push.js`) — sinon on réactive contre la
   volonté du membre (bug vécu le 29/07).
+- **Ne pas toucher au gestionnaire `fetch` vide de `public/sw.js`** ni à l'enregistrement du
+  service worker pour tous (`initInstallation()`) : Chrome n'offre l'installation de l'appli
+  que si un service worker actif possède un gestionnaire `fetch`. C'est la seule raison de sa
+  présence — il n'intercepte rien et ne met rien en cache.
+- **`beforeinstallprompt` se capte au plus tôt** (dans le composant client du layout) : cet
+  événement est émis une seule fois, peu après le chargement. Le capter dans une page arrivée
+  trop tard le fait manquer.
 - Icône de notification Android : seule la **transparence** est utilisée — une image à fond
   plein apparaît en carré blanc (d'où `public/badge-notif.png`, une silhouette).
 

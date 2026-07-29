@@ -27,7 +27,9 @@ le bon interlocuteur et que le réseau de tous se renforce.
 - **Accueil personnalisé** pour les membres connectés ; vitrine anonyme pour les visiteurs
 - **Photo de profil** recadrable (carré) et supprimable
 - **Notifications push** : être prévenu, appli fermée, d'une demande de contact, d'une
-  nouvelle offre, de l'arrivée d'un camarade… réglable par familles
+  nouvelle offre, de l'arrivée d'un camarade… réglables par familles, avec le choix de la
+  **portée** pour les arrivées (tout le réseau / sa promo / son domaine), la **liste de ses
+  appareils** et un **regroupement** automatique au-delà de quelques notifications non lues
 - **Installable comme une appli** (PWA légère : manifeste + icônes, sans store)
 - **Partage** de profils et d'offres avec **aperçu personnalisé** (WhatsApp…), sans jamais
   exposer autre chose qu'une vitrine volontaire
@@ -43,7 +45,7 @@ le bon interlocuteur et que le réseau de tous se renforce.
 
 **Sous le capot**
 
-- **31 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
+- **33 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
 - **13 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances,
   purges, notifications
 - **Notifications auto-hébergées** : service worker + route `/api/push` (signature VAPID),
@@ -90,7 +92,7 @@ src/app/api/push/   route d'envoi des notifications (appelée par la base)
 src/components/     composants partagés (Avatar, TabBar, Notifications…)
 src/lib/            données de référence (domaines, pays, promotions), clients Supabase
 src/middleware.js   protection des routes (vérification locale du jeton)
-supabase/           schema.sql + migration-02…31 : tables, RLS, triggers, crons
+supabase/           schema.sql + migration-02…33 : tables, RLS, triggers, crons
 public/             images du lycée, icônes, service worker (sw.js)
 ```
 

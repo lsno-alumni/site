@@ -14,8 +14,11 @@ export async function POST(requete) {
     return Response.json({ erreur: "refuse" }, { status: 401 });
   }
 
-  const { profil, titre, corps, url, groupe } = await requete.json();
-  if (!profil || !titre) return Response.json({ erreur: "incomplet" }, { status: 400 });
+  // « profil » (un seul) ou « profils » (lot — les diffusions à tout le réseau
+  // arrivent par paquets de 50 pour rester loin de la limite de temps Vercel)
+  const { profil, profils, titre, corps, url, groupe } = await requete.json();
+  const cibles = Array.isArray(profils) ? profils : profil ? [profil] : [];
+  if (!cibles.length || !titre) return Response.json({ erreur: "incomplet" }, { status: 400 });
 
   webpush.setVapidDetails(
     "mailto:lsno.alumni@gmail.com",
@@ -34,7 +37,7 @@ export async function POST(requete) {
   const { data: abonnements, error } = await base
     .from("push_abonnements")
     .select("id, endpoint, p256dh, auth")
-    .eq("profil", profil);
+    .in("profil", cibles);
   if (error) return Response.json({ erreur: error.message }, { status: 500 });
 
   const charge = JSON.stringify({ titre, corps: corps ?? "", url: url ?? "/", groupe });

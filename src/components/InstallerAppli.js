@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { Download, X, Check } from "lucide-react";
 import {
   dejaInstallee, inviteDisponible, lancerInstallation, plateforme, MODES,
+  modeInvitationInstall, CLE_INSTALL_ECARTEE,
 } from "@/lib/installation";
-import { inviteNotifsAttendue } from "@/lib/push";
 
-const CLE_ECARTEE = "lsno_invite_install_ecartee";
+const CLE_ECARTEE = CLE_INSTALL_ECARTEE;
 
 // Gestes à faire, quand le navigateur ne propose pas de bouton
 function Etapes({ mode }) {
@@ -20,31 +20,17 @@ function Etapes({ mode }) {
 
 // ============================================================
 // A) Bandeau sur l'accueil — proposition au bon moment
-//    Un seul bandeau à la fois : sur iPhone, l'installation PASSE AVANT les
-//    notifications (elles y sont impossibles sans l'appli installée) ; ailleurs,
-//    on laisse d'abord l'invitation aux notifications faire son travail.
+//    Un seul bandeau à la fois, et l'installation PASSE AVANT celui des
+//    notifications sur TOUS les appareils : l'appli installée est la meilleure
+//    porte d'entrée (et sur iPhone, les notifications en dépendent).
 // ============================================================
 export function InviteInstallation() {
   const [etat, setEtat] = useState(null);   // null = on décide, "bouton" | "gestes" | null
   const [fait, setFait] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      if (dejaInstallee()) return;
-      try { if (localStorage.getItem(CLE_ECARTEE)) return; } catch { /* ignore */ }
-      const p = plateforme();
-      if (p === "ios-autre" || p === "in-app") return;   // rien d'utile à proposer ici
-
-      // priorité : iPhone d'abord (sinon les notifications sont une impasse)
-      const ios = p === "ios-safari";
-      if (!ios && await inviteNotifsAttendue()) return;
-
-      // laisse au navigateur le temps de signaler qu'il peut installer
-      setTimeout(() => {
-        if (dejaInstallee()) return;
-        setEtat(inviteDisponible() ? "bouton" : ios ? "gestes" : null);
-      }, 1500);
-    })();
+    // l'installation est prioritaire sur les notifications (voir lib/installation.js)
+    modeInvitationInstall().then(setEtat);
   }, []);
 
   const installer = async () => {

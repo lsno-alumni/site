@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { initInstallation } from "@/lib/installation";
 
 // ============================================================
 // Suivi de la navigation interne (monté une fois dans le layout).
@@ -38,6 +39,10 @@ export default function SuiviNavigation() {
   const pathname = usePathname();
 
   useEffect(() => {
+    // enregistre le service worker et met de côté la proposition d'installation
+    // du navigateur (voir lib/installation.js) — au plus tôt dans la vie de la page
+    initInstallation();
+
     // mémorise la position AVANT de quitter la page (au clic sur un lien interne)
     const auClic = (e) => {
       const a = e.target?.closest?.("a[href]");

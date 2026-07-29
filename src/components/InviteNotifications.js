@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { pushDispo, abonnementLocal, abonner, refusLocal } from "@/lib/push";
+import { pushDispo, abonnementLocal, abonner, refusLocal, CLE_INVITE_ECARTEE } from "@/lib/push";
 
 // Invitation discrète sur l'accueil, pour les membres qui n'ont pas encore
 // autorisé les notifications (le navigateur exige un geste : impossible de les
 // activer d'office). Un seul appui suffit, sans passer par Mon profil.
 // Écartée une fois, elle ne revient plus (mémorisée sur l'appareil).
-const CLE_ECARTEE = "lsno_invite_notif_ecartee";
+const CLE_ECARTEE = CLE_INVITE_ECARTEE;
 
 export default function InviteNotifications({ profilId }) {
   const supabase = creerClientNavigateur();

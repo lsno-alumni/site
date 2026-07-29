@@ -17,6 +17,18 @@ const noterRefus = (valeur) => {
   catch { /* stockage indisponible */ }
 };
 
+// clé partagée avec l'invitation de l'accueil (et lue par celle de l'installation)
+export const CLE_INVITE_ECARTEE = "lsno_invite_notif_ecartee";
+
+// L'invitation « Active tes notifs » va-t-elle s'afficher ? Sert à ne jamais
+// empiler deux bandeaux sur l'accueil.
+export async function inviteNotifsAttendue() {
+  if (!pushDispo() || refusLocal()) return false;
+  try { if (localStorage.getItem(CLE_INVITE_ECARTEE)) return false; } catch { /* ignore */ }
+  if (Notification.permission !== "default") return false;   // déjà accordée ou refusée
+  return (await abonnementLocal()) === null;
+}
+
 export const pushDispo = () =>
   typeof window !== "undefined" &&
   "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;

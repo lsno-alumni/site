@@ -14,7 +14,10 @@ self.addEventListener("push", (e) => {
     self.registration.showNotification(titre, {
       body: d.corps || "",
       icon: "/icone-192.png",
-      badge: "/icone-192.png",
+      // ⚠ Android n'utilise QUE la transparence de l'icône de barre d'état :
+      // une image à fond plein y apparaît en carré blanc. D'où ce fichier
+      // dédié (silhouette blanche sur fond transparent, blason simplifié).
+      badge: "/badge-notif.png",
       // regroupe les notifications d'un même type au lieu de les empiler
       tag: d.groupe || undefined,
       data: { url: d.url || "/" },

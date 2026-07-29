@@ -61,8 +61,9 @@ export default function InviteNotifications({ profilId }) {
       ) : (
         <>
           <span className="txt">
-            <b>Reste au courant</b>
-            Demandes de contact, nouvelles offres, arrivées : sois prévenu sans ouvrir le site.
+            <b>Active tes notifs</b>
+            Demandes de contact, nouvelles offres, arrivées… Tu peux tout paramétrer
+            ensuite dans « Mon profil ».
           </span>
           <button type="button" className="btn btn-notif" onClick={activer} disabled={enCours}>
             {enCours ? "…" : "Activer"}

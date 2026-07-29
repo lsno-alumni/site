@@ -5,6 +5,18 @@
 // peut pas activer les notifications d'office. On fait donc au plus près :
 // auto-abonnement silencieux si l'autorisation existe déjà, sinon un geste.
 
+// Refus EXPLICITE sur cet appareil. Indispensable : désactiver depuis l'appli ne
+// révoque pas l'autorisation du navigateur — sans cette mémoire, l'auto-abonnement
+// silencieux ci-dessous réactivait tout seul au rechargement suivant.
+const CLE_REFUS = "lsno_push_refuse";
+export const refusLocal = () => {
+  try { return localStorage.getItem(CLE_REFUS) === "1"; } catch { return false; }
+};
+const noterRefus = (valeur) => {
+  try { valeur ? localStorage.setItem(CLE_REFUS, "1") : localStorage.removeItem(CLE_REFUS); }
+  catch { /* stockage indisponible */ }
+};
+
 export const pushDispo = () =>
   typeof window !== "undefined" &&
   "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
@@ -29,11 +41,14 @@ export async function abonnementLocal() {
 // enregistre l'appareil (demande l'autorisation si besoin)
 export async function abonner(supabase, profilId, { silencieux = false } = {}) {
   if (!pushDispo()) throw new Error("non pris en charge");
+  // l'utilisateur a désactivé ici : on ne le contredit jamais en silence
+  if (silencieux && refusLocal()) return false;
   if (Notification.permission !== "granted") {
     if (silencieux) return false;             // on ne demande rien sans geste
     const p = await Notification.requestPermission();
     if (p !== "granted") throw new Error("autorisation refusée");
   }
+  if (!silencieux) noterRefus(false);         // geste volontaire : on oublie le refus
   const sw = await navigator.serviceWorker.register("/sw.js");
   await navigator.serviceWorker.ready;
   const abo = await sw.pushManager.subscribe({
@@ -53,6 +68,7 @@ export async function abonner(supabase, profilId, { silencieux = false } = {}) {
 }
 
 export async function desabonner(supabase) {
+  noterRefus(true);   // mémorise le choix, sinon il serait réactivé au rechargement
   const abo = await abonnementLocal();
   if (abo) {
     await supabase.from("push_abonnements").delete().eq("endpoint", abo.endpoint);

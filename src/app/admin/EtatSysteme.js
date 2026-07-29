@@ -23,6 +23,7 @@ export default function EtatSysteme() {
   const [etat, setEtat] = useState(null);
   const [emailsAdmins, setEmailsAdmins] = useState(null); // null = réglage absent
   const [bascule, setBascule] = useState(false);
+  const [testPush, setTestPush] = useState("");
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
@@ -90,6 +91,17 @@ export default function EtatSysteme() {
               {bascule ? "…" : emailsAdmins ? "Mettre en pause" : "Réactiver"}
             </button>
           </div>
+          <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
+            onClick={async () => {
+              const { error } = await supabase.rpc("admin_test_push");
+              setTestPush(error ? "Échec : " + error.message
+                : "Envoyée — si rien n'arrive, active les notifications dans Mon profil.");
+            }}>
+            M&apos;envoyer une notification de test
+          </button>
+          {testPush && (
+            <p style={{ fontSize: 12, color: "var(--brume)", margin: 0, lineHeight: 1.5 }}>{testPush}</p>
+          )}
           {!emailsAdmins && (
             <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
               ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription.

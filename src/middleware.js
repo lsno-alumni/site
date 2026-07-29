@@ -54,7 +54,9 @@ export async function middleware(req) {
 }
 
 export const config = {
-  // exclut les internes Next, les images ET tout fichier statique
+  // exclut les internes Next, les images, tout fichier statique
   // (robots.txt, sitemap.xml, vérification Google… : chemins avec extension)
-  matcher: ["/((?!_next/static|_next/image|img/|.*\\..*).*)"],
+  // ET les routes api/ (ex. /api/push, appelée par la base : elle a son propre
+  // secret, une redirection vers la connexion la casserait)
+  matcher: ["/((?!api/|_next/static|_next/image|img/|.*\\..*).*)"],
 };

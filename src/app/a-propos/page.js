@@ -1,6 +1,7 @@
 import Link from "next/link";
 import TabBar from "@/components/TabBar";
 import Carrousel from "@/components/Carrousel3D";
+import { BlocInstallation } from "@/components/InstallerAppli";
 import RetourDynamique from "@/components/RetourDynamique";
 
 export const metadata = { title: "À propos — LSNO Amicale" };
@@ -27,6 +28,8 @@ export default function APropos() {
         <p className="tagline" style={{ marginTop: 10 }}>Travail · Excellence · Discipline</p>
 
         <Carrousel />
+
+        <BlocInstallation />
 
         <div style={{ borderTop: "1px solid var(--ligne)", paddingTop: 18, marginTop: 10, fontSize: 12.5, color: "var(--brume)", lineHeight: 1.65 }}>
           <p style={{ fontSize: 11, letterSpacing: ".25em", textTransform: "uppercase", color: "var(--or)", marginBottom: 8 }}>

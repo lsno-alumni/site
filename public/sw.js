@@ -4,6 +4,11 @@
 // Il ne sert donc qu'à recevoir les push et ouvrir la bonne page au clic.
 
 self.addEventListener("install", () => self.skipWaiting());
+
+// ⚠ Gestionnaire « fetch » VOLONTAIREMENT VIDE : Chrome exige sa présence pour
+// proposer l'installation de l'appli. Il ne fait rien — aucune requête n'est
+// interceptée ni mise en cache (la fraîcheur des données reste intacte).
+self.addEventListener("fetch", () => {});
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 
 // ------------------------------------------------------------

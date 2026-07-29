@@ -520,6 +520,27 @@
   font-size: 12px; color: var(--rouge); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* bloc « Installer l'appli » (page À propos) — aide permanente, trouvable même
+   après avoir écarté le bandeau de l'accueil */
+.bloc-install {
+  background: var(--encre-2); border: 1px solid var(--ligne); border-radius: 20px;
+  padding: 18px 16px; margin: 22px 0 6px; display: grid; gap: 10px; justify-items: start;
+}
+.bloc-install h3 { font-size: 16px; }
+.bloc-install .intro { font-size: 13px; color: var(--craie-2); line-height: 1.6; }
+.bloc-install .quel {
+  font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--or);
+}
+.bloc-install .ok { font-size: 13px; color: #9FD8B4; display: flex; align-items: center; gap: 6px; }
+.install-etapes { margin: 0; padding-left: 20px; display: grid; gap: 7px; }
+.install-etapes li { font-size: 12.5px; color: var(--craie-2); line-height: 1.5; }
+.install-etapes li::marker { color: var(--or-clair); font-weight: 700; }
+.bloc-install .autres {
+  background: none; border: none; padding: 2px 0; cursor: pointer;
+  font-size: 12.5px; color: var(--brume); text-decoration: underline; text-underline-offset: 3px;
+}
+.bloc-install .autre { display: grid; gap: 7px; width: 100%; padding-top: 4px; }
+
 /* section Notifications regroupée dans un conteneur légèrement détaché du fond
    de page ; les sous-blocs (.e-ligne) restent en --carte, un cran plus clair,
    ce qui garde la hiérarchie : page < conteneur < lignes */

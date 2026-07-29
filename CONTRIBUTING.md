@@ -59,6 +59,8 @@ Deux réflexes utiles :
   front. Si tu cherches « qui envoie ce message ? », regarde dans `supabase/`.
 - **La liste des domaines** (`src/lib/donnees.js`) est du texte libre côté base : en
   ajouter un ne demande aucune migration, juste une icône dans `IconeDomaine.js`.
+  ⚠ En revanche la fonction SQL `nom_domaine()` (migration 32) en est un **miroir** :
+  ajoute le nouveau domaine là aussi, sinon il manquera dans le texte des notifications.
 
 ## Les règles maison (non négociables)
 

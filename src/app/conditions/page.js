@@ -78,8 +78,10 @@ export default function Conditions() {
         <p>
           Tu peux à tout moment, depuis « Mon profil » : <b>consulter et rectifier</b> chaque
           information, <b>changer la visibilité</b> de chaque contact, <b>activer ou couper les
-          notifications</b> (globalement sur un appareil, ou par famille : mes demandes, le
-          réseau, les offres, les annonces), et <b>supprimer
+          notifications</b> (globalement sur un appareil, par famille — mes demandes, le
+          réseau, les offres, les annonces — ou en choisissant de qui te prévenir pour les
+          arrivées), <b>voir la liste des appareils</b> qui les reçoivent et en retirer un
+          à distance, et <b>supprimer
           définitivement ton compte</b> — l&apos;effacement est immédiat, total (profil, parcours,
           photo, compte de connexion) et irréversible. Pour toute autre demande liée à tes
           données : lsno.alumni@gmail.com.

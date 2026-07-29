@@ -520,6 +520,22 @@
   font-size: 12px; color: var(--rouge); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* section Notifications regroupée dans un conteneur légèrement détaché du fond
+   de page ; les sous-blocs (.e-ligne) restent en --carte, un cran plus clair,
+   ce qui garde la hiérarchie : page < conteneur < lignes */
+.bloc-notif {
+  background: var(--encre-2);
+  border: 1px solid var(--ligne);
+  border-radius: 20px;
+  padding: 15px 13px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.bloc-notif > .btn { width: 100%; }
+.bloc-notif p { margin-top: 0 !important; }
+.bloc-notif .e-visi { width: 100%; }
+
 /* bouton d'activation des notifications : liseré doré discret — le bouton
    or plein reste réservé à l'action principale de la page (Enregistrer) */
 .btn-notif {

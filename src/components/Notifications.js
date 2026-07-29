@@ -148,6 +148,7 @@ export default function Notifications({ profil }) {
   return (
     <div className="champ">
       <label>Notifications</label>
+      <div className="bloc-notif">
       {!possible ? (
         <p style={{ fontSize: 12.5, color: "var(--brume)", lineHeight: 1.5 }}>
           Ce navigateur ne gère pas les notifications. Sur iPhone, ajoute d&apos;abord le
@@ -173,7 +174,7 @@ export default function Notifications({ profil }) {
           {/* appareils abonnés : un par navigateur. Utile quand on a activé les
               notifications dans plusieurs navigateurs et qu'on reçoit en double. */}
           {appareils.length > 0 && (
-            <div className="e-visi" style={{ marginTop: 12 }}>
+            <div className="e-visi">
               <p style={{ fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
                 {appareils.length} appareil{appareils.length > 1 ? "s" : ""} recevant tes notifications
               </p>
@@ -203,7 +204,7 @@ export default function Notifications({ profil }) {
           )}
 
           {actif && prefs && (
-            <div className="e-visi" style={{ marginTop: 12 }}>
+            <div className="e-visi">
               {FAMILLES.map((f) => (
                 <div key={f.cle} className="e-ligne">
                   <span className="val">
@@ -243,6 +244,7 @@ export default function Notifications({ profil }) {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

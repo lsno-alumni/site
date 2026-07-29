@@ -30,7 +30,9 @@ le bon interlocuteur et que le réseau de tous se renforce.
   nouvelle offre, de l'arrivée d'un camarade… réglables par familles, avec le choix de la
   **portée** pour les arrivées (tout le réseau / sa promo / son domaine), la **liste de ses
   appareils** et un **regroupement** automatique au-delà de quelques notifications non lues
-- **Installable comme une appli** (PWA légère : manifeste + icônes, sans store)
+- **Installable comme une appli**, avec **aide guidée** : bouton d'installation natif là où
+  le navigateur le permet, gestes expliqués selon le téléphone ailleurs (bandeau sur l'accueil
+  + page permanente `À propos › Installer l'appli`)
 - **Partage** de profils et d'offres avec **aperçu personnalisé** (WhatsApp…), sans jamais
   exposer autre chose qu'une vitrine volontaire
 

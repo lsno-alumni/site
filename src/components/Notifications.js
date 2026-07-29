@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, BellOff } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { pushDispo, abonnementLocal, abonner, desabonner } from "@/lib/push";
 
 // Activation des notifications sur CET appareil + choix des familles.
 // iOS : ne fonctionne que si le site a été ajouté à l'écran d'accueil
@@ -15,12 +16,6 @@ const FAMILLES = [
   { cle: "push_annonces", nom: "Annonces", detail: "Messages adressés à tout le réseau" },
 ];
 
-const b64ToU8 = (base64) => {
-  const p = "=".repeat((4 - (base64.length % 4)) % 4);
-  const s = (base64 + p).replace(/-/g, "+").replace(/_/g, "/");
-  return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
-};
-
 export default function Notifications({ profil }) {
   const supabase = creerClientNavigateur();
   const [possible, setPossible] = useState(null); // null = on vérifie
@@ -30,14 +25,17 @@ export default function Notifications({ profil }) {
   const [prefs, setPrefs] = useState(null);
 
   useEffect(() => {
-    const dispo = typeof window !== "undefined"
-      && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+    const dispo = pushDispo();
     setPossible(dispo);
     if (!dispo) return;
-    navigator.serviceWorker.getRegistration("/sw.js")
-      .then((r) => r?.pushManager.getSubscription())
-      .then((s) => setActif(!!s))
-      .catch(() => {});
+    (async () => {
+      const abo = await abonnementLocal();
+      if (abo) { setActif(true); return; }
+      // autorisation déjà accordée mais appareil pas encore enregistré :
+      // on l'abonne SANS rien demander (notifications actives par défaut)
+      try { if (await abonner(supabase, profil.id, { silencieux: true })) setActif(true); }
+      catch { /* rien : l'utilisateur gardera le bouton */ }
+    })();
     setPrefs({
       push_mes_demandes: profil?.push_mes_demandes ?? true,
       push_reseau: profil?.push_reseau ?? true,
@@ -50,30 +48,13 @@ export default function Notifications({ profil }) {
   const activer = async () => {
     setEnCours(true); setMessage("");
     try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        setMessage("Autorisation refusée — tu peux la rétablir dans les réglages du navigateur.");
-        return;
-      }
-      const sw = await navigator.serviceWorker.register("/sw.js");
-      await navigator.serviceWorker.ready;
-      const abo = await sw.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: b64ToU8(process.env.NEXT_PUBLIC_VAPID_PUBLIC),
-      });
-      const j = abo.toJSON();
-      const { error } = await supabase.from("push_abonnements").upsert({
-        profil: profil.id,
-        endpoint: j.endpoint,
-        p256dh: j.keys.p256dh,
-        auth: j.keys.auth,
-        appareil: navigator.userAgent.slice(0, 120),
-      }, { onConflict: "endpoint" });
-      if (error) throw error;
+      await abonner(supabase, profil.id);
       setActif(true);
       setMessage("Notifications activées sur cet appareil ✓");
     } catch (e) {
-      setMessage("Échec : " + (e?.message ?? "impossible d'activer"));
+      setMessage(e?.message === "autorisation refusée"
+        ? "Autorisation refusée — tu peux la rétablir dans les réglages du navigateur."
+        : "Échec : " + (e?.message ?? "impossible d'activer"));
     } finally {
       setEnCours(false);
     }
@@ -82,12 +63,7 @@ export default function Notifications({ profil }) {
   const desactiver = async () => {
     setEnCours(true); setMessage("");
     try {
-      const sw = await navigator.serviceWorker.getRegistration("/sw.js");
-      const abo = await sw?.pushManager.getSubscription();
-      if (abo) {
-        await supabase.from("push_abonnements").delete().eq("endpoint", abo.endpoint);
-        await abo.unsubscribe();
-      }
+      await desabonner(supabase);
       setActif(false);
       setMessage("Notifications désactivées sur cet appareil.");
     } catch (e) {
@@ -115,7 +91,7 @@ export default function Notifications({ profil }) {
         </p>
       ) : (
         <>
-          <button type="button" className={`btn ${actif ? "btn-nu" : "btn-or"}`}
+          <button type="button" className={`btn ${actif ? "btn-nu" : "btn-notif"}`}
             style={{ padding: "12px 18px", fontSize: 13.5 }}
             onClick={actif ? desactiver : activer} disabled={enCours}>
             {actif ? <BellOff size={15} aria-hidden /> : <Bell size={15} aria-hidden />}

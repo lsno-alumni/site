@@ -520,6 +520,33 @@
   font-size: 12px; color: var(--rouge); text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* bouton d'activation des notifications : liseré doré discret — le bouton
+   or plein reste réservé à l'action principale de la page (Enregistrer) */
+.btn-notif {
+  background: rgba(232, 179, 60, .12); color: var(--or-clair);
+  border: 1px solid rgba(232, 179, 60, .45);
+}
+.btn-notif:hover { background: rgba(232, 179, 60, .2); }
+
+/* invitation à activer les notifications (accueil) */
+.invite-notif {
+  display: flex; align-items: center; gap: 11px; margin: 0 22px 18px;
+  background: var(--carte); border: 1px solid rgba(232, 179, 60, .35);
+  border-radius: 18px; padding: 13px 14px;
+}
+.invite-notif .ico {
+  width: 34px; height: 34px; border-radius: 11px; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: rgba(232, 179, 60, .14); color: var(--or-clair);
+}
+.invite-notif .txt { flex: 1; min-width: 0; font-size: 12px; color: var(--brume); line-height: 1.45; }
+.invite-notif .txt b { display: block; font-size: 13.5px; color: var(--craie); }
+.invite-notif .btn { padding: 9px 15px; font-size: 12.5px; flex-shrink: 0; }
+.invite-notif .fermer {
+  background: none; border: none; color: var(--brume); cursor: pointer;
+  padding: 4px; flex-shrink: 0;
+}
+
 /* pièces jointes des offres */
 .o-fichiers { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .o-fichier {

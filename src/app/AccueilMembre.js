@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Hourglass, ArrowRight } from "lucide-react";
 import TabBar from "@/components/TabBar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
+import InviteNotifications from "@/components/InviteNotifications";
 import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
@@ -45,6 +46,8 @@ export default function AccueilMembre({ moi, donnees }) {
           </Link>
         )}
       </header>
+
+      <InviteNotifications profilId={moi.id} />
 
       {nouveaux.length > 0 && (
         <Reveal>

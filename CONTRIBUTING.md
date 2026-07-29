@@ -118,6 +118,10 @@ Deux réflexes utiles :
 - Un `<button>` servant de conteneur hérite du **noir par défaut** du navigateur si aucune
   couleur n'est fixée (`globals.css` impose désormais `color: inherit`).
 - Icônes Next.js : PNG en mode **RGBA** obligatoire, sinon le build échoue.
+- **Notifications : désactiver ne révoque pas l'autorisation du navigateur.** Tout
+  réabonnement « automatique » doit donc vérifier le refus explicite mémorisé sur
+  l'appareil (`refusLocal()` dans `src/lib/push.js`) — sinon on réactive contre la
+  volonté du membre (bug vécu le 29/07).
 - Icône de notification Android : seule la **transparence** est utilisée — une image à fond
   plein apparaît en carré blanc (d'où `public/badge-notif.png`, une silhouette).
 

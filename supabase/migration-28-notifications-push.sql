@@ -51,8 +51,13 @@ grant select (push_mes_demandes, push_reseau, push_offres, push_annonces) on pro
 grant update (push_mes_demandes, push_reseau, push_offres, push_annonces) on profiles to authenticated;
 
 -- ---------- secret partagé base → site ----------
-select vault.create_secret('COLLE_LE_SECRET_PUSH_ICI', 'push_secret')
-  on conflict do nothing;
+-- (créé une seule fois : re-exécuter la migration ne crée pas de doublon)
+do $$
+begin
+  if not exists (select 1 from vault.decrypted_secrets where name = 'push_secret') then
+    perform vault.create_secret('COLLE_LE_SECRET_PUSH_ICI', 'push_secret');
+  end if;
+end $$;
 
 -- ---------- envoi d'une notification à UN membre ----------
 -- famille : 'mes_demandes' | 'reseau' | 'offres' | 'annonces' (ou null = toujours)

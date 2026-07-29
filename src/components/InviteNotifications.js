@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { pushDispo, abonnementLocal, abonner, refusLocal, CLE_INVITE_ECARTEE } from "@/lib/push";
+import { modeInvitationInstall } from "@/lib/installation";
 
 // Invitation discrète sur l'accueil, pour les membres qui n'ont pas encore
 // autorisé les notifications (le navigateur exige un geste : impossible de les
@@ -22,6 +23,8 @@ export default function InviteNotifications({ profilId }) {
     if (localStorage.getItem(CLE_ECARTEE)) return;
     if (refusLocal()) return;   // a désactivé volontairement : ne pas le relancer
     (async () => {
+      // un seul bandeau à la fois : l'installation passe devant, sur tous les appareils
+      if (await modeInvitationInstall()) return;
       if (await abonnementLocal()) return;                  // déjà abonné
       if (Notification.permission === "granted") {
         // autorisation déjà là : on enregistre sans rien demander

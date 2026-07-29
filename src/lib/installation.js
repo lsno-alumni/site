@@ -52,6 +52,30 @@ export function dejaInstallee() {
     || window.navigator.standalone === true;   // iOS
 }
 
+export const CLE_INSTALL_ECARTEE = "lsno_invite_install_ecartee";
+
+// Le bandeau d'installation va-t-il s'afficher ? L'installation est PRIORITAIRE
+// sur les notifications, sur tous les appareils : sans l'appli, l'expérience est
+// incomplète (et sur iPhone les notifications sont même impossibles).
+// Renvoie "bouton" (le navigateur sait installer), "gestes" (il faut expliquer),
+// ou null (rien d'utile à proposer ici).
+export async function modeInvitationInstall() {
+  if (typeof window === "undefined" || dejaInstallee()) return null;
+  try { if (localStorage.getItem(CLE_INSTALL_ECARTEE)) return null; } catch { /* ignore */ }
+  const p = plateforme();
+  if (p === "ios-autre" || p === "in-app") return null;   // installation impossible ici
+
+  // laisser au navigateur le temps de signaler qu'il peut installer
+  await new Promise((r) => setTimeout(r, 1500));
+  if (dejaInstallee()) return null;
+  if (inviteDisponible()) return "bouton";
+
+  // Pas de proposition du navigateur : on n'explique que pour ceux qui n'ont PAS
+  // cette API (iOS Safari, Firefox Android). Sur les navigateurs Chromium, son
+  // absence signifie le plus souvent « déjà installé » — inutile d'insister.
+  return (p === "ios-safari" || p === "android-firefox") ? "gestes" : null;
+}
+
 export function plateforme() {
   if (typeof navigator === "undefined") return "ordinateur";
   const ua = navigator.userAgent;

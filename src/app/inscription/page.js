@@ -56,7 +56,9 @@ export default function Inscription() {
     setErreur("");
     const supabase = creerClientNavigateur();
     const { data, error } = await supabase.auth.signUp({
-      email: form.email.trim(),
+      // minuscules + espaces retirés : même normalisation qu'en base
+      // (admin_change_email) — sinon on crée des comptes impossibles à retrouver
+      email: form.email.trim().toLowerCase(),
       password: form.motDePasse,
       options: {
         emailRedirectTo: `${window.location.origin}/bienvenue`,

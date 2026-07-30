@@ -16,7 +16,7 @@ export default function MotDePasseOublie() {
     setEnCours(true);
     setErreur("");
     const supabase = creerClientNavigateur();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/mot-de-passe/nouveau`,
     });
     setEnCours(false);

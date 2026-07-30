@@ -38,7 +38,7 @@ export default function Connexion() {
       supabase = creerClientNavigateur();
     }
     const { error } = await supabase.auth.signInWithPassword({
-      email: form.email,
+      email: form.email.trim().toLowerCase(),
       password: form.motDePasse,
     });
     setEnCours(false);

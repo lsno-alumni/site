@@ -27,6 +27,11 @@ export default function Bienvenue() {
   }, []);
 
   const valide = statut?.statut_compte === "valide";
+  // Pas de session : l'email a bien été confirmé (le serveur l'a vérifié avant de
+  // nous rediriger), mais le lien a été ouvert dans un AUTRE navigateur que celui
+  // de l'inscription — le flux PKCE ne peut alors pas créer de session. On ne
+  // connaît donc pas le statut : ne rien affirmer, et orienter vers la connexion.
+  const sansSession = statut?.statut_compte === "inconnu";
 
   return (
     <main className="page">
@@ -43,6 +48,17 @@ export default function Bienvenue() {
             <p>Ton compte est déjà validé — l&apos;annuaire des anciens t&apos;attend.</p>
             <Link href="/annuaire" className="btn btn-or" style={{ marginTop: 20 }}>
               Découvrir l&apos;annuaire
+            </Link>
+          </>
+        ) : sansSession ? (
+          <>
+            <p>
+              Ton adresse est bien confirmée. Connecte-toi pour continuer : si un délégué
+              a déjà validé ton compte, l&apos;annuaire t&apos;attend — sinon tu pourras
+              déjà compléter ton profil.
+            </p>
+            <Link href="/connexion" className="btn btn-or" style={{ marginTop: 20 }}>
+              Se connecter
             </Link>
           </>
         ) : (

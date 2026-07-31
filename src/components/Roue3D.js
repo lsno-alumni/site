@@ -48,9 +48,6 @@ export default function Roue3D({
   // habillage d'une carte DANS le repli : la roue pose ses tuiles en position
   // absolue, donc sa classe ne convient pas à une liste en flux normal.
   classeCarteListe,
-  // vue au chargement : la roue (accueil public, où elle donne le ton) ou la
-  // liste complète (accueil membre, où l'on vient chercher vite une info)
-  listeParDefaut = false,
   // identifiant de la section : sert à retrouver le mode d'affichage choisi
   // après un aller-retour (mémoire de SuiviNavigation)
   memo,
@@ -60,7 +57,8 @@ export default function Roue3D({
   sousListe,
 }) {
   const router = useRouter();
-  const [enListe, setEnListe] = useState(() => lireAffichage(memo) ?? listeParDefaut);
+  // on démarre toujours sur la roue, sauf si un aller-retour a mémorisé la liste
+  const [enListe, setEnListe] = useState(() => lireAffichage(memo) ?? false);
   const basculer = (versListe) => { setEnListe(versListe); noterAffichage(memo, versListe); };
   const refZone = useRef(null);
   const refRoue = useRef(null);

@@ -56,22 +56,16 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <Roue3D memo="membre-arrivees"
-            sousRoue="Fais tourner la roue, touche quelqu'un pour voir son profil."
-            sousListe="Tu peux consulter leurs profils." axe="x" pitch={114} hauteur={148} listeParDefaut
-            classeCarte="am-nouveau" classeListe="am-nouveaux"
-            aria="Nouveaux arrivants — flèches gauche et droite pour parcourir"
-            items={nouveaux.map((m) => ({
-              cle: m.id,
-              href: `/profil/${m.id}`,
-              rendu: (
-                <>
-                  <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
-                  <b>{m.prenom}</b>
-                  <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
-                </>
-              ),
-            }))} />
+          <p className="a-sous">Tu peux consulter leurs profils.</p>
+          <div className="am-nouveaux">
+            {nouveaux.map((m) => (
+              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
+                <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
+                <b>{m.prenom}</b>
+                <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
+              </Link>
+            ))}
+          </div>
         </section>
         </Reveal>
       )}

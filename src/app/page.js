@@ -55,8 +55,9 @@ export default async function Accueil() {
       <Reveal>
       <section className="a-section">
         <h2 className="a-titre">Qui fait quoi ?</h2>
-        <p className="a-sous">Fais tourner la roue, touche un domaine pour voir qui contacter.</p>
-        <Roue3D memo="public-domaines" classeCarteListe="dom" aria="Domaines — flèches haut et bas pour parcourir"
+        <Roue3D memo="public-domaines" classeCarteListe="dom"
+          sousRoue="Fais tourner la roue, touche un domaine pour voir qui contacter."
+          sousListe="Choisis un domaine, découvre qui contacter." aria="Domaines — flèches haut et bas pour parcourir"
           items={DOMAINES.filter((d) => d.cle !== "autre").map((d) => ({
             cle: d.cle,
             href: `/annuaire?domaine=${d.cle}`,

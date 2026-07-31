@@ -127,14 +127,32 @@ select.saisie { appearance: none; cursor: pointer; }
 
 /* toast */
 .toast {
-  position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 20px);
+  /* centré par des marges égales, PAS par left:50% : avec left:50% la place
+     disponible n'est que la moitié de l'écran, et un message long devenait une
+     colonne étroite de dix lignes. */
+  position: fixed; left: 16px; right: 16px; bottom: 96px;
+  margin: 0 auto; width: fit-content; transform: translateY(20px);
   background: var(--craie); color: var(--encre);
-  font-size: 13px; font-weight: 600; padding: 12px 18px; border-radius: 100px;
+  font-size: 13px; font-weight: 600; padding: 12px 18px;
+  /* 22 px et non 100 : le navigateur plafonne le rayon à la moitié de la hauteur,
+     donc une pilule sur une ligne, un rectangle arrondi sur plusieurs — au lieu
+     d'un ovale. */
+  border-radius: 22px;
   box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .7);
   opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; z-index: 80;
-  white-space: nowrap;
+  /* Les messages d'erreur techniques (contraintes SQL, adresses…) sont longs :
+     avec « nowrap » ils sortaient de l'écran des deux côtés. On laisse revenir à
+     la ligne, on borne la largeur, et on coupe même un mot sans espace au besoin.
+     Le rayon de 100 px reste une pilule sur une ligne (le navigateur le plafonne
+     à la moitié de la hauteur) et s'arrondit proprement sur plusieurs. */
+  max-width: min(calc(100vw - 32px), 420px);
+  white-space: normal; text-align: center; line-height: 1.4; overflow-wrap: anywhere;
 }
-.toast.la { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast.la { opacity: 1; transform: translateY(0); pointer-events: auto; }
+/* même précaution pour les messages d'erreur des formulaires : un message
+   d'erreur contient souvent une adresse ou un identifiant sans espace, qui
+   déborderait de son conteneur sur un écran étroit */
+[role="alert"] { overflow-wrap: anywhere; }
 
 /* fil du parcours */
 .chemin { position: relative; padding-left: 24px; }

@@ -42,8 +42,11 @@ export default function Roue3D({
   axe = "y",                  // "y" = roue verticale, "x" = roue horizontale
   pitch = 86,                 // hauteur (y) ou largeur + écart (x) d'une carte
   hauteur = 352,              // hauteur de la zone de la roue
-  classeCarte = "tuile3d",    // habillage d'une carte (celui du reste du site)
+  classeCarte = "tuile3d",    // habillage d'une carte sur la roue
   classeListe = "doms",       // conteneur du repli « liste complète »
+  // habillage d'une carte DANS le repli : la roue pose ses tuiles en position
+  // absolue, donc sa classe ne convient pas à une liste en flux normal.
+  classeCarteListe,
 }) {
   const router = useRouter();
   const [enListe, setEnListe] = useState(false);
@@ -179,7 +182,9 @@ export default function Roue3D({
   const liste = (
     <div className={classeListe}>
       {items.map((it) => (
-        <Link key={it.cle} href={it.href} className={classeCarte}>{it.rendu}</Link>
+        <Link key={it.cle} href={it.href} className={classeCarteListe ?? classeCarte}>
+          {it.rendu}
+        </Link>
       ))}
     </div>
   );

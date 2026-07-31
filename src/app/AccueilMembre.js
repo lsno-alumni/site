@@ -57,7 +57,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
           <p className="a-sous">Fais tourner la roue, touche quelqu&apos;un pour voir son profil.</p>
-          <Roue3D axe="x" pitch={114} hauteur={148}
+          <Roue3D axe="x" pitch={114} hauteur={148} listeParDefaut
             classeCarte="am-nouveau" classeListe="am-nouveaux"
             aria="Nouveaux arrivants — flèches gauche et droite pour parcourir"
             items={nouveaux.map((m) => ({

@@ -14,6 +14,15 @@ const P = 1300;        // perspective, en px — doit rester égale au CSS
 const FENETRE = 62;    // au-delà de cet écart angulaire, la carte est effacée
 const MIN_ROUE = 3;    // en dessous, une roue n'a aucun sens : liste simple
 
+// Élan : sans lui la roue s'arrête net au relâchement et paraît lourde. On
+// mesure la vitesse du doigt, puis on laisse tourner en freinant, et on aimante
+// seulement quand la roue est presque à l'arrêt.
+const SENSIBILITE = 1.35;   // le doigt entraîne un peu plus que 1 px pour 1 px
+const FROTTEMENT = 0.94;    // vitesse conservée d'une image à l'autre (60 im/s)
+const VITESSE_MIN = 0.015;  // °/ms sous lesquels on aimante sur la carte la plus proche
+const VITESSE_MAX = 0.9;    // °/ms — bride les gestes brusques : au-delà, un
+                            // seul geste dépasse un tour complet et on perd le fil
+
 // Le pas se déduit du nombre de cartes, le rayon du pas (deux voisines doivent
 // se suivre bord à bord). Trop peu de cartes pour fermer le cercle ? On garde un
 // pas confortable et la roue devient un arc, borné à ses extrémités.
@@ -90,6 +99,8 @@ export default function Roue3D({
 
     let angle = angleDepart, anime = true;
     let attrape = false, depart = 0, departAngle = 0, bouge = false, carteDepart = null;
+    let vitesse = 0, dernierT = 0, dernierAngle = 0, lancer = 0, arretVol = false;
+    const sobre = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
     const borner = (a) => (boucle ? a : Math.max(0, Math.min((N - 1) * pas, a)));
     const pointeur = (e) => (horiz ? e.clientX : e.clientY);
@@ -123,7 +134,36 @@ export default function Roue3D({
         .sort((a, b) => a.d - b.d)[0].c);
     };
 
+    // Lancer libre : la roue continue sur son élan, freine, puis s'aimante.
+    const filer = () => {
+      let precedente = performance.now();
+      const image = (maintenant) => {
+        const dt = Math.min(32, maintenant - precedente) || 16;
+        precedente = maintenant;
+        const avant = angle;
+        angle = borner(angle + vitesse * dt);
+        anime = false;
+        rendre();
+        // freinage indépendant de la cadence d'affichage (60, 90 ou 120 im/s)
+        vitesse *= Math.pow(FROTTEMENT, dt / 16.7);
+        const bute = angle === avant && vitesse !== 0;     // extrémité d'un arc
+        if (bute || Math.abs(vitesse) < VITESSE_MIN) {
+          lancer = 0; vitesse = 0;
+          aller(Math.round(angle / pas));
+          return;
+        }
+        lancer = requestAnimationFrame(image);
+      };
+      lancer = requestAnimationFrame(image);
+    };
+
     const surDescendre = (e) => {
+      // poser le doigt sur une roue en vol l'arrête — et RIEN d'autre : ce geste
+      // ne doit pas ouvrir la carte qui se trouvait dessous par hasard.
+      arretVol = lancer !== 0;
+      if (lancer) { cancelAnimationFrame(lancer); lancer = 0; }
+      vitesse = 0;
+      dernierT = performance.now(); dernierAngle = angle;
       attrape = true; bouge = false; depart = pointeur(e); departAngle = angle; anime = false;
       // la carte est retenue MAINTENANT : après setPointerCapture, l'événement
       // de clic peut être détourné vers la zone et ne plus atteindre la carte.
@@ -137,14 +177,31 @@ export default function Roue3D({
       // À la verticale, on attrape la roue par sa face avant : tirer vers le bas
       // fait descendre dans la liste — comme la molette et la flèche du bas.
       // À l'horizontale, tirer vers la gauche amène la carte de droite au centre.
-      angle = borner(departAngle + (horiz ? -d : d) * DEG_PAR_PX);
+      angle = borner(departAngle + (horiz ? -d : d) * DEG_PAR_PX * SENSIBILITE);
+      // vitesse instantanée, lissée : c'est elle qui donnera l'élan au relâchement
+      const t = performance.now();
+      const dt = t - dernierT;
+      if (dt > 4) {
+        const v = (angle - dernierAngle) / dt;
+        vitesse = vitesse * 0.3 + v * 0.7;
+        dernierT = t; dernierAngle = angle;
+      }
       rendre();
     };
     const surLacher = () => {
       if (!attrape) return;
       attrape = false;
+      if (!bouge && arretVol) { aller(Math.round(angle / pas)); return; }
       if (!bouge && carteDepart) { toucher(Number(carteDepart.dataset.i)); return; }
-      aller(Math.round(angle / pas));          // aimantage sur la plus proche
+      // le doigt s'est arrêté avant de lâcher (plus de 90 ms sans mouvement) :
+      // pas d'élan, sinon la roue repartirait sur une vitesse périmée
+      if (performance.now() - dernierT > 90) vitesse = 0;
+      vitesse = Math.max(-VITESSE_MAX, Math.min(VITESSE_MAX, vitesse));
+      if (sobre || Math.abs(vitesse) < VITESSE_MIN) {
+        aller(Math.round(angle / pas));         // aimantage sur la plus proche
+        return;
+      }
+      filer();
     };
     const surMolette = (e) => {
       const notre = horiz ? e.deltaX : e.deltaY;
@@ -177,6 +234,7 @@ export default function Roue3D({
     rendre();
 
     return () => {
+      if (lancer) cancelAnimationFrame(lancer);
       zone.removeEventListener("pointerdown", surDescendre);
       zone.removeEventListener("pointermove", surBouger);
       zone.removeEventListener("pointerup", surLacher);

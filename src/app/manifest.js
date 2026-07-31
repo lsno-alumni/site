@@ -16,6 +16,12 @@ export default function manifest() {
       // Android les utilise pour l'icône ET le splash d'installation
       { src: "/icone-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
       { src: "/icone-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      // version « monochrome » : la silhouette du blason, tirée du SVG officiel du
+      // lycée. Android 13+ la teinte aux couleurs du fond d'écran quand l'utilisateur
+      // active les icônes thématiques — sans elle, il en bricole une lui-même.
+      // Contenu réduit à 66 % du canevas : la zone sûre des icônes adaptatives.
+      { src: "/icone-monochrome-192.png", sizes: "192x192", type: "image/png", purpose: "monochrome" },
+      { src: "/icone-monochrome-512.png", sizes: "512x512", type: "image/png", purpose: "monochrome" },
     ],
   };
 }

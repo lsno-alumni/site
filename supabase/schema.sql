@@ -162,6 +162,12 @@ begin
     if new.role is distinct from old.role and mon_role() <> 'admin' then
       raise exception 'Seuls les administrateurs peuvent modifier les rôles.';
     end if;
+  end if;
+  -- Horodatage de la validation : seulement au passage à « validé », jamais sur
+  -- un changement de rôle — sinon un délégué promu réapparaît dans « Ils viennent
+  -- d'arriver » et l'auteur réel de sa validation est écrasé (migration 34).
+  if new.statut_compte is distinct from old.statut_compte
+     and new.statut_compte = 'valide' then
     new.valide_par := auth.uid();
     new.valide_le  := now();
   end if;

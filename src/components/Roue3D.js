@@ -121,7 +121,10 @@ export default function Roue3D({
       if (!attrape) return;
       const d = pointeur(e) - depart;
       if (Math.abs(d) > 4) bouge = true;
-      angle = borner(departAngle - d * DEG_PAR_PX);
+      // À la verticale, on attrape la roue par sa face avant : tirer vers le bas
+      // fait descendre dans la liste — comme la molette et la flèche du bas.
+      // À l'horizontale, tirer vers la gauche amène la carte de droite au centre.
+      angle = borner(departAngle + (horiz ? -d : d) * DEG_PAR_PX);
       rendre();
     };
     const surLacher = () => {

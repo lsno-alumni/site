@@ -54,6 +54,9 @@ export default function Roue3D({
   const horiz = axe === "x";
   const { pas, rayon, boucle, echelle } = geometrie(Math.max(items.length, 1), pitch);
   const N = items.length;
+  // sur un arc, la 1re carte laisserait tout un côté vide : on démarre sur la 2e
+  const depart = boucle ? 0 : Math.min(1, N - 1);
+  const angleDepart = depart * pas;
 
   // rotation de la roue entière, mise à l'échelle comprise
   // la carte i est posée à +i·pas : la roue doit tourner de -angle pour l'amener
@@ -72,7 +75,7 @@ export default function Roue3D({
     const cartes = [...roue.children];
     const DEG_PAR_PX = pas / pitch;
 
-    let angle = 0, anime = true;
+    let angle = angleDepart, anime = true;
     let attrape = false, depart = 0, departAngle = 0, bouge = false, carteDepart = null;
 
     const borner = (a) => (boucle ? a : Math.max(0, Math.min((N - 1) * pas, a)));
@@ -167,7 +170,7 @@ export default function Roue3D({
       roue.removeEventListener("click", surClic);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [N, pas, rayon, boucle, horiz, pitch]);
+  }, [N, pas, rayon, boucle, horiz, pitch, angleDepart]);
 
   // la liste d'origine — sert de repli, et d'affichage unique si trop peu de cartes
   const liste = (
@@ -186,12 +189,12 @@ export default function Roue3D({
         <div className={`roue3d-zone${horiz ? " horiz" : ""}`} style={{ height: hauteur }}
           ref={refZone} tabIndex={0} role="group" aria-label={aria}>
           <div className="roue3d-scene">
-            <div className="roue3d-roue" ref={refRoue} style={{ transform: tourner(0) }}>
+            <div className="roue3d-roue" ref={refRoue} style={{ transform: tourner(angleDepart) }}>
               {items.map((it, i) => {
-                const { efface, opacite } = etat(i, 0, pas);
+                const { efface, opacite } = etat(i, angleDepart, pas);
                 return (
                   <Link key={it.cle} href={it.href} data-i={i} draggable={false} tabIndex={-1}
-                    className={`${horiz ? "carteh3d " : ""}${classeCarte}${i === 0 ? " actif" : ""}`}
+                    className={`${horiz ? "carteh3d " : ""}${classeCarte}${i === depart ? " actif" : ""}`}
                     style={{
                       transform: poser(i),
                       opacity: opacite,
@@ -209,11 +212,11 @@ export default function Roue3D({
               les tuiles occupent toute la largeur — ils les chevaucheraient, et
               le repère « 3 / 14 » dit déjà où l'on est. */}
           <div className={`points3d${horiz ? " horiz" : ""}`} ref={refPoints} aria-hidden>
-            {horiz && items.map((it, i) => <i key={it.cle} className={i === 0 ? "on" : ""} />)}
+            {horiz && items.map((it, i) => <i key={it.cle} className={i === depart ? "on" : ""} />)}
           </div>
         </div>
         <div className="roue3d-aide">
-          <small ref={refRang}>1 / {N}</small>
+          <small ref={refRang}>{depart + 1} / {N}</small>
           <button type="button" className="roue3d-lien" onClick={() => setEnListe(true)}>
             Voir la liste complète
           </button>

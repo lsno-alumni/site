@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { lireAffichage, noterAffichage } from "@/components/SuiviNavigation";
 
 // Roue en perspective : un cylindre en CSS 3D pur (aucune librairie), vertical
 // (domaines) ou horizontal (arrivées, promotions). On glisse au doigt pour la
@@ -50,9 +51,13 @@ export default function Roue3D({
   // vue au chargement : la roue (accueil public, où elle donne le ton) ou la
   // liste complète (accueil membre, où l'on vient chercher vite une info)
   listeParDefaut = false,
+  // identifiant de la section : sert à retrouver le mode d'affichage choisi
+  // après un aller-retour (mémoire de SuiviNavigation)
+  memo,
 }) {
   const router = useRouter();
-  const [enListe, setEnListe] = useState(listeParDefaut);
+  const [enListe, setEnListe] = useState(() => lireAffichage(memo) ?? listeParDefaut);
+  const basculer = (versListe) => { setEnListe(versListe); noterAffichage(memo, versListe); };
   const refZone = useRef(null);
   const refRoue = useRef(null);
   const refPoints = useRef(null);
@@ -228,7 +233,7 @@ export default function Roue3D({
         </div>
         <div className="roue3d-aide">
           <small ref={refRang}>{depart + 1} / {N}</small>
-          <button type="button" className="roue3d-lien" onClick={() => setEnListe(true)}>
+          <button type="button" className="roue3d-lien" onClick={() => basculer(true)}>
             Voir la liste complète
           </button>
         </div>
@@ -238,7 +243,7 @@ export default function Roue3D({
         {liste}
         <div className="roue3d-aide">
           <small>Affichage complet</small>
-          <button type="button" className="roue3d-lien" onClick={() => setEnListe(false)}>
+          <button type="button" className="roue3d-lien" onClick={() => basculer(false)}>
             Passer en roue
           </button>
         </div>

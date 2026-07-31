@@ -12,7 +12,9 @@ import { initInstallation } from "@/lib/installation";
 //     se fier à document.referrer : la navigation Next est côté client, donc
 //     il ne change jamais (et il est vide si l'on ouvre le site par l'icône
 //     PWA ou en tapant l'adresse). On compte donc les navigations internes.
-//  2) La position de défilement de chaque page, mémorisée AU CLIC sur un lien
+//  2) Le mode d'affichage choisi par le membre (roue ou liste) pour chaque
+//     section réglable — pour qu'un aller-retour ne le lui reprenne pas.
+//  3) La position de défilement de chaque page, mémorisée AU CLIC sur un lien
 //     interne (avant que Next remonte en haut) et restaurée uniquement lors
 //     d'un vrai retour arrière — via <RestaurerDefilement /> posé dans les
 //     pages concernées (les pages « force-dynamic » se rechargent au retour :
@@ -26,6 +28,7 @@ let profondeur = 0;   // navigations internes depuis l'ouverture de l'onglet
 let premier = true;
 let retourLe = 0;     // horodatage du dernier retour arrière (popstate)
 const positions = new Map();
+const affichages = new Map();   // section -> mode d'affichage choisi
 
 const DELAI_RETOUR = 2000; // ms : fenêtre pendant laquelle on considère « retour »
 const cleCourante = () => window.location.pathname + window.location.search;
@@ -33,6 +36,16 @@ const estRetour = () => Date.now() - retourLe < DELAI_RETOUR;
 
 export function peutRevenir() {
   return profondeur > 0;
+}
+
+// Mode d'affichage d'une section (roue / liste). Lu PENDANT le rendu, donc
+// vide au premier affichage d'une page : le rendu client reste identique à
+// celui du serveur, et le choix ne ressort qu'aux navigations suivantes.
+export function lireAffichage(cle) {
+  return cle ? affichages.get(cle) : undefined;
+}
+export function noterAffichage(cle, valeur) {
+  if (cle) affichages.set(cle, valeur);
 }
 
 export default function SuiviNavigation() {

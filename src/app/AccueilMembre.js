@@ -57,17 +57,17 @@ export default function AccueilMembre({ moi, donnees }) {
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
           <p className="a-sous">Fais tourner la roue, touche quelqu&apos;un pour voir son profil.</p>
-          <Roue3D aria="Nouveaux arrivants — flèches haut et bas pour parcourir"
+          <Roue3D axe="x" pitch={114} hauteur={148}
+            classeCarte="am-nouveau" classeListe="am-nouveaux"
+            aria="Nouveaux arrivants — flèches gauche et droite pour parcourir"
             items={nouveaux.map((m) => ({
               cle: m.id,
               href: `/profil/${m.id}`,
               rendu: (
                 <>
-                  <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="roue3d-photo" />
-                  <span className="txt">
-                    <b>{m.prenom} {m.nom}</b>
-                    <span>P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
-                  </span>
+                  <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
+                  <b>{m.prenom}</b>
+                  <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
                 </>
               ),
             }))} />
@@ -134,17 +134,16 @@ export default function AccueilMembre({ moi, donnees }) {
         <section className="a-section" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
           <p className="a-sous">Fais tourner la roue, touche une promotion pour la parcourir.</p>
-          <Roue3D aria="Promotions — flèches haut et bas pour parcourir"
+          <Roue3D axe="x" pitch={114} hauteur={100}
+            classeCarte="am-promo" classeListe="am-promos"
+            aria="Promotions — flèches gauche et droite pour parcourir"
             items={promos.map(([num, n]) => ({
               cle: `p${num}`,
               href: `/annuaire?promo=${num}`,
               rendu: (
                 <>
-                  <span className="pictol"><b className="promo3d">P{num}</b></span>
-                  <span className="txt">
-                    <b>Promotion {num}</b>
-                    <span>{n} membre{n > 1 ? "s" : ""} inscrit{n > 1 ? "s" : ""}</span>
-                  </span>
+                  <b>P{num}</b>
+                  <span>{n} membre{n > 1 ? "s" : ""}</span>
                 </>
               ),
             }))} />

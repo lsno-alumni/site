@@ -38,14 +38,22 @@ export default function GestionMembre({ moiId, signale }) {
     ? tous.filter((m) => `${m.prenom} ${m.nom}`.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 6)
     : [];
 
+  // Email de connexion ET état de confirmation, toujours relus dans auth.users :
+  // on n'en déduit jamais l'état d'une action locale, sinon l'affichage mentirait
+  // dès que le membre confirme de son côté.
+  const lireEmail = async (id) => {
+    setEmail("…"); setConfirme(null);
+    const { data, error } = await supabase.rpc("admin_email_etat", { cible: id });
+    if (error) { setEmail("(indisponible)"); return; }
+    setEmail(data.email);
+    setConfirme(Boolean(data.confirme_le));
+  };
+
   const ouvrir = async (m) => {
     setChoisi(m);
     setForm({ prenom: m.prenom, nom: m.nom, promotion_id: m.promotion_id });
     setMdp("");
-    setEmail("…");
-    const { data, error } = await supabase.rpc("admin_email_de", { cible: m.id });
-    setEmail(error ? "(indisponible)" : data);
-    setConfirme(null);
+    lireEmail(m.id);
   };
 
   const action = async (fn, succes) => {
@@ -73,12 +81,13 @@ export default function GestionMembre({ moiId, signale }) {
   const renvoyerConfirmation = () => action(async () => {
     const { error } = await supabase.auth.resend({ type: "signup", email });
     if (error) throw error;
+    await lireEmail(choisi.id);
   }, "Email de confirmation renvoyé ✓");
 
   const confirmerEmail = () => action(async () => {
     const { error } = await supabase.rpc("admin_confirme_email", { cible: choisi.id });
     if (error) throw error;
-    setConfirme(true);
+    await lireEmail(choisi.id);
   }, "Email confirmé à la main ✓");
 
   const emailReinit = () => action(async () => {
@@ -102,8 +111,7 @@ export default function GestionMembre({ moiId, signale }) {
     action(async () => {
       const { error } = await supabase.rpc("admin_change_email", { cible: choisi.id, nouvel_email: nouveau });
       if (error) throw error;
-      setEmail(nouveau.trim().toLowerCase());
-      setConfirme(true);
+      await lireEmail(choisi.id);
     }, "Email de connexion changé ✓");
   };
 
@@ -184,7 +192,18 @@ export default function GestionMembre({ moiId, signale }) {
 
           <div style={{ fontSize: 12.5, color: "var(--craie-2)", wordBreak: "break-all" }}>
             <span style={{ color: "var(--brume)" }}>Email de connexion : </span><b>{email}</b>
-            {confirme && <span style={{ color: "#9FD8B4" }}> · confirmé ✓</span>}
+            {confirme === true && <span style={{ color: "#9FD8B4" }}> · confirmé ✓</span>}
+            {confirme === false && (
+              <span style={{ color: "var(--or-clair)" }}> · pas encore confirmé</span>
+            )}
+            {choisi && (
+              <button type="button" onClick={() => lireEmail(choisi.id)} disabled={enCours}
+                style={{ background: "none", border: "none", padding: "2px 0 2px 8px", cursor: "pointer",
+                         color: "var(--brume)", font: "inherit", fontSize: 12, textDecoration: "underline",
+                         textUnderlineOffset: 3 }}>
+                rafraîchir
+              </button>
+            )}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>

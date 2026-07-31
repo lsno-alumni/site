@@ -4,6 +4,7 @@ import Compteur from "@/components/Compteur";
 import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
+import Roue3D from "@/components/Roue3D";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
 import AccueilMembre from "./AccueilMembre";
@@ -54,17 +55,20 @@ export default async function Accueil() {
       <Reveal>
       <section className="a-section">
         <h2 className="a-titre">Qui fait quoi ?</h2>
-        <p className="a-sous">Choisis un domaine, découvre qui contacter.</p>
-        <div className="doms">
-          {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
-            <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
-              <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
-              <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
-              <span className="nb"><Compteur valeur={parDomaine[d.cle] ?? 0} /></span>
-              <span className="fl" aria-hidden>→</span>
-            </Link>
-          ))}
-        </div>
+        <p className="a-sous">Fais tourner la roue, touche un domaine pour voir qui contacter.</p>
+        <Roue3D aria="Domaines — flèches haut et bas pour parcourir"
+          items={DOMAINES.filter((d) => d.cle !== "autre").map((d) => ({
+            cle: d.cle,
+            href: `/annuaire?domaine=${d.cle}`,
+            rendu: (
+              <>
+                <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
+                <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
+                <span className="nb"><Compteur valeur={parDomaine[d.cle] ?? 0} /></span>
+                <span className="fl" aria-hidden>→</span>
+              </>
+            ),
+          }))} />
       </section>
       </Reveal>
 

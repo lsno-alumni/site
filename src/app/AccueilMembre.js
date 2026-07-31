@@ -8,6 +8,7 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import IconeDomaine from "@/components/IconeDomaine";
+import Roue3D from "@/components/Roue3D";
 import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
@@ -55,16 +56,21 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Tu peux consulter leurs profils.</p>
-          <div className="am-nouveaux">
-            {nouveaux.map((m) => (
-              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
-                <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
-                <b>{m.prenom}</b>
-                <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
-              </Link>
-            ))}
-          </div>
+          <p className="a-sous">Fais tourner la roue, touche quelqu&apos;un pour voir son profil.</p>
+          <Roue3D aria="Nouveaux arrivants — flèches haut et bas pour parcourir"
+            items={nouveaux.map((m) => ({
+              cle: m.id,
+              href: `/profil/${m.id}`,
+              rendu: (
+                <>
+                  <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="roue3d-photo" />
+                  <span className="txt">
+                    <b>{m.prenom} {m.nom}</b>
+                    <span>P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
+                  </span>
+                </>
+              ),
+            }))} />
         </section>
         </Reveal>
       )}
@@ -107,15 +113,19 @@ export default function AccueilMembre({ moi, donnees }) {
       <Reveal>
       <section className="a-section" style={{ paddingBottom: 30 }}>
         <h2 className="a-titre">Chercher par domaine</h2>
-        <div className="doms" style={{ marginTop: 14 }}>
-          {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
-            <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
-              <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
-              <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
-              <span className="fl" aria-hidden>→</span>
-            </Link>
-          ))}
-        </div>
+        <p className="a-sous">Fais tourner la roue, touche un domaine pour l&apos;explorer.</p>
+        <Roue3D aria="Domaines — flèches haut et bas pour parcourir"
+          items={DOMAINES.filter((d) => d.cle !== "autre").map((d) => ({
+            cle: d.cle,
+            href: `/annuaire?domaine=${d.cle}`,
+            rendu: (
+              <>
+                <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
+                <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
+                <span className="fl" aria-hidden>→</span>
+              </>
+            ),
+          }))} />
       </section>
       </Reveal>
 
@@ -123,15 +133,21 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
-          <p className="a-sous">Membres inscrits — touche une promotion pour la parcourir.</p>
-          <div className="am-promos">
-            {promos.map(([num, n]) => (
-              <Link key={num} href={`/annuaire?promo=${num}`} className="am-promo">
-                <b>P{num}</b>
-                <span>{n} membre{n > 1 ? "s" : ""}</span>
-              </Link>
-            ))}
-          </div>
+          <p className="a-sous">Fais tourner la roue, touche une promotion pour la parcourir.</p>
+          <Roue3D aria="Promotions — flèches haut et bas pour parcourir"
+            items={promos.map(([num, n]) => ({
+              cle: `p${num}`,
+              href: `/annuaire?promo=${num}`,
+              rendu: (
+                <>
+                  <span className="pictol"><b className="promo3d">P{num}</b></span>
+                  <span className="txt">
+                    <b>Promotion {num}</b>
+                    <span>{n} membre{n > 1 ? "s" : ""} inscrit{n > 1 ? "s" : ""}</span>
+                  </span>
+                </>
+              ),
+            }))} />
         </section>
         </Reveal>
       )}

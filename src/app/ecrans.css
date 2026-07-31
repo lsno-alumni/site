@@ -768,3 +768,79 @@
   85% { opacity: .2; }
   100% { transform: translate3d(30px, -70vh, 0); opacity: 0; }
 }
+
+/* =========================================================
+   ROUE 3D — domaines, arrivées, promotions (composant Roue3D)
+   Un cylindre en CSS 3D pur : perspective sur la scène,
+   preserve-3d sur la roue, chaque tuile posée sur le pourtour.
+   ========================================================= */
+.roue3d-zone {
+  position: relative; height: 352px; overflow: hidden; margin-top: 14px;
+  /* le doigt sur le fond fait défiler la page (échappatoire par les marges),
+     le doigt sur une tuile pilote la roue (voir .tuile3d) */
+  touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
+.roue3d-zone:focus-visible { outline: 2px solid var(--or); outline-offset: -2px; border-radius: 24px; }
+.roue3d-scene { position: absolute; inset: 0; perspective: 1300px; perspective-origin: 50% 50%; }
+.roue3d-roue { position: absolute; inset: 0; transform-style: preserve-3d; }
+.tuile3d {
+  position: absolute; left: 36px; right: 36px; top: 50%; height: 86px; margin-top: -43px;
+  backface-visibility: hidden; display: flex; align-items: center; gap: 13px; padding: 0 15px;
+  background: linear-gradient(120deg, var(--carte) 0%, rgba(19,43,78,.5) 100%);
+  border: 1px solid var(--ligne); border-radius: 20px; cursor: pointer;
+  /* le geste appartient à la roue ; et glisser un lien lancerait le
+     glisser-déposer natif, qui annule la rotation en cours de route */
+  touch-action: none; -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
+}
+.tuile3d .pictol {
+  width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center;
+  background: radial-gradient(120% 120% at 30% 20%, rgba(232,179,60,.28), rgba(232,179,60,.07));
+  border: 1px solid rgba(232,179,60,.25); flex-shrink: 0; color: var(--or-clair);
+}
+.tuile3d .txt { flex: 1; min-width: 0; }
+.tuile3d .txt b {
+  display: block; font-size: 14.5px; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* sur la tuile de face, agrandie par la perspective, le nom a droit à deux lignes */
+.tuile3d.actif .txt b { white-space: normal; }
+.tuile3d .txt span {
+  display: block; font-size: 11.5px; color: var(--brume); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tuile3d .nb {
+  font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair);
+  font-variant-numeric: tabular-nums;
+}
+.tuile3d .fl { display: none; }   /* le liseré doré désigne déjà la tuile active */
+.tuile3d.actif {
+  border-color: rgba(232,179,60,.5);
+  box-shadow: 0 14px 34px -16px rgba(0,0,0,.8), 0 0 0 1px rgba(232,179,60,.18) inset;
+}
+/* dégradés d'extrémité posés PAR-DESSUS : un masque sur le conteneur casserait la 3D */
+.voile3d { position: absolute; left: 0; right: 0; height: 74px; pointer-events: none; z-index: 3; }
+.voile3d.haut { top: 0; background: linear-gradient(var(--encre), rgba(10,27,51,0)); }
+.voile3d.bas { bottom: 0; background: linear-gradient(rgba(10,27,51,0), var(--encre)); }
+.points3d {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  display: grid; gap: 5px; z-index: 4;
+}
+.points3d i { width: 4px; height: 4px; border-radius: 50%; background: rgba(147,165,192,.3); display: block; }
+.points3d i.on { background: var(--or); height: 12px; border-radius: 100px; }
+.roue3d-aide { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.roue3d-aide small { font-size: 11.5px; color: var(--brume); }
+.roue3d-lien {
+  background: none; border: none; font-family: inherit; font-size: 12.5px; color: var(--brume);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 0;
+}
+.cache3d { display: none; }
+/* médaillon d'une promotion (là où les autres roues ont un picto) */
+.pictol .promo3d { font-family: var(--font-titres), serif; font-size: 17px; color: var(--or-clair); }
+/* photo d'un nouvel arrivant, au gabarit du picto */
+.roue3d-photo {
+  width: 46px !important; height: 46px !important; border-radius: 16px; object-fit: cover;
+  flex-shrink: 0; display: grid !important; place-items: center;
+  font-size: 16px; font-weight: 800; line-height: 1;
+}
+.roue3d-photo.avatar-init { color: var(--encre); }
+@media (prefers-reduced-motion: reduce) { .roue3d-roue { transition: none !important; } }

@@ -47,9 +47,12 @@ export default function Roue3D({
   // habillage d'une carte DANS le repli : la roue pose ses tuiles en position
   // absolue, donc sa classe ne convient pas à une liste en flux normal.
   classeCarteListe,
+  // vue au chargement : la roue (accueil public, où elle donne le ton) ou la
+  // liste complète (accueil membre, où l'on vient chercher vite une info)
+  listeParDefaut = false,
 }) {
   const router = useRouter();
-  const [enListe, setEnListe] = useState(false);
+  const [enListe, setEnListe] = useState(listeParDefaut);
   const refZone = useRef(null);
   const refRoue = useRef(null);
   const refPoints = useRef(null);
@@ -236,7 +239,7 @@ export default function Roue3D({
         <div className="roue3d-aide">
           <small>Affichage complet</small>
           <button type="button" className="roue3d-lien" onClick={() => setEnListe(false)}>
-            Revenir à la roue
+            Passer en roue
           </button>
         </div>
       </div>

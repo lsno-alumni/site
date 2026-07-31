@@ -775,7 +775,7 @@
    preserve-3d sur la roue, chaque tuile posée sur le pourtour.
    ========================================================= */
 .roue3d-zone {
-  position: relative; height: 352px; overflow: hidden; margin-top: 14px;
+  position: relative; overflow: hidden; margin-top: 14px;
   /* le doigt sur le fond fait défiler la page (échappatoire par les marges),
      le doigt sur une tuile pilote la roue (voir .tuile3d) */
   touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -784,7 +784,7 @@
 .roue3d-scene { position: absolute; inset: 0; perspective: 1300px; perspective-origin: 50% 50%; }
 .roue3d-roue { position: absolute; inset: 0; transform-style: preserve-3d; }
 .tuile3d {
-  position: absolute; left: 36px; right: 36px; top: 50%; height: 86px; margin-top: -43px;
+  position: absolute; left: 0; right: 0; top: 50%; height: 86px; margin-top: -43px;
   backface-visibility: hidden; display: flex; align-items: center; gap: 13px; padding: 0 15px;
   background: linear-gradient(120deg, var(--carte) 0%, rgba(19,43,78,.5) 100%);
   border: 1px solid var(--ligne); border-radius: 20px; cursor: pointer;
@@ -817,16 +817,37 @@
   border-color: rgba(232,179,60,.5);
   box-shadow: 0 14px 34px -16px rgba(0,0,0,.8), 0 0 0 1px rgba(232,179,60,.18) inset;
 }
+.carteh3d {
+  position: absolute; top: 50%; left: 50%; backface-visibility: hidden; cursor: pointer;
+  /* le doigt tire la roue à l'horizontale, le défilement vertical de la page
+     reste au navigateur ; et glisser un lien lancerait le glisser-déposer natif */
+  touch-action: pan-y; -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
+}
+.carteh3d.actif {
+  border-color: rgba(232,179,60,.5);
+  box-shadow: 0 14px 34px -16px rgba(0,0,0,.8), 0 0 0 1px rgba(232,179,60,.18) inset;
+}
+/* la roue horizontale ne vole pas le défilement vertical de la page */
+.roue3d-zone.horiz { touch-action: pan-y; }
+
 /* dégradés d'extrémité posés PAR-DESSUS : un masque sur le conteneur casserait la 3D */
 .voile3d { position: absolute; left: 0; right: 0; height: 74px; pointer-events: none; z-index: 3; }
 .voile3d.haut { top: 0; background: linear-gradient(var(--encre), rgba(10,27,51,0)); }
 .voile3d.bas { bottom: 0; background: linear-gradient(rgba(10,27,51,0), var(--encre)); }
+.voile3d.gauche, .voile3d.droite { top: 0; bottom: 0; height: auto; width: 46px; left: auto; right: auto; }
+.voile3d.gauche { left: 0; background: linear-gradient(90deg, var(--encre), rgba(10,27,51,0)); }
+.voile3d.droite { right: 0; background: linear-gradient(90deg, rgba(10,27,51,0), var(--encre)); }
 .points3d {
   position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   display: grid; gap: 5px; z-index: 4;
 }
 .points3d i { width: 4px; height: 4px; border-radius: 50%; background: rgba(147,165,192,.3); display: block; }
 .points3d i.on { background: var(--or); height: 12px; border-radius: 100px; }
+.points3d.horiz {
+  right: auto; left: 50%; top: auto; bottom: 0;
+  transform: translateX(-50%); grid-auto-flow: column;
+}
+.points3d.horiz i.on { height: 4px; width: 12px; }
 .roue3d-aide { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
 .roue3d-aide small { font-size: 11.5px; color: var(--brume); }
 .roue3d-lien {
@@ -844,3 +865,6 @@
 }
 .roue3d-photo.avatar-init { color: var(--encre); }
 @media (prefers-reduced-motion: reduce) { .roue3d-roue { transition: none !important; } }
+/* sur un cylindre, les cartes doivent toutes faire la même largeur : le
+   médaillon de promotion, lui, s'adaptait à son contenu */
+.carteh3d.am-promo { width: 104px; min-width: 0; }

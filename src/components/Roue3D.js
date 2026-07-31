@@ -4,25 +4,31 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-// Roue verticale en perspective : un cylindre en CSS 3D pur (aucune librairie).
-// On glisse au doigt pour la faire tourner, on touche la tuile de face pour
-// l'ouvrir, une tuile de côté vient au centre. Un repli « liste complète »
-// reste disponible pour ceux qui préfèrent tout voir d'un coup.
+// Roue en perspective : un cylindre en CSS 3D pur (aucune librairie), vertical
+// (domaines) ou horizontal (arrivées, promotions). On glisse au doigt pour la
+// faire tourner, on touche la carte de face pour l'ouvrir, une carte de côté
+// vient au centre. Un repli « liste complète » reste toujours disponible.
 
-const H = 86;          // hauteur d'une tuile — doit rester égale au CSS .tuile3d
-const FENETRE = 62;    // au-delà de cet écart angulaire, la tuile est effacée
+const P = 1300;        // perspective, en px — doit rester égale au CSS
+const FENETRE = 62;    // au-delà de cet écart angulaire, la carte est effacée
 const MIN_ROUE = 3;    // en dessous, une roue n'a aucun sens : liste simple
 
-// Le pas se déduit du nombre de tuiles, le rayon du pas (deux voisines doivent
-// se toucher bord à bord). Trop peu de tuiles pour fermer le cercle ? On garde
-// un pas confortable et la roue devient un arc, borné à ses extrémités.
-function geometrie(n) {
+// Le pas se déduit du nombre de cartes, le rayon du pas (deux voisines doivent
+// se suivre bord à bord). Trop peu de cartes pour fermer le cercle ? On garde un
+// pas confortable et la roue devient un arc, borné à ses extrémités.
+//
+// L'échelle corrige la perspective : sans elle, la carte de face est rendue
+// P/(P-rayon) fois trop grande (≈ +17 %) et ne fait plus la largeur des cartes
+// du reste du site. s = P/(P+rayon) la ramène EXACTEMENT à sa taille de mise
+// en page — la profondeur reste, l'agrandissement disparaît.
+function geometrie(n, pitch) {
   const boucle = 360 / n <= 30;
   const pas = boucle ? 360 / n : 26;
-  return { pas, boucle, rayon: Math.round((H / 2) / Math.tan(((pas / 2) * Math.PI) / 180)) };
+  const rayon = Math.round((pitch / 2) / Math.tan(((pas / 2) * Math.PI) / 180));
+  return { pas, boucle, rayon, echelle: P / (P + rayon) };
 }
 
-// Écart de la tuile i à la face avant, ramené à [0,180], et l'opacité qui en découle.
+// Écart de la carte i à la face avant, ramené à [0,180], et l'opacité qui en découle.
 function etat(i, angle, pas) {
   const brut = (((i * pas - angle) % 360) + 360) % 360;
   const d = brut > 180 ? 360 - brut : brut;
@@ -30,36 +36,56 @@ function etat(i, angle, pas) {
   return { efface, opacite: efface ? 0 : (1 - d / FENETRE) * 0.9 + 0.1 };
 }
 
-export default function Roue3D({ items, aria }) {
+export default function Roue3D({
+  items,
+  aria,
+  axe = "y",                  // "y" = roue verticale, "x" = roue horizontale
+  pitch = 86,                 // hauteur (y) ou largeur + écart (x) d'une carte
+  hauteur = 352,              // hauteur de la zone de la roue
+  classeCarte = "tuile3d",    // habillage d'une carte (celui du reste du site)
+  classeListe = "doms",       // conteneur du repli « liste complète »
+}) {
   const router = useRouter();
   const [enListe, setEnListe] = useState(false);
   const refZone = useRef(null);
   const refRoue = useRef(null);
   const refPoints = useRef(null);
   const refRang = useRef(null);
-  const { pas, rayon, boucle } = geometrie(Math.max(items.length, 1));
+  const horiz = axe === "x";
+  const { pas, rayon, boucle, echelle } = geometrie(Math.max(items.length, 1), pitch);
   const N = items.length;
+
+  // rotation de la roue entière, mise à l'échelle comprise
+  // la carte i est posée à +i·pas : la roue doit tourner de -angle pour l'amener
+  // au centre (sur les deux axes — l'inverser laisse la face avant toujours vide)
+  const tourner = (a) =>
+    `scale3d(${echelle},${echelle},${echelle}) rotate${horiz ? "Y" : "X"}(${-a}deg)`;
+  // pose d'une carte sur le pourtour du cylindre
+  const poser = (i) =>
+    `rotate${horiz ? "Y" : "X"}(${i * pas}deg) translateZ(${rayon}px)` +
+    (horiz ? " translate(-50%,-50%)" : "");
 
   useEffect(() => {
     if (N < MIN_ROUE) return;
     const zone = refZone.current;
     const roue = refRoue.current;
-    const tuiles = [...roue.children];
-    const DEG_PAR_PX = pas / H;
+    const cartes = [...roue.children];
+    const DEG_PAR_PX = pas / pitch;
 
     let angle = 0, anime = true;
-    let attrape = false, departY = 0, departAngle = 0, bouge = false, tuileDepart = null;
+    let attrape = false, depart = 0, departAngle = 0, bouge = false, carteDepart = null;
 
     const borner = (a) => (boucle ? a : Math.max(0, Math.min((N - 1) * pas, a)));
+    const pointeur = (e) => (horiz ? e.clientX : e.clientY);
 
     const rendre = () => {
       roue.style.transition = anime ? "transform .42s cubic-bezier(.22,1,.36,1)" : "none";
-      roue.style.transform = `rotateX(${-angle}deg)`;
+      roue.style.transform = tourner(angle);
       const actif = ((Math.round(angle / pas) % N) + N) % N;
-      tuiles.forEach((t, i) => {
+      cartes.forEach((t, i) => {
         const { efface, opacite } = etat(i, angle, pas);
         t.style.opacity = opacite;
-        // ⚠ une tuile à opacité 0 reste cliquable : sans ceci, celles de
+        // ⚠ une carte à opacité 0 reste cliquable : sans ceci, celles de
         // l'arrière du cylindre avalent les touchers de leurs voisines.
         t.style.pointerEvents = efface ? "none" : "auto";
         t.classList.toggle("actif", i === actif);
@@ -70,7 +96,7 @@ export default function Roue3D({ items, aria }) {
 
     const aller = (i, doux = true) => { anime = doux; angle = borner(i * pas); rendre(); };
 
-    // La tuile de face ouvre, une autre vient au centre par le chemin le plus court.
+    // La carte de face ouvre, une autre vient au centre par le chemin le plus court.
     const toucher = (i) => {
       const actif = ((Math.round(angle / pas) % N) + N) % N;
       if (i === actif) { router.push(items[i].href); return; }
@@ -82,33 +108,39 @@ export default function Roue3D({ items, aria }) {
     };
 
     const surDescendre = (e) => {
-      attrape = true; bouge = false; departY = e.clientY; departAngle = angle; anime = false;
-      // la tuile est retenue MAINTENANT : après setPointerCapture, l'événement
-      // de clic peut être détourné vers la zone et ne plus atteindre la tuile.
-      tuileDepart = e.target.closest(".tuile3d");
+      attrape = true; bouge = false; depart = pointeur(e); departAngle = angle; anime = false;
+      // la carte est retenue MAINTENANT : après setPointerCapture, l'événement
+      // de clic peut être détourné vers la zone et ne plus atteindre la carte.
+      carteDepart = e.target.closest("[data-i]");
       zone.setPointerCapture(e.pointerId);
     };
     const surBouger = (e) => {
       if (!attrape) return;
-      const dy = e.clientY - departY;
-      if (Math.abs(dy) > 4) bouge = true;
-      angle = borner(departAngle - dy * DEG_PAR_PX);
+      const d = pointeur(e) - depart;
+      if (Math.abs(d) > 4) bouge = true;
+      angle = borner(departAngle - d * DEG_PAR_PX);
       rendre();
     };
     const surLacher = () => {
       if (!attrape) return;
       attrape = false;
-      if (!bouge && tuileDepart) { toucher(Number(tuileDepart.dataset.i)); return; }
+      if (!bouge && carteDepart) { toucher(Number(carteDepart.dataset.i)); return; }
       aller(Math.round(angle / pas));          // aimantage sur la plus proche
     };
     const surMolette = (e) => {
+      const notre = horiz ? e.deltaX : e.deltaY;
+      const autre = horiz ? e.deltaY : e.deltaX;
+      // une molette verticale sur une roue horizontale appartient à la page
+      if (Math.abs(notre) <= Math.abs(autre)) return;
       e.preventDefault();
-      aller(Math.round(angle / pas) + (e.deltaY > 0 ? 1 : -1));
+      aller(Math.round(angle / pas) + (notre > 0 ? 1 : -1));
     };
     const surClavier = (e) => {
       const i = Math.round(angle / pas);
-      if (e.key === "ArrowDown") { e.preventDefault(); aller(i + 1); }
-      if (e.key === "ArrowUp") { e.preventDefault(); aller(i - 1); }
+      const avant = horiz ? "ArrowRight" : "ArrowDown";
+      const arriere = horiz ? "ArrowLeft" : "ArrowUp";
+      if (e.key === avant) { e.preventDefault(); aller(i + 1); }
+      if (e.key === arriere) { e.preventDefault(); aller(i - 1); }
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toucher(((i % N) + N) % N); }
     };
     // C'est « toucher » qui décide : le lien ne navigue jamais de lui-même.
@@ -135,13 +167,13 @@ export default function Roue3D({ items, aria }) {
       roue.removeEventListener("click", surClic);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [N, pas, rayon, boucle]);
+  }, [N, pas, rayon, boucle, horiz, pitch]);
 
-  // la liste classique — sert de repli, et d'affichage unique si trop peu d'items
+  // la liste d'origine — sert de repli, et d'affichage unique si trop peu de cartes
   const liste = (
-    <div className="doms">
+    <div className={classeListe}>
       {items.map((it) => (
-        <Link key={it.cle} href={it.href} className="dom">{it.rendu}</Link>
+        <Link key={it.cle} href={it.href} className={classeCarte}>{it.rendu}</Link>
       ))}
     </div>
   );
@@ -151,16 +183,17 @@ export default function Roue3D({ items, aria }) {
   return (
     <>
       <div className={enListe ? "cache3d" : ""}>
-        <div className="roue3d-zone" ref={refZone} tabIndex={0} role="group" aria-label={aria}>
+        <div className={`roue3d-zone${horiz ? " horiz" : ""}`} style={{ height: hauteur }}
+          ref={refZone} tabIndex={0} role="group" aria-label={aria}>
           <div className="roue3d-scene">
-            <div className="roue3d-roue" ref={refRoue}>
+            <div className="roue3d-roue" ref={refRoue} style={{ transform: tourner(0) }}>
               {items.map((it, i) => {
                 const { efface, opacite } = etat(i, 0, pas);
                 return (
                   <Link key={it.cle} href={it.href} data-i={i} draggable={false} tabIndex={-1}
-                    className={`tuile3d${i === 0 ? " actif" : ""}`}
+                    className={`${horiz ? "carteh3d " : ""}${classeCarte}${i === 0 ? " actif" : ""}`}
                     style={{
-                      transform: `rotateX(${i * pas}deg) translateZ(${rayon}px)`,
+                      transform: poser(i),
                       opacity: opacite,
                       pointerEvents: efface ? "none" : "auto",
                     }}>
@@ -170,10 +203,13 @@ export default function Roue3D({ items, aria }) {
               })}
             </div>
           </div>
-          <div className="voile3d haut" />
-          <div className="voile3d bas" />
-          <div className="points3d" ref={refPoints} aria-hidden>
-            {items.map((it, i) => <i key={it.cle} className={i === 0 ? "on" : ""} />)}
+          <div className={horiz ? "voile3d gauche" : "voile3d haut"} />
+          <div className={horiz ? "voile3d droite" : "voile3d bas"} />
+          {/* points de position : sous les cartes à l'horizontale. À la verticale,
+              les tuiles occupent toute la largeur — ils les chevaucheraient, et
+              le repère « 3 / 14 » dit déjà où l'on est. */}
+          <div className={`points3d${horiz ? " horiz" : ""}`} ref={refPoints} aria-hidden>
+            {horiz && items.map((it, i) => <i key={it.cle} className={i === 0 ? "on" : ""} />)}
           </div>
         </div>
         <div className="roue3d-aide">

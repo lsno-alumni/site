@@ -54,6 +54,10 @@ export default function Roue3D({
   // identifiant de la section : sert à retrouver le mode d'affichage choisi
   // après un aller-retour (mémoire de SuiviNavigation)
   memo,
+  // deux formulations de la même invitation : le geste n'est pas le même selon
+  // la vue, et c'est le composant — seul à connaître la vue — qui tranche
+  sousRoue,
+  sousListe,
 }) {
   const router = useRouter();
   const [enListe, setEnListe] = useState(() => lireAffichage(memo) ?? listeParDefaut);
@@ -188,6 +192,8 @@ export default function Roue3D({
 
   // la liste d'origine — sert de repli, et d'affichage unique si trop peu de cartes
   const liste = (
+    <>
+    {sousListe && <p className="a-sous">{sousListe}</p>}
     <div className={classeListe}>
       {items.map((it) => (
         <Link key={it.cle} href={it.href} className={classeCarteListe ?? classeCarte}>
@@ -195,6 +201,7 @@ export default function Roue3D({
         </Link>
       ))}
     </div>
+    </>
   );
 
   if (N < MIN_ROUE) return liste;
@@ -202,6 +209,7 @@ export default function Roue3D({
   return (
     <>
       <div className={enListe ? "cache3d" : ""}>
+        {sousRoue && <p className="a-sous">{sousRoue}</p>}
         <div className={`roue3d-zone${horiz ? " horiz" : ""}`} style={{ height: hauteur }}
           ref={refZone} tabIndex={0} role="group" aria-label={aria}>
           <div className="roue3d-scene">

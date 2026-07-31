@@ -56,8 +56,9 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Fais tourner la roue, touche quelqu&apos;un pour voir son profil.</p>
-          <Roue3D memo="membre-arrivees" axe="x" pitch={114} hauteur={148} listeParDefaut
+          <Roue3D memo="membre-arrivees"
+            sousRoue="Fais tourner la roue, touche quelqu'un pour voir son profil."
+            sousListe="Tu peux consulter leurs profils." axe="x" pitch={114} hauteur={148} listeParDefaut
             classeCarte="am-nouveau" classeListe="am-nouveaux"
             aria="Nouveaux arrivants — flèches gauche et droite pour parcourir"
             items={nouveaux.map((m) => ({
@@ -113,8 +114,9 @@ export default function AccueilMembre({ moi, donnees }) {
       <Reveal>
       <section className="a-section" style={{ paddingBottom: 30 }}>
         <h2 className="a-titre">Chercher par domaine</h2>
-        <p className="a-sous">Fais tourner la roue, touche un domaine pour l&apos;explorer.</p>
-        <Roue3D memo="membre-domaines" classeCarteListe="dom" aria="Domaines — flèches haut et bas pour parcourir"
+        <Roue3D memo="membre-domaines" classeCarteListe="dom"
+          sousRoue="Fais tourner la roue, touche un domaine pour l'explorer."
+          sousListe="Touche un domaine pour l'explorer." aria="Domaines — flèches haut et bas pour parcourir"
           items={DOMAINES.filter((d) => d.cle !== "autre").map((d) => ({
             cle: d.cle,
             href: `/annuaire?domaine=${d.cle}`,
@@ -133,8 +135,9 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
-          <p className="a-sous">Fais tourner la roue, touche une promotion pour la parcourir.</p>
-          <Roue3D memo="membre-promos" axe="x" pitch={114} hauteur={100}
+          <Roue3D memo="membre-promos"
+            sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."
+            sousListe="Membres inscrits — touche une promotion pour la parcourir." axe="x" pitch={114} hauteur={100}
             classeCarte="am-promo" classeListe="am-promos"
             aria="Promotions — flèches gauche et droite pour parcourir"
             items={promos.map(([num, n]) => ({

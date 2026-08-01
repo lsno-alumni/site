@@ -90,6 +90,13 @@ export default function DoubleAuth({ profil }) {
     setEnCours(true); setMessage("");
     const { error } = await supabase.auth.mfa.unenroll({ factorId: facteur.id });
     setEnCours(false);
+    if (!error) {
+      // L'appli d'authentification ne peut pas être prévenue : sa ligne survit et
+      // produira des codes que plus personne n'attend.
+      setMessage("Double authentification désactivée. Pense à supprimer la ligne « lsno-alumni.vercel.app » dans ton appli d'authentification : elle ne sert plus à rien.");
+      relire();
+      return;
+    }
     if (error) {
       // Supabase exige une session ayant passé le code pour retirer un appareil
       // confirmé (« AAL2 required to unenroll verified factor ») — c'est sain :
@@ -102,8 +109,6 @@ export default function DoubleAuth({ profil }) {
       );
       return;
     }
-    setMessage("Double authentification désactivée.");
-    relire();
   };
 
   const titre = { fontSize: 14.5, display: "flex", alignItems: "center", gap: 8 };
@@ -173,6 +178,11 @@ export default function DoubleAuth({ profil }) {
               </div>
             </details>
           )}
+          <p style={{ ...aide, color: "var(--or-clair)" }}>
+            Si ton appli contient déjà une ligne « lsno-alumni.vercel.app », <b>supprime-la</b> :
+            elle ne donnera plus de code valable, et rien ne permet de les distinguer — l&apos;appli
+            reçoit toujours la même étiquette.
+          </p>
           <p style={aide}>
             <b style={{ color: "var(--craie)" }}>3.</b>{" "}Saisis le code affiché par l&apos;appli :
           </p>

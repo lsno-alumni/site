@@ -145,6 +145,20 @@ Deux réflexes utiles :
 
 **Front**
 
+- ⚠️ **Mots collés au gras** — le piège le plus sournois du projet, vu deux fois. JSX
+  **supprime** le retour à la ligne qui touche une balise, et surtout : quand un bloc de
+  texte s'étale sur **plusieurs lignes**, son espace de début disparaît **même s'il suit la
+  balise sur la même ligne**. `<b>promotion</b> validera` a ainsi été livré en
+  « promotion**validera** ». Règle : après une balise en ligne (`b`, `em`, `i`, `code`,
+  `strong`, `a`, `Link`), écrire un `{" "}` explicite plutôt qu'une espace.
+  Et pour chercher les cas existants : un détecteur qui ne repère que les majuscules
+  (« situation**Ci** ») ne voit PAS « promotionvalidera » — chercher aussi les mots
+  anormalement longs dans le texte **rendu**, pas dans la source.
+- ⚠️ **Tester une build de production en local** : tuer node **avant** de démarrer, et
+  vérifier que le serveur affiche « Ready » sans `EADDRINUSE`. Un serveur d'un essai
+  précédent sert des fragments périmés — erreurs 500, type MIME `text/plain`, pages vides —
+  et fait diagnostiquer dans le vide (perdu trois fois là-dessus le 01/08).
+
 - Le composant `Avatar` doit toujours recevoir une **classe de taille dédiée** quand il
   sort des fiches de l'annuaire (le bug de « l'avatar géant » a frappé 4 fois).
 - **Ne jamais se fier à `document.referrer`** : la navigation Next est côté client, il ne

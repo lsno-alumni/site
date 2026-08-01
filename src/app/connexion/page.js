@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
+import Captcha, { captchaActif } from "@/components/Captcha";
 
 // Purge les cookies de session résiduels/corrompus (vieilles sessions,
 // changement de mot de passe…) — sinon ils empêchent la nouvelle session
@@ -28,6 +29,10 @@ export default function Connexion() {
   // étape « code à six chiffres », uniquement si un appareil est enrôlé
   const [codeAttendu, setCodeAttendu] = useState(false);
   const [code, setCode] = useState("");
+  // vérification anti-robot : un jeton ne sert qu'une fois, on en redemande un
+  // après chaque échec (« essai » reconstruit le widget)
+  const [jeton, setJeton] = useState("");
+  const [essai, setEssai] = useState(0);
 
   const connecter = async (e) => {
     e.preventDefault();
@@ -43,9 +48,11 @@ export default function Connexion() {
     const { error } = await supabase.auth.signInWithPassword({
       email: form.email.trim().toLowerCase(),
       password: form.motDePasse,
+      options: jeton ? { captchaToken: jeton } : undefined,
     });
     setEnCours(false);
     if (error) {
+      setJeton(""); setEssai((n) => n + 1);   // le jeton est consommé
       setErreur(
         error.message.includes("Invalid login")
           ? "Email ou mot de passe incorrect."
@@ -134,11 +141,12 @@ export default function Connexion() {
         </div>
         <ChampMotDePasse id="mdp" label="Mot de passe" valeur={form.motDePasse}
           onChange={(e) => setForm({ ...form, motDePasse: e.target.value })} />
+        <Captcha onJeton={setJeton} essai={essai} />
         {erreur && (
           <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
         )}
-        <button type="submit" className="btn btn-or btn-bloc" disabled={enCours}
-          style={{ opacity: enCours ? 0.6 : 1 }}>
+        <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton)}
+          style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
           {enCours ? "Connexion…" : "Se connecter"}
         </button>
         <p style={{ textAlign: "center", fontSize: 13 }}>

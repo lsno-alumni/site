@@ -4,12 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { MailCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import Captcha, { captchaActif } from "@/components/Captcha";
 
 export default function MotDePasseOublie() {
   const [email, setEmail] = useState("");
   const [envoye, setEnvoye] = useState(false);
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
+  const [jeton, setJeton] = useState("");
+  const [essai, setEssai] = useState(0);
 
   const envoyer = async (e) => {
     e.preventDefault();
@@ -18,9 +21,11 @@ export default function MotDePasseOublie() {
     const supabase = creerClientNavigateur();
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/mot-de-passe/nouveau`,
+      captchaToken: jeton || undefined,
     });
     setEnCours(false);
     if (error) {
+      setJeton(""); setEssai((n) => n + 1);
       setErreur("Envoi impossible : " + error.message);
       return;
     }
@@ -54,11 +59,12 @@ export default function MotDePasseOublie() {
             <input id="email" type="email" className="saisie" required autoComplete="email"
               value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
+          <Captcha onJeton={setJeton} essai={essai} />
           {erreur && (
             <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
           )}
-          <button type="submit" className="btn btn-or btn-bloc" disabled={enCours}
-            style={{ opacity: enCours ? 0.6 : 1 }}>
+          <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton)}
+            style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
             {enCours ? "Envoi…" : "M'envoyer le lien"}
           </button>
         </form>

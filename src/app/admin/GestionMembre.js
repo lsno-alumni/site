@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { HistoriqueMembre } from "./Journal";
+import Captcha, { captchaActif } from "@/components/Captcha";
 
 // Gestion d'un membre par un ADMIN : identité, email, mot de passe
 // temporaire, suspension, co-admin, suppression. Les contacts privés
@@ -21,6 +22,12 @@ export default function GestionMembre({ moiId, signale }) {
   const [form, setForm] = useState({});
   const [mdp, setMdp] = useState("");
   const [enCours, setEnCours] = useState(false);
+  // Les deux actions qui passent par les emails d'authentification (renvoi de
+  // confirmation, lien de réinitialisation) sont soumises à la vérification
+  // anti-robot dès qu'elle est activée dans Supabase — même pour un admin déjà
+  // connecté. D'où ce widget, affiché seulement si la protection est en service.
+  const [jeton, setJeton] = useState("");
+  const [essai, setEssai] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -80,7 +87,11 @@ export default function GestionMembre({ moiId, signale }) {
   }, "Identité enregistrée ✓");
 
   const renvoyerConfirmation = () => action(async () => {
-    const { error } = await supabase.auth.resend({ type: "signup", email });
+    const { error } = await supabase.auth.resend({
+      type: "signup", email,
+      options: jeton ? { captchaToken: jeton } : undefined,
+    });
+    setJeton(""); setEssai((n) => n + 1);
     if (error) throw error;
     await lireEmail(choisi.id);
   }, "Email de confirmation renvoyé ✓");
@@ -94,7 +105,9 @@ export default function GestionMembre({ moiId, signale }) {
   const emailReinit = () => action(async () => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/mot-de-passe/nouveau`,
+      captchaToken: jeton || undefined,
     });
+    setJeton(""); setEssai((n) => n + 1);
     if (error) throw error;
   }, "Email de réinitialisation envoyé ✓");
 
@@ -245,10 +258,20 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             <button className="btn btn-or" style={btn} onClick={enregistrer} disabled={enCours}>Enregistrer</button>
           </div>
 
+          {captchaActif && (
+            <div style={{ display: "grid", gap: 6 }}>
+              <span style={{ fontSize: 12, color: "var(--brume)" }}>
+                Vérification requise pour les deux actions par email :
+              </span>
+              <Captcha onJeton={setJeton} essai={essai} />
+            </div>
+          )}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button className="btn btn-nu" style={btn} onClick={renvoyerConfirmation} disabled={enCours}>Renvoyer l&apos;email de confirmation</button>
+            <button className="btn btn-nu" style={btn} onClick={renvoyerConfirmation}
+              disabled={enCours || (captchaActif && !jeton)}>Renvoyer l&apos;email de confirmation</button>
             <button className="btn btn-nu" style={btn} onClick={confirmerEmail} disabled={enCours}>Confirmer l&apos;email à la main</button>
-            <button className="btn btn-nu" style={btn} onClick={emailReinit} disabled={enCours}>Email de réinit. mot de passe</button>
+            <button className="btn btn-nu" style={btn} onClick={emailReinit}
+              disabled={enCours || (captchaActif && !jeton)}>Email de réinit. mot de passe</button>
             <button className="btn btn-nu" style={btn} onClick={changerEmail} disabled={enCours}>Changer l&apos;email de connexion</button>
             <button className="btn btn-nu" style={btn} onClick={retirer2fa} disabled={enCours}>Retirer la double authentification</button>
           </div>

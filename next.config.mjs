@@ -33,6 +33,11 @@
 const CSP_OBSERVATION = false;
 
 const dev = process.env.NODE_ENV !== "production";
+// Vérification anti-robot : le widget vient de Cloudflare et s'affiche dans une
+// iframe. Ses origines ne sont autorisées QUE si une clé est configurée — sans
+// clé, la politique reste aussi serrée qu'avant.
+const captcha = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+  ? " https://challenges.cloudflare.com" : "";
 const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
 const supabaseWs = supabase.replace(/^https:/, "wss:");
 
@@ -41,11 +46,12 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
+  `frame-src 'self'${captcha}`,           // l'iframe du widget anti-robot
   "object-src 'none'",
   `img-src 'self' data: blob: ${supabase}`,          // photos et pièces jointes
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ""}`,
-  `connect-src 'self' ${supabase} ${supabaseWs}${dev ? " ws://localhost:* http://localhost:*" : ""}`,
+  `script-src 'self' 'unsafe-inline'${captcha}${dev ? " 'unsafe-eval'" : ""}`,
+  `connect-src 'self' ${supabase} ${supabaseWs}${captcha}${dev ? " ws://localhost:* http://localhost:*" : ""}`,
   "font-src 'self' data:",
   "worker-src 'self'",                                // service worker des notifications
   "manifest-src 'self'",

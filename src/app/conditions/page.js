@@ -89,6 +89,14 @@ export default function Conditions() {
           retirer à tout moment depuis Mon profil.
         </p>
 
+        <p style={{ marginTop: 10 }}>
+          <b>Vérification anti-robot.</b> Les pages d&apos;inscription, de connexion et de mot
+          de passe oublié peuvent afficher une vérification fournie par Cloudflare, destinée à
+          empêcher les inscriptions automatisées en masse. Elle analyse le comportement du
+          navigateur le temps de la vérification et ne dépose pas de traceur publicitaire ;
+          elle ne s&apos;applique qu&apos;à ces trois pages, jamais au reste du site.
+        </p>
+
         <Titre>4. Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b>{" "}Ton profil n&apos;est

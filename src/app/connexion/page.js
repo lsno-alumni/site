@@ -25,6 +25,9 @@ export default function Connexion() {
   const [form, setForm] = useState({ email: "", motDePasse: "" });
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
+  // étape « code à six chiffres », uniquement si un appareil est enrôlé
+  const [codeAttendu, setCodeAttendu] = useState(false);
+  const [code, setCode] = useState("");
 
   const connecter = async (e) => {
     e.preventDefault();
@@ -52,8 +55,42 @@ export default function Connexion() {
       );
       return;
     }
+    // Double authentification : si le compte a un appareil enrôlé, Supabase
+    // laisse la session au premier niveau (aal1) et attend le code. On ne
+    // redirige donc pas encore.
+    const { data: niveau } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (niveau?.nextLevel === "aal2" && niveau.currentLevel !== "aal2") {
+      setCodeAttendu(true);
+      return;
+    }
     // navigation complète (pas côté client) : les cookies de session partent
     // à coup sûr avec la requête — fiable même sur Samsung Internet / réseau lent
+    window.location.assign("/annuaire");
+  };
+
+  const verifierCode = async (e) => {
+    e.preventDefault();
+    setEnCours(true);
+    setErreur("");
+    const supabase = creerClientNavigateur();
+    const { data: liste, error: e0 } = await supabase.auth.mfa.listFactors();
+    const facteur = (liste?.all ?? liste?.totp ?? [])
+      .find((f) => f.factor_type === "totp" && f.status === "verified");
+    if (e0 || !facteur) {
+      setEnCours(false);
+      setErreur("Appareil d'authentification introuvable — contacte un administrateur.");
+      return;
+    }
+    const { data: def, error: e1 } = await supabase.auth.mfa.challenge({ factorId: facteur.id });
+    if (e1) { setEnCours(false); setErreur("Vérification impossible : " + e1.message); return; }
+    const { error: e2 } = await supabase.auth.mfa.verify({
+      factorId: facteur.id, challengeId: def.id, code: code.trim(),
+    });
+    setEnCours(false);
+    if (e2) {
+      setErreur("Code refusé. Vérifie l'heure de ton téléphone, puis réessaie.");
+      return;
+    }
     window.location.assign("/annuaire");
   };
 
@@ -64,6 +101,31 @@ export default function Connexion() {
         <h1>Content de<br />te <em>revoir.</em></h1>
         <p>Connecte-toi pour retrouver le réseau.</p>
       </header>
+      {codeAttendu ? (
+        <form className="f-corps" onSubmit={verifierCode} style={{ paddingTop: 26 }}>
+          <p style={{ fontSize: 13.5, color: "var(--brume)", lineHeight: 1.6 }}>
+            Ton compte est protégé par la double authentification. Saisis le code à six
+            chiffres affiché par ton appli d&apos;authentification.
+          </p>
+          <div className="champ">
+            <label htmlFor="code">Code à six chiffres</label>
+            <input id="code" className="saisie" inputMode="numeric" autoComplete="one-time-code"
+              placeholder="123456" maxLength={6} required autoFocus
+              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              style={{ letterSpacing: 6, textAlign: "center" }} />
+          </div>
+          {erreur && (
+            <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
+          )}
+          <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || code.length < 6}
+            style={{ opacity: enCours || code.length < 6 ? 0.6 : 1 }}>
+            {enCours ? "Vérification…" : "Valider"}
+          </button>
+          <p style={{ textAlign: "center", fontSize: 12.5, color: "var(--brume)" }}>
+            Téléphone perdu ? Un autre administrateur peut rouvrir ton accès.
+          </p>
+        </form>
+      ) : (
       <form className="f-corps" onSubmit={connecter} style={{ paddingTop: 26 }}>
         <div className="champ">
           <label htmlFor="email">Email</label>
@@ -91,6 +153,7 @@ export default function Connexion() {
           </Link>
         </p>
       </form>
+      )}
     </main>
   );
 }

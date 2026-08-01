@@ -47,6 +47,11 @@ le bon interlocuteur et que le réseau de tous se renforce.
 
 **Sous le capot**
 
+- **Double authentification** (code à six chiffres) proposée aux délégués et admins dans
+  Mon profil : `src/components/DoubleAuth.js`, et l'étape de code dans la page de connexion.
+  ⚠ Portée exacte : le SITE exige le code dès qu'un appareil est enrôlé. L'exiger au niveau
+  de la BASE (politiques RLS sur le niveau `aal2`) reste à faire — sans cela, un mot de passe
+  volé permet encore d'attaquer l'API directement, sans passer par nos écrans.
 - **Alerte aux autres admins** : nommer un admin, exporter l'annuaire, changer l'email de
   connexion d'un membre, poser un mot de passe temporaire, supprimer un compte ou basculer
   un réglage envoie aussitôt une **notification** aux AUTRES administrateurs

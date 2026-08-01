@@ -25,16 +25,18 @@ npm install
 3. Crée un fichier `.env.local` à la racine :
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=<adresse du projet Supabase>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<clé publishable du projet>
+NEXT_PUBLIC_SUPABASE_URL=https://pdjbqdwurwgxzghehldr.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_HdNHgnLV2qssIAZiE-_aZg_3uRGwrbl
 ```
 
-Ces deux valeurs sont **publiques par conception** (elles partent dans le navigateur de
-chaque visiteur du site) : la sécurité des données est assurée par la Row Level Security
-de la base, pas par le secret de ces clés. On ne les écrit pourtant PAS ici — un dépôt
-public n'a pas à héberger de clé, même inoffensive, et les outils d'analyse de secrets
-lèvent une alerte à chaque fois. Où les trouver : tableau de bord Supabase →
-*Project Settings* → *API keys*. Un mainteneur peut aussi te les transmettre.
+Ces deux valeurs sont **publiques par conception** : elles partent dans le navigateur de
+chaque visiteur du site, n'importe qui peut les y lire. Ce qui protège les données, c'est
+la Row Level Security **et** le fait que le rôle `anon` n'a aucun droit sur aucune table
+(vérifiable par `supabase/verif-sante.sql`), pas le secret de ces clés.
+
+Les vrais secrets, eux, ne sont **jamais** dans le dépôt : clé Brevo et clé `service_role`
+dans le Vault de Supabase, clés VAPID et secret des notifications dans les variables
+d'environnement Vercel.
 
 4. `npm run dev` → http://localhost:3000. Tu es branché sur la vraie base, avec les
    droits de **ton propre compte membre** — connecte-toi avec, tu verras ce qu'un membre voit.

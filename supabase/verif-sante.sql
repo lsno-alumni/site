@@ -87,9 +87,13 @@ select '1. droits de table' as domaine,
          when a.droits is null then 'PROBLÈME — droits non prévus par le modèle'
          when r.droits is null then 'PROBLÈME — tous les droits ont disparu'
          when a.droits = r.droits then 'ok'
-         else 'PROBLÈME — ' ||
-              coalesce('manque ' || array_to_string(array(select unnest(a.droits) except select unnest(r.droits)), ','), '') ||
-              coalesce(' en trop ' || array_to_string(array(select unnest(r.droits) except select unnest(a.droits)), ','), '')
+         -- nullif : un array_to_string vide renvoie '' et non NULL — sans lui,
+         -- le verdict afficherait « manque » suivi de rien
+         else 'PROBLÈME —' ||
+              coalesce(' manque ' || nullif(array_to_string(array(
+                select unnest(a.droits) except select unnest(r.droits)), ','), ''), '') ||
+              coalesce(' en trop ' || nullif(array_to_string(array(
+                select unnest(r.droits) except select unnest(a.droits)), ','), ''), '')
        end as verdict
   from attendu_trie a full outer join reel r on r.role_ = a.role_ and r.tbl = a.tbl
 
@@ -120,9 +124,11 @@ union all
 -- ---------- ④ RLS active et politiques présentes sur chaque table ----------
 select '4. RLS', c.relname, 'activée + au moins 1 politique',
        case when c.relrowsecurity then 'activée' else 'DÉSACTIVÉE' end ||
-       ', ' || (select count(*) from pg_policies p where p.tablename = c.relname)::text || ' politique(s)',
+       ', ' || (select count(*) from pg_policies p
+                 where p.schemaname = 'public' and p.tablename = c.relname)::text || ' politique(s)',
        case when not c.relrowsecurity then 'PROBLÈME — RLS désactivée'
-            when (select count(*) from pg_policies p where p.tablename = c.relname) = 0
+            when (select count(*) from pg_policies p
+                   where p.schemaname = 'public' and p.tablename = c.relname) = 0
               then 'PROBLÈME — aucune politique : la table est fermée à tous'
             else 'ok' end
   from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -131,16 +137,19 @@ select '4. RLS', c.relname, 'activée + au moins 1 politique',
 union all
 -- ---------- ⑤ séquences : sans elles, tout ajout échoue ----------
 select '5. séquences', r.rolname || ' → séquences', 'USAGE sur toutes',
-       (select count(*) from pg_class s join pg_namespace ns on ns.oid = s.relnamespace
-         where ns.nspname = 'public' and s.relkind = 'S'
-           and has_sequence_privilege(r.rolname, s.oid, 'USAGE'))::text || ' sur ' ||
-       (select count(*) from pg_class s join pg_namespace ns on ns.oid = s.relnamespace
-         where ns.nspname = 'public' and s.relkind = 'S')::text,
-       case when (select count(*) from pg_class s join pg_namespace ns on ns.oid = s.relnamespace
-                   where ns.nspname = 'public' and s.relkind = 'S'
-                     and not has_sequence_privilege(r.rolname, s.oid, 'USAGE')) > 0
-            then 'PROBLÈME — un INSERT échouera avec « permission denied for sequence »'
-            else 'ok' end
+       (select count(*) from information_schema.usage_privileges u
+         where u.object_schema = 'public' and u.object_type = 'SEQUENCE'
+           and u.grantee = r.rolname and u.privilege_type = 'USAGE')::text
+       || ' sur ' ||
+       (select count(*) from information_schema.sequences q
+         where q.sequence_schema = 'public')::text,
+       case when (select count(*) from information_schema.sequences q
+                   where q.sequence_schema = 'public')
+                 = (select count(*) from information_schema.usage_privileges u
+                     where u.object_schema = 'public' and u.object_type = 'SEQUENCE'
+                       and u.grantee = r.rolname and u.privilege_type = 'USAGE')
+            then 'ok'
+            else 'PROBLÈME — un INSERT échouera avec « permission denied for sequence »' end
   from pg_roles r where r.rolname in ('authenticated','service_role')
 
 union all

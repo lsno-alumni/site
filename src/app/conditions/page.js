@@ -61,6 +61,18 @@ export default function Conditions() {
           est alors supprimée.
         </p>
 
+        <p style={{ marginTop: 10 }}>
+          <b>Journal des actions d&apos;administration.</b> Pour pouvoir répondre à la question
+          « qui a fait quoi ? » en cas de problème, la plateforme enregistre les actions à
+          privilège : validation, refus, suspension ou suppression d&apos;un compte, changement de
+          rôle, intervention sur un email de connexion, publication d&apos;une annonce, export de
+          l&apos;annuaire. Chaque ligne retient l&apos;auteur, la personne concernée, la date et le
+          détail utile. <b>Ce que tu fais sur ton propre profil n&apos;y figure pas</b> : ce journal
+          surveille les pouvoirs, pas les membres. Il est consultable par les seuls
+          administrateurs, ne peut être ni modifié ni effacé — même par eux — et il est purgé
+          automatiquement au bout de 12 mois.
+        </p>
+
         <Titre>4. Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b> Ton profil n&apos;est

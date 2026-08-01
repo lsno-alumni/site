@@ -40,6 +40,9 @@ export default function Sauvegarde({ signale }) {
     if (error || !profils) { signale("Export impossible : " + (error?.message ?? "?")); return; }
     telecharger(`lsno-profils-${jour}.csv`, versCSV(profils.map((p) => ({ ...p, promotion: p.promotions?.numero, promotions: undefined }))));
     if (parcours?.length) telecharger(`lsno-parcours-${jour}.csv`, versCSV(parcours));
+    // l'export quitte la plateforme : il est déclaré au journal (migration 36).
+    // Un échec ne doit pas empêcher la sauvegarde — on n'interrompt donc rien.
+    await supabase.rpc("journal_export", { p_profils: profils.length, p_parcours: parcours?.length ?? 0 });
     signale(`Sauvegarde téléchargée ✓ (${profils.length} profils)`);
   };
 

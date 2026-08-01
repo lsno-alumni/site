@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, Hourglass, ShieldCheck, UserCog, Megaphone, Download, Activity } from "lucide-react";
+import { Menu, X, Hourglass, ShieldCheck, UserCog, Megaphone, Download, Activity, ScrollText } from "lucide-react";
 
 // Accès rapide aux sections de l'espace admin — la page s'allonge avec le réseau.
 const SECTIONS = [
@@ -9,6 +9,7 @@ const SECTIONS = [
   { id: "sec-roles", nom: "Rôles", Ico: ShieldCheck },
   { id: "sec-gerer", nom: "Gérer un membre", Ico: UserCog },
   { id: "sec-annonce", nom: "Annonce aux membres", Ico: Megaphone },
+  { id: "sec-journal", nom: "Journal des actions", Ico: ScrollText },
   { id: "sec-sauvegarde", nom: "Sauvegarde", Ico: Download },
   { id: "sec-etat", nom: "État du système", Ico: Activity },
 ];

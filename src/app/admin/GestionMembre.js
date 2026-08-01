@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { HistoriqueMembre } from "./Journal";
 
 // Gestion d'un membre par un ADMIN : identité, email, mot de passe
 // temporaire, suspension, co-admin, suppression. Les contacts privés
@@ -235,6 +236,8 @@ export default function GestionMembre({ moiId, signale }) {
               Définir
             </button>
           </div>
+
+          <HistoriqueMembre profilId={choisi.id} />
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid var(--ligne)", paddingTop: 12 }}>
             {choisi.statut_compte === "suspendu" ? (

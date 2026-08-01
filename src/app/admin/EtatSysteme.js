@@ -14,6 +14,7 @@ const NOMS = {
   "garde-vivant-brevo": "Contrôle des clés email (bimestriel)",
   "envoi-annonces": "Envoi des annonces (quotidien)",
   "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
+  "purge-journal": "Purge du journal au-delà de 12 mois (mensuel)",
   // notifications push
   "push-rappels-quotidiens": "Notifications : profils incomplets, offres qui expirent (quotidien)",
   "push-rappel-annuel": "Notification : profils à jour ? (1er septembre)",

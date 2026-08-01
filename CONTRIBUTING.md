@@ -101,6 +101,15 @@ Deux réflexes utiles :
   est **désactivée volontairement** (un oubli de RLS ne peut donc pas ouvrir la table).
   Penser à `authenticated` **et** à `service_role` si une route serveur la lit, sinon :
   `permission denied for table …`.
+- **Avant de proposer une migration, vérifie sa syntaxe** — hors ligne, en une commande :
+  ```
+  pip install pglast        # une fois
+  python outils/verif_sql.py
+  ```
+  C'est le vrai analyseur de PostgreSQL : ce qu'il accepte, le serveur l'accepte. Le même
+  contrôle tourne automatiquement à chaque push (`.github/workflows/sql.yml`). Il ne voit
+  que la syntaxe : une table inexistante ou un ordre d'évaluation hasardeux passent au
+  travers — relis quand même.
 - ⚠️ **Vécu le 01/08, à ne pas revivre** : une migration contenant du **DDL**
   (`create table`, `alter table … add column`) a fait perdre au rôle `authenticated`
   ses privilèges sur des tables **déjà existantes**. Conséquence côté site : « Mon profil »

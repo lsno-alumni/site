@@ -99,17 +99,8 @@ export default function EtatSysteme() {
               {bascule ? "…" : emailsAdmins ? "Mettre en pause" : "Réactiver"}
             </button>
           </div>
-          <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
-            onClick={async () => {
-              const { error } = await supabase.rpc("admin_test_push");
-              setTestPush(error ? "Échec : " + error.message
-                : "Envoyée — si rien n'arrive, active les notifications dans Mon profil.");
-            }}>
-            M&apos;envoyer une notification de test
-          </button>
-          {testPush && (
-            <p style={{ fontSize: 12, color: "var(--brume)", margin: 0, lineHeight: 1.5 }}>{testPush}</p>
-          )}
+          {/* le rappel appartient à l'interrupteur : il doit le suivre
+              immédiatement, et non se retrouver en bas de la carte */}
           {!emailsAdmins && (
             <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
               ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription.
@@ -117,6 +108,28 @@ export default function EtatSysteme() {
           )}
         </div>
       )}
+
+      {/* Le test de notification est un autre sujet que les emails d'inscription :
+          sa propre carte, sinon son message semble commenter l'interrupteur. */}
+      <div className="carte-sombre" style={{ padding: 14, marginTop: 12, display: "grid", gap: 10 }}>
+        <span style={{ fontSize: 13 }}>
+          <b>Notifications</b>
+          <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
+            Vérifier que la chaîne complète fonctionne, de la base à ton téléphone.
+          </span>
+        </span>
+        <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
+          onClick={async () => {
+            const { error } = await supabase.rpc("admin_test_push");
+            setTestPush(error ? "Échec : " + error.message
+              : "Envoyée — si rien n'arrive, active les notifications dans Mon profil.");
+          }}>
+          M&apos;envoyer une notification de test
+        </button>
+        {testPush && (
+          <p style={{ fontSize: 12, color: "var(--brume)", margin: 0, lineHeight: 1.5 }}>{testPush}</p>
+        )}
+      </div>
     </>
   );
 }

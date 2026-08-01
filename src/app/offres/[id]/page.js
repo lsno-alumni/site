@@ -38,7 +38,7 @@ export default async function PageOffre({ params }) {
     <main className="page">
       <div className="vide" style={{ paddingTop: 120 }}>
         <img src="/img/logo.jpg" alt="" style={{ width: 64, height: 64, borderRadius: "50%", margin: "0 auto 14px" }} />
-        <b>{TYPES[o.type] ?? "Opportunité"} : {o.titre}</b>
+        <b>{TYPES[o.type] ?? "Opportunité"} : {o.titre}</b>{" "}
         Les détails sont réservés aux membres de LSNO Amicale.
         <div style={{ marginTop: 18 }}>
           <Link href="/connexion" className="btn btn-or" style={{ padding: "12px 22px" }}>Se connecter</Link>

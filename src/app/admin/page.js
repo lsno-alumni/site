@@ -140,7 +140,7 @@ export default function Validation() {
       <main className="page avec-tabbar">
         <div className="vide" style={{ paddingTop: 100 }}>
           <div className="gros" aria-hidden><Lock size={30} strokeWidth={1.6} /></div>
-          <b>Espace réservé</b>
+          <b>Espace réservé</b>{" "}
           Cette page est réservée aux délégués de promotion et aux administrateurs.
         </div>
         <TabBar actif="Validation" />

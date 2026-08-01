@@ -65,7 +65,7 @@ export default function InviteNotifications({ profilId }) {
       ) : (
         <>
           <span className="txt">
-            <b>Active tes notifs</b>
+            <b>Active tes notifs</b>{" "}
             Demandes de contact, nouvelles offres, arrivées… Tu peux tout paramétrer
             ensuite dans « Mon profil ».
           </span>

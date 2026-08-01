@@ -27,7 +27,7 @@ export default async function PageAnnuaire() {
           </div>
           {refuse ? (
             <>
-              <b>Ta demande n&apos;a pas été retenue</b>
+              <b>Ta demande n&apos;a pas été retenue</b>{" "}
               Un délégué de ta promotion a examiné ton inscription et ne l&apos;a pas
               validée. L&apos;annuaire reste donc fermé.<br />
               Si tu penses qu&apos;il s&apos;agit d&apos;une erreur — homonyme, promotion
@@ -39,7 +39,7 @@ export default async function PageAnnuaire() {
             </>
           ) : (
             <>
-              <b>Ton délégué examine ta demande</b>
+              <b>Ton délégué examine ta demande</b>{" "}
               L&apos;annuaire s&apos;ouvrira dès qu&apos;un délégué de ta promotion aura
               confirmé ton inscription — en général sous 24 h.<br />
               Tu recevras un email à ce moment-là.

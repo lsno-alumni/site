@@ -52,6 +52,10 @@ le bon interlocuteur et que le réseau de tous se renforce.
   ⚠ Portée exacte : le SITE exige le code dès qu'un appareil est enrôlé. L'exiger au niveau
   de la BASE (politiques RLS sur le niveau `aal2`) reste à faire — sans cela, un mot de passe
   volé permet encore d'attaquer l'API directement, sans passer par nos écrans.
+- **Journal des actions à privilège** : table `journal` en **ajout seul** (ni modification
+  ni suppression possible, même pour un admin), 8 familles d'actions, conservé 12 mois,
+  lisible dans l'onglet Validation et dans la fiche de chaque membre. Ce qu'un membre fait
+  sur son propre profil n'y figure pas : on surveille les pouvoirs, pas les membres.
 - **Alerte aux autres admins** : nommer un admin, exporter l'annuaire, changer l'email de
   connexion d'un membre, poser un mot de passe temporaire, supprimer un compte ou basculer
   un réglage envoie aussitôt une **notification** aux AUTRES administrateurs

@@ -213,8 +213,6 @@ declencheurs(nom) as (values
   ('demandes_contact_notifie'),('demandes_contact_push_acceptation'),
   ('demandes_contact_notifie_acceptation')
 ),
-  ('purge_journal'),('purge_refus_anciens'),('purge_offres_cloturees')
-),
 ouvertes(nom, role_) as (values                   -- doivent rester appelables
   ('stats_publiques','anon'),('apercu_profil','anon'),('apercu_offre','anon'),
   ('journal_export','authenticated'),('admin_email_etat','authenticated'),

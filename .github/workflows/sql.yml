@@ -1,0 +1,32 @@
+# Vérifie la SYNTAXE des fichiers SQL à chaque push et sur chaque proposition.
+#
+# Pourquoi : le 01/08, trois migrations sont parties avec une erreur de syntaxe,
+# découverte en production par l'utilisateur qui les exécutait. pglast embarque
+# le vrai analyseur de PostgreSQL (libpg_query) : ce qu'il accepte, le serveur
+# l'accepte. Une relecture attentive ne remplace pas un analyseur.
+#
+# Limite assumée : la syntaxe seulement. Une table inexistante ou un ordre
+# d'évaluation hasardeux passent au travers — pour ça il faudra un Postgres local.
+
+name: Syntaxe SQL
+
+on:
+  push:
+    paths: ["supabase/**.sql", "outils/verif_sql.py"]
+  pull_request:
+    paths: ["supabase/**.sql"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  syntaxe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pglast
+      - run: python outils/verif_sql.py

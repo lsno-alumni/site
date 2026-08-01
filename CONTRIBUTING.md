@@ -96,6 +96,25 @@ Deux réflexes utiles :
   est **désactivée volontairement** (un oubli de RLS ne peut donc pas ouvrir la table).
   Penser à `authenticated` **et** à `service_role` si une route serveur la lit, sinon :
   `permission denied for table …`.
+- ⚠️ **Vécu le 01/08, à ne pas revivre** : une migration contenant du **DDL**
+  (`create table`, `alter table … add column`) a fait perdre au rôle `authenticated`
+  ses privilèges sur des tables **déjà existantes**. Conséquence côté site : « Mon profil »
+  ne s'affichait plus, les listes revenaient vides, et l'app redemandait la connexion —
+  autrement dit **ça ne ressemblait pas du tout à un problème de droits, mais à une
+  déconnexion**, parce que `utilisateurCourant()` ne pouvait plus lire le profil.
+  Deux réflexes :
+  1. **terminer toute migration à DDL par les `GRANT` explicites** dont l'app a besoin
+     (modèle : `supabase/migration-38-retablir-droits.sql`) ;
+  2. **vérifier juste après** :
+     ```sql
+     select grantee, table_name, string_agg(privilege_type, ',' order by privilege_type)
+       from information_schema.role_table_grants
+      where table_schema = 'public' and grantee in ('anon','authenticated','service_role')
+      group by grantee, table_name order by grantee, table_name;
+     ```
+  Retenir le modèle à **deux étages indépendants** : les privilèges Postgres disent quelles
+  **tables** un rôle peut toucher, la RLS dit quelles **lignes**. Perdre le premier ferme
+  tout, politiques intactes ou non.
 - Un **`upsert`** (`insert … on conflict do update`) exige en plus le privilège `update`.
 - Toute **nouvelle colonne de `profiles`** doit être ajoutée au `grant select (…)` —
   sinon l'API la renvoie vide, sans erreur.

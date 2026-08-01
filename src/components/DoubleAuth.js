@@ -14,6 +14,16 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 // le code au niveau de la BASE (politiques RLS) est une étape distincte, à faire
 // séparément — sinon un mot de passe volé permettrait encore d'attaquer l'API
 // directement, sans passer par nos écrans.
+//
+// Comportement vérifié en réel (01/08, cycle complet joué contre l'API) :
+//   • connexion par mot de passe seul  → session de niveau « aal1 »
+//   • code confirmé                    → « aal2 »
+//   • RAFRAÎCHISSEMENT de la session   → reste « aal2 »
+//     Autrement dit : fermer l'appli et la rouvrir ne redemande RIEN. Le code
+//     n'est demandé qu'à une nouvelle connexion par mot de passe.
+//   • désactivation depuis une session confirmée → acceptée
+// Rien n'est obligatoire : un délégué peut ne jamais l'activer, et la retirer
+// après l'avoir activée.
 
 export default function DoubleAuth({ profil }) {
   const supabase = creerClientNavigateur();
@@ -107,8 +117,9 @@ export default function DoubleAuth({ profil }) {
             connexion demande en plus un code à six chiffres, généré par une appli sur ton
             téléphone et valable trente secondes.
           </p>
-          <button className="btn btn-notif" onClick={commencer} disabled={enCours}>
-            {enCours ? "Préparation…" : "Activer la double authentification"}
+          <button className="btn btn-notif" onClick={commencer} disabled={enCours}
+            style={{ width: "auto", justifySelf: "start", padding: "9px 14px", fontSize: 12.5 }}>
+            {enCours ? "Préparation…" : "Activer"}
           </button>
         </>
       )}
@@ -123,7 +134,8 @@ export default function DoubleAuth({ profil }) {
             <b style={{ color: "var(--craie)" }}>2.</b>{" "}Ajoute ce compte. Depuis ce téléphone,
             le plus simple est ce lien — il ouvre l&apos;appli directement :
           </p>
-          <a className="btn btn-nu" href={enrolement.uri} style={{ width: "100%", textAlign: "center" }}>
+          <a className="btn btn-nu" href={enrolement.uri}
+            style={{ width: "auto", justifySelf: "start", padding: "9px 14px", fontSize: 12.5 }}>
             Ouvrir mon appli d&apos;authentification
           </a>
           <p style={aide}>
@@ -172,7 +184,8 @@ export default function DoubleAuth({ profil }) {
             <br /><b style={{ color: "var(--or-clair)" }}>Garde ton téléphone accessible :</b> sans
             lui, il faudra qu&apos;un autre administrateur t&apos;aide à rouvrir ton compte.
           </p>
-          <button className="btn btn-nu" onClick={desactiver} disabled={enCours}>
+          <button className="btn btn-nu" onClick={desactiver} disabled={enCours}
+            style={{ width: "auto", justifySelf: "start", padding: "9px 14px", fontSize: 12.5 }}>
             Désactiver
           </button>
         </>

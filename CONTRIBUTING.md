@@ -110,13 +110,12 @@ Deux réflexes utiles :
   Deux réflexes :
   1. **terminer toute migration à DDL par les `GRANT` explicites** dont l'app a besoin
      (modèle : `supabase/migration-38-retablir-droits.sql`) ;
-  2. **vérifier juste après** :
+  2. **vérifier juste après** — une seule ligne suffit :
      ```sql
-     select grantee, table_name, string_agg(privilege_type, ',' order by privilege_type)
-       from information_schema.role_table_grants
-      where table_schema = 'public' and grantee in ('anon','authenticated','service_role')
-      group by grantee, table_name order by grantee, table_name;
+     select * from sante_systeme where verdict like 'PROBL%';   -- rien = tout va bien
      ```
+     La vue `sante_systeme` (migration 40) décrit le modèle attendu de bout en bout, et
+     la tâche mensuelle `controle_sante()` alerte les admins si quelque chose dérive.
   Retenir le modèle à **deux étages indépendants** : les privilèges Postgres disent quelles
   **tables** un rôle peut toucher, la RLS dit quelles **lignes**. Perdre le premier ferme
   tout, politiques intactes ou non.

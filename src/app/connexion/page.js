@@ -33,6 +33,8 @@ export default function Connexion() {
   // après chaque échec (« essai » reconstruit le widget)
   const [jeton, setJeton] = useState("");
   const [essai, setEssai] = useState(0);
+  // la vérification n'a pas abouti : on cesse de bloquer le bouton
+  const [sansVerif, setSansVerif] = useState(false);
 
   const connecter = async (e) => {
     e.preventDefault();
@@ -54,7 +56,9 @@ export default function Connexion() {
     if (error) {
       setJeton(""); setEssai((n) => n + 1);   // le jeton est consommé
       setErreur(
-        error.message.includes("Invalid login")
+        error.message.toLowerCase().includes("captcha")
+          ? "La vérification anti-robot n'a pas abouti. Recharge la page et réessaie."
+          : error.message.includes("Invalid login")
           ? "Email ou mot de passe incorrect."
           : error.message.includes("not confirmed")
             ? "Confirme d'abord ton adresse email (regarde ta boîte de réception)."
@@ -141,12 +145,12 @@ export default function Connexion() {
         </div>
         <ChampMotDePasse id="mdp" label="Mot de passe" valeur={form.motDePasse}
           onChange={(e) => setForm({ ...form, motDePasse: e.target.value })} />
-        <Captcha onJeton={setJeton} essai={essai} />
+        <Captcha onJeton={setJeton} essai={essai} onAbandon={() => setSansVerif(true)} />
         {erreur && (
           <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
         )}
-        <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton)}
-          style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
+        <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton && !sansVerif)}
+          style={{ opacity: enCours || (captchaActif && !jeton && !sansVerif) ? 0.6 : 1 }}>
           {enCours ? "Connexion…" : "Se connecter"}
         </button>
         <p style={{ textAlign: "center", fontSize: 13 }}>

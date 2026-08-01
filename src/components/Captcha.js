@@ -50,7 +50,12 @@ function chargerScript() {
   return chargement;
 }
 
-export default function Captcha({ onJeton, essai = 0 }) {
+// Au-delà de ce délai sans réponse, on cesse de bloquer : mieux vaut laisser
+// tenter sa chance que verrouiller dehors quelqu'un dont la vérification
+// n'aboutit pas (réseau lent, extension, proxy d'entreprise).
+const DELAI_ABANDON = 15000;
+
+export default function Captcha({ onJeton, essai = 0, onAbandon }) {
   const boite = useRef(null);
   const [souci, setSouci] = useState("");
 
@@ -58,6 +63,11 @@ export default function Captcha({ onJeton, essai = 0 }) {
     if (!captchaActif) return;
     let widget;
     let vivant = true;
+    const minuteur = setTimeout(() => {
+      if (!vivant) return;
+      setSouci("La vérification n'aboutit pas. Tu peux quand même essayer — si ça échoue, recharge la page.");
+      onAbandon?.();
+    }, DELAI_ABANDON);
     chargerScript()
       .then(() => {
         if (!vivant || !boite.current || !window.turnstile) return;
@@ -66,7 +76,7 @@ export default function Captcha({ onJeton, essai = 0 }) {
           sitekey: CLE_PUBLIQUE,
           theme: "dark",
           language: "fr",
-          callback: (jeton) => { setSouci(""); onJeton(jeton); },
+          callback: (jeton) => { clearTimeout(minuteur); setSouci(""); onJeton(jeton); },
           "expired-callback": () => onJeton(""),
           "error-callback": () => {
             // réseau coupé, script bloqué par une extension… : on le dit, et on
@@ -79,6 +89,7 @@ export default function Captcha({ onJeton, essai = 0 }) {
       .catch(() => setSouci("Vérification anti-robot impossible à charger (connexion ou bloqueur de scripts)."));
     return () => {
       vivant = false;
+      clearTimeout(minuteur);
       try { if (widget && window.turnstile) window.turnstile.remove(widget); } catch { /* déjà retiré */ }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

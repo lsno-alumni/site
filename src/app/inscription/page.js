@@ -14,6 +14,8 @@ export default function Inscription() {
   const [etape, setEtape] = useState(1);
   const [jeton, setJeton] = useState("");     // vérification anti-robot
   const [essai, setEssai] = useState(0);
+  // la vérification n'a pas abouti : on cesse de bloquer le bouton
+  const [sansVerif, setSansVerif] = useState(false);
   const [envoye, setEnvoye] = useState(false);
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
@@ -248,7 +250,7 @@ export default function Inscription() {
                   Promotion {form.promotion} · {nomDomaine(form.domaine, form.domainePrecision.trim())}
                 </span>
               </div>
-              <Captcha onJeton={setJeton} essai={essai} />
+              <Captcha onJeton={setJeton} essai={essai} onAbandon={() => setSansVerif(true)} />
               {erreur && (
                 <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>
                   {erreur}
@@ -263,8 +265,8 @@ export default function Inscription() {
                 </p>
               )}
               <button className="btn btn-or btn-bloc" onClick={envoyer}
-                disabled={enCours || (captchaActif && !jeton)}
-                style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
+                disabled={enCours || (captchaActif && !jeton && !sansVerif)}
+                style={{ opacity: enCours || (captchaActif && !jeton && !sansVerif) ? 0.6 : 1 }}>
                 {enCours ? "Envoi…" : "Envoyer ma demande"}
               </button>
               <button className="btn btn-nu btn-bloc" onClick={() => setEtape(2)}>

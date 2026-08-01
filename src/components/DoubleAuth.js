@@ -90,7 +90,18 @@ export default function DoubleAuth({ profil }) {
     setEnCours(true); setMessage("");
     const { error } = await supabase.auth.mfa.unenroll({ factorId: facteur.id });
     setEnCours(false);
-    if (error) { setMessage("Impossible de désactiver : " + error.message); return; }
+    if (error) {
+      // Supabase exige une session ayant passé le code pour retirer un appareil
+      // confirmé (« AAL2 required to unenroll verified factor ») — c'est sain :
+      // un mot de passe volé ne suffit pas à retirer la protection. Reste à le
+      // dire en français, et à dire quoi faire.
+      setMessage(
+        /aal2|insufficient/i.test(error.message ?? "")
+          ? "Pour retirer la protection, reconnecte-toi d'abord en saisissant ton code — c'est justement ce qui empêche quelqu'un d'autre de la retirer."
+          : "Impossible de désactiver : " + error.message
+      );
+      return;
+    }
     setMessage("Double authentification désactivée.");
     relire();
   };
@@ -111,12 +122,16 @@ export default function DoubleAuth({ profil }) {
 
       {facteur === null && !enrolement && (
         <>
-          <p style={aide}>
-            Ton compte a des pouvoirs sur le réseau : valider, suspendre, voir l&apos;annuaire
-            entier. Un mot de passe volé suffirait. Avec la double authentification, la
-            connexion demande en plus un code à six chiffres, généré par une appli sur ton
-            téléphone et valable trente secondes.
-          </p>
+          <details>
+            <summary style={{ ...aide, cursor: "pointer" }}>Pourquoi c&apos;est utile</summary>
+            <p style={{ ...aide, marginTop: 8 }}>
+              Ton compte a des pouvoirs sur le réseau : valider, suspendre, voir l&apos;annuaire
+              entier. Un mot de passe volé suffirait. Avec la double authentification, la
+              connexion demande en plus un code à six chiffres, généré par une appli sur ton
+              téléphone et valable trente secondes. Ce n&apos;est pas obligatoire, et tu peux
+              la retirer plus tard.
+            </p>
+          </details>
           <button className="btn btn-notif" onClick={commencer} disabled={enCours}
             style={{ width: "auto", justifySelf: "start", padding: "9px 14px", fontSize: 12.5 }}>
             {enCours ? "Préparation…" : "Activer"}
@@ -179,11 +194,16 @@ export default function DoubleAuth({ profil }) {
 
       {facteur && (
         <>
-          <p style={aide}>
-            Activée. À chaque connexion, le site te demandera le code de ton appli.
-            <br /><b style={{ color: "var(--or-clair)" }}>Garde ton téléphone accessible :</b> sans
-            lui, il faudra qu&apos;un autre administrateur t&apos;aide à rouvrir ton compte.
-          </p>
+          <p style={aide}>Activée sur cet appareil d&apos;authentification.</p>
+          <details>
+            <summary style={{ ...aide, cursor: "pointer" }}>Ce que ça change</summary>
+            <p style={{ ...aide, marginTop: 8 }}>
+              Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--craie)" }}>nouvelle
+              connexion</b> : fermer l&apos;appli et la rouvrir ne redemande rien.
+              <br /><b style={{ color: "var(--or-clair)" }}>Garde ton téléphone accessible :</b> sans
+              lui, il faudra qu&apos;un autre administrateur t&apos;aide à rouvrir ton compte.
+            </p>
+          </details>
           <button className="btn btn-nu" onClick={desactiver} disabled={enCours}
             style={{ width: "auto", justifySelf: "start", padding: "9px 14px", fontSize: 12.5 }}>
             Désactiver

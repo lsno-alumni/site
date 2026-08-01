@@ -15,6 +15,7 @@ const NOMS = {
   "envoi-annonces": "Envoi des annonces (quotidien)",
   "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
   "purge-journal": "Purge du journal au-delà de 12 mois (mensuel)",
+  "purge-refus": "Purge des demandes refusées de plus de 90 jours (mensuel)",
   // notifications push
   "push-rappels-quotidiens": "Notifications : profils incomplets, offres qui expirent (quotidien)",
   "push-rappel-annuel": "Notification : profils à jour ? (1er septembre)",

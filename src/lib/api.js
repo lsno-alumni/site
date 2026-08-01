@@ -167,7 +167,7 @@ export async function utilisateurCourant() {
   if (!user) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, role, statut_compte, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, promotions(numero)")
+    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, promotions(numero)")
     .eq("id", user.id)
     .maybeSingle();
   return data;

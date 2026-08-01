@@ -26,7 +26,7 @@ export default function GestionMembre({ moiId, signale }) {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("id, prenom, nom, photo_url, statut_compte, role, promotion_id, promotions(numero)")
+        .select("id, prenom, nom, photo_url, statut_compte, role, refuse_le, promotion_id, promotions(numero)")
         .order("prenom");
       setTous(data ?? []);
       const { data: p } = await supabase.from("promotions").select("id, numero").order("numero");
@@ -185,7 +185,12 @@ export default function GestionMembre({ moiId, signale }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <b>{choisi.prenom} {choisi.nom}</b>
               <div style={{ fontSize: 12, color: "var(--brume)" }}>
-                {STATUTS[choisi.statut_compte]}{choisi.role !== "membre" ? ` · ${choisi.role}` : ""}
+                {/* un refus d'inscription et une suspension partagent le même statut :
+                    la date de refus est la seule chose qui les distingue */}
+                {choisi.refuse_le
+                  ? `demande refusée le ${new Date(choisi.refuse_le).toLocaleDateString("fr-FR")}`
+                  : STATUTS[choisi.statut_compte]}
+                {choisi.role !== "membre" ? ` · ${choisi.role}` : ""}
               </div>
             </div>
             <button className="btn btn-nu" style={btn} onClick={() => setChoisi(null)}>Fermer</button>

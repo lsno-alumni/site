@@ -73,6 +73,14 @@ export default function Conditions() {
           automatiquement au bout de 12 mois.
         </p>
 
+        <p style={{ marginTop: 10 }}>
+          <b>Si ta demande d&apos;inscription est refusée.</b> Ton compte reste fermé et te
+          l&apos;indique clairement, puis il est <b>entièrement supprimé au bout de 90 jours</b> —
+          délai qui laisse le temps de corriger une erreur, après quoi ton adresse email
+          redevient libre. Un compte dont l&apos;email n&apos;a jamais été confirmé est supprimé
+          au bout de 30 jours.
+        </p>
+
         <Titre>4. Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b> Ton profil n&apos;est

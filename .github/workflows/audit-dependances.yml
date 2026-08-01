@@ -1,0 +1,36 @@
+# Surveillance mensuelle des dépendances.
+#
+# Pourquoi : le 31/07, le projet tournait avec trois avis de sévérité haute sur
+# Next — dont un contournement du middleware, c'est-à-dire du mécanisme qui
+# protège les routes privées. Personne ne l'avait vu, faute de vérification
+# régulière. Ce contrôle échoue si un avis « high » ou « critical » réapparaît,
+# et GitHub envoie alors un email au propriétaire du dépôt.
+#
+# À lancer aussi à la main : onglet Actions → « Audit des dépendances » → Run workflow.
+# En local, la même commande : npm audit --omit=dev --audit-level=high
+
+name: Audit des dépendances
+
+on:
+  schedule:
+    - cron: "0 6 1 * *" # le 1er de chaque mois, 6 h UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # --omit=dev : seules les dépendances réellement livrées comptent.
+      # Les paquets de développement ne tournent jamais chez les membres.
+      - name: Vérifier les avis de sécurité
+        run: npm audit --omit=dev --audit-level=high

@@ -47,6 +47,14 @@ le bon interlocuteur et que le réseau de tous se renforce.
 
 **Sous le capot**
 
+- **En-têtes de sécurité** (`next.config.mjs`) : CSP serrée (tout est servi par le
+  site lui-même, sauf Supabase), `frame-ancestors 'none'`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, HSTS. ⚠ `unsafe-inline` reste requis
+  pour les scripts et styles en ligne de Next — l'alternative par nonce imposerait
+  un rendu dynamique de toutes les pages.
+- **Audit mensuel des dépendances** : `.github/workflows/audit-dependances.yml`
+  (échoue sur un avis `high`, GitHub prévient par email). En local :
+  `npm audit --omit=dev --audit-level=high`.
 - **37 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
 - **15 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances,
   purges, notifications

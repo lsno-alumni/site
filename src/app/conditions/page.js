@@ -36,7 +36,7 @@ export default function Conditions() {
         <p>
           Toute personne qui est ou a été élève du LSNO, de la première promotion à celle en
           cours. Pour les élèves encore au lycée, l&apos;inscription est ouverte <b>à partir de la
-          classe de première</b> (les élèves de seconde pourront nous rejoindre à leur passage en
+          classe de première</b>{" "}(les élèves de seconde pourront nous rejoindre à leur passage en
           première). Chaque inscription est vérifiée par un délégué de la promotion concernée (ou un
           administrateur), qui reconnaît ses camarades. Un compte créé sous une fausse identité
           ou par une personne extérieure au lycée sera refusé ou supprimé.
@@ -52,7 +52,7 @@ export default function Conditions() {
           session de connexion, indispensables au fonctionnement.
         </p>
         <p style={{ marginTop: 10 }}>
-          <b>Notifications.</b> Si tu choisis de les activer, ton navigateur nous remet une
+          <b>Notifications.</b>{" "}Si tu choisis de les activer, ton navigateur nous remet une
           adresse d&apos;envoi technique propre à cet appareil (avec ses clés de chiffrement) ;
           nous l&apos;enregistrons pour pouvoir t&apos;écrire, avec le nom abrégé du navigateur
           pour que tu t&apos;y retrouves. Elle ne permet pas de te suivre ailleurs sur le web,
@@ -62,7 +62,7 @@ export default function Conditions() {
         </p>
 
         <p style={{ marginTop: 10 }}>
-          <b>Journal des actions d&apos;administration.</b> Pour pouvoir répondre à la question
+          <b>Journal des actions d&apos;administration.</b>{" "}Pour pouvoir répondre à la question
           « qui a fait quoi ? » en cas de problème, la plateforme enregistre les actions à
           privilège : validation, refus, suspension ou suppression d&apos;un compte, changement de
           rôle, intervention sur un email de connexion, publication d&apos;une annonce, export de
@@ -74,7 +74,7 @@ export default function Conditions() {
         </p>
 
         <p style={{ marginTop: 10 }}>
-          <b>Si ta demande d&apos;inscription est refusée.</b> Ton compte reste fermé et te
+          <b>Si ta demande d&apos;inscription est refusée.</b>{" "}Ton compte reste fermé et te
           l&apos;indique clairement, puis il est <b>entièrement supprimé au bout de 90 jours</b> —
           délai qui laisse le temps de corriger une erreur, après quoi ton adresse email
           redevient libre. Un compte dont l&apos;email n&apos;a jamais été confirmé est supprimé
@@ -82,7 +82,7 @@ export default function Conditions() {
         </p>
 
         <p style={{ marginTop: 10 }}>
-          <b>Double authentification.</b> Si tu as un rôle de délégué ou d&apos;administrateur,
+          <b>Double authentification.</b>{" "}Si tu as un rôle de délégué ou d&apos;administrateur,
           tu peux protéger ton compte par un code à six chiffres. Dans ce cas nous conservons
           uniquement de quoi vérifier ce code (une clé secrète propre à ton appareil, créée par
           notre hébergeur) : ni numéro de téléphone, ni appareil identifiable. Tu peux la
@@ -91,7 +91,7 @@ export default function Conditions() {
 
         <Titre>4. Qui voit tes informations</Titre>
         <p>
-          <b>Jamais le grand public, jamais les moteurs de recherche.</b> Ton profil n&apos;est
+          <b>Jamais le grand public, jamais les moteurs de recherche.</b>{" "}Ton profil n&apos;est
           visible que des membres validés du réseau. Seule exception, voulue : quand un membre
           partage le lien d&apos;un profil (WhatsApp…), l&apos;aperçu du lien affiche la « vitrine »
           du profil — prénom, nom, photo, promotion et la ligne de présentation — rien d&apos;autre ;
@@ -104,11 +104,11 @@ export default function Conditions() {
 
         <Titre>5. Tes droits sur tes données</Titre>
         <p>
-          Tu peux à tout moment, depuis « Mon profil » : <b>consulter et rectifier</b> chaque
-          information, <b>changer la visibilité</b> de chaque contact, <b>activer ou couper les
-          notifications</b> (globalement sur un appareil, par famille — mes demandes, le
+          Tu peux à tout moment, depuis « Mon profil » : <b>consulter et rectifier</b>{" "}chaque
+          information, <b>changer la visibilité</b>{" "}de chaque contact, <b>activer ou couper les
+          notifications</b>{" "}(globalement sur un appareil, par famille — mes demandes, le
           réseau, les offres, les annonces — ou en choisissant de qui te prévenir pour les
-          arrivées), <b>voir la liste des appareils</b> qui les reçoivent et en retirer un
+          arrivées), <b>voir la liste des appareils</b>{" "}qui les reçoivent et en retirer un
           à distance, et <b>supprimer
           définitivement ton compte</b> — l&apos;effacement est immédiat, total (profil, parcours,
           photo, compte de connexion) et irréversible. Pour toute autre demande liée à tes

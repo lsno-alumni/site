@@ -217,7 +217,7 @@ export default function Inscription() {
               )}
               <div className="f-note">
                 <span>
-                  <b>Un délégué de ta promotion</b> validera ta demande.
+                  <b>Un délégué de ta promotion</b>{" "}validera ta demande.
                   Ton profil n&apos;est visible d&apos;aucun visiteur extérieur.
                   En envoyant ta demande, tu acceptes les{" "}
                   <Link href="/conditions" target="_blank" rel="noopener" style={{

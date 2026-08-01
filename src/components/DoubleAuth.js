@@ -210,7 +210,7 @@ export default function DoubleAuth({ profil }) {
             <p style={{ ...aide, marginTop: 8 }}>
               Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--craie)" }}>nouvelle
               connexion</b> : fermer l&apos;appli et la rouvrir ne redemande rien.
-              <br /><b style={{ color: "var(--or-clair)" }}>Téléphone perdu ?</b> Un administrateur
+              <br /><b style={{ color: "var(--or-clair)" }}>Téléphone perdu ?</b>{" "}Un administrateur
               peut retirer la protection depuis « Gérer un membre », après avoir vérifié ton
               identité — tu te reconnectes alors avec ton mot de passe, puis tu la réactives.
             </p>

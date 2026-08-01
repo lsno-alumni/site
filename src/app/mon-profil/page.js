@@ -157,7 +157,7 @@ export default function MonProfil() {
 
         {aMigrer && (
           <div style={{ background: "rgba(232,179,60,.12)", border: "1px solid rgba(232,179,60,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--craie)", lineHeight: 1.55 }}>
-            🎉 Tu es maintenant un ancien ! Choisis ton <b>domaine</b> et ta <b>situation</b>{" "}
+            🎉 Tu es maintenant un ancien ! Choisis ton <b>domaine</b>{" "}et ta <b>situation</b>{" "}
             ci-dessous, et n&apos;hésite pas à ajouter ton poste et un conseil aux cadets.
           </div>
         )}

@@ -50,8 +50,11 @@ le bon interlocuteur et que le réseau de tous se renforce.
 - **Double authentification** (code à six chiffres) proposée aux délégués et admins dans
   Mon profil : `src/components/DoubleAuth.js`, et l'étape de code dans la page de connexion.
   ⚠ Portée exacte : le SITE exige le code dès qu'un appareil est enrôlé. L'exiger au niveau
-  de la BASE (politiques RLS sur le niveau `aal2`) reste à faire — sans cela, un mot de passe
-  volé permet encore d'attaquer l'API directement, sans passer par nos écrans.
+  de la BASE (politiques RLS sur le niveau `aal2`) a été **écarté le 02/08** : le risque
+  résiduel — un mot de passe d'admin volé, utilisé directement contre l'API — a été jugé
+  acceptable au vu de ce qui l'entoure (journal en ajout seul, alerte immédiate aux autres
+  admins, CAPTCHA sur la connexion, mots de passe volés détectés par Supabase). À rouvrir
+  si le réseau grossit beaucoup ou si un incident survient.
 - **Journal des actions à privilège** : table `journal` en **ajout seul** (ni modification
   ni suppression possible, même pour un admin), 8 familles d'actions, conservé 12 mois,
   lisible dans l'onglet Validation et dans la fiche de chaque membre. Ce qu'un membre fait

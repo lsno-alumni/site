@@ -49,7 +49,7 @@ le bon interlocuteur et que le réseau de tous se renforce.
 
 - **Alerte aux autres admins** : nommer un admin, exporter l'annuaire, changer l'email de
   connexion d'un membre, poser un mot de passe temporaire, supprimer un compte ou basculer
-  un réglage envoie aussitôt un email **et** une notification aux AUTRES administrateurs
+  un réglage envoie aussitôt une **notification** aux AUTRES administrateurs
   (principe des quatre yeux). Le travail quotidien des délégués — validation, refus,
   suspension — n'alerte pas : le noyer rendrait les vraies alertes invisibles.
 - **Fonctions internes verrouillées** : toute fonction `security definer` est inexécutable

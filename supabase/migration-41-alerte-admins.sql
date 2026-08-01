@@ -7,8 +7,12 @@
 -- d'être vues tout de suite par les AUTRES administrateurs. Principe des quatre
 -- yeux : on n'empêche pas l'action, on la rend impossible à passer inaperçue.
 --
+-- Par notification uniquement, pas par email : ces événements sont rares, la
+-- notification arrive plus vite, et le quota d'emails reste réservé à ce qui en
+-- a besoin (confirmations, relances, annonces).
+--
 -- Trois morceaux :
---   ① alerter_admins() : email + notification aux autres admins, sur six actions.
+--   ① alerter_admins() : notification aux autres admins, sur six actions.
 --   ② verrouillage des fonctions internes (envoi d'emails et de notifications,
 --      points d'entrée des tâches planifiées) — la liste des tâches est lue dans
 --      cron.job lui-même, donc sans risque d'oubli ni de faute de frappe.
@@ -25,7 +29,7 @@ create or replace function alerter_admins(p_action text, p_cible uuid, p_details
 returns void language plpgsql security definer set search_path = public as $fn$
 declare
   v_acteur uuid := auth.uid();
-  v_an text; v_cn text; v_quoi text; v_admins uuid[]; v record;
+  v_an text; v_cn text; v_quoi text; v_admins uuid[];
 begin
   if p_action not in ('role','export','email_change','mdp_temporaire','suppression','reglage') then
     return;
@@ -54,25 +58,14 @@ begin
      and (v_acteur is null or id <> v_acteur);
   if v_admins is null then return; end if;
 
-  for v in
-    select u.email, p.prenom from profiles p join auth.users u on u.id = p.id
-     where p.id = any(v_admins)
-  loop
-    perform envoyer_email(
-      v.email, v.prenom,
-      'LSNO Amicale — action d''administration : ' || p_action,
-      gabarit_email(
-        'Une action d''administration vient d''avoir lieu',
-        '<b>' || v_an || '</b> ' || v_quoi || '.<br><br>'
-        || 'Cet email part automatiquement aux autres administrateurs pour les actions '
-        || 'qui touchent aux pouvoirs ou font sortir des données. Si elle ne te semble '
-        || 'pas normale, l''historique complet est dans l''onglet Validation, section '
-        || '« Journal des actions ».',
-        'Ouvrir le journal', 'https://lsno-alumni.vercel.app/admin'));
-  end loop;
-
-  -- notification SANS filtre de famille : une alerte de sécurité ne doit pas
-  -- pouvoir être désactivée par inadvertance dans les préférences de notification
+  -- Notification SEULEMENT, pas d'email : ces événements sont rares, la notif
+  -- arrive plus vite, et on n'entame pas le quota d'envoi d'emails. Le journal
+  -- reste la trace durable, consultable dans l'onglet Validation.
+  --
+  -- SANS filtre de famille : une alerte de sécurité ne doit pas pouvoir être
+  -- coupée par inadvertance dans les préférences de notification.
+  -- ⚠ Corollaire à connaître : un admin dont aucun appareil n'est abonné aux
+  -- notifications ne recevra rien — c'est le journal qui rattrape ce cas.
   perform envoyer_push_liste(v_admins, 'Action d''administration',
     v_an || ' ' || v_quoi || '.', '/admin');
 end $fn$;

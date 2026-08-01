@@ -451,7 +451,7 @@ export default function Offres() {
         {offres !== null && visibles.length === 0 && (
           <div className="vide">
             <div className="gros" aria-hidden><Megaphone size={30} strokeWidth={1.6} /></div>
-            <b>Aucune offre pour le moment</b>
+            <b>Aucune offre pour le moment</b>{" "}
             Un stage dans ta boîte, une bourse repérée, une cooptation ?<br />
             Sois le premier à partager une opportunité.
           </div>

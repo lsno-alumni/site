@@ -161,7 +161,7 @@ export default function Annuaire({ membres }) {
         {resultats.length === 0 && (
           <div className="vide">
             <div className="gros" aria-hidden><Search size={30} strokeWidth={1.6} /></div>
-            <b>Personne ne correspond</b>
+            <b>Personne ne correspond</b>{" "}
             Essaie un autre nom, une autre ville,<br />ou retire les filtres.
             <div style={{ marginTop: 14 }}>
               <button className="btn btn-nu" onClick={raz}>Tout afficher</button>

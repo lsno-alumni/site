@@ -62,7 +62,7 @@ export default function Conseils({ conseils }) {
 
         {groupes.length === 0 && (
           <div className="vide" style={{ paddingTop: 40 }}>
-            <b>Pas encore de conseils</b>
+            <b>Pas encore de conseils</b>{" "}
             Les conseils aux cadets apparaîtront ici à mesure que les membres complètent leur profil.
           </div>
         )}

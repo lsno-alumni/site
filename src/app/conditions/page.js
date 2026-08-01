@@ -81,6 +81,14 @@ export default function Conditions() {
           au bout de 30 jours.
         </p>
 
+        <p style={{ marginTop: 10 }}>
+          <b>Double authentification.</b> Si tu as un rôle de délégué ou d&apos;administrateur,
+          tu peux protéger ton compte par un code à six chiffres. Dans ce cas nous conservons
+          uniquement de quoi vérifier ce code (une clé secrète propre à ton appareil, créée par
+          notre hébergeur) : ni numéro de téléphone, ni appareil identifiable. Tu peux la
+          retirer à tout moment depuis Mon profil.
+        </p>
+
         <Titre>4. Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b> Ton profil n&apos;est

@@ -26,6 +26,7 @@ const ACTIONS = {
   annonce: "Annonce publiée",
   reglage: "Réglage modifié",
   export: "Export de la base",
+  controle_sante: "Contrôle de santé de la base",
 };
 
 const ROLES = { membre: "membre", delegue: "délégué·e", admin: "admin" };
@@ -47,6 +48,8 @@ function precision(l) {
       return `${d.cle} : ${d.actif ? "activé" : "désactivé"}`;
     case "export":
       return `${d.profils ?? "?"} profils, ${d.parcours ?? 0} parcours téléchargés`;
+    case "controle_sante":
+      return d.soucis === 0 ? "aucun problème" : `${d.soucis} problème(s) relevé(s)`;
     case "2fa_retire":
       return d.appareils ? `${d.appareils} appareil(s) retiré(s)` : "";
     case "suppression":

@@ -86,7 +86,10 @@ export default function Conditions() {
           tu peux protéger ton compte par un code à six chiffres. Dans ce cas nous conservons
           uniquement de quoi vérifier ce code (une clé secrète propre à ton appareil, créée par
           notre hébergeur) : ni numéro de téléphone, ni appareil identifiable. Tu peux la
-          retirer à tout moment depuis Mon profil.
+          retirer à tout moment depuis Mon profil. Si tu perds ton téléphone, un
+          administrateur peut retirer cette protection à ta place, après avoir vérifié ton
+          identité — l&apos;opération est enregistrée au journal et les autres administrateurs
+          en sont avertis.
         </p>
 
         <p style={{ marginTop: 10 }}>

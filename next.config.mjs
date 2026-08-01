@@ -26,6 +26,13 @@
 //    seulement là.
 // ---------------------------------------------------------------------------
 
+// ⚠ 31/07 — CSP EN OBSERVATION. L'onglet « Mon profil » a cessé de s'afficher
+// juste après la mise en place des en-têtes. Tant que la cause n'est pas établie,
+// la politique est envoyée en « Report-Only » : elle ne bloque plus RIEN, mais
+// les violations continuent d'apparaître dans la console du navigateur, ce qui
+// permet de trancher. Repasser à false une fois la cause connue.
+const CSP_OBSERVATION = true;
+
 const dev = process.env.NODE_ENV !== "production";
 const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");
 const supabaseWs = supabase.replace(/^https:/, "wss:");
@@ -51,7 +58,7 @@ const csp = [
 ].join("; ");
 
 const enTetes = [
-  { key: "Content-Security-Policy", value: csp },
+  { key: CSP_OBSERVATION ? "Content-Security-Policy-Report-Only" : "Content-Security-Policy", value: csp },
   // frame-ancestors couvre déjà ce cas ; celui-ci sert aux navigateurs anciens
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },

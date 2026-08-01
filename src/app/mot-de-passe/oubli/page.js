@@ -13,6 +13,8 @@ export default function MotDePasseOublie() {
   const [enCours, setEnCours] = useState(false);
   const [jeton, setJeton] = useState("");
   const [essai, setEssai] = useState(0);
+  // la vérification n'a pas abouti : on cesse de bloquer le bouton
+  const [sansVerif, setSansVerif] = useState(false);
 
   const envoyer = async (e) => {
     e.preventDefault();
@@ -59,12 +61,12 @@ export default function MotDePasseOublie() {
             <input id="email" type="email" className="saisie" required autoComplete="email"
               value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
-          <Captcha onJeton={setJeton} essai={essai} />
+          <Captcha onJeton={setJeton} essai={essai} onAbandon={() => setSansVerif(true)} />
           {erreur && (
             <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>{erreur}</p>
           )}
-          <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton)}
-            style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
+          <button type="submit" className="btn btn-or btn-bloc" disabled={enCours || (captchaActif && !jeton && !sansVerif)}
+            style={{ opacity: enCours || (captchaActif && !jeton && !sansVerif) ? 0.6 : 1 }}>
             {enCours ? "Envoi…" : "M'envoyer le lien"}
           </button>
         </form>

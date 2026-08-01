@@ -26,12 +26,11 @@
 //    seulement là.
 // ---------------------------------------------------------------------------
 
-// ⚠ 31/07 — CSP EN OBSERVATION. L'onglet « Mon profil » a cessé de s'afficher
-// juste après la mise en place des en-têtes. Tant que la cause n'est pas établie,
-// la politique est envoyée en « Report-Only » : elle ne bloque plus RIEN, mais
-// les violations continuent d'apparaître dans la console du navigateur, ce qui
-// permet de trancher. Repasser à false une fois la cause connue.
-const CSP_OBSERVATION = true;
+// La CSP a été soupçonnée le 01/08 quand « Mon profil » a cessé de s'afficher :
+// à tort. La cause était une perte des privilèges de table du rôle authenticated
+// (migration 38). Passer ceci à true remet la politique en simple observation
+// (Report-Only) — utile pour diagnostiquer sans rien bloquer.
+const CSP_OBSERVATION = false;
 
 const dev = process.env.NODE_ENV !== "production";
 const supabase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/\/$/, "");

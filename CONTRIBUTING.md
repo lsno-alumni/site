@@ -101,6 +101,10 @@ Deux réflexes utiles :
   est **désactivée volontairement** (un oubli de RLS ne peut donc pas ouvrir la table).
   Penser à `authenticated` **et** à `service_role` si une route serveur la lit, sinon :
   `permission denied for table …`.
+- **Tu crées une fonction SQL appelée par le navigateur ?** Ajoute son nom dans
+  `sante_fonctions_ouvertes` (une ligne, avec la raison). Sinon le contrôle de santé la
+  signalera comme « fonction interne laissée ouverte » — c'est voulu : toute fonction
+  `security definer` non déclarée est suspecte.
 - **Avant de proposer une migration, vérifie sa syntaxe** — hors ligne, en une commande :
   ```
   pip install pglast        # une fois

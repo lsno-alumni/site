@@ -74,7 +74,7 @@ le bon interlocuteur et que le réseau de tous se renforce.
 - **Audit mensuel des dépendances** : `.github/workflows/audit-dependances.yml`
   (échoue sur un avis `high`, GitHub prévient par email). En local :
   `npm audit --omit=dev --audit-level=high`.
-- **41 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
+- **42 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
 - **16 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances,
   purges, notifications
 - **Notifications auto-hébergées** : service worker + route `/api/push` (signature VAPID),
@@ -121,7 +121,7 @@ src/app/api/push/   route d'envoi des notifications (appelée par la base)
 src/components/     composants partagés (Avatar, TabBar, Notifications…)
 src/lib/            données de référence (domaines, pays, promotions), clients Supabase
 src/middleware.js   protection des routes (vérification locale du jeton)
-supabase/           schema.sql + migration-02…41 : tables, RLS, triggers, crons
+supabase/           schema.sql + migration-02…42 : tables, RLS, triggers, crons
 public/             images du lycée, icônes, service worker (sw.js)
 ```
 

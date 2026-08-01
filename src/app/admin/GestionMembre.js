@@ -104,6 +104,25 @@ export default function GestionMembre({ moiId, signale }) {
     setMdp("");
   }, "Mot de passe temporaire défini ✓ — communique-le au membre");
 
+  // Dépannage d'un compte bloqué par la double authentification (téléphone perdu,
+  // appli réinstallée). Réservé aux admins et interdit sur soi-même côté base,
+  // journalisé, et les autres admins en sont alertés (migration 42).
+  const retirer2fa = () => {
+    const attendu = `${choisi.prenom} ${choisi.nom}`;
+    const saisie = prompt(
+      `Retirer la double authentification de ${attendu} ?
+Il se reconnectera avec son seul mot de passe, puis pourra la réactiver.
+
+Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, puis recopie son nom complet :`
+    );
+    if (saisie === null) return;
+    if (saisie.trim() !== attendu) { signale("Nom non conforme — action annulée."); return; }
+    action(async () => {
+      const { error } = await supabase.rpc("admin_retire_2fa", { cible: choisi.id });
+      if (error) throw error;
+    }, "Double authentification retirée ✓ — les autres admins en sont informés");
+  };
+
   const changerEmail = () => {
     const nouveau = prompt(
       `Nouvel email de connexion pour ${choisi.prenom} ${choisi.nom} ?\n(Pour le membre qui a perdu l'accès à sa boîte — vérifie son identité d'abord.)`
@@ -231,6 +250,7 @@ export default function GestionMembre({ moiId, signale }) {
             <button className="btn btn-nu" style={btn} onClick={confirmerEmail} disabled={enCours}>Confirmer l&apos;email à la main</button>
             <button className="btn btn-nu" style={btn} onClick={emailReinit} disabled={enCours}>Email de réinit. mot de passe</button>
             <button className="btn btn-nu" style={btn} onClick={changerEmail} disabled={enCours}>Changer l&apos;email de connexion</button>
+            <button className="btn btn-nu" style={btn} onClick={retirer2fa} disabled={enCours}>Retirer la double authentification</button>
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>

@@ -22,6 +22,7 @@ const ACTIONS = {
   email_confirme: "Email confirmé à la main",
   email_change: "Email de connexion changé",
   mdp_temporaire: "Mot de passe temporaire posé",
+  "2fa_retire": "Double authentification retirée",
   annonce: "Annonce publiée",
   reglage: "Réglage modifié",
   export: "Export de la base",
@@ -46,6 +47,8 @@ function precision(l) {
       return `${d.cle} : ${d.actif ? "activé" : "désactivé"}`;
     case "export":
       return `${d.profils ?? "?"} profils, ${d.parcours ?? 0} parcours téléchargés`;
+    case "2fa_retire":
+      return d.appareils ? `${d.appareils} appareil(s) retiré(s)` : "";
     case "suppression":
     case "suppression_soi":
       return d.promo ? `promotion ${d.promo}` : "";

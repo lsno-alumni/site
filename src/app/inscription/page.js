@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import Captcha, { captchaActif } from "@/components/Captcha";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
 import { DOMAINES, PROMOTIONS, nomDomaine } from "@/lib/donnees";
 
@@ -11,6 +12,8 @@ import { DOMAINES, PROMOTIONS, nomDomaine } from "@/lib/donnees";
 // « en_attente » à partir des métadonnées.
 export default function Inscription() {
   const [etape, setEtape] = useState(1);
+  const [jeton, setJeton] = useState("");     // vérification anti-robot
+  const [essai, setEssai] = useState(0);
   const [envoye, setEnvoye] = useState(false);
   const [erreur, setErreur] = useState("");
   const [enCours, setEnCours] = useState(false);
@@ -61,6 +64,7 @@ export default function Inscription() {
       email: form.email.trim().toLowerCase(),
       password: form.motDePasse,
       options: {
+        captchaToken: jeton || undefined,
         emailRedirectTo: `${window.location.origin}/bienvenue`,
         data: {
           prenom: propre(form.prenom),
@@ -73,6 +77,7 @@ export default function Inscription() {
     });
     setEnCours(false);
     if (error) {
+      setJeton(""); setEssai((n) => n + 1);   // un jeton ne sert qu'une fois
       setErreur(
         error.message.includes("already registered")
           ? "Un compte existe déjà avec cet email. Essaie de te connecter."
@@ -243,6 +248,7 @@ export default function Inscription() {
                   Promotion {form.promotion} · {nomDomaine(form.domaine, form.domainePrecision.trim())}
                 </span>
               </div>
+              <Captcha onJeton={setJeton} essai={essai} />
               {erreur && (
                 <p role="alert" style={{ color: "var(--rouge)", fontSize: 13, lineHeight: 1.5 }}>
                   {erreur}
@@ -256,8 +262,9 @@ export default function Inscription() {
                   )}
                 </p>
               )}
-              <button className="btn btn-or btn-bloc" onClick={envoyer} disabled={enCours}
-                style={{ opacity: enCours ? 0.6 : 1 }}>
+              <button className="btn btn-or btn-bloc" onClick={envoyer}
+                disabled={enCours || (captchaActif && !jeton)}
+                style={{ opacity: enCours || (captchaActif && !jeton) ? 0.6 : 1 }}>
                 {enCours ? "Envoi…" : "Envoyer ma demande"}
               </button>
               <button className="btn btn-nu btn-bloc" onClick={() => setEtape(2)}>

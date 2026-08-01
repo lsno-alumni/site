@@ -66,6 +66,13 @@ le bon interlocuteur et que le réseau de tous se renforce.
   tâche mensuelle `controle_sante()` prévient les admins par email et notification dès
   qu'une ligne cloche. À la main : `select * from sante_systeme;` (raccourci dans
   `supabase/verif-sante.sql`) ou `select controle_sante();`.
+- **Vérification anti-robot** (Cloudflare Turnstile), sur inscription, connexion, mot de
+  passe oublié et les deux actions par email du back-office. Pilotée par la variable
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` : **sans elle, rien ne s'affiche et rien ne change**.
+  ⚠ ORDRE DE DÉPLOIEMENT : (1) ce code, (2) la clé publique dans Vercel, (3) la clé secrète
+  dans Supabase et SEULEMENT ALORS l'interrupteur Supabase. Activer Supabase en premier
+  casserait la connexion de tout le monde — la protection s'applique à TOUTES les entrées
+  d'authentification, pas seulement à l'inscription.
 - **En-têtes de sécurité** (`next.config.mjs`) : CSP serrée (tout est servi par le
   site lui-même, sauf Supabase), `frame-ancestors 'none'`, `nosniff`,
   `Referrer-Policy`, `Permissions-Policy`, HSTS. ⚠ `unsafe-inline` reste requis

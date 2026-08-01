@@ -49,7 +49,7 @@ export function InviteInstallation() {
         {fait ? <Check size={16} strokeWidth={2.2} /> : <Download size={16} strokeWidth={1.9} />}
       </span>
       {fait ? (
-        <span className="txt"><b>C&apos;est installé ✓</b> Ouvre LSNO Amicale depuis tes applis.</span>
+        <span className="txt"><b>C&apos;est installé ✓</b>{" "}Ouvre LSNO Amicale depuis tes applis.</span>
       ) : (
         <>
           <span className="txt">

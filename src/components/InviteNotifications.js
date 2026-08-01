@@ -61,7 +61,7 @@ export default function InviteNotifications({ profilId }) {
     <div className="invite-notif">
       <span className="ico" aria-hidden><Bell size={16} strokeWidth={1.9} /></span>
       {fait ? (
-        <span className="txt"><b>C&apos;est activé ✓</b> Tu seras prévenu du mouvement sur le réseau.</span>
+        <span className="txt"><b>C&apos;est activé ✓</b>{" "}Tu seras prévenu du mouvement sur le réseau.</span>
       ) : (
         <>
           <span className="txt">

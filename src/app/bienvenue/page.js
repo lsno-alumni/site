@@ -64,7 +64,7 @@ export default function Bienvenue() {
         ) : (
           <>
             <p>
-              Dernière étape : <b style={{ color: "var(--craie)" }}>un délégué de ta promotion</b> va
+              Dernière étape : <b style={{ color: "var(--craie)" }}>un délégué de ta promotion</b>{" "}va
               confirmer que tu es bien des nôtres — en général sous 24 h.
               Tu recevras un email dès que c&apos;est fait.
             </p>
@@ -73,7 +73,7 @@ export default function Bienvenue() {
                 <Hourglass size={16} strokeWidth={1.8} aria-hidden />
               </span>
               <span>
-                <b>En attendant, prends de l&apos;avance :</b> complète ton profil (photo, parcours…)
+                <b>En attendant, prends de l&apos;avance :</b>{" "}complète ton profil (photo, parcours…)
                 — dès ta validation, les autres membres pourront te trouver.
               </span>
             </div>

@@ -135,6 +135,13 @@ Deux réflexes utiles :
     échec ici alors que la production est verte n'est donc pas un faux positif : c'est un
     avertissement pour la prochaine montée de version. C'est exactement ce qui a produit
     la migration 43.
+- **Le banc juge les FICHIERS, pas la vraie base.** Il rejoue tout, il ne sait pas ce qui a
+  réellement été exécuté en production. Pour ça, un admin lance `supabase/verif-migrations.sql` :
+  une ligne par migration, « ok » ou « MANQUE ». Il existe parce que le 02/08 une migration
+  n'avait jamais tourné alors que le suivi la disait faite. **Tu ajoutes une migration ? Ajoute
+  sa ligne dans ce fichier** — une trace qu'elle laisse en base, et pour une migration qui
+  RÉÉCRIT une fonction existante, un morceau de son nouveau texte (`prosrc like`) plutôt que
+  son nom, sinon l'ancienne version passe pour la nouvelle.
 - **Un script de maintenance qui corrige des DONNÉES bouscule `maj_le`.** Le déclencheur de
   `profiles` écrit `maj_le := now()` à chaque `update`, y compris celui d'un nettoyage. Le
   02/08, rogner les blancs de cinq conseils a fait passer ces cinq fiches pour « modifiées

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import PhotoProfil from "@/components/PhotoProfil";
+import TexteReplie from "@/components/TexteReplie";
 import { Mail, Lock, BadgeCheck } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { PAYS, nomDomaine } from "@/lib/donnees";
@@ -155,7 +156,7 @@ export default async function PageProfil({ params }) {
       {p.conseil && (
         <section className="p-conseil">
           <p className="lbl">Mon conseil aux cadets</p>
-          <p>« {p.conseil} »</p>
+          <TexteReplie lignes={6}>«&nbsp;{p.conseil}&nbsp;»</TexteReplie>
         </section>
       )}
 

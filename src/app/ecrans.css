@@ -229,7 +229,9 @@
   font-size: 13.5px; line-height: 1.7; color: var(--craie-2); white-space: pre-line;
   margin-bottom: 4px;
 }
-.p-histoire .offre-lire-plus { display: inline-flex; align-items: center; gap: 3px; }
+.p-histoire .lire-suite { display: inline-flex; align-items: center; gap: 3px; }
+/* la carte de conseil du profil a un fond clair, comme celle de l'accueil */
+.p-conseil .lire-suite { color: #5B6A83; }
 
 .a-temoin {
   margin: 0 22px 36px; border-radius: 26px; background: var(--craie); color: var(--encre);

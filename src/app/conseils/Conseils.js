@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
+import TexteReplie from "@/components/TexteReplie";
 import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
 
 const GENERAL = "Général";
@@ -47,7 +48,7 @@ export default function Conseils({ conseils }) {
             <h2 className="a-titre" style={{ marginBottom: 10 }}>{g.theme}</h2>
             {g.items.map((c) => (
               <div key={c.id} className="a-temoin" style={{ margin: "0 0 12px" }}>
-                <p>{c.conseil}</p>
+                <TexteReplie lignes={4}>{c.conseil}</TexteReplie>
                 <Link href={`/profil/${c.id}`} className="qui">
                   <Avatar profil={{ prenom: c.prenom, nom: c.nom, photo: c.photo_url }} className="am-conseil-photo" />
                   <div>

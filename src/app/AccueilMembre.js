@@ -7,6 +7,7 @@ import { InviteInstallation } from "@/components/InstallerAppli";
 import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
+import TexteReplie from "@/components/TexteReplie";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
@@ -90,7 +91,7 @@ export default function AccueilMembre({ moi, donnees }) {
       {conseil && (
         <Reveal>
         <section className="a-temoin" style={{ marginTop: 26 }}>
-          <p>{conseil.conseil}</p>
+          <TexteReplie lignes={4}>{conseil.conseil}</TexteReplie>
           <Link href={`/profil/${conseil.id}`} className="qui">
             <Avatar profil={{ prenom: conseil.prenom, nom: conseil.nom, photo: conseil.photo_url }} className="am-conseil-photo" />
             <div>

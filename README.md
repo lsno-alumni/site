@@ -88,7 +88,9 @@ le bon interlocuteur et que le réseau de tous se renforce.
 - **Audit mensuel des dépendances** : `.github/workflows/audit-dependances.yml`
   (échoue sur un avis `high`, GitHub prévient par email). En local :
   `npm audit --omit=dev --audit-level=high`.
-- **42 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique
+- **43 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
+  et c'est vérifié à chaque push, pas seulement affirmé (`npm run banc` rejoue le tout sur
+  un PostgreSQL jetable en mémoire ; `outils/verif_sql.py` en contrôle la syntaxe)
 - **16 automatisations** en base (pg_cron) : cycle des promotions, rappels, relances,
   purges, notifications
 - **Notifications auto-hébergées** : service worker + route `/api/push` (signature VAPID),

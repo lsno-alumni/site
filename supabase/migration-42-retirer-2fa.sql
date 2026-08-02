@@ -130,6 +130,11 @@ end $fn$;
 revoke all on function alerter_admins(text, uuid, jsonb) from public, anon, authenticated;
 
 -- ---------- ④ la vue lit désormais la table ----------
+-- ⚠ Corrigé après coup (02/08) : la vue écartait les fonctions autorisées avec
+-- « <> all (…) », refusé par PostgreSQL 18 — voir migration-43. La formulation
+-- « not exists » ci-dessous est identique en résultat et lisible par toutes les
+-- versions. La base de production, elle, est rattrapée par la migration 43.
+
 create or replace view sante_systeme as
 with
 -- ---------- ce que chaque rôle DOIT pouvoir faire (source de vérité) ----------
@@ -283,12 +288,12 @@ union all
 select '6. fonctions verrouillées', 'bilan', 'aucune fonction interne ouverte',
        (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
          where n.nspname = 'public' and p.prosecdef
-           and p.proname <> all ((select array_agg(nom) from sante_fonctions_ouvertes))
+           and not exists (select 1 from sante_fonctions_ouvertes o where o.nom = p.proname)
            and (has_function_privilege('authenticated', p.oid, 'EXECUTE')
                 or has_function_privilege('anon', p.oid, 'EXECUTE')))::text || ' ouverte(s)',
        case when (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
                    where n.nspname = 'public' and p.prosecdef
-                     and p.proname <> all ((select array_agg(nom) from sante_fonctions_ouvertes))
+                     and not exists (select 1 from sante_fonctions_ouvertes o where o.nom = p.proname)
                      and (has_function_privilege('authenticated', p.oid, 'EXECUTE')
                           or has_function_privilege('anon', p.oid, 'EXECUTE'))) = 0
             then 'ok' else 'PROBLÈME — voir les lignes suivantes' end
@@ -300,7 +305,7 @@ select '6. fonctions verrouillées', p.proname || '()', 'inexécutable par anon 
        'PROBLÈME — fonction interne ouverte : un membre pourrait l''appeler directement'
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
  where n.nspname = 'public' and p.prosecdef
-   and p.proname <> all ((select array_agg(nom) from sante_fonctions_ouvertes))
+   and not exists (select 1 from sante_fonctions_ouvertes o where o.nom = p.proname)
    and (has_function_privilege('authenticated', p.oid, 'EXECUTE')
         or has_function_privilege('anon', p.oid, 'EXECUTE'))
 

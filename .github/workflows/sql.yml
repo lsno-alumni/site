@@ -5,16 +5,20 @@
 # le vrai analyseur de PostgreSQL (libpg_query) : ce qu'il accepte, le serveur
 # l'accepte. Une relecture attentive ne remplace pas un analyseur.
 #
-# Limite assumée : la syntaxe seulement. Une table inexistante ou un ordre
-# d'évaluation hasardeux passent au travers — pour ça il faudra un Postgres local.
+# Deuxième filet, ajouté le 02/08 : le banc d'essai rejoue schema.sql PUIS toutes
+# les migrations, dans l'ordre, sur un vrai PostgreSQL jetable (PGlite, en
+# mémoire). Il attrape ce que la syntaxe ne voit pas — colonne inexistante,
+# fonction manquante, migration qui dépend de quelque chose qui n'existe pas
+# encore. C'est lui qui a trouvé que la vue de contrôle de santé serait refusée
+# par PostgreSQL 18 (migration 43), longtemps avant que Supabase y passe.
 
 name: Syntaxe SQL
 
 on:
   push:
-    paths: ["supabase/**.sql", "outils/verif_sql.py"]
+    paths: ["supabase/**.sql", "outils/**"]
   pull_request:
-    paths: ["supabase/**.sql"]
+    paths: ["supabase/**.sql", "outils/**"]
   workflow_dispatch: {}
 
 permissions:
@@ -30,3 +34,14 @@ jobs:
           python-version: "3.12"
       - run: pip install pglast
       - run: python outils/verif_sql.py
+
+  banc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run banc

@@ -113,6 +113,11 @@ with attendu(num, laisse, present) as (
   union all select 42, 'admin_retire_2fa() + table sante_fonctions_ouvertes',
     to_regclass('public.sante_fonctions_ouvertes') is not null
     and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'admin_retire_2fa')
+  union all select 45, 'la notification d''inscription a son propre interrupteur',
+    exists (select 1 from reglages where cle = 'push_inscription_admins')
+    and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                where n.nspname = 'public' and p.proname = 'push_nouvelle_demande'
+                  and p.prosrc like '%push_inscription_admins%')
   union all select 44, 'admin_email_etat() renvoie aussi l''état de la double auth',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_email_etat' and p.prosrc like '%mfa_factors%')

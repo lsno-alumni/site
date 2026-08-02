@@ -78,6 +78,13 @@ export default function MonProfil() {
     const { id, promotions, statut_compte, photo_url, ...champs } = profil;
     // thème vide ou seulement des espaces (« Autre » non rempli) → Général (null)
     champs.conseil_theme = (champs.conseil_theme ?? "").trim() || null;
+    // Les retours à la ligne À L'INTÉRIEUR du conseil et du récit sont voulus par
+    // l'auteur et désormais affichés ; ceux du DÉBUT et de la FIN ne sont que des
+    // touches en trop, qui creusent un vide dans la carte. On ne rogne donc que
+    // les extrémités — jamais le milieu.
+    for (const champ of ["conseil", "histoire"]) {
+      if (typeof champs[champ] === "string") champs[champ] = champs[champ].trim() || null;
+    }
     // un ancien ne garde pas la situation « élève » : défaut sensé = étudiant
     if (!estEleve && champs.situation === "eleve") champs.situation = "etudiant";
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);

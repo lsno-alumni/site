@@ -241,10 +241,21 @@
   content: "“"; position: absolute; top: -18px; right: 14px;
   font-family: var(--font-titres), serif; font-size: 130px; color: rgba(10,27,51,.07);
 }
-.a-temoin p { font-family: var(--font-titres), serif; font-style: italic; font-size: 16.5px; line-height: 1.5; position: relative; }
+.a-temoin p {
+  font-family: var(--font-titres), serif; font-style: italic; font-size: 16.5px;
+  line-height: 1.5; position: relative;
+  /* les retours à la ligne tapés par l'auteur sont conservés, comme dans « Mon
+     histoire » — un conseil sur quatre en contient */
+  white-space: pre-line;
+}
 /* Repli d'un texte long (composant TexteReplie) — le nombre de lignes est posé
    en style en ligne, seul le mécanisme est ici. */
 .texte-replie { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+/* ⚠ Replié, on IGNORE les sauts de ligne de l'auteur : sinon une ligne vide
+   entre deux paragraphes mange une des lignes de l'aperçu et les points de
+   suspension se retrouvent SEULS sur leur ligne. L'aperçu est donc dense, et
+   la mise en forme de l'auteur réapparaît intégralement une fois déplié. */
+.texte-replie.coupe { white-space: normal; }
 .texte-replie.ouvert { display: block; -webkit-line-clamp: unset; overflow: visible; }
 .lire-suite {
   display: block; background: none; border: none; padding: 0; margin: 8px 0 0;
@@ -357,7 +368,7 @@
 .mini-blason { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; display: inline-block; vertical-align: -3px; margin-right: 6px; background: #fff; }
 .p-conseil { margin: 6px 22px 24px; border-radius: 24px; background: var(--craie); color: var(--encre); padding: 20px; }
 .p-conseil .lbl { font-size: 10.5px; letter-spacing: .25em; text-transform: uppercase; color: #8A6A1D; margin-bottom: 8px; }
-.p-conseil p { font-family: var(--font-titres), serif; font-style: italic; font-size: 14.5px; line-height: 1.55; }
+.p-conseil p { font-family: var(--font-titres), serif; font-style: italic; font-size: 14.5px; line-height: 1.55; white-space: pre-line; }
 .p-contacts { padding: 0 22px 44px; display: grid; gap: 10px; }
 .contact {
   display: flex; align-items: center; gap: 12px; background: var(--carte);

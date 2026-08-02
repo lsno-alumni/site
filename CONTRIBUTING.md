@@ -135,7 +135,7 @@ Deux réflexes utiles :
     échec ici alors que la production est verte n'est donc pas un faux positif : c'est un
     avertissement pour la prochaine montée de version. C'est exactement ce qui a produit
     la migration 43.
-- **Un script de maintenance qui corrige des DONNéES bouscule `maj_le`.** Le déclencheur de
+- **Un script de maintenance qui corrige des DONNÉES bouscule `maj_le`.** Le déclencheur de
   `profiles` écrit `maj_le := now()` à chaque `update`, y compris celui d'un nettoyage. Le
   02/08, rogner les blancs de cinq conseils a fait passer ces cinq fiches pour « modifiées
   aujourd'hui », alors que leurs auteurs n'avaient rien fait. Sans conséquence pour l'instant

@@ -131,6 +131,24 @@ function instructions(sql) {
     }
   }
 
+  // Un fichier passé en argument est exécuté SUR la base ainsi construite et son
+  // résultat affiché : pratique pour mettre au point une requête de vérification
+  // avant de la donner à exécuter en production.
+  //   npm run banc -- supabase/verif-migrations.sql
+  for (const arg of process.argv.slice(2)) {
+    const sql = fs.readFileSync(path.join(RACINE, arg), "utf8");
+    console.log(`\n  ── ${arg} ──`);
+    try {
+      for (const inst of instructions(sql)) {
+        const r = await db.query(inst);
+        if (r.rows.length) console.table(r.rows);
+      }
+    } catch (e) {
+      echecs++;
+      console.log(`  ÉCHEC : ${String(e.message ?? e).split("\n")[0]}`);
+    }
+  }
+
   console.log(`\n${fichiers.length} fichier(s) rejoué(s), ${echecs} en échec.`);
   process.exit(echecs ? 1 : 0);
 })();

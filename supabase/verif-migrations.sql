@@ -113,6 +113,9 @@ with attendu(num, laisse, present) as (
   union all select 42, 'admin_retire_2fa() + table sante_fonctions_ouvertes',
     to_regclass('public.sante_fonctions_ouvertes') is not null
     and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'admin_retire_2fa')
+  union all select 44, 'admin_email_etat() renvoie aussi l''état de la double auth',
+    exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and p.proname = 'admin_email_etat' and p.prosrc like '%mfa_factors%')
   union all select 43, 'vue de santé écrite sans « <> all » (compatible PG 18)',
     case when to_regclass('public.sante_systeme') is null then false
          else pg_get_viewdef('public.sante_systeme'::regclass) not like '%array_agg(sante_fonctions_ouvertes.nom)%'

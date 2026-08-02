@@ -79,18 +79,23 @@ export default function EtatSysteme() {
         </div>
       </div>
 
-      {/* interrupteur : emails « nouvelle inscription » vers les admins.
+      {/* Interrupteur des alertes « nouvelle inscription » vers les admins.
           À couper le jour d'un lancement de promo entière (les délégués prennent
-          le relais) — les emails des délégués ne changent pas. */}
+          le relais) — les alertes des délégués ne changent JAMAIS.
+          ⚠ Le réglage s'appelle « emails_inscription_admins » pour raisons
+          historiques, mais il coupe AUSSI la notification push (voir
+          push_nouvelle_demande, migration 31). C'est voulu — l'objectif est de
+          ne pas noyer l'admin, pas seulement d'économiser le quota d'emails —
+          d'où le libellé qui dit les deux. */}
       {emailsAdmins !== null && (
         <div className="carte-sombre" style={{ padding: 14, marginTop: 12, display: "grid", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
-              <b>Emails d&apos;inscription aux admins</b>
+              <b>Alertes d&apos;inscription aux admins</b>
               <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
                 {emailsAdmins
-                  ? "Actifs : tu reçois un email à chaque nouvelle demande."
-                  : "En pause : seuls les délégués sont prévenus (les promotions sans délégué te sont quand même signalées)."}
+                  ? "Actives : tu reçois un email ET une notification à chaque nouvelle demande."
+                  : "En pause : ni email ni notification. Seuls les délégués sont prévenus — les promotions sans délégué te sont quand même signalées."}
               </span>
             </span>
             <button className={`btn ${emailsAdmins ? "btn-nu" : "btn-or"}`}

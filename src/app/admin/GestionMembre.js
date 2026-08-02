@@ -19,6 +19,7 @@ export default function GestionMembre({ moiId, signale }) {
   const [choisi, setChoisi] = useState(null); // fiche en cours de gestion
   const [email, setEmail] = useState(null);
   const [confirme, setConfirme] = useState(null); // email confirmé ?
+  const [double2fa, setDouble2fa] = useState(null); // nb d'appareils d'authentification (null = pas encore lu)
   const [form, setForm] = useState({});
   const [mdp, setMdp] = useState("");
   const [enCours, setEnCours] = useState(false);
@@ -50,11 +51,14 @@ export default function GestionMembre({ moiId, signale }) {
   // on n'en déduit jamais l'état d'une action locale, sinon l'affichage mentirait
   // dès que le membre confirme de son côté.
   const lireEmail = async (id) => {
-    setEmail("…"); setConfirme(null);
+    setEmail("…"); setConfirme(null); setDouble2fa(null);
     const { data, error } = await supabase.rpc("admin_email_etat", { cible: id });
     if (error) { setEmail("(indisponible)"); return; }
     setEmail(data.email);
     setConfirme(Boolean(data.confirme_le));
+    // migration 44 ; « ?? null » garde l'écran fonctionnel si elle n'a pas encore
+    // été exécutée : on n'affiche alors ni l'état ni le bouton, plutôt que de mentir
+    setDouble2fa(data.double_auth ?? null);
   };
 
   const ouvrir = async (m) => {
@@ -234,6 +238,14 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             {confirme === false && (
               <span style={{ color: "var(--or-clair)" }}> · pas encore confirmé</span>
             )}
+            {double2fa !== null && (
+              <span style={{ display: "block", marginTop: 4 }}>
+                <span style={{ color: "var(--brume)" }}>Double authentification : </span>
+                {double2fa > 0
+                  ? <b style={{ color: "#9FD8B4" }}>activée</b>
+                  : <b style={{ color: "var(--brume)" }}>non activée</b>}
+              </span>
+            )}
             {choisi && (
               <button type="button" onClick={() => lireEmail(choisi.id)} disabled={enCours}
                 style={{ background: "none", border: "none", padding: "2px 0 2px 8px", cursor: "pointer",
@@ -261,7 +273,7 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
           {captchaActif && (
             <div style={{ display: "grid", gap: 6 }}>
               <span style={{ fontSize: 12, color: "var(--brume)" }}>
-                Vérification requise pour les deux actions par email :
+                Vérification requise pour les actions par email :
               </span>
               <Captcha onJeton={setJeton} essai={essai} />
             </div>
@@ -273,7 +285,12 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             <button className="btn btn-nu" style={btn} onClick={emailReinit}
               disabled={enCours || (captchaActif && !jeton)}>Email de réinit. mot de passe</button>
             <button className="btn btn-nu" style={btn} onClick={changerEmail} disabled={enCours}>Changer l&apos;email de connexion</button>
-            <button className="btn btn-nu" style={btn} onClick={retirer2fa} disabled={enCours}>Retirer la double authentification</button>
+            {/* Uniquement quand il y a réellement quelque chose à retirer : la
+                protection ne concerne que les délégués et les admins, et
+                seulement ceux qui l'ont activée. */}
+            {double2fa > 0 && (
+              <button className="btn btn-nu" style={btn} onClick={retirer2fa} disabled={enCours}>Retirer la double authentification</button>
+            )}
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>

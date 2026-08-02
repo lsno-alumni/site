@@ -113,7 +113,28 @@ Deux réflexes utiles :
   C'est le vrai analyseur de PostgreSQL : ce qu'il accepte, le serveur l'accepte. Le même
   contrôle tourne automatiquement à chaque push (`.github/workflows/sql.yml`). Il ne voit
   que la syntaxe : une table inexistante ou un ordre d'évaluation hasardeux passent au
-  travers — relis quand même.
+  travers — d'où le banc d'essai ci-dessous.
+- **Puis rejoue toute la base sur un Postgres jetable** :
+  ```
+  npm run banc
+  ```
+  Il monte un vrai PostgreSQL en mémoire (PGlite, aucune installation, aucun service à
+  lancer) et rejoue `schema.sql` puis **toutes** les migrations dans l'ordre. Il attrape ce
+  que la syntaxe ne peut pas voir : une colonne qui n'existe pas, une fonction appelée
+  avant d'être créée, une politique qui référence une table à venir. Il tourne aussi à
+  chaque push.
+  - Supabase fournit des choses qu'un PostgreSQL nu n'a pas (`auth.uid()`, le Vault,
+    pg_cron, pg_net, `storage`). `outils/banc/prelude.sql` les recrée **en façade** —
+    strictement de quoi laisser passer les migrations.
+  - **Ce que le banc ne peut PAS juger** : le comportement réel de l'authentification,
+    l'envoi des emails et des notifications (`net.http_post` est un leurre qui ne fait
+    rien), et l'exécution des tâches planifiées (`cron.schedule` enregistre, n'exécute
+    pas). Il répond à « la base se construit-elle ? », pas à « se comporte-t-elle comme
+    Supabase ? ».
+  - Il tourne sur une version de PostgreSQL **plus récente** que celle de Supabase. Un
+    échec ici alors que la production est verte n'est donc pas un faux positif : c'est un
+    avertissement pour la prochaine montée de version. C'est exactement ce qui a produit
+    la migration 43.
 - ⚠️ **Vécu le 01/08, à ne pas revivre** : une migration contenant du **DDL**
   (`create table`, `alter table … add column`) a fait perdre au rôle `authenticated`
   ses privilèges sur des tables **déjà existantes**. Conséquence côté site : « Mon profil »

@@ -1,140 +1,21 @@
--- Migration 42 — DÉPANNER un compte bloqué par la double authentification, et
--- sortir la liste blanche du contrôle de santé dans une table.
+-- Migration 43 — rendre la vue sante_systeme compatible avec les versions
+-- futures de PostgreSQL.
 --
--- Pourquoi : le texte de Mon profil promet qu'« un autre administrateur peut
--- rouvrir ton accès » si le téléphone est perdu. Rien ne le permettait dans
--- l'application — il fallait passer par l'éditeur SQL. Promesse tenue ici.
+-- Trouvé par le banc d'essai local (outils/banc_essai.js), pas en production.
+-- La vue écartait les fonctions autorisées avec :
+--     p.proname <> all ((select array_agg(nom) from sante_fonctions_ouvertes))
+-- PostgreSQL 15, celui de Supabase aujourd'hui, l'accepte. PostgreSQL 18, sur
+-- lequel tourne le banc, le REFUSE : il lit « all (…) » comme une sous-requête
+-- et non comme un tableau, et se plaint de comparer un nom à un tableau :
+--     operator does not exist: name <> text[]
 --
--- Trois précautions, toutes délibérées :
---   ① réservé aux ADMINS (pas aux délégués) : retirer la protection d'un compte
---      est plus lourd que valider une inscription ;
---   ② interdit sur SOI-MÊME : sinon la protection ne vaut plus rien — celui qui
---      vole une session d'admin la retirerait d'un clic. Pour son propre compte,
---      on passe par « Désactiver » dans Mon profil, qui exige d'avoir saisi
---      son code (Supabase refuse autrement : « AAL2 required ») ;
---   ③ journalisé ET alerté aux autres admins : c'est typiquement l'action qu'un
---      attaquant tenterait après avoir volé un mot de passe d'administrateur.
+-- Rien n'est cassé aujourd'hui. Mais le jour où Supabase montera de version, la
+-- vue tomberait — et avec elle le contrôle de santé mensuel, c'est-à-dire
+-- justement le dispositif censé nous prévenir quand quelque chose casse.
+-- On écrit donc la même chose sans ambiguïté, avec « not exists ». Résultat
+-- identique, lisible par toutes les versions.
 --
--- Second morceau : la liste blanche des fonctions appelables par le navigateur
--- était écrite EN DUR dans la vue sante_systeme, à deux endroits. Toute nouvelle
--- fonction obligeait donc à réécrire 250 lignes de vue. Elle devient une table :
--- une ligne à insérer suffira désormais.
---
--- Rejouable.
-
--- ---------- ① la liste blanche devient une table ----------
-create table if not exists sante_fonctions_ouvertes (
-  nom    text primary key,
-  raison text not null
-);
-
-comment on table sante_fonctions_ouvertes is
-  'Fonctions « security definer » que le navigateur a le droit d''appeler. Toute autre est signalée par la vue sante_systeme. Ajouter une ligne ici quand on crée une RPC appelée par le site.';
-
-insert into sante_fonctions_ouvertes (nom, raison) values
-  ('stats_publiques',      'vitrine publique : compteurs anonymes'),
-  ('apercu_profil',        'aperçu d''un profil partagé (WhatsApp…)'),
-  ('apercu_offre',         'aperçu d''une offre partagée'),
-  ('contacts_de',          'contacts d''un membre, selon SA visibilité'),
-  ('mes_contacts',         'mes propres coordonnées'),
-  ('journal_export',       'déclaration d''un export de la base'),
-  ('supprimer_mon_compte', 'auto-suppression, depuis Mon profil'),
-  ('admin_change_email',   'back-office : changer un email de connexion'),
-  ('admin_confirme_email', 'back-office : confirmer un email à la main'),
-  ('admin_email_etat',     'back-office : lire l''email et son état'),
-  ('admin_etat_systeme',   'back-office : état des tâches planifiées'),
-  ('admin_mdp_temporaire', 'back-office : mot de passe temporaire'),
-  ('admin_publie_annonce', 'back-office : publier une annonce'),
-  ('admin_supprime_compte','back-office : supprimer un compte'),
-  ('admin_test_push',      'back-office : tester les notifications'),
-  ('admin_retire_2fa',     'back-office : dépanner un compte bloqué (migration 42)'),
-  ('mon_role',             '⚠ citée par les politiques RLS'),
-  ('mon_statut',           '⚠ citée par les politiques RLS'),
-  ('est_admin',            '⚠ citée par les politiques RLS'),
-  ('ma_promotion',         '⚠ citée par les politiques RLS')
-on conflict (nom) do update set raison = excluded.raison;
-
-alter table sante_fonctions_ouvertes enable row level security;
-
-drop policy if exists sante_liste_lecture_admin on sante_fonctions_ouvertes;
-create policy sante_liste_lecture_admin on sante_fonctions_ouvertes
-  for select using (est_admin());
-
--- aucun droit aux clients : cette table décrit le modèle de sécurité
-revoke all on sante_fonctions_ouvertes from anon, authenticated;
-
--- ---------- ② le dépannage ----------
-create or replace function admin_retire_2fa(cible uuid) returns void
-language plpgsql security definer set search_path = public, auth as $fn$
-declare v_n int;
-begin
-  if not est_admin() then raise exception 'Réservé aux administrateurs.'; end if;
-  if cible = auth.uid() then
-    raise exception 'Pour ton propre compte, passe par Mon profil — il faut avoir saisi ton code.';
-  end if;
-
-  delete from auth.mfa_factors where user_id = cible;
-  get diagnostics v_n = row_count;
-  if v_n = 0 then
-    raise exception 'Ce compte n''a aucun appareil d''authentification.';
-  end if;
-
-  -- journalisé, donc les AUTRES admins sont alertés (voir alerter_admins)
-  perform journaliser('2fa_retire', cible, jsonb_build_object('appareils', v_n));
-end $fn$;
-
--- ---------- ③ l'alerte doit connaître cette action ----------
--- Corps identique à la migration 41, avec « 2fa_retire » ajouté à la liste des
--- actions surveillées et sa formulation.
-create or replace function alerter_admins(p_action text, p_cible uuid, p_details jsonb)
-returns void language plpgsql security definer set search_path = public as $fn$
-declare
-  v_acteur uuid := auth.uid();
-  v_an text; v_cn text; v_quoi text; v_admins uuid[];
-begin
-  if p_action not in ('role','export','email_change','mdp_temporaire','suppression',
-                      'reglage','2fa_retire') then
-    return;
-  end if;
-
-  select prenom || ' ' || nom into v_an from profiles where id = v_acteur;
-  select prenom || ' ' || nom into v_cn from profiles where id = p_cible;
-  v_an := coalesce(v_an, '(système)');
-
-  v_quoi := case p_action
-    when 'role'           then 'a changé le rôle de ' || coalesce(v_cn, 'un membre')
-                               || ' : ' || coalesce(p_details->>'avant', '?')
-                               || ' → ' || coalesce(p_details->>'apres', '?')
-    when 'export'         then 'a exporté l''annuaire (' || coalesce(p_details->>'profils', '?') || ' profils)'
-    when 'email_change'   then 'a changé l''email de connexion de ' || coalesce(v_cn, 'un membre')
-    when 'mdp_temporaire' then 'a posé un mot de passe temporaire pour ' || coalesce(v_cn, 'un membre')
-    when 'suppression'    then 'a supprimé le compte de ' || coalesce(v_cn, 'un membre')
-    when '2fa_retire'     then 'a retiré la double authentification de ' || coalesce(v_cn, 'un membre')
-    when 'reglage'        then 'a modifié un réglage : ' || coalesce(p_details->>'cle', '?')
-                               || ' → ' || case when coalesce((p_details->>'actif')::boolean, false)
-                                                then 'activé' else 'désactivé' end
-  end;
-
-  select array_agg(id) into v_admins from profiles
-   where role = 'admin' and statut_compte = 'valide'
-     and (v_acteur is null or id <> v_acteur);
-  if v_admins is null then return; end if;
-
-  -- notification seule (pas d'email : événements rares, notif plus rapide), et
-  -- SANS filtre de famille — une alerte de sécurité ne doit pas pouvoir être
-  -- coupée par inadvertance dans les préférences.
-  perform envoyer_push_liste(v_admins, 'Action d''administration',
-    v_an || ' ' || v_quoi || '.', '/admin');
-end $fn$;
-
-revoke all on function alerter_admins(text, uuid, jsonb) from public, anon, authenticated;
-
--- ---------- ④ la vue lit désormais la table ----------
--- ⚠ Corrigé après coup (02/08) : la vue écartait les fonctions autorisées avec
--- « <> all (…) », refusé par PostgreSQL 18 — voir migration-43. La formulation
--- « not exists » ci-dessous est identique en résultat et lisible par toutes les
--- versions. La base de production, elle, est rattrapée par la migration 43.
-
+-- Rejouable. Ne change rien au contenu du contrôle.
 create or replace view sante_systeme as
 with
 -- ---------- ce que chaque rôle DOIT pouvoir faire (source de vérité) ----------
@@ -371,6 +252,4 @@ order by (verdict like 'PROBL%') desc, domaine, controle;
 
 revoke all on sante_systeme from anon, authenticated;
 
--- Vérification :
---   select controle_sante();                                   -- doit rester « ok »
---   select nom from sante_fonctions_ouvertes order by nom;      -- 20 lignes
+-- Vérification :  select controle_sante();   -- doit rester « ok »

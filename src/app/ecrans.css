@@ -240,6 +240,18 @@
   font-family: var(--font-titres), serif; font-size: 130px; color: rgba(10,27,51,.07);
 }
 .a-temoin p { font-family: var(--font-titres), serif; font-style: italic; font-size: 16.5px; line-height: 1.5; position: relative; }
+/* Repli d'un texte long (composant TexteReplie) — le nombre de lignes est posé
+   en style en ligne, seul le mécanisme est ici. */
+.texte-replie { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.texte-replie.ouvert { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.lire-suite {
+  display: block; background: none; border: none; padding: 0; margin: 8px 0 0;
+  cursor: pointer; font-size: 12.5px; color: var(--brume);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* dans la carte de conseil, le fond est clair : la couleur des textes secondaires */
+.a-temoin .lire-suite { color: #5B6A83; }
+
 .a-temoin .qui { display: flex; align-items: center; gap: 11px; margin-top: 18px; }
 .a-temoin .qui b { font-size: 13.5px; display: block; }
 .a-temoin .qui span { font-size: 11.5px; color: #5B6A83; }

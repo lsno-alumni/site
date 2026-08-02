@@ -24,28 +24,34 @@ const NOMS = {
   "push-rentree-octobre": "Notifications de la rentrée (1er octobre)",
 };
 
-const CLE_EMAILS = "emails_inscription_admins";
+const CLE_EMAILS = "emails_inscription_admins";  // les EMAILS aux admins
+const CLE_PUSH   = "push_inscription_admins";    // les NOTIFICATIONS aux admins (migration 45)
 
 export default function EtatSysteme() {
   const supabase = creerClientNavigateur();
   const [etat, setEtat] = useState(null);
   const [emailsAdmins, setEmailsAdmins] = useState(null); // null = réglage absent
-  const [bascule, setBascule] = useState(false);
+  const [pushAdmins, setPushAdmins] = useState(null);     // idem (migration 45)
+  const [bascule, setBascule] = useState("");             // clé en cours de bascule
   const [testPush, setTestPush] = useState("");
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
-    supabase.from("reglages").select("actif").eq("cle", CLE_EMAILS).maybeSingle()
-      .then(({ data }) => setEmailsAdmins(data ? data.actif : null));
+    supabase.from("reglages").select("cle, actif").in("cle", [CLE_EMAILS, CLE_PUSH])
+      .then(({ data }) => {
+        const lu = (cle) => (data ?? []).find((r) => r.cle === cle);
+        setEmailsAdmins(lu(CLE_EMAILS) ? lu(CLE_EMAILS).actif : null);
+        setPushAdmins(lu(CLE_PUSH) ? lu(CLE_PUSH).actif : null);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const basculerEmails = async () => {
-    setBascule(true);
+  const basculer = async (cle, valeur, poser) => {
+    setBascule(cle);
     const { error } = await supabase.from("reglages")
-      .update({ actif: !emailsAdmins, maj_le: new Date().toISOString() }).eq("cle", CLE_EMAILS);
-    if (!error) setEmailsAdmins((v) => !v);
-    setBascule(false);
+      .update({ actif: !valeur, maj_le: new Date().toISOString() }).eq("cle", cle);
+    if (!error) poser((v) => !v);
+    setBascule("");
   };
 
   if (etat === null) return null;
@@ -79,49 +85,69 @@ export default function EtatSysteme() {
         </div>
       </div>
 
-      {/* Interrupteur des alertes « nouvelle inscription » vers les admins.
+      {/* Interrupteur des EMAILS « nouvelle inscription » vers les admins.
           À couper le jour d'un lancement de promo entière (les délégués prennent
-          le relais) — les alertes des délégués ne changent JAMAIS.
-          ⚠ Le réglage s'appelle « emails_inscription_admins » pour raisons
-          historiques, mais il coupe AUSSI la notification push (voir
-          push_nouvelle_demande, migration 31). C'est voulu — l'objectif est de
-          ne pas noyer l'admin, pas seulement d'économiser le quota d'emails —
-          d'où le libellé qui dit les deux. */}
+          le relais) — les emails des délégués ne changent JAMAIS.
+          ⚠ Il ne touche QUE les emails depuis la migration 45 : les
+          notifications ont leur propre interrupteur, plus bas. C'est justement
+          parce que les notifications existent qu'on peut se passer des emails. */}
       {emailsAdmins !== null && (
         <div className="carte-sombre" style={{ padding: 14, marginTop: 12, display: "grid", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
-              <b>Alertes d&apos;inscription aux admins</b>
+              <b>Emails d&apos;inscription aux admins</b>
               <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
                 {emailsAdmins
-                  ? "Actives : tu reçois un email ET une notification à chaque nouvelle demande."
-                  : "En pause : ni email ni notification. Seuls les délégués sont prévenus — les promotions sans délégué te sont quand même signalées."}
+                  ? "Actifs : tu reçois un email à chaque nouvelle demande."
+                  : "En pause : plus d'email. Les notifications, elles, continuent si l'interrupteur plus bas est actif — et les promotions sans délégué te sont signalées dans tous les cas."}
               </span>
             </span>
             <button className={`btn ${emailsAdmins ? "btn-nu" : "btn-or"}`}
               style={{ padding: "9px 15px", fontSize: 12.5 }}
-              onClick={basculerEmails} disabled={bascule}>
-              {bascule ? "…" : emailsAdmins ? "Mettre en pause" : "Réactiver"}
+              onClick={() => basculer(CLE_EMAILS, emailsAdmins, setEmailsAdmins)} disabled={Boolean(bascule)}>
+              {bascule === CLE_EMAILS ? "…" : emailsAdmins ? "Mettre en pause" : "Réactiver"}
             </button>
           </div>
           {/* le rappel appartient à l'interrupteur : il doit le suivre
               immédiatement, et non se retrouver en bas de la carte */}
           {!emailsAdmins && (
             <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
-              ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription.
+              ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription par email.
             </p>
           )}
         </div>
       )}
 
-      {/* Le test de notification est un autre sujet que les emails d'inscription :
-          sa propre carte, sinon son message semble commenter l'interrupteur. */}
+      {/* Notifications : l'interrupteur des notifications d'inscription, puis le
+          test de bout en bout. Séparé des emails depuis la migration 45 — lier
+          les deux revenait à retirer d'une main ce qu'on donnait de l'autre. */}
       <div className="carte-sombre" style={{ padding: 14, marginTop: 12, display: "grid", gap: 10 }}>
         <span style={{ fontSize: 13 }}>
           <b>Notifications</b>
-          <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
-            Vérifier que la chaîne complète fonctionne, de la base à ton téléphone.
-          </span>
+        </span>
+
+        {pushAdmins !== null && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                        borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>
+            <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
+              <b>Notifications d&apos;inscription aux admins</b>
+              <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
+                {pushAdmins
+                  ? "Actives : ton téléphone sonne à chaque nouvelle demande, même emails en pause."
+                  : "En pause : plus de notification d’inscription — les promotions sans délégué te sont quand même signalées."}
+              </span>
+            </span>
+            <button className={`btn ${pushAdmins ? "btn-nu" : "btn-or"}`}
+              style={{ padding: "9px 15px", fontSize: 12.5 }}
+              onClick={() => basculer(CLE_PUSH, pushAdmins, setPushAdmins)} disabled={Boolean(bascule)}>
+              {bascule === CLE_PUSH ? "…" : pushAdmins ? "Mettre en pause" : "Réactiver"}
+            </button>
+          </div>
+        )}
+
+        <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5,
+                       borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>
+          Vérifier que la chaîne complète fonctionne, de la base à ton téléphone.
         </span>
         <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
           onClick={async () => {

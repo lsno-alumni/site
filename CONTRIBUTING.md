@@ -135,6 +135,18 @@ Deux réflexes utiles :
     échec ici alors que la production est verte n'est donc pas un faux positif : c'est un
     avertissement pour la prochaine montée de version. C'est exactement ce qui a produit
     la migration 43.
+- **Un script de maintenance qui corrige des DONNéES bouscule `maj_le`.** Le déclencheur de
+  `profiles` écrit `maj_le := now()` à chaque `update`, y compris celui d'un nettoyage. Le
+  02/08, rogner les blancs de cinq conseils a fait passer ces cinq fiches pour « modifiées
+  aujourd'hui », alors que leurs auteurs n'avaient rien fait. Sans conséquence pour l'instant
+  — rien ne lit `profiles.maj_le` — mais c'est la colonne évidente pour un futur « mis à jour
+  récemment ». Avant un nettoyage de masse : soit l'assumer et le DIRE, soit préserver la
+  valeur (`alter table profiles disable trigger …` le temps de l'`update`, puis la réactiver).
+  Et toujours restreindre le `where` aux lignes qui changent vraiment, pour n'en toucher
+  aucune de plus.
+- **Un contrôle destiné à être LU tient en UNE instruction** : l'éditeur SQL de Supabase
+  n'affiche que le résultat de la dernière. Un script « avant / action / après » cache donc
+  ses deux contrôles (vécu le 02/08). Modèle : `supabase/verif-nettoyage.sql`.
 - ⚠️ **Vécu le 01/08, à ne pas revivre** : une migration contenant du **DDL**
   (`create table`, `alter table … add column`) a fait perdre au rôle `authenticated`
   ses privilèges sur des tables **déjà existantes**. Conséquence côté site : « Mon profil »

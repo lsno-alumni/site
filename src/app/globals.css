@@ -116,7 +116,12 @@ select.saisie { appearance: none; cursor: pointer; }
      direct : c'est un calque flou en mouvement qui avait corrompu le rendu
      GPU sur les Mali (Redmi/Tecno/Infinix), voir plus haut dans ce fichier */
   transform: translateY(0);
-  transition: transform .42s cubic-bezier(.22, 1, .36, 1);
+  /* ⚠ .22,1,.36,1 (essayé d'abord) est une courbe "easeOutQuint" : presque
+     tout le mouvement se joue dans les 150 premières millisecondes, d'où
+     l'impression de vitesse même en rallongeant la durée. Une courbe plus
+     régulière (accélère puis décélère en douceur, sans à-coup au départ)
+     rend le même déplacement bien plus lent à l'œil, à durée quasi égale. */
+  transition: transform .6s cubic-bezier(.4, 0, .2, 1);
 }
 .tabbar-cachee { transform: translateY(115%); }
 .tab {
@@ -137,7 +142,7 @@ select.saisie { appearance: none; cursor: pointer; }
      barre cachée, l'espace qu'elle occupait n'étant plus réclamé par rien.
      Même durée/allure que .tabbar-cachee : les deux bougent comme un seul
      mouvement. */
-  transition: padding-bottom .42s cubic-bezier(.22, 1, .36, 1);
+  transition: padding-bottom .6s cubic-bezier(.4, 0, .2, 1);
 }
 :root.tb-cachee .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 

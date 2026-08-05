@@ -23,8 +23,46 @@ const VALIDATION = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 // (pas de fuite entre utilisateurs, pas de décalage d'hydratation).
 let roleCache = null;
 
+// Cache/glisse au défilement, comme sur les réseaux sociaux : on descend dans
+// la page → elle se range en bas ; on remonte, même légèrement → elle revient.
+// Seul un `transform` bouge (jamais de flou/opacité en direct du défilement :
+// c'est CE calque qui avait corrompu le rendu GPU sur les Mali — voir le
+// commentaire de .tabbar dans globals.css). Toujours visible tout en haut de
+// la page, pour ne jamais donner l'impression qu'elle a disparu pour de bon.
+const SEUIL_HAUT = 40;   // px : zone où la barre reste toujours visible
+const SEUIL_GESTE = 6;   // px : ignore les tremblements, pas une vraie intention
+
+function useCacherAuDefilement() {
+  const [cachee, setCachee] = useState(false);
+
+  useEffect(() => {
+    let dernierY = window.scrollY;
+    let planifie = false;
+
+    const evaluer = () => {
+      planifie = false;
+      const y = window.scrollY;
+      const delta = y - dernierY;
+      if (y < SEUIL_HAUT) setCachee(false);
+      else if (delta > SEUIL_GESTE) setCachee(true);       // on descend
+      else if (delta < -SEUIL_GESTE) setCachee(false);      // on remonte
+      dernierY = y;
+    };
+    const auDefilement = () => {
+      if (planifie) return;
+      planifie = true;
+      requestAnimationFrame(evaluer);
+    };
+    window.addEventListener("scroll", auDefilement, { passive: true });
+    return () => window.removeEventListener("scroll", auDefilement);
+  }, []);
+
+  return cachee;
+}
+
 export default function TabBar({ actif }) {
   const [role, setRole] = useState(roleCache);
+  const cachee = useCacherAuDefilement();
 
   useEffect(() => {
     if (role) return; // rôle déjà connu (cache module) : rien à faire
@@ -51,7 +89,7 @@ export default function TabBar({ actif }) {
   const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;
 
   return (
-    <nav className="tabbar" aria-label="Navigation principale">
+    <nav className={`tabbar${cachee ? " tabbar-cachee" : ""}`} aria-label="Navigation principale">
       {onglets.map((o) => (
         <Link key={o.href} href={o.href} className={`tab${actif === o.nom ? " on" : ""}`}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />

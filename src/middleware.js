@@ -29,13 +29,37 @@ export async function middleware(req) {
   // réseau vers Supabase à chaque navigation. Sur mobile hésitant, l'ancien
   // getUser() expirait parfois et éjectait des membres pourtant connectés.
   let connecte = false;
+  let aal = null;
+  let utilisateurId = null;
   try {
     const { data } = await supabase.auth.getClaims();
     connecte = Boolean(data?.claims);
+    aal = data?.claims?.aal ?? null;      // "aal1" ou "aal2" — gratuit, dans le jeton
+    utilisateurId = data?.claims?.sub ?? null;
   } catch {
     // vérification impossible (réseau) : on laisse passer — la RLS de la
     // base reste le vrai gardien des données, le middleware n'est que l'UX.
     connecte = true;
+  }
+
+  // ⚠ Une session « aal1 » est une session VALIDE — mot de passe correct,
+  // cookies en règle — mais pour un compte qui a activé la double
+  // authentification, ce n'est que la MOITIÉ du parcours : le code n'a
+  // jamais été demandé. Sans cette vérification, quitter l'écran du code
+  // (bouton « retour », onglet fermé puis rouvert…) sans jamais le saisir
+  // suffisait à atterrir sur l'accueil connecté (signalé le 03/08, migration
+  // 46). double_auth_active vient de la base (une requête, seulement pour
+  // les sessions PAS encore à aal2 — la grande majorité des membres n'a pas
+  // activé la protection et n'atteindra jamais aal2, donc ce cas reste
+  // fréquent ; échec de la requête = on n'aggrave rien, RLS reste le vrai
+  // gardien des données comme au-dessus).
+  if (connecte && aal && aal !== "aal2" && utilisateurId) {
+    try {
+      const { data: profil } = await supabase
+        .from("profiles").select("role, double_auth_active")
+        .eq("id", utilisateurId).maybeSingle();
+      if (profil?.role !== "membre" && profil?.double_auth_active) connecte = false;
+    } catch { /* échec de la vérification : on ne bloque pas dessus */ }
   }
 
   const chemin = req.nextUrl.pathname;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -35,6 +35,18 @@ export default function Connexion() {
   const [essai, setEssai] = useState(0);
   // la vérification n'a pas abouti : on cesse de bloquer le bouton
   const [sansVerif, setSansVerif] = useState(false);
+
+  // Un compte protégé qui revient ici (bouton « retour » depuis l'écran du
+  // code, redirigé par le garde-fou du middleware, onglet rouvert…) a DÉJÀ
+  // une session valide au premier niveau : pas besoin de retaper le mot de
+  // passe, direct à l'écran du code.
+  useEffect(() => {
+    (async () => {
+      const supabase = creerClientNavigateur();
+      const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (data?.nextLevel === "aal2" && data.currentLevel !== "aal2") setCodeAttendu(true);
+    })();
+  }, []);
 
   const connecter = async (e) => {
     e.preventDefault();

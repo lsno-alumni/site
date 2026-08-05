@@ -9,11 +9,18 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 // dont la perte du mot de passe a des conséquences pour tout le réseau. Un
 // membre n'a rien à régler ici, son écran reste simple.
 //
-// ⚠ Portée exacte de ce qui est protégé : le site demande le code à la connexion
-// dès qu'un appareil est enrôlé. C'est la protection du parcours normal. Exiger
-// le code au niveau de la BASE (politiques RLS) est une étape distincte, à faire
-// séparément — sinon un mot de passe volé permettrait encore d'attaquer l'API
-// directement, sans passer par nos écrans.
+// ⚠ Portée exacte de ce qui est protégé (mise à jour 03/08, migration 46) :
+// le middleware ET la page d'accueil revérifient désormais, à CHAQUE
+// navigation, qu'un compte protégé a bien atteint le niveau « aal2 » — pas
+// seulement qu'une session existe. Avant cette migration, une session « aal1 »
+// (mot de passe correct, code jamais saisi) suffisait à voir l'accueil connecté
+// en quittant simplement l'écran du code (bouton retour). Reste HORS de cette
+// protection, volontairement : une attaque qui appelle l'API Supabase
+// DIRECTEMENT (sans jamais charger nos pages) avec un mot de passe volé — s'en
+// protéger demande d'exiger aal2 au niveau des politiques RLS elles-mêmes,
+// écarté le 02/08 comme un cran de sécurité supplémentaire, pas comme un
+// contournement pratique par un simple bouton du navigateur (celui-ci, lui,
+// est refermé).
 //
 // Comportement vérifié en réel (01/08, cycle complet joué contre l'API) :
 //   • connexion par mot de passe seul  → session de niveau « aal1 »

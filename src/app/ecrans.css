@@ -224,7 +224,16 @@
 }
 
 /* « Mon histoire » sur le profil consulté */
-.p-histoire { padding-bottom: 10px; }
+/* ⚠ sélecteur COMPOSÉ (.p-bloc.p-histoire), pas .p-histoire seul : la règle
+   .p-bloc plus bas dans ce fichier fixe aussi le padding-bottom (via son
+   raccourci `padding: 28px 22px 0`) à SPÉCIFICITÉ ÉGALE — en CSS, à égalité,
+   la règle la plus BASSE dans le fichier gagne, quel que soit l'ordre des
+   classes dans le HTML. .p-bloc étant plus bas, il écrasait silencieusement
+   ce padding-bottom à 0 — c'est ainsi que le bouton « Lire l'histoire » s'est
+   retrouvé collé au bloc Contact juste en dessous (repéré le 02/08). Deux
+   classes dans le sélecteur = plus specifique que .p-bloc, gagne TOUJOURS,
+   peu importe l'ordre dans le fichier. */
+.p-bloc.p-histoire { padding-bottom: 10px; }
 .p-histoire .recit {
   font-size: 13.5px; line-height: 1.7; color: var(--craie-2); white-space: pre-line;
   margin-bottom: 4px;

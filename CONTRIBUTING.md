@@ -93,6 +93,12 @@ Deux réflexes utiles :
 - **Pas de mise en cache du contenu** : ni côté client, ni dans le service worker. La
   fraîcheur des données prime (un membre validé doit apparaître immédiatement).
 
+## Sécurité : ce que le middleware vérifie vraiment (03/08)
+
+`signInWithPassword()` crée TOUJOURS une session valide (niveau « aal1 »), même quand un second facteur va être demandé — c'est ainsi que Supabase fonctionne, la vérification du code se fait SUR cette session. **Une session aal1 EST une session valide.** Toute vérification qui se contente de « existe-t-il une session ? » laisse donc passer un compte protégé qui n'a jamais saisi son code — c'est le bug fermé par la migration 46 (le bouton « retour » depuis l'écran du code suffisait à atterrir sur l'accueil connecté).
+
+**Règle à respecter dans tout nouveau point d'entrée** (nouvelle page publique dual-usage à la « / », nouvel appel direct à `getUser()`/`getClaims()`…) : ne jamais traiter « une session existe » comme équivalent à « ce membre est pleinement authentifié ». Vérifier en plus, pour les rôles delegue/admin, `profiles.double_auth_active` contre `aal` du jeton (`getClaims().data.claims.aal`, gratuit) — modèle dans `src/middleware.js` et `utilisateurCourant()` (`src/lib/api.js`).
+
 ## Pièges connus (tu gagneras du temps)
 
 **Base de données**

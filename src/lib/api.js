@@ -163,14 +163,27 @@ export async function statutDemande(cibleId) {
 
 export async function utilisateurCourant() {
   const supabase = await creerClientServeur();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  // getClaims (vérification locale du jeton) donne l'id ET le niveau « aal »
+  // sans appel séparé — c'est ce niveau qui manquait pour repérer un compte
+  // protégé qui n'a pas encore franchi son code cette session (migration 46).
+  const { data: jeton } = await supabase.auth.getClaims();
+  if (!jeton?.claims) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, promotions(numero)")
-    .eq("id", user.id)
+    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, double_auth_active, promotions(numero)")
+    .eq("id", jeton.claims.sub)
     .maybeSingle();
-  return data;
+  if (!data) return null;
+  // ⚠ « / » est volontairement une page PUBLIQUE (middleware) qui affiche en
+  // plus l'accueil membre si la session est valide — donc la protection du
+  // middleware (qui bloque les pages non publiques) ne s'y applique pas.
+  // Même règle appliquée ici : sans elle, quitter l'écran du code sans le
+  // saisir suffisait à voir l'accueil connecté (signalé le 03/08).
+  const { double_auth_active, ...profil } = data;
+  if (profil.role !== "membre" && double_auth_active && jeton.claims.aal !== "aal2") {
+    return null;
+  }
+  return profil;
 }
 
 // Tout ce qu'affiche l'accueil d'un membre connecté (chaque bloc est

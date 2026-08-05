@@ -113,6 +113,9 @@ with attendu(num, laisse, present) as (
   union all select 42, 'admin_retire_2fa() + table sante_fonctions_ouvertes',
     to_regclass('public.sante_fonctions_ouvertes') is not null
     and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'admin_retire_2fa')
+  union all select 48, 'controle_sante() donne un conseil par catégorie',
+    exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and p.proname = 'controle_sante' and p.prosrc like '%domaines%')
   union all select 47, 'fonction de déclencheur maj_double_auth_active() verrouillée',
     not has_function_privilege('authenticated', 'maj_double_auth_active()', 'execute')
   union all select 46, 'colonne profiles.double_auth_active tenue par déclencheur',

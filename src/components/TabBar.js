@@ -30,13 +30,15 @@ let roleCache = null;
 // commentaire de .tabbar dans globals.css). Toujours visible tout en haut de
 // la page, pour ne jamais donner l'impression qu'elle a disparu pour de bon.
 const SEUIL_HAUT = 40;      // px : zone où la barre reste toujours visible
-// ⚠ Seuils volontairement ASYMÉTRIQUES : se cacher doit demander un geste vers
-// le bas assez net (sinon un simple micro-mouvement de défilement continu la
-// faisait disparaître au bout d'une seule frame, ressenti comme trop nerveux) ;
-// revenir, au contraire, doit rester immédiat au moindre geste vers le haut —
-// c'est ce qui rend le mécanisme pratique à mi-page.
-const SEUIL_BAS = 24;       // px : pour SE CACHER (délibéré)
-const SEUIL_HAUT_GESTE = 6; // px : pour REVENIR (quasi instantané)
+// ⚠ Seuils volontairement ASYMÉTRIQUES, et calculés sur une distance CUMULÉE
+// (depuis le dernier changement de sens), pas sur la vitesse d'une seule frame.
+// Comparer deux frames consécutives revenait à mesurer la VITESSE : un
+// défilement LENT ne dépassait jamais le seuil, même après avoir parcouru
+// beaucoup de distance, et la barre ne se cachait alors jamais. En cumulant,
+// un défilement lent finit par franchir le seuil, exactement comme un
+// défilement rapide — seule la distance compte, pas l'allure du geste.
+const SEUIL_BAS = 28;       // px cumulés vers le bas : pour SE CACHER
+const SEUIL_HAUT_GESTE = 6; // px cumulés vers le haut : pour REVENIR (quasi instantané)
 
 // Classe posée sur <html> (pas seulement sur la barre) : la page réserve elle
 // aussi de la place pour la barre (.avec-tabbar), et cette place doit se
@@ -51,16 +53,24 @@ function useCacherAuDefilement() {
 
   useEffect(() => {
     let dernierY = window.scrollY;
+    let cumulBas = 0;   // distance parcourue vers le bas depuis la dernière remontée
     let planifie = false;
 
     const evaluer = () => {
       planifie = false;
       const y = window.scrollY;
       const delta = y - dernierY;
-      if (y < SEUIL_HAUT) setCachee(false);
-      else if (delta > SEUIL_BAS) setCachee(true);            // on descend, franchement
-      else if (delta < -SEUIL_HAUT_GESTE) setCachee(false);   // on remonte, même un peu
       dernierY = y;
+
+      if (y < SEUIL_HAUT) { setCachee(false); cumulBas = 0; return; }
+
+      if (delta > 0) {
+        cumulBas += delta;
+        if (cumulBas > SEUIL_BAS) setCachee(true);
+      } else if (delta < -SEUIL_HAUT_GESTE) {
+        cumulBas = 0;
+        setCachee(false);   // on remonte, même un peu
+      }
     };
     const auDefilement = () => {
       if (planifie) return;

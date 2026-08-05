@@ -116,7 +116,7 @@ select.saisie { appearance: none; cursor: pointer; }
      direct : c'est un calque flou en mouvement qui avait corrompu le rendu
      GPU sur les Mali (Redmi/Tecno/Infinix), voir plus haut dans ce fichier */
   transform: translateY(0);
-  transition: transform .28s cubic-bezier(.22, 1, .36, 1);
+  transition: transform .42s cubic-bezier(.22, 1, .36, 1);
 }
 .tabbar-cachee { transform: translateY(115%); }
 .tab {
@@ -130,7 +130,16 @@ select.saisie { appearance: none; cursor: pointer; }
 .menu-panneau a.dore svg { color: var(--or-clair); }
 .tab.on { color: var(--or-clair); }
 .tab.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--or); }
-.avec-tabbar { padding-bottom: 90px; }
+.avec-tabbar {
+  padding-bottom: 90px;
+  /* se resserre EN MÊME TEMPS que la barre se range (TabBar.js pose la classe
+     sur <html>) — sinon un grand vide reste en bas des pages une fois la
+     barre cachée, l'espace qu'elle occupait n'étant plus réclamé par rien.
+     Même durée/allure que .tabbar-cachee : les deux bougent comme un seul
+     mouvement. */
+  transition: padding-bottom .42s cubic-bezier(.22, 1, .36, 1);
+}
+:root.tb-cachee .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
 
 /* toast */
 .toast {

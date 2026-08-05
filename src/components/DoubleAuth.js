@@ -45,7 +45,7 @@ export default function DoubleAuth({ profil }) {
   };
 
   useEffect(() => {
-    if (privilege) relire();
+    if (privilege) relire(); // eslint-disable-line react-hooks/set-state-in-effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [privilege]);
 

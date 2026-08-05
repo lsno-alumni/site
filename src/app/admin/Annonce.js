@@ -27,7 +27,11 @@ export default function Annonce({ signale }) {
       .eq("statut_compte", "valide");
     setSuivi({ sujet: a.sujet, terminee: a.terminee, envoyes: envoyes ?? 0, total: total ?? 0 });
   };
-  useEffect(() => { chargerSuivi(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // chargerSuivi lit Supabase (aucune donnée dispo côté serveur ici) : l'effet
+  // est le seul moment où la faire — la règle voudrait un appel .then() ÉCRIT
+  // en clair dans l'effet, mais ça obligerait à dupliquer ces 3 requêtes au
+  // lieu de les partager avec le rappel après publication (plus bas).
+  useEffect(() => { chargerSuivi(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   const publier = async () => {
     if (!sujet.trim() || !corps.trim()) { signale("Sujet et message obligatoires."); return; }

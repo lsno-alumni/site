@@ -86,7 +86,10 @@ export function HistoriqueMembre({ profilId }) {
   const [ouvert, setOuvert] = useState(false);
   const [lignes, setLignes] = useState(null);
 
-  useEffect(() => { setOuvert(false); setLignes(null); }, [profilId]);
+  // ⚠ profilId identifie le membre affiché. Le parent pose `key={profilId}`
+  // sur ce composant (GestionMembre.js) : React le REMONTE entièrement au
+  // changement de membre, plutôt que de garder la même instance et de devoir
+  // réinitialiser son état à la main dans un effet.
 
   const basculer = async () => {
     if (ouvert) { setOuvert(false); return; }
@@ -152,7 +155,11 @@ export default function Journal() {
 
   const ouvrir = () => { setOuvert(true); charger(true); };
   const changerFiltre = (v) => { setFiltre(v); setLignes([]); setFini(false); };
-  useEffect(() => { if (ouvert) charger(true); // eslint-disable-next-line react-hooks/exhaustive-deps
+  // recharge au changement de filtre — charger() partage sa logique avec
+  // ouvrir(), l'écrire en clair ici la dupliquerait sans bénéfice réel
+  useEffect(() => {
+    if (ouvert) charger(true); // eslint-disable-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtre]);
 
   return (

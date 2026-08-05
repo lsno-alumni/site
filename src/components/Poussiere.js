@@ -8,7 +8,11 @@ export default function Poussiere() {
   const [grains, setGrains] = useState([]);
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setGrains(Array.from({ length: 10 }, (_, i) => ({
+    // Math.random() ici et nulle part ailleurs : appelé pendant le rendu
+    // serveur, il produirait des positions différentes à chaque requête,
+    // et le client hydraterait avec d'AUTRES valeurs que celles envoyées —
+    // décalage visible. L'effet reporte le calcul après l'hydratation.
+    setGrains(Array.from({ length: 10 }, (_, i) => ({ // eslint-disable-line react-hooks/set-state-in-effect
       id: i,
       gauche: Math.random() * 100,
       taille: 2 + Math.random() * 3,

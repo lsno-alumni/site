@@ -68,7 +68,9 @@ export default function Validation() {
     }
   };
 
-  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // charger() dépend du rôle du membre connu seulement après une 1re requête
+  // (délégué → + son propre compte) : la séquence appartient à l'effet.
+  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   const traiter = async (d, valide) => {
     const { error } = await supabase

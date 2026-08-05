@@ -92,8 +92,10 @@ export default function Offres() {
         .from("profiles").select("id, role, statut_compte").eq("id", user.id).maybeSingle();
       setMoi(p);
     }
-    // actives et non expirées (date limite future, ou moins de 60 jours)
-    const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
+    // actives et non expirées (date limite future, ou moins de 60 jours) —
+    // Date.now() pour un FILTRE de requête, pas pour du texte affiché : aucun
+    // souci de cohérence de rendu
+    const limite60 = new Date(Date.now() - 60 * 86400000).toISOString(); // eslint-disable-line react-hooks/purity
     const aujourdhui = new Date().toISOString().slice(0, 10);
     const { data } = await supabase
       .from("offres")
@@ -103,7 +105,7 @@ export default function Offres() {
       .order("cree_le", { ascending: false });
     setOffres(data ?? []);
   };
-  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   // lien de partage /offres/ID → arrivée sur #o-ID : défile et surligne l'offre
   useEffect(() => {

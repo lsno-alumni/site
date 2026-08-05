@@ -75,7 +75,16 @@ export default function MonProfil() {
   };
 
   const enregistrer = async () => {
-    const { id, promotions, statut_compte, photo_url, ...champs } = profil;
+    // push_* : Notifications.js les enregistre lui-même, DIRECTEMENT à chaque
+    // changement (comme photo_url via PhotoProfil). Les garder dans `profil`
+    // ici les rend disponibles au composant, mais ce bouton n'en envoie jamais
+    // la valeur : elle date du CHARGEMENT de la page, donc écraserait un choix
+    // que Notifications vient d'enregistrer avec la valeur d'AVANT ce choix.
+    // Bug vécu le 02/08 : choisir « Le réseau » puis cliquer Enregistrer
+    // ramenait l'ancienne portée dès qu'on quittait la page et qu'on revenait.
+    const { id, promotions, statut_compte, photo_url,
+            push_mes_demandes, push_reseau, push_offres, push_annonces, push_reseau_portee,
+            ...champs } = profil;
     // thème vide ou seulement des espaces (« Autre » non rempli) → Général (null)
     champs.conseil_theme = (champs.conseil_theme ?? "").trim() || null;
     // Les retours à la ligne À L'INTÉRIEUR du conseil et du récit sont voulus par

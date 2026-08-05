@@ -48,6 +48,10 @@ create trigger mfa_factors_maj_profil
   after insert or update or delete on auth.mfa_factors
   for each row execute function maj_double_auth_active();
 
+-- comme toute fonction de déclencheur du projet (journal_profil() et
+-- consorts, migration 36) : jamais exécutable directement
+revoke all on function maj_double_auth_active() from public, anon, authenticated;
+
 -- comptes déjà protégés aujourd'hui : sans ce rattrapage, leur colonne
 -- resterait « false » jusqu'au prochain changement d'appareil — soit
 -- exactement la faille qu'on ferme, pour eux spécifiquement

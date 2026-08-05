@@ -53,7 +53,14 @@ function useCacherAuDefilement() {
 
   useEffect(() => {
     let dernierY = window.scrollY;
-    let cumulBas = 0;   // distance parcourue vers le bas depuis la dernière remontée
+    // ⚠ MÊME piège des deux côtés : comparer une seule frame, c'est mesurer
+    // une vitesse. Le seuil de RETOUR avait la même faiblesse que celui de la
+    // mise en cache (corrigé avant) — un défilement lent vers le haut ne
+    // dépassait jamais 6px d'un coup, donc la barre ne revenait jamais. Les
+    // deux sens cumulent maintenant leur propre distance, remise à zéro dès
+    // que le sens s'inverse.
+    let cumulBas = 0;
+    let cumulHaut = 0;
     let planifie = false;
 
     const evaluer = () => {
@@ -62,14 +69,16 @@ function useCacherAuDefilement() {
       const delta = y - dernierY;
       dernierY = y;
 
-      if (y < SEUIL_HAUT) { setCachee(false); cumulBas = 0; return; }
+      if (y < SEUIL_HAUT) { setCachee(false); cumulBas = 0; cumulHaut = 0; return; }
 
       if (delta > 0) {
+        cumulHaut = 0;
         cumulBas += delta;
         if (cumulBas > SEUIL_BAS) setCachee(true);
-      } else if (delta < -SEUIL_HAUT_GESTE) {
+      } else if (delta < 0) {
         cumulBas = 0;
-        setCachee(false);   // on remonte, même un peu
+        cumulHaut += -delta;
+        if (cumulHaut > SEUIL_HAUT_GESTE) setCachee(false);
       }
     };
     const auDefilement = () => {

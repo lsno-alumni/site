@@ -49,9 +49,23 @@ export default function Notifications({ profil }) {
   const [appareils, setAppareils] = useState([]);   // tous les appareils abonnés
   const [ici, setIci] = useState(null);             // endpoint de CET appareil
 
+  // déplacée AVANT l'effet qui l'utilise : elle y était référencée avant
+  // d'être déclarée plus bas (sans risque réel, un effet s'exécute après que
+  // tout le corps du composant a fini de tourner — mais plus clair ainsi).
+  const chargerAppareils = async () => {
+    const { data } = await supabase
+      .from("push_abonnements").select("id, endpoint, appareil, cree_le")
+      .order("cree_le", { ascending: false });
+    setAppareils(data ?? []);
+    return data ?? [];
+  };
+
+  // pushDispo() lit navigator/window : indisponible au rendu serveur, d'où
+  // l'effet. Le reste (appareils, abonnement, préférences) en dépend en
+  // cascade — impossible à séparer sans casser l'ordre des vérifications.
   useEffect(() => {
     const dispo = pushDispo();
-    setPossible(dispo);
+    setPossible(dispo); // eslint-disable-line react-hooks/set-state-in-effect
     if (!dispo) return;
     (async () => {
       const liste = await chargerAppareils();
@@ -83,14 +97,6 @@ export default function Notifications({ profil }) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const chargerAppareils = async () => {
-    const { data } = await supabase
-      .from("push_abonnements").select("id, endpoint, appareil, cree_le")
-      .order("cree_le", { ascending: false });
-    setAppareils(data ?? []);
-    return data ?? [];
-  };
 
   // retire un appareil (le sien ou un autre, à distance)
   const retirer = async (a) => {

@@ -83,8 +83,10 @@ export function BlocInstallation() {
   const [tout, setTout] = useState(false);        // voir les autres appareils
   const [fait, setFait] = useState(false);
 
+  // dejaInstallee()/plateforme() lisent navigator/matchMedia : indisponibles
+  // au rendu serveur, d'où l'effet plutôt qu'un état initial calculé direct.
   useEffect(() => {
-    setInstallee(dejaInstallee());
+    setInstallee(dejaInstallee()); // eslint-disable-line react-hooks/set-state-in-effect
     setMode(plateforme());
     const t = setTimeout(() => setPrete(inviteDisponible()), 1500);
     return () => clearTimeout(t);

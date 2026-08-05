@@ -31,7 +31,9 @@ export default function Inscription() {
     try {
       const brouillon = JSON.parse(sessionStorage.getItem("inscription") ?? "null");
       if (brouillon) {
-        setForm((f) => ({ ...f, ...brouillon.form, motDePasse: "" }));
+        // sessionStorage n'existe pas côté serveur : lu ici pour ne jamais
+        // tenter cette lecture pendant le rendu serveur
+        setForm((f) => ({ ...f, ...brouillon.form, motDePasse: "" })); // eslint-disable-line react-hooks/set-state-in-effect
         // le mot de passe n'est jamais sauvegardé : retour à l'étape 1,
         // tout est prérempli, il n'y a que lui à retaper
       }

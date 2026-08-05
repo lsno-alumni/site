@@ -7,8 +7,12 @@ import { useEffect, useState } from "react";
 export default function Salutation({ prenom }) {
   const [mot, setMot] = useState("Bonjour");
   useEffect(() => {
+    // l'heure LOCALE de l'appareil : le serveur ne la connaît pas (autre
+    // fuseau), donc calculée après coup pour ne jamais dépendre du rendu
+    // serveur — sinon « Bonsoir » chez le membre pourrait s'afficher
+    // « Bonjour » un instant, le temps de l'hydratation.
     const h = new Date().getHours();
-    setMot(h >= 5 && h < 18 ? "Bonjour" : "Bonsoir");
+    setMot(h >= 5 && h < 18 ? "Bonjour" : "Bonsoir"); // eslint-disable-line react-hooks/set-state-in-effect
   }, []);
   return <>{mot}, <em>{prenom}</em> 👋</>;
 }

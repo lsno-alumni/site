@@ -302,7 +302,9 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             </button>
           </div>
 
-          <HistoriqueMembre profilId={choisi.id} />
+          {/* key=profilId : un vrai remontage à chaque membre choisi, plutôt
+              qu'un effet qui réinitialise l'état interne à la main */}
+          <HistoriqueMembre key={choisi.id} profilId={choisi.id} />
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid var(--ligne)", paddingTop: 12 }}>
             {choisi.statut_compte === "suspendu" ? (

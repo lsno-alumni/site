@@ -108,9 +108,11 @@ export default function TabBar({ actif }) {
   useEffect(() => {
     if (role) return; // rôle déjà connu (cache module) : rien à faire
     let vivant = true;
-    // secours immédiat depuis la session (rechargement dur) avant le réseau
+    // secours immédiat depuis la session (rechargement dur) avant le réseau ;
+    // sessionStorage n'existe pas côté serveur, d'où l'effet plutôt qu'un
+    // état initial calculé directement
     const cache = sessionStorage.getItem("lsno_role");
-    if (cache) { roleCache = cache; setRole(cache); }
+    if (cache) { roleCache = cache; setRole(cache); } // eslint-disable-line react-hooks/set-state-in-effect
     (async () => {
       const supabase = creerClientNavigateur();
       const { data: { user } } = await supabase.auth.getUser();

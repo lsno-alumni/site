@@ -321,32 +321,36 @@ export default function MonProfil() {
         </div>
 
         {profil.repond_cadets && (
-          <div className="champ">
-            <label>Sur quels sujets ? (8 max)</label>
-            <div className="sujets-choix">
-              {/* pastilles proposées + celles que le membre a créées */}
-              {[...SUJETS_CADETS, ...sujets.filter((s) => !SUJETS_CADETS.includes(s))].map((s) => (
-                <button key={s} type="button"
-                  className={`sujet-case${sujets.includes(s) ? " choisi" : ""}`}
-                  onClick={() => basculeSujet(s)} aria-pressed={sujets.includes(s)}>
-                  {s}
+          <details>
+            <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
+              Sur quels sujets ? (8 max)
+            </summary>
+            <div style={{ marginTop: 9 }}>
+              <div className="sujets-choix">
+                {/* pastilles proposées + celles que le membre a créées */}
+                {[...SUJETS_CADETS, ...sujets.filter((s) => !SUJETS_CADETS.includes(s))].map((s) => (
+                  <button key={s} type="button"
+                    className={`sujet-case${sujets.includes(s) ? " choisi" : ""}`}
+                    onClick={() => basculeSujet(s)} aria-pressed={sujets.includes(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <input className="saisie" style={{ flex: 1, padding: "10px 12px", fontSize: 13 }}
+                  placeholder="Ajouter mon propre sujet…" maxLength={40}
+                  value={sujetLibre} onChange={(e) => setSujetLibre(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); ajouteSujetLibre(); } }} />
+                <button type="button" className="btn btn-nu" style={{ padding: "10px 14px", fontSize: 13 }}
+                  onClick={ajouteSujetLibre}>
+                  Ajouter
                 </button>
-              ))}
+              </div>
+              <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
+                Affichés sur ton profil sous « Répond aux cadets » — ça aide à oser te contacter.
+              </p>
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <input className="saisie" style={{ flex: 1, padding: "10px 12px", fontSize: 13 }}
-                placeholder="Ajouter mon propre sujet…" maxLength={40}
-                value={sujetLibre} onChange={(e) => setSujetLibre(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); ajouteSujetLibre(); } }} />
-              <button type="button" className="btn btn-nu" style={{ padding: "10px 14px", fontSize: 13 }}
-                onClick={ajouteSujetLibre}>
-                Ajouter
-              </button>
-            </div>
-            <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
-              Affichés sur ton profil sous « Répond aux cadets » — ça aide à oser te contacter.
-            </p>
-          </div>
+          </details>
         )}
         </>)}
 

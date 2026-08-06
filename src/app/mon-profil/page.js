@@ -309,6 +309,7 @@ export default function MonProfil() {
         </div>
 
         {!estEleve && (<>
+        <div style={{ display: "grid", gap: 10 }}>
         <div className="e-ligne">
           <span className="ico"><Handshake size={16} strokeWidth={1.8} aria-hidden /></span>
           <span className="val">Je réponds aux cadets</span>
@@ -321,7 +322,7 @@ export default function MonProfil() {
         </div>
 
         {profil.repond_cadets && (
-          <details>
+          <details style={{ marginLeft: 14, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
             <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
               Sur quels sujets ? (8 max)
             </summary>
@@ -352,6 +353,7 @@ export default function MonProfil() {
             </div>
           </details>
         )}
+        </div>
         </>)}
 
         <div className="champ">

@@ -261,7 +261,7 @@ export default function MonProfil() {
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
           {(profil.conseil ?? "").trim() && (
-            <div style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, paddingTop: 10 }}>
+            <div style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, marginTop: -16, paddingTop: 26 }}>
               <label htmlFor="conseil-theme" style={{ fontSize: 12.5, color: "var(--brume)", display: "block", marginBottom: 6 }}>
                 Sur quoi porte ton conseil ?
               </label>
@@ -322,7 +322,7 @@ export default function MonProfil() {
         </div>
 
         {profil.repond_cadets && (
-          <details style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, paddingTop: 10 }}>
+          <details style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, marginTop: -16, paddingTop: 26 }}>
             <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
               Sur quels sujets ? (8 max)
             </summary>

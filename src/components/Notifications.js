@@ -210,7 +210,10 @@ export default function Notifications({ profil }) {
           )}
 
           {actif && prefs && (
-            <div className="e-visi">
+            <details className="e-visi">
+              <summary style={{ cursor: "pointer", fontSize: 12.5, color: "var(--brume)" }}>
+                Personnaliser mes notifications
+              </summary>
               {FAMILLES.map((f) => (
                 <div key={f.cle} className="e-ligne">
                   <span className="val">
@@ -246,7 +249,7 @@ export default function Notifications({ profil }) {
                   )}
                 </div>
               ))}
-            </div>
+            </details>
           )}
         </>
       )}

@@ -261,9 +261,9 @@ export default function MonProfil() {
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
           {(profil.conseil ?? "").trim() && (
-            <div style={{ marginTop: 10 }}>
+            <div style={{ marginTop: 10, marginLeft: 14, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
               <label htmlFor="conseil-theme" style={{ fontSize: 12.5, color: "var(--brume)", display: "block", marginBottom: 6 }}>
-                Sur quoi porte ton conseil ? (aide les cadets à le retrouver)
+                Sur quoi porte ton conseil ?
               </label>
               <select id="conseil-theme" className="saisie"
                 value={THEMES_CONSEIL.includes(profil.conseil_theme) ? profil.conseil_theme : (profil.conseil_theme ? "__autre__" : "")}

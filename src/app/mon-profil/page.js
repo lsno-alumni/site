@@ -396,9 +396,7 @@ export default function MonProfil() {
         <div className="grande-partie">
           <Notifications profil={profil} />
         </div>
-        <div className="grande-partie">
-          <DoubleAuth profil={profil} />
-        </div>
+        <DoubleAuth profil={profil} />
 
         <div className="grande-partie" style={{ display: "grid", gap: 18 }}>
           <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>

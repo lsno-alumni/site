@@ -409,7 +409,7 @@
 /* marque le début d'une grande partie du formulaire (Mon profil) : un simple
    gap:18 uniforme ne distinguait pas une nouvelle section d'un champ suivant
    dans la même section — le trait + l'espace en plus rendent la coupure visible */
-.grande-partie { padding-top: 22px; border-top: 1px solid rgba(147,165,192,.08); }
+.grande-partie { padding-top: 22px; border-top: 1px solid rgba(147,165,192,.5); }
 
 .promos {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px;

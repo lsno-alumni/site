@@ -356,38 +356,42 @@ export default function MonProfil() {
         </div>
         </>)}
 
-        <div className="champ">
-          <label>Mes contacts — et qui peut les voir</label>
-          <div className="e-visi">
-            {CONTACTS.map((c) => (
-              <div key={c.cle} className="e-ligne" style={{ rowGap: 8 }}>
-                <span className="ico"><c.Ico size={16} aria-hidden /></span>
-                <input
-                  className="saisie"
-                  style={{ flex: 1, minWidth: 140, padding: "10px 12px", fontSize: 13 }}
-                  placeholder={c.exemple}
-                  aria-label={c.nom}
-                  value={profil[c.valeur] ?? ""}
-                  onChange={majChamp(c.valeur)}
-                />
-                <div className="seg" role="radiogroup" aria-label={`Visibilité ${c.nom}`}>
-                  {VISIBILITES.map((v) => (
-                    <button key={v.cle}
-                      className={profil[c.cle] === v.cle ? "on" : ""}
-                      onClick={() => setProfil({ ...profil, [c.cle]: v.cle })}
-                      role="radio" aria-checked={profil[c.cle] === v.cle}>
-                      {v.nom}
-                    </button>
-                  ))}
+        <details>
+          <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
+            Mes contacts — et qui peut les voir
+          </summary>
+          <div style={{ marginTop: 9 }}>
+            <div className="e-visi">
+              {CONTACTS.map((c) => (
+                <div key={c.cle} className="e-ligne" style={{ rowGap: 8 }}>
+                  <span className="ico"><c.Ico size={16} aria-hidden /></span>
+                  <input
+                    className="saisie"
+                    style={{ flex: 1, minWidth: 140, padding: "10px 12px", fontSize: 13 }}
+                    placeholder={c.exemple}
+                    aria-label={c.nom}
+                    value={profil[c.valeur] ?? ""}
+                    onChange={majChamp(c.valeur)}
+                  />
+                  <div className="seg" role="radiogroup" aria-label={`Visibilité ${c.nom}`}>
+                    {VISIBILITES.map((v) => (
+                      <button key={v.cle}
+                        className={profil[c.cle] === v.cle ? "on" : ""}
+                        onClick={() => setProfil({ ...profil, [c.cle]: v.cle })}
+                        role="radio" aria-checked={profil[c.cle] === v.cle}>
+                        {v.nom}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
+              « Membres » : cliquable par les membres validés · « Demande » : ils voient que le
+              contact existe, pas sa valeur · « Masqué » : invisible.
+            </p>
           </div>
-          <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
-            « Membres » : cliquable par les membres validés · « Demande » : ils voient que le
-            contact existe, pas sa valeur · « Masqué » : invisible.
-          </p>
-        </div>
+        </details>
 
         <Notifications profil={profil} />
         <DoubleAuth profil={profil} />

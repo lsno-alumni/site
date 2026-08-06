@@ -687,33 +687,6 @@
 }
 .visionneuse-fermer:hover { background: rgba(245,241,232,.2); }
 
-/* feuille glissante (aperçu de profil depuis l'annuaire, façon LinkedIn) —
-   PAS de flou/transparence en mouvement sur la liste derrière : le défilement
-   est bloqué tant que la feuille est ouverte (même précaution que la tabbar,
-   qui avait corrompu le rendu GPU sur Mali quand une couche translucide
-   bougeait PENDANT qu'une liste défilait) */
-.fg-scrim {
-  position: fixed; inset: 0; z-index: 150;
-  background: rgba(5,13,27,.6);
-  animation: vis-fondu .2s ease both;
-}
-.fg-feuille {
-  position: fixed; left: 0; right: 0; bottom: 0; height: 100dvh;
-  background: var(--encre-2); border-radius: 22px 22px 0 0;
-  box-shadow: 0 -20px 50px -10px rgba(0,0,0,.5);
-  transform: translateY(100%);
-  transition: transform .32s cubic-bezier(.32,.72,0,1);
-  max-width: 480px; margin: 0 auto;
-}
-.fg-poignee { display: flex; justify-content: center; padding: 10px 0 4px; cursor: grab; touch-action: none; }
-.fg-poignee i { width: 36px; height: 4px; border-radius: 100px; background: rgba(245,241,232,.28); display: block; }
-.fg-fermer {
-  position: absolute; top: 10px; right: 12px; width: 34px; height: 34px; border-radius: 50%;
-  background: rgba(245,241,232,.08); border: none; color: var(--brume); cursor: pointer;
-  display: grid; place-items: center;
-}
-.fg-contenu { height: 100%; padding-bottom: 30px; }
-
 /* ============================================================
    CARROUSEL 3D « coverflow » (page À propos)
    ============================================================ */

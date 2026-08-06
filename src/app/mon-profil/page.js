@@ -261,7 +261,7 @@ export default function MonProfil() {
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
           {(profil.conseil ?? "").trim() && (
-            <div style={{ marginTop: 10, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
+            <div style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, paddingTop: 10 }}>
               <label htmlFor="conseil-theme" style={{ fontSize: 12.5, color: "var(--brume)", display: "block", marginBottom: 6 }}>
                 Sur quoi porte ton conseil ?
               </label>
@@ -309,7 +309,7 @@ export default function MonProfil() {
         </div>
 
         {!estEleve && (<>
-        <div className="grande-partie" style={{ display: "grid", gap: 10 }}>
+        <div className="grande-partie" style={{ display: "grid" }}>
         <div className="e-ligne">
           <span className="ico"><Handshake size={16} strokeWidth={1.8} aria-hidden /></span>
           <span className="val">Je réponds aux cadets</span>
@@ -322,11 +322,11 @@ export default function MonProfil() {
         </div>
 
         {profil.repond_cadets && (
-          <details>
+          <details style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, paddingTop: 10 }}>
             <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
               Sur quels sujets ? (8 max)
             </summary>
-            <div style={{ marginTop: 9, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
+            <div style={{ marginTop: 9 }}>
               <div className="sujets-choix">
                 {/* pastilles proposées + celles que le membre a créées */}
                 {[...SUJETS_CADETS, ...sujets.filter((s) => !SUJETS_CADETS.includes(s))].map((s) => (

@@ -322,11 +322,11 @@ export default function MonProfil() {
         </div>
 
         {profil.repond_cadets && (
-          <details style={{ marginLeft: 14, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
+          <details>
             <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
               Sur quels sujets ? (8 max)
             </summary>
-            <div style={{ marginTop: 9 }}>
+            <div style={{ marginTop: 9, borderLeft: "1px solid var(--ligne)", paddingLeft: 12 }}>
               <div className="sujets-choix">
                 {/* pastilles proposées + celles que le membre a créées */}
                 {[...SUJETS_CADETS, ...sujets.filter((s) => !SUJETS_CADETS.includes(s))].map((s) => (

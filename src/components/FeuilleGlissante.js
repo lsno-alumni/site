@@ -13,7 +13,7 @@ import { X } from "lucide-react";
 // translucide qui bouge PENDANT qu'une liste défile, cf. mémoire du projet).
 const PEEK = 0.55; // fraction de l'écran occupée à l'ouverture
 
-export default function FeuilleGlissante({ enfant, onFermer }) {
+export default function FeuilleGlissante({ children, onFermer }) {
   const [etat, setEtat] = useState("peek"); // peek | plein | ferme
   const feuilleRef = useRef(null);
   const contenuRef = useRef(null);
@@ -126,7 +126,7 @@ export default function FeuilleGlissante({ enfant, onFermer }) {
           <X size={20} aria-hidden />
         </button>
         <div ref={contenuRef} className="fg-contenu" style={{ overflowY: etat === "plein" ? "auto" : "hidden" }}>
-          {enfant}
+          {children}
         </div>
       </div>
     </div>

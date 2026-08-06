@@ -256,7 +256,7 @@ export default function MonProfil() {
         </div>
 
         {!estEleve && (
-        <div className="champ">
+        <div className="champ grande-partie">
           <label htmlFor="conseil">Mon conseil aux cadets</label>
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
@@ -290,7 +290,7 @@ export default function MonProfil() {
 
         )}
 
-        <div className="champ">
+        <div className={`champ${estEleve ? " grande-partie" : ""}`}>
           <label htmlFor="histoire">Mon histoire (optionnel)</label>
           <textarea id="histoire" className="saisie" rows={6} maxLength={2000}
             placeholder="Raconte ton chemin depuis le LSNO : les choix, les doutes, les déclics… Ce qui pourrait inspirer un cadet ou un jeune ancien."
@@ -309,7 +309,7 @@ export default function MonProfil() {
         </div>
 
         {!estEleve && (<>
-        <div style={{ display: "grid", gap: 10 }}>
+        <div className="grande-partie" style={{ display: "grid", gap: 10 }}>
         <div className="e-ligne">
           <span className="ico"><Handshake size={16} strokeWidth={1.8} aria-hidden /></span>
           <span className="val">Je réponds aux cadets</span>
@@ -356,7 +356,7 @@ export default function MonProfil() {
         </div>
         </>)}
 
-        <details>
+        <details className="grande-partie">
           <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
             Mes contacts — et qui peut les voir
           </summary>
@@ -393,17 +393,23 @@ export default function MonProfil() {
           </div>
         </details>
 
-        <Notifications profil={profil} />
-        <DoubleAuth profil={profil} />
+        <div className="grande-partie">
+          <Notifications profil={profil} />
+        </div>
+        <div className="grande-partie">
+          <DoubleAuth profil={profil} />
+        </div>
 
-        <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>
-        <Link href="/mot-de-passe/nouveau" className="btn btn-nu btn-bloc">
-          Changer mon mot de passe
-        </Link>
-        <button className="btn btn-nu btn-bloc" onClick={deconnecter}>Se déconnecter</button>
-        <button className="e-danger" onClick={supprimerCompte}>
-          Supprimer mon compte et mes données
-        </button>
+        <div className="grande-partie" style={{ display: "grid", gap: 18 }}>
+          <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>
+          <Link href="/mot-de-passe/nouveau" className="btn btn-nu btn-bloc">
+            Changer mon mot de passe
+          </Link>
+          <button className="btn btn-nu btn-bloc" onClick={deconnecter}>Se déconnecter</button>
+          <button className="e-danger" onClick={supprimerCompte}>
+            Supprimer mon compte et mes données
+          </button>
+        </div>
       </div>
 
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>

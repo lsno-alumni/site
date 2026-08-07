@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
@@ -20,6 +20,14 @@ export default function Annuaire({ membres }) {
   const routeur = useRouter();
   const params = useSearchParams();
   const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
+  // Cache Components garde cette page en mémoire au lieu de la détruire :
+  // revenir depuis un AUTRE onglet ne remonte plus le composant, donc le
+  // filtre choisi reste affiché — voulu pour un choix fait ICI. Mais un
+  // domaine arrivé par un lien EXTERNE (roue de l'accueil) ne doit pas
+  // rester accroché indéfiniment : cette ref ne dit vrai qu'au tout premier
+  // montage de l'instance (jamais réévaluée par la suite, contrairement à un
+  // état) et se referme dès qu'on choisit un filtre ici même.
+  const domaineVenuDAilleurs = useRef(params.get("domaine") != null);
   const [promo, setPromo] = useState(params.get("promo") ?? "");
   const [pays, setPays] = useState(params.get("pays") ?? "");
   const [situation, setSituation] = useState(params.get("situation") ?? "");
@@ -43,6 +51,18 @@ export default function Annuaire({ membres }) {
     // Next.js, qui y garde la position de défilement pour le retour arrière.
     window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
+
+  // Se déclenche au tout premier montage ET chaque fois qu'on revient sur
+  // cette page depuis ailleurs (Cache Components recrée les effets à la
+  // réactivation, même sans démonter le composant) — jamais pendant qu'on
+  // reste dessus à changer de filtre.
+  useEffect(() => {
+    if (domaineVenuDAilleurs.current && params.get("domaine") == null) {
+      setDomaine("tous");
+      domaineVenuDAilleurs.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const resultats = useMemo(() => {
     const t = plat(q.trim());
@@ -122,7 +142,7 @@ export default function Annuaire({ membres }) {
           <button
             key={f.cle}
             className={`puce${domaine === f.cle ? " active" : ""}`}
-            onClick={() => setDomaine(f.cle)}
+            onClick={() => { domaineVenuDAilleurs.current = false; setDomaine(f.cle); }}
           >
             {f.nom}
           </button>

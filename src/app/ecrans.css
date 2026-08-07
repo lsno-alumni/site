@@ -332,10 +332,19 @@
   pointer-events: none; display: flex; align-items: flex-end; justify-content: center;
   padding-bottom: 4px;
 }
+/* pastille circulaire bleuâtre plutôt qu'une flèche nue : sur une couverture
+   claire ou du texte, une icône blanche seule se fondait dans le fond. Le
+   disque est opaque et se voit partout ; grossit avec le tirage (JS pose le
+   scale en ligne, la transition CSS ne reprend qu'au retour/lâcher). */
 .gr-icone {
-  opacity: 0; transform: translateY(-6px); color: var(--craie);
-  transition: opacity .2s, transform .2s;
+  opacity: 0; transform: translateY(-6px) scale(.55); color: #fff;
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(30, 58, 98, 1);
+  box-shadow: 0 8px 18px -6px rgba(20, 60, 150, .65), inset 0 0 0 1px rgba(255,255,255,.12);
+  transition: opacity .2s, transform .2s, background .2s;
 }
+.gr-icone.pret { background: rgba(30, 58, 98, 1); }
 .gr-tourne { animation: gr-rotation .8s linear infinite; }
 @keyframes gr-rotation { to { transform: rotate(360deg); } }
 /* portion d'un résultat qui correspond à la recherche en cours */

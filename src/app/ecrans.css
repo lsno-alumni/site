@@ -164,11 +164,13 @@
 }
 .am-conseil-photo { width: 42px !important; height: 42px !important; border-radius: 50%; object-fit: cover; font-size: 13px; display: grid; place-items: center; }
 
-/* réseau par promotion — médaillons, pas de barres */
-.am-promos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+/* réseau par promotion — médaillons, pas de barres. Grille à colonnes
+   ÉGALES (pas flex-wrap : chaque carte se dimensionnait alors selon son
+   propre texte — « 53 membres » plus large que « 1 membre » — inégal) */
+.am-promos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
 .am-promo {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  min-width: 86px; padding: 13px 14px 11px;
+  padding: 13px 14px 11px;
   background: var(--carte); border: 1px solid var(--ligne); border-radius: 18px;
   transition: border-color .25s, transform .25s;
 }
@@ -318,11 +320,17 @@
 .n-hasard:disabled { opacity: .35; cursor: default; }
 
 /* glisser pour rafraîchir : indicateur qui grandit avec le tirage,
-   hauteur/opacité posées en ligne (imperatif, pas de re-rendu par pixel) */
+   hauteur/opacité posées en ligne (imperatif, pas de re-rendu par pixel).
+   Hauteur de repos RÉELLE (18px, pas 0) : c'est une vraie zone tactile —
+   touch-action:none STATIQUE dit au navigateur, avant même que le doigt ne
+   bouge, de nous laisser le geste plutôt que de le traiter lui-même. Posé
+   après coup (JS, preventDefault) sur un élément à hauteur 0, ça arrivait
+   trop tard ET rien n'était réellement là à toucher. */
 .gr-indicateur {
-  position: relative; z-index: 5; height: 0; opacity: 0; overflow: hidden;
+  position: relative; z-index: 5; height: 18px; opacity: 0; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
   color: var(--craie); transition: height .25s, opacity .2s;
+  touch-action: none;
 }
 .gr-tourne { animation: gr-rotation .8s linear infinite; }
 @keyframes gr-rotation { to { transform: rotate(360deg); } }

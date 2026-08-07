@@ -2,9 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
+import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
+import Surligne, { plat } from "@/components/Surligne";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, LISTE_PAYS, nomPays } from "@/lib/donnees";
@@ -45,6 +47,7 @@ export default function Offres() {
   const [type, setType] = useState("tous");
   const [domaine, setDomaine] = useState("");
   const [triLimite, setTriLimite] = useState(false); // date limite la plus proche d'abord
+  const [q, setQ] = useState("");
   const [formulaire, setFormulaire] = useState(false);
   const [edition, setEdition] = useState(null); // id de l'offre en cours de modification
   const [depliees, setDepliees] = useState({}); // id -> description dépliée
@@ -133,9 +136,13 @@ export default function Offres() {
   };
 
   const visibles = useMemo(() => {
-    const liste = (offres ?? []).filter((o) =>
-      (type === "tous" || o.type === type) && (!domaine || o.domaine === domaine)
-    );
+    const t = plat(q.trim());
+    const liste = (offres ?? []).filter((o) => {
+      if (type !== "tous" && o.type !== type) return false;
+      if (domaine && o.domaine !== domaine) return false;
+      if (t && !plat(`${o.titre} ${o.description} ${DOMAINES.find((d) => d.cle === o.domaine)?.nom ?? ""}`).includes(t)) return false;
+      return true;
+    });
     if (triLimite) {
       // échéance la plus proche d'abord ; les offres sans date limite à la fin
       return [...liste].sort((a, b) =>
@@ -144,7 +151,7 @@ export default function Offres() {
       );
     }
     return liste; // plus récentes d'abord (ordre de la requête)
-  }, [offres, type, domaine, triLimite]);
+  }, [offres, type, domaine, triLimite, q]);
 
   const publier = async () => {
     if (!form.titre.trim() || !form.description.trim()) {
@@ -228,6 +235,7 @@ export default function Offres() {
   };
 
   return (
+    <GlisserRafraichir onRafraichir={charger}>
     <>
       <header className="n-tete tete-eleves">
         <h1>Offres &amp; opportunités</h1>
@@ -238,6 +246,16 @@ export default function Offres() {
             <Plus size={15} aria-hidden /> Proposer une offre
           </button>
         )}
+        <div className="n-cherche">
+          <Search size={16} strokeWidth={1.8} aria-hidden style={{ color: "var(--brume)", flexShrink: 0 }} />
+          <input
+            type="search"
+            placeholder="Titre, description, domaine…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            aria-label="Rechercher une offre"
+          />
+        </div>
       </header>
 
       {formulaire && (
@@ -376,9 +394,9 @@ export default function Offres() {
                     </span>
                   )}
                 </div>
-                <b style={{ fontSize: 15, lineHeight: 1.3, display: "block" }}>{o.titre}</b>
+                <b style={{ fontSize: 15, lineHeight: 1.3, display: "block" }}><Surligne texte={o.titre} terme={q} /></b>
                 <p className={`offre-desc${depliees[o.id] ? " ouverte" : ""}`}>
-                  {o.description}
+                  <Surligne texte={o.description} terme={q} />
                 </p>
                 {o.description.length > 120 && (
                   <button
@@ -463,5 +481,6 @@ export default function Offres() {
       <RestaurerDefilement />
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
     </>
+    </GlisserRafraichir>
   );
 }

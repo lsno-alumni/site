@@ -77,6 +77,7 @@
   border: 1px solid var(--ligne); transition: transform .3s, border-color .3s; cursor: pointer;
 }
 .dom:hover { transform: translateX(5px); border-color: rgba(232,179,60,.45); }
+.dom:active { transform: scale(.98); transition: transform .1s; }
 .dom .pictol {
   width: 46px; height: 46px; border-radius: 16px; display: grid; place-items: center;
   background: radial-gradient(120% 120% at 30% 20%, rgba(232,179,60,.28), rgba(232,179,60,.07));
@@ -308,6 +309,25 @@
   font-family: inherit; font-size: 14px; padding: 15px 0;
 }
 .n-cherche input::placeholder { color: var(--brume); }
+.n-hasard {
+  background: none; border: none; color: var(--brume); cursor: pointer;
+  padding: 8px; margin: 0 -6px 0 2px; border-radius: 10px; flex-shrink: 0;
+  display: grid; place-items: center; transition: color .2s, background .2s;
+}
+.n-hasard:hover { color: var(--or-clair); background: rgba(232,179,60,.1); }
+.n-hasard:disabled { opacity: .35; cursor: default; }
+
+/* glisser pour rafraîchir : indicateur qui grandit avec le tirage,
+   hauteur/opacité posées en ligne (imperatif, pas de re-rendu par pixel) */
+.gr-indicateur {
+  position: relative; z-index: 5; height: 0; opacity: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--craie); transition: height .25s, opacity .2s;
+}
+.gr-tourne { animation: gr-rotation .8s linear infinite; }
+@keyframes gr-rotation { to { transform: rotate(360deg); } }
+/* portion d'un résultat qui correspond à la recherche en cours */
+.n-surligne { background: rgba(232,179,60,.22); color: var(--or-clair); border-radius: 3px; }
 .n-filtres {
   display: flex; gap: 8px; padding: 14px 22px; overflow-x: auto; scrollbar-width: none;
   position: sticky; top: 0; z-index: 20;
@@ -329,6 +349,9 @@
   transition: transform .3s, border-color .3s, box-shadow .3s; cursor: pointer; display: block;
 }
 .fiche:hover { transform: translateY(-3px); border-color: rgba(232,179,60,.4); box-shadow: 0 18px 40px -18px rgba(0,0,0,.6); }
+/* retour de pression au tap — pas sur .demande (carte d'offre, pas cliquable
+   dans son ensemble : seuls des liens/boutons à l'intérieur le sont) */
+.fiche:not(.demande):active { transform: scale(.98); transition: transform .1s; }
 .fiche .haut { display: flex; gap: 13px; padding: 15px 16px 12px; align-items: center; }
 .fiche .haut > div { flex: 1; min-width: 0; }
 /* taille verrouillée : un nom long ne peut plus écraser l'avatar */

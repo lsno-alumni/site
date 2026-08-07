@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
-import { Search, BadgeCheck, Lightbulb, ArrowRight } from "lucide-react";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
+import Surligne, { plat } from "@/components/Surligne";
+import { Search, BadgeCheck, Lightbulb, ArrowRight, Shuffle } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
@@ -15,6 +17,7 @@ const FILTRES_DOMAINE = [
 ];
 
 export default function Annuaire({ membres }) {
+  const routeur = useRouter();
   const params = useSearchParams();
   const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
   const [promo, setPromo] = useState(params.get("promo") ?? "");
@@ -41,10 +44,6 @@ export default function Annuaire({ membres }) {
     window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
 
-
-  // recherche qui pardonne : minuscules ET sans accents (« economie » trouve « Économie »)
-  const plat = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
   const resultats = useMemo(() => {
     const t = plat(q.trim());
     return membres.filter((m) => {
@@ -70,7 +69,25 @@ export default function Annuaire({ membres }) {
 
   const raz = () => { setDomaine("tous"); setPromo(""); setPays(""); setSituation(""); setQ(""); };
 
+  // ouvre le profil d'un membre pris au hasard PARMI LES RÉSULTATS actuels
+  // (respecte les filtres/la recherche en cours) — depuis l'annuaire, ce
+  // lien est intercepté et s'ouvre en feuille, comme n'importe quelle fiche
+  const verHasard = () => {
+    if (resultats.length === 0) return;
+    const m = resultats[Math.floor(Math.random() * resultats.length)];
+    routeur.push(`/profil/${m.id}`);
+  };
+
+  // recharge la liste depuis le serveur (nouveaux membres, changements de
+  // profil…) ; un délai minimum garde l'indicateur visible un instant même
+  // si la réponse arrive très vite, pour que le geste se sente confirmé
+  const rafraichir = () => {
+    routeur.refresh();
+    return new Promise((r) => setTimeout(r, 600));
+  };
+
   return (
+    <GlisserRafraichir onRafraichir={rafraichir}>
     <>
       <header className="n-tete">
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
@@ -93,6 +110,10 @@ export default function Annuaire({ membres }) {
             onChange={(e) => setQ(e.target.value)}
             aria-label="Rechercher un ancien"
           />
+          <button type="button" className="n-hasard" onClick={verHasard}
+            disabled={resultats.length === 0} aria-label="Découvrir un profil au hasard">
+            <Shuffle size={16} strokeWidth={1.8} aria-hidden />
+          </button>
         </div>
       </header>
 
@@ -138,18 +159,18 @@ export default function Annuaire({ membres }) {
             <div className="haut">
               <Avatar profil={m} className="init" />
               <div>
-                <b>{m.prenom} {m.nom}</b>
-                <div className="role">{m.statut}</div>
+                <b><Surligne texte={`${m.prenom} ${m.nom}`} terme={q} /></b>
+                <div className="role"><Surligne texte={m.statut} terme={q} /></div>
               </div>
             </div>
             <div className="pied">
               <span className="promo">Promo {m.promotion}</span>
               <span className="sep">·</span>
               <span>
-                {PAYS[m.pays] && <img className="drapo" src={PAYS[m.pays].drapeau} alt="" />} {m.ville}
+                {PAYS[m.pays] && <img className="drapo" src={PAYS[m.pays].drapeau} alt="" />} <Surligne texte={m.ville} terme={q} />
               </span>
               <span className="sep">·</span>
-              <span>{nomDomaine(m.domaine, m.domainePrecision, true)}</span>
+              <span><Surligne texte={nomDomaine(m.domaine, m.domainePrecision, true)} terme={q} /></span>
               {m.repondAuxCadets && (
                 <span className="dispo">
                   <BadgeCheck size={13} strokeWidth={2} aria-hidden /> répond
@@ -171,5 +192,6 @@ export default function Annuaire({ membres }) {
       </div>
       <RestaurerDefilement />
     </>
+    </GlisserRafraichir>
   );
 }

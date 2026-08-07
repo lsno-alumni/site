@@ -5,6 +5,8 @@ import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
 import { Lock } from "lucide-react";
 import { SqueletteEnTeteListe, SqueletteFiche } from "@/components/Squelettes";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
+import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import Sauvegarde from "./Sauvegarde";
@@ -95,7 +97,7 @@ export default function Validation() {
     .sort((a, b) => a - b);
 
   const membresFiltres = membres
-    .filter((m) => `${m.prenom} ${m.nom}`.toLowerCase().includes(rechercheRole.trim().toLowerCase()))
+    .filter((m) => plat(`${m.prenom} ${m.nom}`).includes(plat(rechercheRole.trim())))
     .filter((m) => !promoRole || String(m.promotions?.numero) === promoRole)
     .sort((a, b) =>
       triPromo
@@ -151,6 +153,7 @@ export default function Validation() {
   }
 
   return (
+    <GlisserRafraichir onRafraichir={charger}>
     <main className="page avec-tabbar">
       {/* hors de l'en-tête : ses fonds photo rognent tout débord (le panneau était coupé) */}
       {moi?.role === "admin" && <MenuAdmin />}
@@ -228,7 +231,7 @@ export default function Validation() {
             {membresFiltres.map((m) => (
               <div key={m.id} className="e-ligne">
                 <span className="val">
-                  <b style={{ fontSize: 13.5 }}>{m.prenom} {m.nom}</b>
+                  <b style={{ fontSize: 13.5 }}><Surligne texte={`${m.prenom} ${m.nom}`} terme={rechercheRole} /></b>
                   <span style={{ color: "var(--brume)", fontSize: 12 }}>
                     {" "}· Promo {m.promotions?.numero}
                     {m.role === "admin" && " · admin"}
@@ -297,5 +300,6 @@ export default function Validation() {
       </div>
       <TabBar actif="Validation" />
     </main>
+    </GlisserRafraichir>
   );
 }

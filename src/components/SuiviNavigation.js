@@ -91,8 +91,13 @@ export function RestaurerDefilement() {
     if (!estRetour()) return;
     const y = positions.get(cleCourante());
     if (!y) return;
-    // deux frames : le temps que la liste rendue par le serveur soit peinte
-    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+    // deux frames : le temps que la liste rendue par le serveur soit peinte.
+    // `behavior:"instant"` explicite : `data-scroll-behavior` (layout.js) ne
+    // couvre que les ajustements INTERNES de Next, pas nos propres appels —
+    // sans lui, notre scroll-behavior:smooth global animait ce retour.
+    requestAnimationFrame(() => requestAnimationFrame(
+      () => window.scrollTo({ top: y, left: 0, behavior: "instant" })
+    ));
   }, []);
   return null;
 }

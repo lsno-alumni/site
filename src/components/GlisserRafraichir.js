@@ -60,8 +60,10 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
     const poser = (t) => {
       tirage = t;
       if (icone) {
+        const ratio = Math.min(t / SEUIL, 1); // 0 → 1 pendant le tirage
         icone.style.opacity = t > 4 ? "1" : "0";
-        icone.style.transform = `translateY(${Math.min(t, SEUIL) - 6}px)`;
+        icone.style.transform = `translateY(${Math.min(t, SEUIL) - 6}px) scale(${0.55 + 0.45 * ratio})`;
+        icone.classList.toggle("pret", t >= SEUIL);
       }
     };
 

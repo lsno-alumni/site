@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Fraunces, Space_Grotesk } from "next/font/google";
 import SuiviNavigation from "@/components/SuiviNavigation";
 import "./globals.css";
@@ -71,8 +72,11 @@ export default function RootLayout({ children }) {
         />
         {children}
         {/* mémorise la profondeur de navigation et les positions de défilement,
-            pour un « ← Retour » fiable (voir SuiviNavigation.js) */}
-        <SuiviNavigation />
+            pour un « ← Retour » fiable (voir SuiviNavigation.js). `usePathname`
+            a besoin d'une frontière Suspense sous Cache Components (comme
+            useSearchParams avant lui) — sinon la construction échoue partout,
+            ce composant étant monté une seule fois pour toute l'appli. */}
+        <Suspense fallback={null}><SuiviNavigation /></Suspense>
       </body>
     </html>
   );

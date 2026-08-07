@@ -31,10 +31,14 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
     let y0 = 0, tient = false, decide = false, tirage = 0;
     const indic = indicateurRef.current;
 
+    // hauteur de repos : la zone doit rester RÉELLEMENT tactile même sans
+    // tirage (touch-action:none ne protège que l'élément qu'on touche
+    // vraiment) — à hauteur 0 rien n'est là à toucher.
+    const REPOS = 18;
     const poser = (t) => {
       tirage = t;
       if (indic) {
-        indic.style.height = `${t}px`;
+        indic.style.height = `${REPOS + t}px`;
         indic.style.opacity = t > 4 ? "1" : "0";
       }
     };
@@ -49,14 +53,6 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
     };
     const bouge = (e) => {
       if (!tient) return;
-      // le rebond élastique est désactivé sur tout le site (overscroll-
-      // behavior-y:none, pour un autre bug GPU Android) — sans rebond, le
-      // navigateur n'a RIEN à faire d'un geste vers le bas en haut de page
-      // et le laisse filer comme un no-op. Il faut donc annuler son
-      // comportement par défaut DÈS LE PREMIER mouvement, avant même de
-      // savoir si c'est un tirage — après quelques px, il a déjà tranché
-      // et un preventDefault() tardif ne change plus rien.
-      e.preventDefault();
       const dy = e.clientY - y0;
       if (!decide) {
         // sous 10px, rien n'est encore tranché : un tap normal doit rester
@@ -88,16 +84,21 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
       }
     };
 
-    // { passive: false } est OBLIGATOIRE pour que preventDefault() dans
-    // bouge() ait un effet — les navigateurs écoutent pointermove/touchmove
-    // en passif par défaut (pour la fluidité du défilement), ce qui ignore
-    // silencieusement tout preventDefault() sans cette option.
-    document.addEventListener("pointerdown", debut);
-    document.addEventListener("pointermove", bouge, { passive: false });
+    // ⚠ pointerdown est posé sur LA ZONE (indic), pas document : c'est
+    // `touch-action:none` en CSS STATIQUE sur cet élément précis qui dit au
+    // navigateur, AVANT même que le doigt ne bouge, « ne gère pas toi-même
+    // ce qui commence ici ». Un preventDefault() posé après coup (dans
+    // bouge, sur un listener document) arrivait trop tard : le navigateur
+    // avait déjà tranché en 1-2 pointermove que c'était SON geste — vérifié
+    // par vidéo, la flèche grandissait à peine avant d'être coupée. Une
+    // fois le geste engagé sur cette zone, pointermove/up/cancel restent
+    // sur document pour continuer à suivre le doigt même hors de la zone.
+    if (indic) indic.addEventListener("pointerdown", debut);
+    document.addEventListener("pointermove", bouge);
     document.addEventListener("pointerup", fin);
     document.addEventListener("pointercancel", fin);
     return () => {
-      document.removeEventListener("pointerdown", debut);
+      if (indic) indic.removeEventListener("pointerdown", debut);
       document.removeEventListener("pointermove", bouge);
       document.removeEventListener("pointerup", fin);
       document.removeEventListener("pointercancel", fin);

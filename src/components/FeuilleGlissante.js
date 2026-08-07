@@ -17,7 +17,7 @@ import { X, ArrowLeft } from "lucide-react";
 // pointeur sur toute cette zone, un clic sur un bouton qui s'y trouverait
 // serait avalé par le glissement. Les boutons/formulaires vont dans
 // `children` (défilant), jamais dans `tete`.
-const PEEK = 0.7; // fraction de l'écran occupée à l'ouverture
+const PEEK = 0.7; // fraction de l'écran COUVERTE (pas le décalage) à l'ouverture
 
 export default function FeuilleGlissante({ tete, children, onFermer }) {
   const [etat, setEtat] = useState("peek"); // peek | plein | ferme
@@ -26,10 +26,12 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
   const poigneeRef = useRef(null);
   const hauteurRef = useRef(typeof window !== "undefined" ? window.innerHeight : 800);
 
+  // PEEK est la part COUVERTE de l'écran — la position (distance depuis le
+  // haut) est donc l'inverse, h * (1 - PEEK)
   const positionPour = (e) => {
     const h = hauteurRef.current;
     if (e === "ferme") return h;
-    if (e === "peek") return h * PEEK;
+    if (e === "peek") return h * (1 - PEEK);
     return 0;
   };
 
@@ -85,7 +87,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
       f.style.transform = `translateY(${hauteurRef.current}px)`;
       requestAnimationFrame(() => {
         f.style.transition = "";
-        f.style.transform = `translateY(${hauteurRef.current * PEEK}px)`;
+        f.style.transform = `translateY(${hauteurRef.current * (1 - PEEK)}px)`;
       });
     }
     const esc = (e) => e.key === "Escape" && aller("ferme");
@@ -133,13 +135,14 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
       tient = false;
       f.style.transition = "";
       const h = hauteurRef.current;
+      const decalagePeek = h * (1 - PEEK); // distance depuis le haut à l'aperçu
       const actuel = depart + (e.clientY - y0);
       // un geste rapide (élan) l'emporte sur la seule position au lâcher
       if (vitesse > 0.5) { aller("ferme"); return; }
       if (vitesse < -0.5) { aller("plein"); return; }
       if (actuel > h * 0.75) aller("ferme");
-      else if (actuel < h * PEEK * 0.5) aller("plein");
-      else aller(actuel < h * PEEK ? "plein" : "peek");
+      else if (actuel < decalagePeek * 0.5) aller("plein");
+      else aller(actuel < decalagePeek ? "plein" : "peek");
     };
     prise.addEventListener("pointerdown", descendre);
     prise.addEventListener("pointermove", bouger);

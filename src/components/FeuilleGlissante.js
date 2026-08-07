@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { X, ArrowLeft } from "lucide-react";
 
 // Feuille qui glisse par-dessus la page (façon LinkedIn) : ouverte à mi-écran
 // (aperçu), on tire la « prise » (tête, purement visuelle) vers le haut pour
@@ -23,6 +23,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
   const [etat, setEtat] = useState("peek"); // peek | plein | ferme
   const feuilleRef = useRef(null);
   const priseRef = useRef(null);
+  const poigneeRef = useRef(null);
   const hauteurRef = useRef(typeof window !== "undefined" ? window.innerHeight : 800);
 
   const positionPour = (e) => {
@@ -32,12 +33,42 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     return 0;
   };
 
+  // en plein écran, l'encoche n'a plus d'utilité (rien à découvrir plus
+  // haut) — elle réapparaît dès qu'on recommence à tirer vers le bas
+  // (descendre), avant même que l'état ait fini de basculer
+  const majPoignee = (visible) => {
+    if (poigneeRef.current) poigneeRef.current.style.opacity = visible ? "1" : "0";
+  };
+
   const aller = (e, animee = true) => {
     setEtat(e);
+    majPoignee(e !== "plein");
     const f = feuilleRef.current;
     if (!f) return;
     f.style.transition = animee ? "" : "none";
     f.style.transform = `translateY(${positionPour(e)}px)`;
+    // plein écran = ce doit être INDISTINGUABLE de la vraie page : coins
+    // carrés, tout défile ensemble (plus de tête figée à part), et le geste
+    // de glissement cesse (sinon il entre en conflit avec le défilement
+    // normal de la couverture/photo une fois qu'on y revient en scrollant)
+    f.style.borderRadius = e === "plein" ? "0" : "";
+    f.style.overflowY = e === "plein" ? "auto" : "hidden";
+    // --encre-2 (un cran plus clair) marque « ceci flotte au-dessus de la
+    // page » en aperçu ; en plein écran ce n'est plus une feuille mais LA
+    // page — même --encre que la vraie /profil/[id]
+    f.style.background = e === "plein" ? "var(--encre)" : "";
+    // sinon un doigt qui touche la couverture en plein écran ne ferait RIEN
+    // (ni glissement — désactivé plus haut —, ni défilement natif, avalé
+    // par ce touch-action resté à "none")
+    if (priseRef.current) priseRef.current.style.touchAction = e === "plein" ? "auto" : "none";
+    // 100dvh peut différer de la vraie hauteur de fenêtre selon le navigateur
+    // (barre d'adresse mobile, zoom…) — au repos ça ne se voit pas (seule une
+    // PARTIE de la feuille est visible), mais en plein écran le moindre écart
+    // laisse un filet de la page derrière en haut. On fixe alors top+bottom
+    // ensemble : le navigateur calcule la hauteur exacte entre les deux,
+    // sans dépendre de l'unité dvh.
+    f.style.top = e === "plein" ? "0" : "";
+    f.style.height = e === "plein" ? "auto" : "";
     if (e === "ferme") setTimeout(onFermer, animee ? 280 : 0);
   };
 
@@ -49,6 +80,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     document.body.style.overflow = "hidden";
     const f = feuilleRef.current;
     if (f) {
+      f.style.overflowY = "hidden";
       f.style.transition = "none";
       f.style.transform = `translateY(${hauteurRef.current}px)`;
       requestAnimationFrame(() => {
@@ -72,6 +104,9 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     let y0 = 0, depart = 0, dernierY = 0, dernierT = 0, vitesse = 0, tient = false;
 
     const descendre = (e) => {
+      // en plein écran, tout défile normalement — le geste de fermeture ne
+      // reprend qu'en repartant de l'aperçu (bouton croix sinon)
+      if (etat === "plein") return;
       tient = true;
       y0 = e.clientY;
       dernierY = e.clientY;
@@ -79,6 +114,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
       vitesse = 0;
       depart = positionPour(etat);
       f.style.transition = "none";
+      majPoignee(true);
       prise.setPointerCapture(e.pointerId);
     };
     const bouger = (e) => {
@@ -128,13 +164,15 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div ref={priseRef} className="fg-prise">
-          <div className="fg-poignee"><i /></div>
+          <div ref={poigneeRef} className="fg-poignee"><i /></div>
           {tete}
         </div>
-        <button type="button" className="fg-fermer" aria-label="Fermer" onClick={() => aller("ferme")}>
-          <X size={20} aria-hidden />
+        <button type="button" className="fg-fermer"
+          aria-label={etat === "plein" ? "Retour" : "Fermer"} onClick={() => aller("ferme")}>
+          <X size={20} aria-hidden className={`fg-icone${etat === "plein" ? " cachee" : ""}`} />
+          <ArrowLeft size={20} aria-hidden className={`fg-icone${etat === "plein" ? "" : " cachee"}`} />
         </button>
-        <div className="fg-contenu" style={{ overflowY: etat === "plein" ? "auto" : "hidden" }}>
+        <div className="fg-contenu">
           {children}
         </div>
       </div>

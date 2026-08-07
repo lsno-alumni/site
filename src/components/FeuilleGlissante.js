@@ -17,7 +17,7 @@ import { X, ArrowLeft } from "lucide-react";
 // pointeur sur toute cette zone, un clic sur un bouton qui s'y trouverait
 // serait avalé par le glissement. Les boutons/formulaires vont dans
 // `children` (défilant), jamais dans `tete`.
-const PEEK = 0.55; // fraction de l'écran occupée à l'ouverture
+const PEEK = 0.7; // fraction de l'écran occupée à l'ouverture
 
 export default function FeuilleGlissante({ tete, children, onFermer }) {
   const [etat, setEtat] = useState("peek"); // peek | plein | ferme

@@ -19,15 +19,31 @@ const FILTRES_DOMAINE = [
 export default function Annuaire({ membres }) {
   const routeur = useRouter();
   const params = useSearchParams();
-  const [domaine, setDomaine] = useState(params.get("domaine") ?? "tous");
+  // Posé par l'effet ci-dessous, jamais lu directement depuis `params` au
+  // premier rendu : avec Cache Components, la coquille statique peut peindre
+  // AVANT que la vraie query string ne soit connue côté client — lire
+  // `params.get(...)` ici capturait alors un "vide" figé (le filtre venu
+  // d'un lien externe, ex. la roue de l'accueil, ne s'appliquait plus).
+  const [domaine, setDomaine] = useState("tous");
   // Cache Components garde cette page en mémoire au lieu de la détruire :
-  // revenir depuis un AUTRE onglet ne remonte plus le composant, donc le
-  // filtre choisi reste affiché — voulu pour un choix fait ICI. Mais un
-  // domaine arrivé par un lien EXTERNE (roue de l'accueil) ne doit pas
-  // rester accroché indéfiniment : cette ref ne dit vrai qu'au tout premier
-  // montage de l'instance (jamais réévaluée par la suite, contrairement à un
-  // état) et se referme dès qu'on choisit un filtre ici même.
-  const domaineVenuDAilleurs = useRef(params.get("domaine") != null);
+  // revenir depuis un AUTRE onglet ne remonte plus le composant, donc un
+  // filtre choisi ICI reste affiché — voulu. Mais un domaine arrivé par un
+  // lien EXTERNE (roue de l'accueil) ne doit pas rester accroché
+  // indéfiniment : cette ref dit si le domaine affiché vient de la dernière
+  // VRAIE navigation (pas d'un choix ici même) — recalculée à chaque fois
+  // que l'URL suivie par Next change réellement (jamais par nos propres
+  // replaceState de synchronisation ci-dessous, qui ne la font pas bouger).
+  const domaineVenuDAilleurs = useRef(false);
+  useEffect(() => {
+    const d = params.get("domaine");
+    if (d != null) {
+      setDomaine(d); // eslint-disable-line react-hooks/set-state-in-effect -- synchronise depuis l'URL, pas un état interne
+      domaineVenuDAilleurs.current = true;
+    } else if (domaineVenuDAilleurs.current) {
+      setDomaine("tous");
+      domaineVenuDAilleurs.current = false;
+    }
+  }, [params]);
   const [promo, setPromo] = useState(params.get("promo") ?? "");
   const [pays, setPays] = useState(params.get("pays") ?? "");
   const [situation, setSituation] = useState(params.get("situation") ?? "");
@@ -51,18 +67,6 @@ export default function Annuaire({ membres }) {
     // Next.js, qui y garde la position de défilement pour le retour arrière.
     window.history.replaceState(window.history.state, "", cible);
   }, [domaine, promo, pays, situation, q]);
-
-  // Se déclenche au tout premier montage ET chaque fois qu'on revient sur
-  // cette page depuis ailleurs (Cache Components recrée les effets à la
-  // réactivation, même sans démonter le composant) — jamais pendant qu'on
-  // reste dessus à changer de filtre.
-  useEffect(() => {
-    if (domaineVenuDAilleurs.current && params.get("domaine") == null) {
-      setDomaine("tous");
-      domaineVenuDAilleurs.current = false;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const resultats = useMemo(() => {
     const t = plat(q.trim());

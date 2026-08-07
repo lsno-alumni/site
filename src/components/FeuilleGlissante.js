@@ -78,6 +78,18 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
   // ("peek") est déjà correct, seule la position VISUELLE (fermée → mi-écran)
   // doit s'animer — un pur ajustement du DOM, pas une synchronisation d'état.
   useEffect(() => {
+    // La feuille est une route à part (interception Next) : la page derrière
+    // passe en display:none puis display:block (Cache Components/Activity),
+    // ce qui peut décaler le scroll du navigateur. overflow:hidden n'empêche
+    // pas ce décalage-là (il bloque le défilement de l'UTILISATEUR, pas un
+    // changement de scrollTop déclenché ailleurs) — on fige donc la position
+    // nous-mêmes, tout de suite ET une fois de plus juste après, au cas où
+    // l'ajustement indésirable arrive avec un cran de retard.
+    const y = window.scrollY;
+    const figer = () => window.scrollTo({ top: y, left: 0, behavior: "instant" });
+    figer();
+    const rAF1 = requestAnimationFrame(() => { figer(); requestAnimationFrame(figer); });
+
     hauteurRef.current = window.innerHeight;
     document.body.style.overflow = "hidden";
     const f = feuilleRef.current;
@@ -93,6 +105,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     const esc = (e) => e.key === "Escape" && aller("ferme");
     document.addEventListener("keydown", esc);
     return () => {
+      cancelAnimationFrame(rAF1);
       document.body.style.overflow = "";
       document.removeEventListener("keydown", esc);
     };

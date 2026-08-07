@@ -1,4 +1,6 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { creerClientServeur } from "@/lib/supabase/server";
+import { creerClientCache } from "@/lib/supabase/cache";
 
 // ============================================================
 // Lectures serveur (Server Components). La sécurité réelle est
@@ -51,7 +53,15 @@ const CHAMPS_PROFIL =
   "id, prenom, nom, photo_url, domaine, domaine_precision, situation, statut_titre, conseil, histoire, repond_cadets, sujets_cadets, ville, pays, whatsapp_visi, email_visi, linkedin_visi, role, promotions(numero), parcours(titre, etablissement, ville, annee_debut, annee_fin, ordre)";
 
 export async function listeMembres() {
-  const supabase = await creerClientServeur();
+  "use cache";
+  // Résultat IDENTIQUE pour tout membre validé qui le demande (le filtre
+  // statut_compte=valide est déjà posé explicitement ci-dessous — les
+  // politiques RLS propres aux délégués/admins ne portent que sur les
+  // comptes en_attente/refusé, jamais renvoyés ici) : partageable sans
+  // risque entre visiteurs. ~30s de fraîcheur, comme discuté le 28/07.
+  cacheLife({ stale: 30, revalidate: 30, expire: 300 });
+  cacheTag("annuaire");
+  const supabase = creerClientCache();
   const { data, error } = await supabase
     .from("profiles")
     .select(CHAMPS_PROFIL)
@@ -79,7 +89,12 @@ export async function lireProfil(id) {
 }
 
 export async function statsPubliques() {
-  const supabase = await creerClientServeur();
+  "use cache";
+  // Agrégats publics (fonction `security definer`, ouverte à anon) : jamais
+  // personnalisés, partageables sans risque.
+  cacheLife({ stale: 30, revalidate: 30, expire: 300 });
+  cacheTag("stats");
+  const supabase = creerClientCache();
   const { data, error } = await supabase.rpc("stats_publiques");
   if (error || !data) {
     console.error("statsPubliques:", error?.message);
@@ -108,8 +123,13 @@ export async function lireContacts(id) {
 }
 
 export async function listeConseils() {
-  // Tous les conseils aux cadets, pour la page /conseils (groupés par domaine côté UI).
-  const supabase = await creerClientServeur();
+  "use cache";
+  // Tous les conseils aux cadets, pour la page /conseils (groupés par domaine
+  // côté UI) — même filtre statut_compte=valide que l'annuaire, même
+  // raisonnement : partageable sans risque entre visiteurs.
+  cacheLife({ stale: 30, revalidate: 30, expire: 300 });
+  cacheTag("conseils");
+  const supabase = creerClientCache();
   const { data, error } = await supabase
     .from("profiles")
     .select("id, prenom, nom, photo_url, domaine, domaine_precision, conseil, conseil_theme, promotions(numero)")

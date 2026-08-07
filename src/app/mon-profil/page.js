@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TabBar from "@/components/TabBar";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Photo from "./Photo";
 import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
@@ -35,26 +36,24 @@ export default function MonProfil() {
   const [toast, setToast] = useState("");
   const [sujetLibre, setSujetLibre] = useState("");
 
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return routeur.push("/connexion");
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, prenom, nom, role, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, refuse_le, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, push_reseau_portee, promotions(numero)")
-        .eq("id", user.id)
-        .maybeSingle();
-      // les valeurs de contact ne sont lisibles que via cette fonction
-      const { data: contacts } = await supabase.rpc("mes_contacts");
-      setProfil({
-        ...data,
-        whatsapp: contacts?.whatsapp ?? "",
-        email_contact: contacts?.email ?? "",
-        linkedin: contacts?.linkedin ?? "",
-      });
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const charger = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return routeur.push("/connexion");
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, prenom, nom, role, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, refuse_le, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, push_reseau_portee, promotions(numero)")
+      .eq("id", user.id)
+      .maybeSingle();
+    // les valeurs de contact ne sont lisibles que via cette fonction
+    const { data: contacts } = await supabase.rpc("mes_contacts");
+    setProfil({
+      ...data,
+      whatsapp: contacts?.whatsapp ?? "",
+      email_contact: contacts?.email ?? "",
+      linkedin: contacts?.linkedin ?? "",
+    });
+  };
+  useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   const majChamp = (champ) => (e) => setProfil({ ...profil, [champ]: e.target.value });
 
@@ -145,6 +144,7 @@ export default function MonProfil() {
   const completion = tauxCompletion(profil);
 
   return (
+    <GlisserRafraichir onRafraichir={charger}>
     <main className="page avec-tabbar">
       <header className="f-tete tete-etude" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/annuaire" libelle="Retour" />
@@ -413,5 +413,6 @@ export default function MonProfil() {
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
       <TabBar actif="Mon profil" />
     </main>
+    </GlisserRafraichir>
   );
 }

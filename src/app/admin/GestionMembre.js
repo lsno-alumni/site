@@ -5,6 +5,7 @@ import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { HistoriqueMembre } from "./Journal";
 import Captcha, { captchaActif } from "@/components/Captcha";
+import Surligne, { plat } from "@/components/Surligne";
 
 // Gestion d'un membre par un ADMIN : identité, email, mot de passe
 // temporaire, suspension, co-admin, suppression. Les contacts privés
@@ -44,7 +45,7 @@ export default function GestionMembre({ moiId, signale }) {
   }, []);
 
   const resultats = q.trim()
-    ? tous.filter((m) => `${m.prenom} ${m.nom}`.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 6)
+    ? tous.filter((m) => plat(`${m.prenom} ${m.nom}`).includes(plat(q.trim()))).slice(0, 6)
     : [];
 
   // Email de connexion ET état de confirmation, toujours relus dans auth.users :
@@ -206,7 +207,7 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
           onClick={() => ouvrir(m)}>
           <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="gm-avatar" />
           <span className="val">
-            <b style={{ fontSize: 13.5 }}>{m.prenom} {m.nom}</b>
+            <b style={{ fontSize: 13.5 }}><Surligne texte={`${m.prenom} ${m.nom}`} terme={q} /></b>
             <span style={{ color: "var(--brume)", fontSize: 12 }}>
               {" "}· P{m.promotions?.numero} · {STATUTS[m.statut_compte]}{m.role !== "membre" ? ` · ${m.role}` : ""}
             </span>

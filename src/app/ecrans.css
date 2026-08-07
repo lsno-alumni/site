@@ -319,18 +319,22 @@
 .n-hasard:hover { color: var(--or-clair); background: rgba(232,179,60,.1); }
 .n-hasard:disabled { opacity: .35; cursor: default; }
 
-/* glisser pour rafraîchir : indicateur qui grandit avec le tirage,
-   hauteur/opacité posées en ligne (imperatif, pas de re-rendu par pixel).
-   Hauteur de repos RÉELLE (18px, pas 0) : c'est une vraie zone tactile —
-   touch-action:none STATIQUE dit au navigateur, avant même que le doigt ne
-   bouge, de nous laisser le geste plutôt que de le traiter lui-même. Posé
-   après coup (JS, preventDefault) sur un élément à hauteur 0, ça arrivait
-   trop tard ET rien n'était réellement là à toucher. */
-.gr-indicateur {
-  position: relative; z-index: 5; height: 18px; opacity: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--craie); transition: height .25s, opacity .2s;
-  touch-action: none;
+/* glisser pour rafraîchir — la zone couvre TOUT le contenu (n'importe quel
+   endroit statique, façon Facebook) mais touch-action bascule selon le
+   défilement (voir GlisserRafraichir.js) : "pan-down" (jamais "none")
+   laisse TOUJOURS descendre dans la liste nativement ; seul "glisser vers
+   le bas depuis le sommet" — qui ne peut RIEN faire défiler puisqu'il n'y
+   a rien au-dessus — nous revient. Rien à réserver visuellement, l'icône
+   est juste superposée. */
+.gr-zone { position: relative; }
+.gr-zone-icone {
+  position: absolute; top: 0; left: 0; right: 0; height: 50px; z-index: 6;
+  pointer-events: none; display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 4px;
+}
+.gr-icone {
+  opacity: 0; transform: translateY(-6px); color: var(--craie);
+  transition: opacity .2s, transform .2s;
 }
 .gr-tourne { animation: gr-rotation .8s linear infinite; }
 @keyframes gr-rotation { to { transform: rotate(360deg); } }
@@ -343,6 +347,12 @@
      participait au glitch GPU (voir tabbar) */
   background: var(--encre);
   box-shadow: 0 8px 14px -10px rgba(5, 13, 27, .8);
+  /* .gr-zone (glisser-rafraîchir) restreint le geste à "pan-down" quand on
+     est en haut de page — sans cette ligne, le défilement HORIZONTAL des
+     puces serait aussi bloqué à cet instant précis (l'action effective
+     d'un descendant est l'INTERSECTION avec celle de ses ancêtres, donc il
+     faut redemander aussi "pan-down" en plus de "pan-x") */
+  touch-action: pan-x pan-down;
 }
 .n-filtres::-webkit-scrollbar { display: none; }
 .puce {
@@ -355,6 +365,10 @@
 .fiche {
   border-radius: 24px; overflow: hidden; background: var(--carte); border: 1px solid var(--ligne);
   transition: transform .3s, border-color .3s, box-shadow .3s; cursor: pointer; display: block;
+  /* un lien se glisse nativement à la souris (glisser-déposer du navigateur,
+     hors-sujet mobile) — ça coupait le geste glisser-rafraîchir démarré
+     depuis une carte à la souris ; sans effet sur un vrai doigt */
+  -webkit-user-drag: none; user-select: none;
 }
 .fiche:hover { transform: translateY(-3px); border-color: rgba(232,179,60,.4); box-shadow: 0 18px 40px -18px rgba(0,0,0,.6); }
 /* retour de pression au tap — pas sur .demande (carte d'offre, pas cliquable

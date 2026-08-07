@@ -687,6 +687,42 @@
 }
 .visionneuse-fermer:hover { background: rgba(245,241,232,.2); }
 
+/* feuille glissante (aperçu de profil depuis l'annuaire, façon LinkedIn) —
+   PAS de flou/transparence en mouvement sur la liste derrière : le défilement
+   est bloqué tant que la feuille est ouverte (même précaution que la tabbar,
+   qui avait corrompu le rendu GPU sur Mali quand une couche translucide
+   bougeait PENDANT qu'une liste défilait) */
+.fg-scrim {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(5,13,27,.6);
+  animation: vis-fondu .2s ease both;
+}
+.fg-feuille {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 100dvh;
+  background: var(--encre-2); border-radius: 22px 22px 0 0; overflow: hidden;
+  box-shadow: 0 -20px 50px -10px rgba(0,0,0,.5);
+  transform: translateY(100%);
+  transition: transform .32s cubic-bezier(.32,.72,0,1);
+  max-width: 480px; margin: 0 auto;
+}
+/* zone de PRISE (glissable) : la poignée + toute la tête visuelle (couverture,
+   photo, nom…) — pas seulement le petit trait, sinon un doigt qui n'est pas
+   pile dessus ne fait rien. AUCUN bouton ne doit vivre ici (cf. FeuilleGlissante.js) */
+.fg-prise { touch-action: none; cursor: grab; }
+.fg-poignee { display: flex; justify-content: center; padding: 10px 0 4px; position: relative; z-index: 1; }
+.fg-poignee i { width: 36px; height: 4px; border-radius: 100px; background: rgba(245,241,232,.28); display: block; }
+.fg-fermer {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(5,13,27,.5); border: 1px solid rgba(245,241,232,.2); color: var(--craie);
+  cursor: pointer; display: grid; place-items: center;
+}
+.fg-contenu { height: 100%; overflow-x: hidden; padding-bottom: 30px; }
+/* continuation de p-corps (boutons Demander le contact/Partager) sans
+   répéter son margin-top négatif — celui-ci ne s'applique qu'une fois,
+   juste sous la couverture */
+.p-corps-suite { padding: 0 22px; margin-top: 14px; }
+
 /* ============================================================
    CARROUSEL 3D « coverflow » (page À propos)
    ============================================================ */

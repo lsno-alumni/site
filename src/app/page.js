@@ -9,7 +9,6 @@ import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
 import AccueilMembre from "./AccueilMembre";
 
-export const dynamic = "force-dynamic";
 
 // La même adresse sert deux accueils :
 //  - membre VALIDÉ connecté  -> accueil personnel (nouveaux, offres, conseil)

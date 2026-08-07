@@ -4,9 +4,9 @@ import { createClient } from "@supabase/supabase-js";
 // Émetteur des notifications push — appelé PAR LA BASE (pg_net → envoyer_push).
 // Auto-hébergé : la signature VAPID et le chiffrement se font ici, aucun tiers.
 // Protégé par un secret partagé (en-tête x-cle-push) ; jamais accessible aux
-// visiteurs. Tourne en Node (web-push a besoin des modules crypto natifs).
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+// visiteurs. Tourne en Node (web-push a besoin des modules crypto natifs) —
+// Node est le runtime PAR DÉFAUT avec Cache Components activé, plus besoin
+// de le déclarer (le déclarer devient même une erreur de build).
 
 export async function POST(requete) {
   const secret = process.env.PUSH_SECRET;

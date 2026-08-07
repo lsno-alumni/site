@@ -721,7 +721,7 @@
   position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 1;
   transition: opacity .2s;
 }
-.fg-poignee i { width: 36px; height: 4px; border-radius: 100px; background: rgba(245,241,232,.28); display: block; }
+.fg-poignee i { width: 42px; height: 5px; border-radius: 100px; background: rgba(245,241,232,.6); display: block; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .fg-fermer {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   width: 42px; height: 42px; border-radius: 50%;

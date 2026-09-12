@@ -72,7 +72,7 @@ export default function NouveauMotDePasse() {
           <p style={{ paddingTop: 20 }}>Vérification du lien…</p>
           <p style={{ marginTop: 14, fontSize: 12.5 }}>
             Si rien ne se passe après quelques secondes, le lien a peut-être expiré :{" "}
-            <Link href="/mot-de-passe/oubli" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>
+            <Link href="/mot-de-passe/oubli" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>
               demande un nouveau lien
             </Link>.
           </p>

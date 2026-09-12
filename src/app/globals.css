@@ -10,6 +10,11 @@
   --craie-2: #E4DCCB;
   --or: #E8B33C;
   --or-clair: #F5CD6E;
+  /* remplacement progressif de l'or par ce bleu (donné par l'utilisateur) à
+     travers le site — --or/--or-clair restent définis pour ce qui n'a pas
+     encore été basculé, mais l'accent principal, c'est --bleu désormais */
+  --bleu: #1E3A62;
+  --bleu-clair: #3B6FD1;
   --brume: #93A5C0;
   --ligne: rgba(147, 165, 192, .16);
   --vert-ok: #63C784;
@@ -28,11 +33,11 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-::selection { background: var(--or); color: var(--encre); }
+::selection { background: var(--bleu-clair); color: var(--craie); }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, .serif { font-family: var(--font-titres), serif; font-weight: 600; }
-h1 em, h2 em, h3 em { font-style: italic; color: var(--or-clair); }
+h1 em, h2 em, h3 em { font-style: italic; color: var(--bleu-clair); }
 /* color: inherit — sans ça, un <button> servant de conteneur (résultat de
    recherche admin…) prend le noir par défaut du navigateur au lieu de la craie */
 button { font-family: inherit; color: inherit; }
@@ -46,13 +51,17 @@ button { font-family: inherit; color: inherit; }
 }
 .btn:active { transform: scale(.97); }
 .btn:focus-visible, a:focus-visible, input:focus-visible {
-  outline: 2px solid var(--or); outline-offset: 2px;
+  outline: 2px solid var(--bleu); outline-offset: 2px;
 }
 .btn-or {
-  background: var(--or); color: var(--encre); font-weight: 700;
-  box-shadow: 0 12px 30px -10px rgba(232, 179, 60, .5);
+  /* --bleu (sombre) sert de bordure/accent discret ailleurs sur le site ;
+     ici il faut au contraire ATTIRER l'œil (bouton principal), donc le bleu
+     clair — et du texte clair, --encre (pensé pour l'or, nettement plus
+     lumineux) n'a plus assez de contraste sur un fond bleu. */
+  background: var(--bleu-clair); color: var(--craie); font-weight: 700;
+  box-shadow: 0 12px 30px -10px rgba(59, 111, 209, .5);
 }
-.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(232, 179, 60, .65); transform: translateY(-1px); }
+.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(59, 111, 209, .65); transform: translateY(-1px); }
 .btn-nu {
   background: rgba(245, 241, 232, .08); color: var(--craie);
   border: 1px solid rgba(245, 241, 232, .22); backdrop-filter: blur(6px);
@@ -60,7 +69,7 @@ button { font-family: inherit; color: inherit; }
 .btn-bloc { width: 100%; padding: 16px; }
 
 /* ---------- éléments partagés ---------- */
-.tagline { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--or); }
+.tagline { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-clair); }
 .page { max-width: 480px; margin: 0 auto; min-height: 100dvh; position: relative; }
 .page-large { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
@@ -72,7 +81,7 @@ button { font-family: inherit; color: inherit; }
   background: var(--carte); border: 1px solid var(--ligne); color: var(--craie-2);
   display: inline-flex; align-items: center; gap: 5px;
 }
-.meta.doree { background: rgba(232, 179, 60, .12); border-color: rgba(232, 179, 60, .35); color: var(--or-clair); }
+.meta.doree { background: rgba(59, 111, 209, .12); border-color: rgba(59, 111, 209, .35); color: var(--bleu-clair); }
 .meta.verte { color: #9FD8B4; border-color: rgba(99, 199, 132, .35); }
 
 .champ label {
@@ -85,7 +94,7 @@ button { font-family: inherit; color: inherit; }
   color: var(--craie); font-family: inherit; outline: none;
   transition: border-color .25s, box-shadow .25s;
 }
-.saisie:focus { border-color: var(--or); box-shadow: 0 0 0 3px rgba(232, 179, 60, .15); }
+.saisie:focus { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(59, 111, 209, .15); }
 .saisie::placeholder { color: var(--brume); }
 select.saisie { appearance: none; cursor: pointer; }
 
@@ -140,9 +149,9 @@ select.saisie { appearance: none; cursor: pointer; }
 .tab .tico { font-size: 17px; line-height: 1; }
 .tab svg { display: block; }
 .menu-panneau a svg { color: var(--brume); }
-.menu-panneau a.dore svg { color: var(--or-clair); }
-.tab.on { color: var(--or-clair); }
-.tab.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--or); }
+.menu-panneau a.dore svg { color: var(--bleu-clair); }
+.tab.on { color: var(--bleu-clair); }
+.tab.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--bleu); }
 .avec-tabbar {
   padding-bottom: 90px;
   /* se resserre EN MÊME TEMPS que la barre se range (TabBar.js pose la classe
@@ -187,15 +196,15 @@ select.saisie { appearance: none; cursor: pointer; }
 .chemin { position: relative; padding-left: 24px; }
 .chemin::before {
   content: ""; position: absolute; left: 6px; top: 8px; bottom: 16px; width: 1.5px;
-  background: linear-gradient(180deg, var(--or) 0%, rgba(232, 179, 60, .12) 100%);
+  background: linear-gradient(180deg, var(--bleu) 0%, rgba(59, 111, 209, .12) 100%);
 }
 .pas { position: relative; padding-bottom: 22px; }
 .pas::before {
   content: ""; position: absolute; left: -22.5px; top: 5px; width: 9px; height: 9px;
-  border-radius: 50%; background: var(--encre); border: 2px solid var(--or);
+  border-radius: 50%; background: var(--encre); border: 2px solid var(--bleu);
 }
-.pas.actuel::before { background: var(--or); box-shadow: 0 0 0 5px rgba(232, 179, 60, .18); }
-.pas .annees { font-size: 11px; color: var(--or-clair); letter-spacing: .12em; }
+.pas.actuel::before { background: var(--bleu-clair); box-shadow: 0 0 0 5px rgba(59, 111, 209, .18); }
+.pas .annees { font-size: 11px; color: var(--bleu-clair); letter-spacing: .12em; }
 .pas b { display: block; font-size: 14.5px; margin-top: 3px; }
 .pas span { font-size: 12.5px; color: var(--brume); display: block; margin-top: 2px; line-height: 1.5; }
 
@@ -207,22 +216,22 @@ select.saisie { appearance: none; cursor: pointer; }
 }
 .splash-blason {
   width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: #fff;
-  border: 2px solid rgba(232, 179, 60, .55);
+  border: 2px solid rgba(59, 111, 209, .55);
   animation: splash-respire 2.2s ease-in-out infinite;
 }
 @keyframes splash-respire {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 179, 60, .35); transform: scale(1); }
-  50% { box-shadow: 0 0 0 16px rgba(232, 179, 60, 0); transform: scale(1.04); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 111, 209, .35); transform: scale(1); }
+  50% { box-shadow: 0 0 0 16px rgba(59, 111, 209, 0); transform: scale(1.04); }
 }
 .splash-nom { font-family: var(--font-titres), serif; font-size: 22px; font-weight: 600; }
-.splash-nom em { font-style: italic; color: var(--or-clair); }
+.splash-nom em { font-style: italic; color: var(--bleu-clair); }
 .splash-trait {
   width: 120px; height: 3px; border-radius: 100px; overflow: hidden; position: relative;
   background: rgba(147, 165, 192, .18);
 }
 .splash-trait::after {
   content: ""; position: absolute; inset: 0; width: 45%; border-radius: 100px;
-  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  background: linear-gradient(90deg, var(--bleu), var(--bleu-clair));
   animation: splash-va 1.2s ease-in-out infinite alternate;
 }
 @keyframes splash-va { from { transform: translateX(-30%); } to { transform: translateX(170%); } }

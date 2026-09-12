@@ -239,7 +239,7 @@ export default function Validation() {
                   </span>
                 </span>
                 {m.role === "admin" ? (
-                  <span style={{ fontSize: 11, color: "var(--or-clair)" }}>—</span>
+                  <span style={{ fontSize: 11, color: "var(--bleu-clair)" }}>—</span>
                 ) : m.role === "delegue" ? (
                   <button className="btn btn-nu" style={{ padding: "8px 14px", fontSize: 12 }}
                     onClick={() => changerRole(m, "membre")}>

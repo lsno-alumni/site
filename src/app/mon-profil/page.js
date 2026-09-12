@@ -160,7 +160,7 @@ export default function MonProfil() {
       </header>
 
       <div className="e-completion">
-        <div className="e-cerc" style={{ background: `conic-gradient(var(--or) ${completion * 3.6}deg, rgba(147,165,192,.18) ${completion * 3.6}deg)` }}>
+        <div className="e-cerc" style={{ background: `conic-gradient(var(--bleu-clair) ${completion * 3.6}deg, rgba(147,165,192,.18) ${completion * 3.6}deg)` }}>
           <b>{completion}%</b>
         </div>
         <div className="txt">
@@ -173,7 +173,7 @@ export default function MonProfil() {
         <DemandesRecues signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3500); }} />
 
         {aMigrer && (
-          <div style={{ background: "rgba(232,179,60,.12)", border: "1px solid rgba(232,179,60,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--craie)", lineHeight: 1.55 }}>
+          <div style={{ background: "rgba(59,111,209,.12)", border: "1px solid rgba(59,111,209,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--craie)", lineHeight: 1.55 }}>
             🎉 Tu es maintenant un ancien ! Choisis ton <b>domaine</b>{" "}et ta <b>situation</b>{" "}
             ci-dessous, et n&apos;hésite pas à ajouter ton poste et un conseil aux cadets.
           </div>

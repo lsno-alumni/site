@@ -172,7 +172,7 @@ export default function Connexion() {
         </p>
         <p style={{ textAlign: "center", fontSize: 13, color: "var(--brume)" }}>
           Pas encore de compte ?{" "}
-          <Link href="/inscription" style={{ color: "var(--or-clair)", textDecoration: "underline" }}>
+          <Link href="/inscription" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>
             Rejoindre le réseau
           </Link>
         </p>

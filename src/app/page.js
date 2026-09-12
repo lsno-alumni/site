@@ -111,7 +111,7 @@ export default async function Accueil() {
 
       <footer className="pied-public">
         <img className="ecusson" src="/img/logo.jpg" alt="" />
-        <p className="tagline" style={{ color: "var(--or)" }}>Travail · Excellence · Discipline</p>
+        <p className="tagline" style={{ color: "var(--bleu-clair)" }}>Travail · Excellence · Discipline</p>
         <p style={{ marginTop: 8 }}>
           Lycée Scientifique National de Ouagadougou<br />
           Ouagadougou, Burkina Faso · Série C · Promotions 2017 → aujourd&apos;hui

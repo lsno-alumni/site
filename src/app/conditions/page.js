@@ -159,7 +159,7 @@ export default function Conditions() {
 
         <p style={{ marginTop: 26, fontSize: 12.5, color: "var(--brume)" }}>
           Une question sur tes données ou ces conditions ?{" "}
-          <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>
+          <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--bleu-texte)", textDecoration: "underline" }}>
             lsno.alumni@gmail.com
           </a>
         </p>

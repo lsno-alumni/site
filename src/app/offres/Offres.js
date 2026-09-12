@@ -388,7 +388,7 @@ export default function Offres() {
                     <span className="meta">{[o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", ")}</span>
                   )}
                   {o.date_limite && (
-                    <span className="meta" style={{ color: "var(--bleu-clair)" }}>
+                    <span className="meta" style={{ color: "var(--bleu-texte)" }}>
                       avant le {new Date(o.date_limite).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                     </span>
                   )}
@@ -407,7 +407,7 @@ export default function Offres() {
                 )}
                 {o.lien && (
                   <a href={lienAbsolu(o.lien)} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: 12.5, color: "var(--bleu-clair)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
+                    style={{ fontSize: 12.5, color: "var(--bleu-texte)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
                     Voir l&apos;annonce <ExternalLink size={12} aria-hidden />
                   </a>
                 )}

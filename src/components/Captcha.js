@@ -101,7 +101,7 @@ export default function Captcha({ onJeton, essai = 0, onAbandon }) {
     <div>
       <div ref={boite} style={{ minHeight: 65 }} />
       {souci && (
-        <p role="alert" style={{ fontSize: 12.5, color: "var(--bleu-clair)", lineHeight: 1.5, marginTop: 6 }}>
+        <p role="alert" style={{ fontSize: 12.5, color: "var(--bleu-texte)", lineHeight: 1.5, marginTop: 6 }}>
           {souci}
         </p>
       )}

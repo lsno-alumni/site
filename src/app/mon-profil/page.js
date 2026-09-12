@@ -13,7 +13,7 @@ import Notifications from "@/components/Notifications";
 import DoubleAuth from "@/components/DoubleAuth";
 import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { Mail, Handshake } from "lucide-react";
+import { Mail, Handshake, ChevronDown } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
@@ -319,8 +319,9 @@ export default function MonProfil() {
 
         {profil.repond_cadets && (
           <details style={{ borderLeft: "1px solid var(--ligne)", paddingLeft: 12, marginTop: -16, paddingTop: 26 }}>
-            <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
+            <summary style={{ cursor: "pointer", display: "flex", alignItems: "center", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
               Sur quels sujets ? (8 max)
+              <ChevronDown size={16} className="chevron" aria-hidden style={{ marginLeft: "auto" }} />
             </summary>
             <div style={{ marginTop: 9 }}>
               <div className="sujets-choix">
@@ -353,8 +354,9 @@ export default function MonProfil() {
         </>)}
 
         <details className="grande-partie">
-          <summary style={{ cursor: "pointer", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
+          <summary style={{ cursor: "pointer", display: "flex", alignItems: "center", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
             Mes contacts — et qui peut les voir
+            <ChevronDown size={16} className="chevron" aria-hidden style={{ marginLeft: "auto" }} />
           </summary>
           <div style={{ marginTop: 9 }}>
             <div className="e-visi">

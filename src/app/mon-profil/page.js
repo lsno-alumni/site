@@ -15,7 +15,8 @@ import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelett
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, LISTE_PAYS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion } from "@/lib/donnees";
+import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion } from "@/lib/donnees";
+import ChoixPays from "@/components/ChoixPays";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -245,13 +246,8 @@ export default function MonProfil() {
           </div>
           <div>
             <label htmlFor="pays">Pays</label>
-            <select id="pays" className="saisie" value={profil.pays ?? ""}
-              onChange={(e) => setProfil({ ...profil, pays: e.target.value || null })}>
-              <option value="">— Choisir —</option>
-              {LISTE_PAYS.map(([code, nom]) => (
-                <option key={code} value={code}>{nom}</option>
-              ))}
-            </select>
+            <ChoixPays id="pays" valeur={profil.pays}
+              onChange={(code) => setProfil({ ...profil, pays: code })} />
           </div>
         </div>
 

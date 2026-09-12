@@ -74,11 +74,6 @@ const enTetes = [
 ];
 
 const nextConfig = {
-  // Cache Components (Next 16) : coquille statique immédiate + streaming du
-  // dynamique, et surtout `use cache`/`cacheTag`/`updateTag` pour un cache
-  // ciblé avec invalidation explicite après chaque écriture (validation,
-  // édition de profil, publication d'offre…) — voir la réflexion en mémoire.
-  cacheComponents: true,
   async headers() {
     return [{ source: "/(.*)", headers: enTetes }];
   },

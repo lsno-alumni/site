@@ -3,6 +3,7 @@ import Conseils from "./Conseils";
 import RetourDynamique from "@/components/RetourDynamique";
 import { listeConseils } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Conseils aux cadets — LSNO Amicale" };
 
 export default async function PageConseils() {

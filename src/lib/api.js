@@ -235,5 +235,7 @@ export async function donneesAccueilMembre(moi) {
       : null,
     demandesEnAttente: demandes.count ?? 0,
     parPromo: stats.data?.par_promo ?? {},
+    parPays: stats.data?.par_pays ?? {},
+    parDomaine: stats.data?.par_domaine ?? {},
   };
 }

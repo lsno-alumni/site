@@ -10,6 +10,7 @@ import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
+import NuagePays from "@/components/NuagePays";
 import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
@@ -18,11 +19,17 @@ const TYPES_OFFRE = {
 };
 
 export default function AccueilMembre({ moi, donnees }) {
-  const { nouveaux, offres, conseil, demandesEnAttente, parPromo } = donnees;
+  const { nouveaux, offres, conseil, demandesEnAttente, parPromo, parPays, parDomaine } = donnees;
   const promos = Object.entries(parPromo ?? {})
     .map(([num, n]) => [Number(num), n])
     .filter(([, n]) => n > 0)
     .sort((a, b) => a[0] - b[0]);
+  // aperçu compact des domaines les plus représentés (la roue plus haut sert
+  // déjà à les PARCOURIR un par un — ceci ne donne qu'un chiffre en un coup d'œil)
+  const domainesTries = Object.entries(parDomaine ?? {})
+    .filter(([cle, n]) => cle !== "autre" && n > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 6);
 
   // complétion : même fonction que Mon profil (source de vérité unique)
   const completion = tauxCompletion(moi);
@@ -125,6 +132,39 @@ export default function AccueilMembre({ moi, donnees }) {
           }))} />
       </section>
       </Reveal>
+
+      {parPays && Object.keys(parPays).length > 0 && (
+        <Reveal>
+        <section className="a-section" style={{ paddingBottom: 30 }}>
+          <h2 className="a-titre">Le réseau dans le monde</h2>
+          <p className="a-sous">Touche un pays pour voir qui y est.</p>
+          <NuagePays parPays={parPays} />
+        </section>
+        </Reveal>
+      )}
+
+      {domainesTries.length > 0 && (
+        <Reveal>
+        <section className="a-section" style={{ paddingBottom: 30 }}>
+          <h2 className="a-titre">Qui fait quoi</h2>
+          <p className="a-sous">Touche un domaine pour voir qui y est.</p>
+          <div className="am-anneaux">
+            {domainesTries.map(([cle, n]) => {
+              const pct = Math.round((n / domainesTries[0][1]) * 100);
+              return (
+                <Link key={cle} href={`/annuaire?domaine=${cle}`} className="am-anneau-bloc">
+                  <span className="am-anneau" style={{ background: `conic-gradient(#3B6FD1 ${pct * 3.6}deg, rgba(147,165,192,.18) ${pct * 3.6}deg)` }}>
+                    <span className="am-anneau-int"><IconeDomaine domaine={cle} taille={18} /></span>
+                  </span>
+                  <b>{n}</b>
+                  <span className="am-anneau-nom">{nomDomaine(cle)}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+        </Reveal>
+      )}
 
       {promos.length > 0 && (
         <Reveal>

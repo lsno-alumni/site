@@ -178,6 +178,64 @@
 .am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
+/* nuage de bulles pays (NuagePays.js) — une bulle par pays représenté, taille
+   proportionnelle à l'effectif. Seul un `transform` anime (la respiration au
+   repos) : jamais de flou/opacité en mouvement, c'est CE genre de calque qui
+   avait corrompu le rendu GPU sur les Mali (voir .tabbar). */
+.np-zone { position: relative; width: 100%; aspect-ratio: 1 / 1; margin: 18px 0 4px; }
+.np-bulle {
+  position: absolute; display: block; cursor: pointer;
+  animation: np-respire 7s ease-in-out infinite;
+  transform-origin: center;
+}
+.np-disque {
+  display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+  box-shadow: 0 8px 18px -8px rgba(0,0,0,.55), 0 0 0 1px rgba(245,241,232,.1);
+  transition: box-shadow .25s;
+}
+.np-bulle:hover .np-disque, .np-bulle:focus-visible .np-disque { box-shadow: 0 10px 22px -6px rgba(0,0,0,.6), 0 0 0 2px var(--or); }
+.np-disque img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.np-badge {
+  /* 85.36% = 50% + 50%×cos45° : le point où le CERCLE touche réellement la
+     diagonale bas-droite de sa boîte — pas le coin de la boîte (un cercle
+     ne le touche jamais, l'écart grandit avec le rayon : invisible sur une
+     petite bulle, franchement détaché sur une grande). En %, ça s'adapte
+     tout seul à n'importe quelle taille de bulle, présente ou future. */
+  position: absolute; left: 85.36%; top: 85.36%; transform: translate(-50%, -50%);
+  min-width: 19px; height: 19px; padding: 0 4px; border-radius: 100px;
+  background: var(--or); color: var(--encre); font-weight: 700; font-size: 10.5px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 2px var(--encre);
+  font-variant-numeric: tabular-nums;
+}
+@keyframes np-respire {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.015); }
+}
+@media (prefers-reduced-motion: reduce) { .np-bulle { animation: none; } }
+
+/* aperçu compact des domaines (anneaux) — la roue « Chercher par domaine »
+   plus haut sert à les PARCOURIR ; ceci ne donne qu'un chiffre en un coup
+   d'œil, jamais les deux mêmes rôles. Même mécanique que l'anneau de
+   complétion du profil (.e-cerc, mon-profil) : conic-gradient posé en
+   ligne, pas de SVG, pas de librairie de graphiques. */
+.am-anneaux { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; margin-top: 16px; }
+.am-anneau-bloc {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  text-align: center; color: var(--craie-2);
+}
+.am-anneau {
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+  transition: transform .25s;
+}
+.am-anneau-bloc:hover .am-anneau { transform: scale(1.06); }
+.am-anneau-int {
+  width: 42px; height: 42px; border-radius: 50%; background: var(--carte);
+  display: grid; place-items: center; color: var(--craie);
+}
+.am-anneau-bloc b { font-family: var(--font-titres), serif; font-size: 15px; color: var(--craie); margin-top: -2px; }
+.am-anneau-nom { font-size: 11px; color: var(--brume); line-height: 1.3; }
+
 /* petit bouton vers l'espace conseils, en haut à droite du titre de l'annuaire */
 .n-vers-conseils {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;

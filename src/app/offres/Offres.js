@@ -9,7 +9,8 @@ import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Surligne, { plat } from "@/components/Surligne";
 import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { DOMAINES, LISTE_PAYS, nomPays } from "@/lib/donnees";
+import { DOMAINES, nomPays } from "@/lib/donnees";
+import ChoixPays from "@/components/ChoixPays";
 
 const TYPES = [
   { cle: "stage", nom: "Stage" },
@@ -289,10 +290,8 @@ export default function Offres() {
           <div className="champ" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <label htmlFor="o-pays">Pays</label>
-              <select id="o-pays" className="saisie" value={form.pays} onChange={(e) => setForm({ ...form, pays: e.target.value })}>
-                <option value="">—</option>
-                {LISTE_PAYS.map(([code, nom]) => <option key={code} value={code}>{nom}</option>)}
-              </select>
+              <ChoixPays id="o-pays" valeur={form.pays || null}
+                onChange={(code) => setForm({ ...form, pays: code ?? "" })} />
             </div>
             <div>
               <label htmlFor="o-ville">Ville</label>

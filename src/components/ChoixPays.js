@@ -94,7 +94,7 @@ export default function ChoixPays({ id, valeur, onChange, obligatoire = false })
             <button key={code} type="button" role="option" aria-selected={code === valeur} onClick={() => choisir(code)}
               style={{
                 display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left",
-                background: code === valeur ? "rgba(232,179,60,.12)" : "none", border: "none",
+                background: code === valeur ? "rgba(59,111,209,.12)" : "none", border: "none",
                 borderRadius: 12, padding: "10px 10px", cursor: "pointer", color: "var(--craie)", font: "inherit",
               }}>
               <img className="drapo" src={PAYS[code].drapeau} alt="" />

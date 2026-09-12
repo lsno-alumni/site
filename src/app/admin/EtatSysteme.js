@@ -111,7 +111,7 @@ export default function EtatSysteme() {
           {/* le rappel appartient à l'interrupteur : il doit le suivre
               immédiatement, et non se retrouver en bas de la carte */}
           {!emailsAdmins && (
-            <p style={{ fontSize: 12, color: "var(--or-clair)", lineHeight: 1.5, margin: 0 }}>
+            <p style={{ fontSize: 12, color: "var(--bleu-clair)", lineHeight: 1.5, margin: 0 }}>
               ⏸ En pause : à réactiver quand tu veux suivre à nouveau chaque inscription par email.
             </p>
           )}

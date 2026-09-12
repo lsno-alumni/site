@@ -126,7 +126,7 @@ export default function DoubleAuth({ profil }) {
       <b style={titre}>
         {facteur
           ? <ShieldCheck size={17} strokeWidth={1.9} aria-hidden style={{ color: "#9FD8B4" }} />
-          : <ShieldAlert size={17} strokeWidth={1.9} aria-hidden style={{ color: "var(--or-clair)" }} />}
+          : <ShieldAlert size={17} strokeWidth={1.9} aria-hidden style={{ color: "var(--bleu-clair)" }} />}
         Double authentification
       </b>
 
@@ -185,7 +185,7 @@ export default function DoubleAuth({ profil }) {
               </div>
             </details>
           )}
-          <p style={{ ...aide, color: "var(--or-clair)" }}>
+          <p style={{ ...aide, color: "var(--bleu-clair)" }}>
             Si ton appli contient déjà une ligne « lsno-alumni.vercel.app », <b>supprime-la</b> :
             elle ne donnera plus de code valable, et rien ne permet de les distinguer — l&apos;appli
             reçoit toujours la même étiquette.
@@ -217,7 +217,7 @@ export default function DoubleAuth({ profil }) {
             <p style={{ ...aide, marginTop: 8 }}>
               Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--craie)" }}>nouvelle
               connexion</b> : fermer l&apos;appli et la rouvrir ne redemande rien.
-              <br /><b style={{ color: "var(--or-clair)" }}>Téléphone perdu ?</b>{" "}Un administrateur
+              <br /><b style={{ color: "var(--bleu-clair)" }}>Téléphone perdu ?</b>{" "}Un administrateur
               peut retirer la protection depuis « Gérer un membre », après avoir vérifié ton
               identité — tu te reconnectes alors avec ton mot de passe, puis tu la réactives.
             </p>
@@ -230,7 +230,7 @@ export default function DoubleAuth({ profil }) {
       )}
 
       {message && (
-        <p role="alert" style={{ ...aide, color: message.includes("✓") ? "#9FD8B4" : "var(--or-clair)" }}>
+        <p role="alert" style={{ ...aide, color: message.includes("✓") ? "#9FD8B4" : "var(--bleu-clair)" }}>
           {message}
         </p>
       )}

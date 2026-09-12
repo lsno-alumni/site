@@ -64,7 +64,7 @@ const ORGANISATION = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr" data-scroll-behavior="smooth">
+    <html lang="fr">
       <body className={`${titres.variable} ${ui.variable}`}>
         <script
           type="application/ld+json"

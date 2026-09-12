@@ -22,7 +22,8 @@
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.4",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10"
+    "eslint-config-next": "16.2.10",
+    "flag-icons": "^7.5.0"
   },
   "overrides": {
     "postcss": "^8.5.18",

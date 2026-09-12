@@ -149,7 +149,7 @@
 .am-nouveau-detail { font-size: 10px; color: var(--brume); display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* les initiales gardent le style de l'annuaire (la règle du texte de carte
    écrasait leur couleur/taille) */
-.am-nouveau .avatar-init { font-size: 17px; color: var(--encre); }
+.am-nouveau .avatar-init { font-size: 17px; }
 .am-offres { display: grid; gap: 9px; }
 .am-offre {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px;
@@ -171,11 +171,13 @@
 .am-promo {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   padding: 13px 14px 11px;
-  background: var(--carte); border: 1px solid var(--ligne); border-radius: 18px;
+  /* même bleu que les anneaux de domaines — cartes harmonisées, l'or reste
+     réservé au reste de la page (boutons, complétion…) */
+  background: var(--carte); border: 1px solid rgba(30,58,98,1); border-radius: 18px;
   transition: border-color .25s, transform .25s;
 }
-.am-promo:hover { border-color: rgba(232,179,60,.4); transform: translateY(-2px); }
-.am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: var(--or-clair); }
+.am-promo:hover { border-color: #3B6FD1; transform: translateY(-2px); }
+.am-promo b { font-family: var(--font-titres), serif; font-size: 19px; color: #3B6FD1; }
 .am-promo span { font-size: 11.5px; color: var(--brume); }
 
 /* nuage de bulles pays (NuagePays.js) — une bulle par pays représenté, taille
@@ -1068,7 +1070,6 @@
   flex-shrink: 0; display: grid !important; place-items: center;
   font-size: 16px; font-weight: 800; line-height: 1;
 }
-.roue3d-photo.avatar-init { color: var(--encre); }
 @media (prefers-reduced-motion: reduce) { .roue3d-roue { transition: none !important; } }
 /* sur un cylindre, les cartes doivent toutes faire la même largeur : le
    médaillon de promotion, lui, s'adaptait à son contenu */

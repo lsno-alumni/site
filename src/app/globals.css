@@ -89,9 +89,17 @@ button { font-family: inherit; color: inherit; }
 .saisie::placeholder { color: var(--brume); }
 select.saisie { appearance: none; cursor: pointer; }
 
+/* dégradé radial (pas linéaire) : un point de lumière décalé en haut à
+   gauche façon sphère/bouton verni, plutôt qu'un simple aplat en pente —
+   même esprit « premium » que le reflet des boutons or, mais fixe (pas
+   d'animation en boucle : ce badge apparaît en DIZAINES dans une liste qui
+   défile, un balayage continu sur chacun deviendrait vite trop chargé).
+   Le bleu foncé de fond ne se lit qu'avec un texte clair — inverse du or,
+   assez pâle pour rester sombre avec un texte encre. */
 .avatar-init {
-  background: linear-gradient(135deg, var(--or), var(--or-clair));
-  display: grid; place-items: center; font-weight: 800; color: var(--encre);
+  background: radial-gradient(circle at 30% 25%, #4E85E0 0%, #2E5590 45%, #1E3A62 100%);
+  box-shadow: inset 0 2px 3px rgba(255,255,255,.22), inset 0 -4px 8px rgba(0,0,0,.3);
+  display: grid; place-items: center; font-weight: 800; color: var(--craie);
 }
 
 .drapo {

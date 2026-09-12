@@ -24,12 +24,12 @@ export default function AccueilMembre({ moi, donnees }) {
     .map(([num, n]) => [Number(num), n])
     .filter(([, n]) => n > 0)
     .sort((a, b) => a[0] - b[0]);
-  // aperçu compact des domaines les plus représentés (la roue plus haut sert
-  // déjà à les PARCOURIR un par un — ceci ne donne qu'un chiffre en un coup d'œil)
+  // aperçu compact des domaines représentés (la roue plus haut sert déjà à
+  // les PARCOURIR un par un — ceci ne donne qu'un chiffre en un coup d'œil).
+  // Tous s'affichent, aucun plafond — comme le nuage de pays.
   const domainesTries = Object.entries(parDomaine ?? {})
     .filter(([cle, n]) => cle !== "autre" && n > 0)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 6);
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
   // complétion : même fonction que Mon profil (source de vérité unique)
   const completion = tauxCompletion(moi);

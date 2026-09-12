@@ -31,16 +31,7 @@ export const SITUATIONS = [
   { cle: "recherche", nom: "En recherche" },
 ];
 
-export const PAYS = {
-  BF: { nom: "Burkina Faso", drapeau: "/img/v3_00.png" },
-  MA: { nom: "Maroc", drapeau: "/img/v3_01.png" },
-  FR: { nom: "France", drapeau: "/img/v3_02.png" },
-  CA: { nom: "Canada", drapeau: "/img/v3_03.png" },
-  SN: { nom: "Sénégal", drapeau: "/img/v3_04.png" },
-};
-
 // Liste de sélection du profil (destinations fréquentes des anciens).
-// Un pays sans drapeau dans PAYS s'affiche simplement sans icône.
 export const LISTE_PAYS = [
   ["BF", "Burkina Faso"], ["MA", "Maroc"], ["SN", "Sénégal"], ["CI", "Côte d'Ivoire"],
   ["TN", "Tunisie"], ["DZ", "Algérie"], ["TG", "Togo"], ["BJ", "Bénin"],
@@ -51,6 +42,14 @@ export const LISTE_PAYS = [
   ["CN", "Chine"], ["JP", "Japon"], ["TR", "Turquie"], ["RU", "Russie"],
   ["SA", "Arabie saoudite"], ["AE", "Émirats arabes unis"], ["XX", "Autre pays"],
 ];
+
+// Un drapeau par code ISO de LISTE_PAYS (SVG, package `flag-icons`, copiés
+// dans public/img/drapeaux/ — voir CONTRIBUTING pour regénérer la liste si
+// LISTE_PAYS gagne un pays). « XX » (Autre pays) n'en a jamais eu besoin.
+export const PAYS = Object.fromEntries(
+  LISTE_PAYS.filter(([code]) => code !== "XX")
+    .map(([code, nom]) => [code, { nom, drapeau: `/img/drapeaux/${code.toLowerCase()}.svg` }])
+);
 
 export function nomPays(code) {
   return LISTE_PAYS.find(([c]) => c === code)?.[1] ?? code;

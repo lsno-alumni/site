@@ -69,7 +69,7 @@ export default function Bienvenue() {
               Tu recevras un email dès que c&apos;est fait.
             </p>
             <div className="f-note" style={{ margin: "22px 24px 0", textAlign: "left" }}>
-              <span className="ico" style={{ width: 34, height: 34, borderRadius: 11, display: "grid", placeItems: "center", background: "rgba(59,111,209,.12)", color: "var(--bleu-clair)", flexShrink: 0 }}>
+              <span className="ico" style={{ width: 34, height: 34, borderRadius: 11, display: "grid", placeItems: "center", background: "rgba(59,111,209,.12)", color: "var(--bleu-texte)", flexShrink: 0 }}>
                 <Hourglass size={16} strokeWidth={1.8} aria-hidden />
               </span>
               <span>

@@ -125,7 +125,7 @@ export function SuiteProfil({ p, contacts, demande, id }) {
 
       {lignes.length > 0 && (
         <section className="p-contacts">
-          <h4 style={{ fontSize: 11, letterSpacing: ".3em", textTransform: "uppercase", color: "var(--bleu-clair)", marginBottom: 6 }}>
+          <h4 style={{ fontSize: 11, letterSpacing: ".3em", textTransform: "uppercase", color: "var(--bleu-texte)", marginBottom: 6 }}>
             Contact
           </h4>
           {lignes.map((l) =>

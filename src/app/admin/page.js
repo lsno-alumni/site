@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
-import { Lock } from "lucide-react";
+import { Lock, ChevronDown } from "lucide-react";
 import { SqueletteEnTeteListe, SqueletteFiche } from "@/components/Squelettes";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Surligne, { plat } from "@/components/Surligne";
@@ -202,57 +202,70 @@ export default function Validation() {
 
         {moi?.role === "admin" && (
           <>
-            <h2 className="a-titre" style={{ marginTop: 18, scrollMarginTop: 12 }} id="sec-roles">Rôles</h2>
-            <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6 }}>
-              Un délégué valide les inscriptions de sa promotion.
-            </p>
-            <input
-              className="saisie"
-              placeholder="Chercher un membre…"
-              value={rechercheRole}
-              onChange={(e) => setRechercheRole(e.target.value)}
-              aria-label="Chercher un membre"
-            />
-            {/* filtrer par promotion et/ou regrouper la liste par promotion */}
-            <div className="n-filtres" style={{ position: "static", padding: "10px 0" }}>
-              <select className="puce" value={promoRole} onChange={(e) => setPromoRole(e.target.value)}
-                aria-label="Filtrer les rôles par promotion">
-                <option value="">Promo — toutes</option>
-                {promosMembres.map((n) => <option key={n} value={String(n)}>Promo {n}</option>)}
-              </select>
-              <button className={`puce${triPromo ? " active" : ""}`} onClick={() => setTriPromo(!triPromo)}
-                aria-pressed={triPromo}>
-                Classer par promotion
-              </button>
-              <span className="puce" style={{ borderStyle: "dashed", cursor: "default" }}>
-                {membresFiltres.length} membre{membresFiltres.length > 1 ? "s" : ""}
-              </span>
-            </div>
-            {membresFiltres.map((m) => (
-              <div key={m.id} className="e-ligne">
-                <span className="val">
-                  <b style={{ fontSize: 13.5 }}><Surligne texte={`${m.prenom} ${m.nom}`} terme={rechercheRole} /></b>
-                  <span style={{ color: "var(--brume)", fontSize: 12 }}>
-                    {" "}· Promo {m.promotions?.numero}
-                    {m.role === "admin" && " · admin"}
-                    {m.role === "delegue" && " · délégué·e"}
-                  </span>
+            {/* repliée par défaut : ouvrir l'onglet affichait sinon la liste des
+                ~200 membres en entier avant même d'avoir cherché quoi que ce
+                soit — repliable comme les grandes sections de Mon profil */}
+            <details className="grande-partie" id="sec-roles" style={{ marginTop: 18, scrollMarginTop: 12 }}>
+              <summary className="a-titre" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+                Rôles
+                <span style={{ fontSize: 13, fontWeight: 400, color: "var(--brume)" }}>
+                  ({membres.length} membre{membres.length > 1 ? "s" : ""})
                 </span>
-                {m.role === "admin" ? (
-                  <span style={{ fontSize: 11, color: "var(--bleu-clair)" }}>—</span>
-                ) : m.role === "delegue" ? (
-                  <button className="btn btn-nu" style={{ padding: "8px 14px", fontSize: 12 }}
-                    onClick={() => changerRole(m, "membre")}>
-                    Retirer délégué
+                <ChevronDown size={18} className="chevron" aria-hidden style={{ marginLeft: "auto" }} />
+              </summary>
+              <div style={{ marginTop: 10 }}>
+                <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6, marginBottom: 12 }}>
+                  Un délégué valide les inscriptions de sa promotion.
+                </p>
+                <input
+                  className="saisie"
+                  placeholder="Chercher un membre…"
+                  value={rechercheRole}
+                  onChange={(e) => setRechercheRole(e.target.value)}
+                  aria-label="Chercher un membre"
+                />
+                {/* filtrer par promotion et/ou regrouper la liste par promotion */}
+                <div className="n-filtres" style={{ position: "static", padding: "10px 0" }}>
+                  <select className="puce" value={promoRole} onChange={(e) => setPromoRole(e.target.value)}
+                    aria-label="Filtrer les rôles par promotion">
+                    <option value="">Promo — toutes</option>
+                    {promosMembres.map((n) => <option key={n} value={String(n)}>Promo {n}</option>)}
+                  </select>
+                  <button className={`puce${triPromo ? " active" : ""}`} onClick={() => setTriPromo(!triPromo)}
+                    aria-pressed={triPromo}>
+                    Classer par promotion
                   </button>
-                ) : (
-                  <button className="btn btn-or" style={{ padding: "8px 14px", fontSize: 12 }}
-                    onClick={() => changerRole(m, "delegue")}>
-                    Faire délégué·e
-                  </button>
-                )}
+                  <span className="puce" style={{ borderStyle: "dashed", cursor: "default" }}>
+                    {membresFiltres.length} membre{membresFiltres.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+                {membresFiltres.map((m) => (
+                  <div key={m.id} className="e-ligne">
+                    <span className="val">
+                      <b style={{ fontSize: 13.5 }}><Surligne texte={`${m.prenom} ${m.nom}`} terme={rechercheRole} /></b>
+                      <span style={{ color: "var(--brume)", fontSize: 12 }}>
+                        {" "}· Promo {m.promotions?.numero}
+                        {m.role === "admin" && " · admin"}
+                        {m.role === "delegue" && " · délégué·e"}
+                      </span>
+                    </span>
+                    {m.role === "admin" ? (
+                      <span style={{ fontSize: 11, color: "var(--bleu-texte)" }}>—</span>
+                    ) : m.role === "delegue" ? (
+                      <button className="btn btn-nu" style={{ padding: "8px 14px", fontSize: 12 }}
+                        onClick={() => changerRole(m, "membre")}>
+                        Retirer délégué
+                      </button>
+                    ) : (
+                      <button className="btn btn-or" style={{ padding: "8px 14px", fontSize: 12 }}
+                        onClick={() => changerRole(m, "delegue")}>
+                        Faire délégué·e
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </details>
 
             <div id="sec-gerer" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <GestionMembre moiId={moi.id} signale={(m) => {

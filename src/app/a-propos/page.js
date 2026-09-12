@@ -32,14 +32,14 @@ export default function APropos() {
         <BlocInstallation />
 
         <div style={{ borderTop: "1px solid var(--ligne)", paddingTop: 18, marginTop: 10, fontSize: 12.5, color: "var(--brume)", lineHeight: 1.65 }}>
-          <p style={{ fontSize: 11, letterSpacing: ".25em", textTransform: "uppercase", color: "var(--bleu-clair)", marginBottom: 8 }}>
+          <p style={{ fontSize: 11, letterSpacing: ".25em", textTransform: "uppercase", color: "var(--bleu-texte)", marginBottom: 8 }}>
             Mentions
           </p>
           <p>
             LSNO Amicale (aussi appelée LSNO Alumni) est une plateforme associative à but non
             lucratif, éditée et administrée bénévolement par des anciens élèves du Lycée
             Scientifique National de Ouagadougou — indépendante de l&apos;administration du lycée.
-            Contact : <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>lsno.alumni@gmail.com</a>.
+            Contact : <a href="mailto:lsno.alumni@gmail.com" style={{ color: "var(--bleu-texte)", textDecoration: "underline" }}>lsno.alumni@gmail.com</a>.
           </p>
           <p style={{ marginTop: 8 }}>
             Hébergement : Vercel · données stockées chez Supabase.
@@ -49,7 +49,7 @@ export default function APropos() {
             aucun traceur publicitaire.
           </p>
           <p style={{ marginTop: 8 }}>
-            <Link href="/conditions" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>
+            <Link href="/conditions" style={{ color: "var(--bleu-texte)", textDecoration: "underline" }}>
               Conditions d&apos;utilisation &amp; confidentialité
             </Link>
           </p>

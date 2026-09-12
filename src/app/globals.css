@@ -15,6 +15,10 @@
      encore été basculé, mais l'accent principal, c'est --bleu désormais */
   --bleu: #1E3A62;
   --bleu-clair: #3B6FD1;
+  /* --bleu-clair reste tel quel pour les fonds pleins (boutons, badges) ;
+     pour du TEXTE, un cran plus lumineux — plus facile à lire, jugé trop
+     sombre en --bleu-clair sur les petits libellés/liens. */
+  --bleu-texte: #6FA8F5;
   --brume: #93A5C0;
   --ligne: rgba(147, 165, 192, .16);
   --vert-ok: #63C784;
@@ -37,10 +41,18 @@ body {
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, .serif { font-family: var(--font-titres), serif; font-weight: 600; }
-h1 em, h2 em, h3 em { font-style: italic; color: var(--bleu-clair); }
+h1 em, h2 em, h3 em { font-style: italic; color: var(--bleu-texte); }
 /* color: inherit — sans ça, un <button> servant de conteneur (résultat de
    recherche admin…) prend le noir par défaut du navigateur au lieu de la craie */
 button { font-family: inherit; color: inherit; }
+
+/* <details>/<summary> repliables (Mon profil, Rôles admin…) : le triangle
+   natif du navigateur passe facilement inaperçu — on le remplace par un
+   chevron explicite qui pivote à l'ouverture. */
+summary { list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary .chevron { transition: transform .25s; flex-shrink: 0; color: var(--brume); }
+details[open] > summary .chevron { transform: rotate(180deg); }
 
 /* ---------- boutons ---------- */
 .btn {
@@ -69,7 +81,7 @@ button { font-family: inherit; color: inherit; }
 .btn-bloc { width: 100%; padding: 16px; }
 
 /* ---------- éléments partagés ---------- */
-.tagline { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-clair); }
+.tagline { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); }
 .page { max-width: 480px; margin: 0 auto; min-height: 100dvh; position: relative; }
 .page-large { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
@@ -81,7 +93,7 @@ button { font-family: inherit; color: inherit; }
   background: var(--carte); border: 1px solid var(--ligne); color: var(--craie-2);
   display: inline-flex; align-items: center; gap: 5px;
 }
-.meta.doree { background: rgba(59, 111, 209, .12); border-color: rgba(59, 111, 209, .35); color: var(--bleu-clair); }
+.meta.doree { background: rgba(59, 111, 209, .12); border-color: rgba(59, 111, 209, .35); color: var(--bleu-texte); }
 .meta.verte { color: #9FD8B4; border-color: rgba(99, 199, 132, .35); }
 
 .champ label {
@@ -149,8 +161,8 @@ select.saisie { appearance: none; cursor: pointer; }
 .tab .tico { font-size: 17px; line-height: 1; }
 .tab svg { display: block; }
 .menu-panneau a svg { color: var(--brume); }
-.menu-panneau a.dore svg { color: var(--bleu-clair); }
-.tab.on { color: var(--bleu-clair); }
+.menu-panneau a.dore svg { color: var(--bleu-texte); }
+.tab.on { color: var(--bleu-texte); }
 .tab.on::after { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--bleu); }
 .avec-tabbar {
   padding-bottom: 90px;
@@ -204,7 +216,7 @@ select.saisie { appearance: none; cursor: pointer; }
   border-radius: 50%; background: var(--encre); border: 2px solid var(--bleu);
 }
 .pas.actuel::before { background: var(--bleu-clair); box-shadow: 0 0 0 5px rgba(59, 111, 209, .18); }
-.pas .annees { font-size: 11px; color: var(--bleu-clair); letter-spacing: .12em; }
+.pas .annees { font-size: 11px; color: var(--bleu-texte); letter-spacing: .12em; }
 .pas b { display: block; font-size: 14.5px; margin-top: 3px; }
 .pas span { font-size: 12.5px; color: var(--brume); display: block; margin-top: 2px; line-height: 1.5; }
 
@@ -224,7 +236,7 @@ select.saisie { appearance: none; cursor: pointer; }
   50% { box-shadow: 0 0 0 16px rgba(59, 111, 209, 0); transform: scale(1.04); }
 }
 .splash-nom { font-family: var(--font-titres), serif; font-size: 22px; font-weight: 600; }
-.splash-nom em { font-style: italic; color: var(--bleu-clair); }
+.splash-nom em { font-style: italic; color: var(--bleu-texte); }
 .splash-trait {
   width: 120px; height: 3px; border-radius: 100px; overflow: hidden; position: relative;
   background: rgba(147, 165, 192, .18);

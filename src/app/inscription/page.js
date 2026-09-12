@@ -191,7 +191,7 @@ export default function Inscription() {
                   ))}
                 </div>
                 {blocage && (
-                  <p style={{ fontSize: 12.5, color: "var(--bleu-clair)", lineHeight: 1.5, marginTop: 10 }}>
+                  <p style={{ fontSize: 12.5, color: "var(--bleu-texte)", lineHeight: 1.5, marginTop: 10 }}>
                     Le réseau s&apos;ouvre à partir de la <b>première</b> 🎓 — reviens à la rentrée
                     prochaine, ta place t&apos;attend !
                   </p>
@@ -230,7 +230,7 @@ export default function Inscription() {
                   Ton profil n&apos;est visible d&apos;aucun visiteur extérieur.
                   En envoyant ta demande, tu acceptes les{" "}
                   <Link href="/conditions" target="_blank" rel="noopener" style={{
-                    color: "var(--bleu-clair)", textDecoration: "underline", textUnderlineOffset: 3,
+                    color: "var(--bleu-texte)", textDecoration: "underline", textUnderlineOffset: 3,
                     display: "inline-block", padding: "4px 2px", margin: "-2px 0",
                   }}>
                     conditions d&apos;utilisation
@@ -259,9 +259,9 @@ export default function Inscription() {
                   {erreur.includes("existe déjà") && (
                     <>
                       {" "}
-                      <Link href="/connexion" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>Se connecter</Link>
+                      <Link href="/connexion" style={{ color: "var(--bleu-texte)", textDecoration: "underline" }}>Se connecter</Link>
                       {" · "}
-                      <Link href="/mot-de-passe/oubli" style={{ color: "var(--bleu-clair)", textDecoration: "underline" }}>Mot de passe oublié ?</Link>
+                      <Link href="/mot-de-passe/oubli" style={{ color: "var(--bleu-texte)", textDecoration: "underline" }}>Mot de passe oublié ?</Link>
                     </>
                   )}
                 </p>

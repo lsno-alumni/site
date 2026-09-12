@@ -237,7 +237,7 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             <span style={{ color: "var(--brume)" }}>Email de connexion : </span><b>{email}</b>
             {confirme === true && <span style={{ color: "#9FD8B4" }}> · confirmé ✓</span>}
             {confirme === false && (
-              <span style={{ color: "var(--bleu-clair)" }}> · pas encore confirmé</span>
+              <span style={{ color: "var(--bleu-texte)" }}> · pas encore confirmé</span>
             )}
             {double2fa !== null && (
               <span style={{ display: "block", marginTop: 4 }}>

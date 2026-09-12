@@ -126,7 +126,7 @@ export default function DoubleAuth({ profil }) {
       <b style={titre}>
         {facteur
           ? <ShieldCheck size={17} strokeWidth={1.9} aria-hidden style={{ color: "#9FD8B4" }} />
-          : <ShieldAlert size={17} strokeWidth={1.9} aria-hidden style={{ color: "var(--bleu-clair)" }} />}
+          : <ShieldAlert size={17} strokeWidth={1.9} aria-hidden style={{ color: "var(--bleu-texte)" }} />}
         Double authentification
       </b>
 
@@ -185,7 +185,7 @@ export default function DoubleAuth({ profil }) {
               </div>
             </details>
           )}
-          <p style={{ ...aide, color: "var(--bleu-clair)" }}>
+          <p style={{ ...aide, color: "var(--bleu-texte)" }}>
             Si ton appli contient déjà une ligne « lsno-alumni.vercel.app », <b>supprime-la</b> :
             elle ne donnera plus de code valable, et rien ne permet de les distinguer — l&apos;appli
             reçoit toujours la même étiquette.
@@ -217,7 +217,7 @@ export default function DoubleAuth({ profil }) {
             <p style={{ ...aide, marginTop: 8 }}>
               Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--craie)" }}>nouvelle
               connexion</b> : fermer l&apos;appli et la rouvrir ne redemande rien.
-              <br /><b style={{ color: "var(--bleu-clair)" }}>Téléphone perdu ?</b>{" "}Un administrateur
+              <br /><b style={{ color: "var(--bleu-texte)" }}>Téléphone perdu ?</b>{" "}Un administrateur
               peut retirer la protection depuis « Gérer un membre », après avoir vérifié ton
               identité — tu te reconnectes alors avec ton mot de passe, puis tu la réactives.
             </p>

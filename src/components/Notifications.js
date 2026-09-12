@@ -174,7 +174,7 @@ export default function Notifications({ profil }) {
               : "Être prévenu d'une demande de contact, d'une nouvelle offre… sans ouvrir le site."}
           </p>
           {message && (
-            <p style={{ fontSize: 12, color: "var(--bleu-clair)", marginTop: 6, lineHeight: 1.5 }}>{message}</p>
+            <p style={{ fontSize: 12, color: "var(--bleu-texte)", marginTop: 6, lineHeight: 1.5 }}>{message}</p>
           )}
 
           {/* appareils abonnés : un par navigateur. Utile quand on a activé les

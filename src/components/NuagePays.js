@@ -15,7 +15,6 @@ import { PAYS, nomPays } from "@/lib/donnees";
 // bulles au même endroit.
 const TAILLE = 320; // repère interne (unités arbitraires, mis à l'échelle en % au rendu)
 const ANGLE_OR = 2.399963; // nombre d'or en radians — répartition de départ organique
-const MAX_PAYS = 12; // au-delà, même après relâchement, le nuage redevient dense/illisible
 const MARGE = 14; // laisse la place au badge de compte, qui déborde du cercle propre à chaque bulle
 const ECART_MIN = 12; // écart minimal souhaité ENTRE deux bulles (pour le badge du voisin)
 
@@ -64,6 +63,13 @@ function relacher(items) {
 
 function empaqueter(entrees) {
   const max = Math.max(...entrees.map(([, n]) => n));
+  // TOUS les pays présents s'affichent (aucun plafond) — la taille de base
+  // et l'écart entre le plus petit et le plus grand cercle RÉTRÉCISSENT
+  // avec le nombre de pays, pour que le nuage reste lisible même si le
+  // réseau s'étend demain à bien plus de 16 pays sans qu'on ait à y retoucher.
+  const nb = entrees.length;
+  const rBase = Math.max(10, 18 - nb * 0.25);
+  const rGain = Math.max(20, 46 - nb * 1.1);
   const items = entrees
     .slice()
     // décroissant par effectif ; à égalité, ordre alphabétique du code —
@@ -72,8 +78,7 @@ function empaqueter(entrees) {
     // le signale comme un décalage, sans lien avec le hasard de la spirale
     // déjà rendue déterministe plus haut).
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, MAX_PAYS)
-    .map(([code, n]) => ({ code, n, r: 15 + Math.sqrt(n / max) * 42 }));
+    .map(([code, n]) => ({ code, n, r: rBase + Math.sqrt(n / max) * rGain }));
 
   const placees = [];
   items.forEach((it, i) => {

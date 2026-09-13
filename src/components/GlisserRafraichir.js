@@ -21,7 +21,26 @@ import { Loader2, ArrowDown, Check } from "lucide-react";
 //     sommet.
 // touch-action bascule dynamiquement selon la position de défilement —
 // c'est ce qui permet de couvrir toute la zone sans rien casser.
+//
+// ⚠ DÉSACTIVÉ SUR iOS (Safari ET Chrome iOS, qui partagent le même moteur
+// WebKit imposé par Apple) : le rebond élastique natif du haut de page y
+// est géré au niveau système, avant que notre JS (même preventDefault()
+// appelé au tout premier pixel) ne puisse réagir — essayé et confirmé
+// inefficace le 13/09. Seule solution qui marcherait : rendre la page
+// elle-même non-défilante et déplacer tout le défilement réel dans un
+// conteneur dédié (impact large : barre du bas, en-têtes collants, retour
+// de position, feuille glissante de profil) — écarté par l'utilisateur
+// (« laissons tomber »). Ne pas retenter de réparer ce geste sur iOS sans
+// qu'il ne le redemande explicitement ; Android n'est pas concerné.
 const SEUIL = 70; // px de tirage pour déclencher au lâcher
+
+function estIOS() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  if (/iPad|iPhone|iPod/.test(ua)) return true;
+  // iPadOS 13+ se déclare "MacIntel" mais garde un écran tactile
+  return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+}
 
 export default function GlisserRafraichir({ onRafraichir, children }) {
   const [enCours, setEnCours] = useState(false);
@@ -43,7 +62,7 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
   useEffect(() => {
     const zone = zoneRef.current;
     const icone = iconeRef.current;
-    if (!zone) return;
+    if (!zone || estIOS()) return;
     let y0 = 0, tient = false, decide = false, tirage = 0;
 
     // « pan-down » = le navigateur reste libre de faire défiler vers le bas

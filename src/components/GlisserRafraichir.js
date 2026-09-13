@@ -77,10 +77,15 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
       if (!tient) return;
       const dy = e.clientY - y0;
       if (!decide) {
-        // sous 8px, rien n'est encore tranché
-        if (Math.abs(dy) < 8) return;
         // vers le haut : ce n'est PAS nous (pan-down déjà natif de toute façon)
         if (dy < 0) { tient = false; return; }
+        if (dy === 0) return; // encore immobile
+        // Décidé dès le tout 1er pixel vers le bas (avant : seuil de 8px).
+        // Sur iPhone, attendre 8px pour appeler preventDefault() arrivait
+        // trop tard : le rebond élastique natif de Safari avait déjà pris
+        // la main avant que notre JS ne réagisse — la flèche apparaissait
+        // un instant puis repartait avec le rebond. Android tolère ce
+        // délai (pas de rebond natif concurrent au sommet), pas iOS.
         decide = true;
         if (icone) icone.style.transition = "none"; // suit le doigt 1 pour 1, sans retard
       }

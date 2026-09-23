@@ -252,6 +252,11 @@
 
 /* sections de l'espace admin : de l'air entre les blocs empilés */
 .sec-admin { display: grid; gap: 12px; margin-top: 14px; }
+/* un élément de grille ne rétrécit pas en dessous de son contenu le plus
+   large (min-width: auto) : la rangée de filtres de « Rôles », qui ne passe
+   pas à la ligne, élargissait ainsi TOUTE la colonne de l'onglet Validation
+   au-delà de l'écran (contenu coupé à droite, page décentrée) */
+.n-liste > *, .sec-admin > *, .sec-admin .carte-sombre > * { min-width: 0; }
 .sec-admin .a-titre { margin-top: 10px; }
 
 /* avatar de la gestion admin (taille et coins explicites hors .fiche) */

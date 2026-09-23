@@ -98,8 +98,11 @@ export default function Captcha({ onJeton, essai = 0, onAbandon }) {
   if (!captchaActif) return null;
 
   return (
-    <div>
-      <div ref={boite} style={{ minHeight: 65 }} />
+    <div style={{ minWidth: 0 }}>
+      {/* le cadre Cloudflare fait 300 px fixes : sur un téléphone étroit, dans une
+          carte, il débordait et décentrait la page — rogné à droite (logo), la
+          case à cocher reste à gauche, entière */}
+      <div ref={boite} style={{ minHeight: 65, maxWidth: "100%", overflow: "hidden" }} />
       {souci && (
         <p role="alert" style={{ fontSize: 12.5, color: "var(--bleu-texte)", lineHeight: 1.5, marginTop: 6 }}>
           {souci}

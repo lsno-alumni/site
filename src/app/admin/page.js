@@ -225,7 +225,7 @@ export default function Validation() {
                   aria-label="Chercher un membre"
                 />
                 {/* filtrer par promotion et/ou regrouper la liste par promotion */}
-                <div className="n-filtres" style={{ position: "static", padding: "10px 0" }}>
+                <div className="n-filtres" style={{ position: "static", padding: "10px 0", flexWrap: "wrap" }}>
                   <select className="puce" value={promoRole} onChange={(e) => setPromoRole(e.target.value)}
                     aria-label="Filtrer les rôles par promotion">
                     <option value="">Promo — toutes</option>

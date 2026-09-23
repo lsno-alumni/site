@@ -34,6 +34,8 @@ export default function EtatSysteme() {
   const [pushAdmins, setPushAdmins] = useState(null);     // idem (migration 45)
   const [bascule, setBascule] = useState("");             // clé en cours de bascule
   const [testPush, setTestPush] = useState("");
+  // null = fermée ; "…" = chargement ; tableau = affichée ; "absente" = migration 49 pas exécutée
+  const [fantomes, setFantomes] = useState(null);
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
@@ -52,6 +54,13 @@ export default function EtatSysteme() {
       .update({ actif: !valeur, maj_le: new Date().toISOString() }).eq("cle", cle);
     if (!error) poser((v) => !v);
     setBascule("");
+  };
+
+  const listerFantomes = async () => {
+    if (fantomes !== null) { setFantomes(null); return; }
+    setFantomes("…");
+    const { data, error } = await supabase.rpc("admin_liste_fantomes");
+    setFantomes(error ? "absente" : (data ?? []));
   };
 
   if (etat === null) return null;
@@ -80,9 +89,47 @@ export default function EtatSysteme() {
           );
         })}
         <div style={{ display: "flex", gap: 14, padding: "10px 0", fontSize: 12.5, color: "var(--brume)", flexWrap: "wrap" }}>
-          <span>Comptes fantômes à purger : <b style={{ color: "var(--craie)" }}>{etat.fantomes}</b></span>
+          <span>
+            Comptes fantômes à purger : <b style={{ color: "var(--craie)" }}>{etat.fantomes}</b>
+            {etat.fantomes > 0 && (
+              <button type="button" onClick={listerFantomes}
+                style={{ background: "none", border: "none", padding: "0 0 0 8px", cursor: "pointer",
+                  color: "var(--bleu-texte)", fontSize: 12.5, textDecoration: "underline", textUnderlineOffset: 3 }}>
+                {fantomes === null ? "voir la liste" : "masquer"}
+              </button>
+            )}
+          </span>
           <span>Offres expirant sous 14 j : <b style={{ color: "var(--craie)" }}>{etat.offres_expirent_14j}</b></span>
         </div>
+        {fantomes !== null && (
+          <div style={{ borderTop: "1px solid var(--ligne)", padding: "10px 0 12px", display: "grid", gap: 8, fontSize: 12.5 }}>
+            {fantomes === "…" && <span style={{ color: "var(--brume)" }}>Chargement…</span>}
+            {fantomes === "absente" && (
+              <span style={{ color: "var(--bleu-texte)", lineHeight: 1.5 }}>
+                Liste indisponible : la migration 49 n&apos;a pas encore été exécutée dans Supabase.
+              </span>
+            )}
+            {Array.isArray(fantomes) && (
+              <>
+                <span style={{ color: "var(--brume)", lineHeight: 1.5 }}>
+                  Email jamais confirmé depuis plus de 30 jours : ces comptes seront supprimés
+                  le 1er du mois. Pour en garder un, confirme son email dans « Gérer un membre ».
+                </span>
+                {fantomes.length === 0 && <span style={{ color: "var(--brume)" }}>Plus aucun compte concerné.</span>}
+                {fantomes.map((f) => (
+                  <div key={f.email} style={{ background: "rgba(245,241,232,.05)", border: "1px solid var(--ligne)", borderRadius: 12, padding: "9px 11px" }}>
+                    <b style={{ color: "var(--craie)", overflowWrap: "anywhere" }}>{f.email}</b>
+                    <span style={{ display: "block", color: "var(--brume)", fontSize: 12, marginTop: 2 }}>
+                      Inscrit le {new Date(f.cree_le).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                      {f.prenom ? ` · ${f.prenom} ${f.nom ?? ""}`.trimEnd() : " · profil jamais rempli"}
+                      {f.promotion ? ` · Promo ${f.promotion}` : ""}
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Interrupteur des EMAILS « nouvelle inscription » vers les admins.

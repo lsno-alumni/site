@@ -239,6 +239,7 @@ export default function Validation() {
                     {membresFiltres.length} membre{membresFiltres.length > 1 ? "s" : ""}
                   </span>
                 </div>
+                <div style={{ display: "grid", gap: 8 }}>
                 {membresFiltres.map((m) => (
                   <div key={m.id} className="e-ligne">
                     <span className="val">
@@ -264,6 +265,7 @@ export default function Validation() {
                     )}
                   </div>
                 ))}
+                </div>
               </div>
             </details>
 

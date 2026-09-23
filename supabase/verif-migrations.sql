@@ -116,6 +116,16 @@ with attendu(num, laisse, present) as (
   -- ⚠ ne JAMAIS citer une table créée par une migration dans ce fichier : si
   -- elle manque, tout le contrôle plante au lieu de dire « MANQUE » (vécu
   -- le 23/09 avec sante_fonctions_ouvertes). Passer par pg_proc / to_regclass.
+  union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
+    exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'
+              and p.prosrc like '%is distinct from%')
+  union all select 50, 'admin_liste_non_confirmes() + compteur non_confirmes',
+    exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes')
+    and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                where n.nspname = 'public' and p.proname = 'admin_etat_systeme'
+                  and p.prosrc like '%non_confirmes%')
   union all select 49, 'admin_liste_fantomes() + compteur aligné sur la purge',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_fantomes')

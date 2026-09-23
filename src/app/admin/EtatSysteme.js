@@ -24,6 +24,19 @@ const NOMS = {
   "push-rentree-octobre": "Notifications de la rentrée (1er octobre)",
 };
 
+// les deux listes de comptes dépliables sous « État du système »
+const LISTES = {
+  fantomes: {
+    rpc: "admin_liste_fantomes", migration: 49,
+    intro: "Email jamais confirmé depuis plus de 30 jours : ces comptes seront supprimés le 1er du mois. Pour en garder un, confirme son email dans « Gérer un membre ».",
+  },
+  nonConfirmes: {
+    rpc: "admin_liste_non_confirmes", migration: 50,
+    intro: "Tous les comptes dont l'email n'a jamais été confirmé, du plus récent au plus ancien. Un membre dans ce cas peut ne pas réussir à se connecter : confirme son email à la main dans « Gérer un membre ».",
+  },
+};
+const STATUTS = { valide: "validé", en_attente: "en attente de validation", suspendu: "suspendu" };
+
 const CLE_EMAILS = "emails_inscription_admins";  // les EMAILS aux admins
 const CLE_PUSH   = "push_inscription_admins";    // les NOTIFICATIONS aux admins (migration 45)
 
@@ -34,8 +47,9 @@ export default function EtatSysteme() {
   const [pushAdmins, setPushAdmins] = useState(null);     // idem (migration 45)
   const [bascule, setBascule] = useState("");             // clé en cours de bascule
   const [testPush, setTestPush] = useState("");
-  // null = fermée ; "…" = chargement ; tableau = affichée ; "absente" = migration 49 pas exécutée
-  const [fantomes, setFantomes] = useState(null);
+  // liste de comptes dépliée : null = aucune ; sinon { quoi, donnees } avec
+  // donnees = "…" (chargement), tableau, ou "absente" (erreur : motif dans erreur)
+  const [liste, setListe] = useState(null);
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
@@ -56,11 +70,11 @@ export default function EtatSysteme() {
     setBascule("");
   };
 
-  const listerFantomes = async () => {
-    if (fantomes !== null) { setFantomes(null); return; }
-    setFantomes("…");
-    const { data, error } = await supabase.rpc("admin_liste_fantomes");
-    setFantomes(error ? "absente" : (data ?? []));
+  const ouvrirListe = async (quoi) => {
+    if (liste?.quoi === quoi) { setListe(null); return; }
+    setListe({ quoi, donnees: "…" });
+    const { data, error } = await supabase.rpc(LISTES[quoi].rpc);
+    setListe({ quoi, donnees: error ? "absente" : (data ?? []), erreur: error?.message });
   };
 
   if (etat === null) return null;
@@ -92,38 +106,55 @@ export default function EtatSysteme() {
           <span>
             Comptes fantômes à purger : <b style={{ color: "var(--craie)" }}>{etat.fantomes}</b>
             {etat.fantomes > 0 && (
-              <button type="button" onClick={listerFantomes}
+              <button type="button" onClick={() => ouvrirListe("fantomes")}
                 style={{ background: "none", border: "none", padding: "0 0 0 8px", cursor: "pointer",
                   color: "var(--bleu-texte)", fontSize: 12.5, textDecoration: "underline", textUnderlineOffset: 3 }}>
-                {fantomes === null ? "voir la liste" : "masquer"}
+                {liste?.quoi === "fantomes" ? "masquer" : "voir la liste"}
               </button>
             )}
           </span>
+          {etat.non_confirmes !== undefined && (
+            <span>
+              Emails jamais confirmés : <b style={{ color: "var(--craie)" }}>{etat.non_confirmes}</b>
+              {etat.non_confirmes > 0 && (
+                <button type="button" onClick={() => ouvrirListe("nonConfirmes")}
+                style={{ background: "none", border: "none", padding: "0 0 0 8px", cursor: "pointer",
+                  color: "var(--bleu-texte)", fontSize: 12.5, textDecoration: "underline", textUnderlineOffset: 3 }}>
+                {liste?.quoi === "nonConfirmes" ? "masquer" : "voir la liste"}
+              </button>
+              )}
+            </span>
+          )}
           <span>Offres expirant sous 14 j : <b style={{ color: "var(--craie)" }}>{etat.offres_expirent_14j}</b></span>
         </div>
-        {fantomes !== null && (
+        {liste !== null && (
           <div style={{ borderTop: "1px solid var(--ligne)", padding: "10px 0 12px", display: "grid", gap: 8, fontSize: 12.5 }}>
-            {fantomes === "…" && <span style={{ color: "var(--brume)" }}>Chargement…</span>}
-            {fantomes === "absente" && (
+            {liste.donnees === "…" && <span style={{ color: "var(--brume)" }}>Chargement…</span>}
+            {liste.donnees === "absente" && (
               <span style={{ color: "var(--bleu-texte)", lineHeight: 1.5 }}>
-                Liste indisponible : la migration 49 n&apos;a pas encore été exécutée dans Supabase.
+                Liste indisponible. Si la migration{" "}{LISTES[liste.quoi].migration}{" "}n&apos;a pas encore
+                été exécutée dans Supabase, c&apos;est la cause la plus probable.
+                {liste.erreur && <span style={{ display: "block", color: "var(--brume)", fontSize: 11.5, marginTop: 4, overflowWrap: "anywhere" }}>Détail : {liste.erreur}</span>}
               </span>
             )}
-            {Array.isArray(fantomes) && (
+            {Array.isArray(liste.donnees) && (
               <>
-                <span style={{ color: "var(--brume)", lineHeight: 1.5 }}>
-                  Email jamais confirmé depuis plus de 30 jours : ces comptes seront supprimés
-                  le 1er du mois. Pour en garder un, confirme son email dans « Gérer un membre ».
-                </span>
-                {fantomes.length === 0 && <span style={{ color: "var(--brume)" }}>Plus aucun compte concerné.</span>}
-                {fantomes.map((f) => (
+                <span style={{ color: "var(--brume)", lineHeight: 1.5 }}>{LISTES[liste.quoi].intro}</span>
+                {liste.donnees.length === 0 && <span style={{ color: "var(--brume)" }}>Plus aucun compte concerné.</span>}
+                {liste.donnees.map((f) => (
                   <div key={f.email} style={{ background: "rgba(245,241,232,.05)", border: "1px solid var(--ligne)", borderRadius: 12, padding: "9px 11px" }}>
                     <b style={{ color: "var(--craie)", overflowWrap: "anywhere" }}>{f.email}</b>
-                    <span style={{ display: "block", color: "var(--brume)", fontSize: 12, marginTop: 2 }}>
+                    <span style={{ display: "block", color: "var(--brume)", fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>
                       Inscrit le {new Date(f.cree_le).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                       {f.prenom ? ` · ${f.prenom} ${f.nom ?? ""}`.trimEnd() : " · profil jamais rempli"}
                       {f.promotion ? ` · Promo ${f.promotion}` : ""}
+                      {f.statut ? ` · ${STATUTS[f.statut] ?? f.statut}` : ""}
                     </span>
+                    {f.sera_purge && (
+                      <span style={{ display: "block", color: "var(--rouge)", fontSize: 12, marginTop: 2 }}>
+                        Sera supprimé à la purge du 1er du mois
+                      </span>
+                    )}
                   </div>
                 ))}
               </>

@@ -60,7 +60,7 @@ export default function ChoixPays({ id, valeur, onChange, obligatoire = false })
             onChange={(e) => setRecherche(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Escape") setOuvert(false); if (e.key === "Enter" && resultats[0]) choisir(resultats[0][0]); }}
             placeholder="Rechercher un pays…" autoComplete="off"
-            style={{ flex: 1, background: "none", border: "none", outline: "none", color: "var(--craie)", font: "inherit", padding: "15px 0" }} />
+            style={{ flex: 1, background: "none", border: "none", outline: "none", color: "var(--texte)", font: "inherit", padding: "15px 0" }} />
           <button type="button" onClick={() => setOuvert(false)} aria-label="Fermer"
             style={{ background: "none", border: "none", color: "var(--brume)", cursor: "pointer", padding: 6, flexShrink: 0 }}>
             <X size={16} aria-hidden />
@@ -95,7 +95,7 @@ export default function ChoixPays({ id, valeur, onChange, obligatoire = false })
               style={{
                 display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left",
                 background: code === valeur ? "rgba(59,111,209,.12)" : "none", border: "none",
-                borderRadius: 12, padding: "10px 10px", cursor: "pointer", color: "var(--craie)", font: "inherit",
+                borderRadius: 12, padding: "10px 10px", cursor: "pointer", color: "var(--texte)", font: "inherit",
               }}>
               <img className="drapo" src={PAYS[code].drapeau} alt="" />
               <span><Surligne texte={nom} terme={recherche} /></span>

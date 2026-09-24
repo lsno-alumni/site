@@ -13,7 +13,7 @@ export default function APropos() {
         <RetourDynamique secours="/" libelle="Retour" />
         <h1>À propos<br />du <em>réseau</em></h1>
       </header>
-      <div className="f-corps" style={{ fontSize: 14.5, lineHeight: 1.7, color: "var(--craie-2)" }}>
+      <div className="f-corps" style={{ fontSize: 14.5, lineHeight: 1.7, color: "var(--texte-2)" }}>
         <p>
           <b>LSNO Amicale</b>{" "}est le réseau des anciens du Lycée Scientifique National
           de Ouagadougou. Né d&apos;une discussion entre promotions, il centralise les

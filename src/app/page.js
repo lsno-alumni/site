@@ -45,12 +45,12 @@ export default async function Accueil() {
           <Link href="/inscription" className="btn btn-or">Rejoindre le réseau</Link>
           <Link href="/connexion" className="btn btn-nu">Se connecter</Link>
         </div>
-        <div className="a-stats">
-          <div className="a-stat"><b><Compteur valeur={stats.anciens} /></b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
-          <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
-          <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
-        </div>
       </header>
+      <div className="a-stats">
+        <div className="a-stat"><b><Compteur valeur={stats.anciens} /></b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
+        <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
+        <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
+      </div>
 
       <Reveal>
       <section className="a-section">
@@ -74,7 +74,7 @@ export default async function Accueil() {
       </Reveal>
 
       <Reveal>
-      <section className="a-monde">
+      <section className="a-monde" data-nb={stats.pays}>
         <p className="tagline">Le réseau dans le monde</p>
         <h4 className="serif">
           {stats.pays > 1

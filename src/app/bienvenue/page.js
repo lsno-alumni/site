@@ -64,7 +64,7 @@ export default function Bienvenue() {
         ) : (
           <>
             <p>
-              Dernière étape : <b style={{ color: "var(--craie)" }}>un délégué de ta promotion</b>{" "}va
+              Dernière étape : <b style={{ color: "var(--texte)" }}>un délégué de ta promotion</b>{" "}va
               confirmer que tu es bien des nôtres — en général sous 24 h.
               Tu recevras un email dès que c&apos;est fait.
             </p>

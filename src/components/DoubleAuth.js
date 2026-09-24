@@ -154,11 +154,11 @@ export default function DoubleAuth({ profil }) {
       {enrolement && (
         <>
           <p style={aide}>
-            <b style={{ color: "var(--craie)" }}>1.</b>{" "}Installe une appli d&apos;authentification
+            <b style={{ color: "var(--texte)" }}>1.</b>{" "}Installe une appli d&apos;authentification
             si tu n&apos;en as pas (Google Authenticator, Microsoft Authenticator, Aegis…).
           </p>
           <p style={aide}>
-            <b style={{ color: "var(--craie)" }}>2.</b>{" "}Ajoute ce compte. Depuis ce téléphone,
+            <b style={{ color: "var(--texte)" }}>2.</b>{" "}Ajoute ce compte. Depuis ce téléphone,
             le plus simple est ce lien — il ouvre l&apos;appli directement :
           </p>
           <a className="btn btn-nu" href={enrolement.uri}
@@ -168,9 +168,9 @@ export default function DoubleAuth({ profil }) {
           <p style={aide}>
             Sinon, recopie cette clé à la main :<br />
             <code style={{
-              display: "block", marginTop: 6, padding: "8px 10px", background: "var(--encre)",
+              display: "block", marginTop: 6, padding: "8px 10px", background: "var(--fond)",
               border: "1px solid var(--ligne)", borderRadius: 10, fontSize: 12.5,
-              letterSpacing: 1, overflowWrap: "anywhere", color: "var(--craie-2)",
+              letterSpacing: 1, overflowWrap: "anywhere", color: "var(--texte-2)",
             }}>{enrolement.secret}</code>
           </p>
           {enrolement.qr && (
@@ -191,7 +191,7 @@ export default function DoubleAuth({ profil }) {
             reçoit toujours la même étiquette.
           </p>
           <p style={aide}>
-            <b style={{ color: "var(--craie)" }}>3.</b>{" "}Saisis le code affiché par l&apos;appli :
+            <b style={{ color: "var(--texte)" }}>3.</b>{" "}Saisis le code affiché par l&apos;appli :
           </p>
           <input className="saisie" inputMode="numeric" autoComplete="one-time-code"
             placeholder="123456" maxLength={6} value={code}
@@ -215,7 +215,7 @@ export default function DoubleAuth({ profil }) {
           <details>
             <summary style={{ ...aide, cursor: "pointer" }}>Ce que ça change</summary>
             <p style={{ ...aide, marginTop: 8 }}>
-              Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--craie)" }}>nouvelle
+              Le code n&apos;est demandé qu&apos;à une <b style={{ color: "var(--texte)" }}>nouvelle
               connexion</b> : fermer l&apos;appli et la rouvrir ne redemande rien.
               <br /><b style={{ color: "var(--bleu-texte)" }}>Téléphone perdu ?</b>{" "}Un administrateur
               peut retirer la protection depuis « Gérer un membre », après avoir vérifié ton

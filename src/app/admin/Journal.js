@@ -70,8 +70,8 @@ export function LigneJournal({ l, sansCible = false }) {
   const p = precision(l);
   return (
     <div style={{ padding: "9px 0", borderTop: "1px solid var(--ligne)", fontSize: 12.5, lineHeight: 1.45 }}>
-      <b style={{ color: "var(--craie)" }}>{ACTIONS[l.action] ?? l.action}</b>
-      {!sansCible && l.cible_nom && <span style={{ color: "var(--craie-2)" }}> · {l.cible_nom}</span>}
+      <b style={{ color: "var(--texte)" }}>{ACTIONS[l.action] ?? l.action}</b>
+      {!sansCible && l.cible_nom && <span style={{ color: "var(--texte-2)" }}> · {l.cible_nom}</span>}
       <div style={{ color: "var(--brume)", fontSize: 11.5, marginTop: 2, overflowWrap: "anywhere" }}>
         par {l.acteur_nom ?? "(système)"} · {quand(l.quand)}
         {p && <> · {p}</>}
@@ -172,7 +172,7 @@ export default function Journal() {
 
       {!ouvert ? (
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12.5, color: "var(--craie-2)", flex: 1, minWidth: 160 }}>
+          <span style={{ fontSize: 12.5, color: "var(--texte-2)", flex: 1, minWidth: 160 }}>
             {derniere === null ? "…"
               : derniere === false ? "Aucune action enregistrée pour l'instant."
               : <>Dernière : <b>{ACTIONS[derniere.action] ?? derniere.action}</b>

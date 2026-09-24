@@ -1,23 +1,25 @@
-import { Fraunces, Space_Grotesk } from "next/font/google";
+import { Fraunces, Instrument_Sans } from "next/font/google";
 import SuiviNavigation from "@/components/SuiviNavigation";
+import Theme from "@/components/Theme";
+import { SCRIPT_INITIAL } from "@/lib/theme";
 import "./globals.css";
 import "./ecrans.css";
 
 const titres = Fraunces({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  weight: ["500", "600"],
+  weight: ["400", "500", "600"],
   variable: "--font-titres",
 });
 
-const ui = Space_Grotesk({
+const ui = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-ui",
 });
 
-// la barre du navigateur prend la couleur encre du site
-export const viewport = { themeColor: "#0A1B33" };
+// la barre du navigateur prend la couleur du fond ; mise à jour par le thème (src/lib/theme.js)
+export const viewport = { themeColor: "#F6F0E4" };
 
 export const metadata = {
   metadataBase: new URL("https://lsno-alumni.vercel.app"),
@@ -63,7 +65,11 @@ const ORGANISATION = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        {/* pose data-theme AVANT le premier rendu : pas de clignotement clair/sombre */}
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_INITIAL }} />
+      </head>
       <body className={`${titres.variable} ${ui.variable}`}>
         <script
           type="application/ld+json"
@@ -73,6 +79,7 @@ export default function RootLayout({ children }) {
         {/* mémorise la profondeur de navigation et les positions de défilement,
             pour un « ← Retour » fiable (voir SuiviNavigation.js) */}
         <SuiviNavigation />
+        <Theme />
       </body>
     </html>
   );

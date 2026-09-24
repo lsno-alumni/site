@@ -58,7 +58,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     // --encre-2 (un cran plus clair) marque « ceci flotte au-dessus de la
     // page » en aperçu ; en plein écran ce n'est plus une feuille mais LA
     // page — même --encre que la vraie /profil/[id]
-    f.style.background = e === "plein" ? "var(--encre)" : "";
+    f.style.background = e === "plein" ? "var(--fond)" : "";
     // sinon un doigt qui touche la couverture en plein écran ne ferait RIEN
     // (ni glissement — désactivé plus haut —, ni défilement natif, avalé
     // par ce touch-action resté à "none")

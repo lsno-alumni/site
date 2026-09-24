@@ -106,7 +106,7 @@ export default function AccueilMembre({ moi, donnees }) {
               <span>Promotion {conseil.promotions?.numero} · voir son parcours</span>
             </div>
           </Link>
-          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--encre)", opacity: .75 }}>
+          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--fond)", opacity: .75 }}>
             Tous les conseils par thème <ArrowRight size={13} aria-hidden />
           </Link>
         </section>
@@ -153,7 +153,7 @@ export default function AccueilMembre({ moi, donnees }) {
               const pct = Math.round((n / domainesTries[0][1]) * 100);
               return (
                 <Link key={cle} href={`/annuaire?domaine=${cle}`} className="am-anneau-bloc">
-                  <span className="am-anneau" style={{ background: `conic-gradient(#3B6FD1 ${pct * 3.6}deg, rgba(147,165,192,.18) ${pct * 3.6}deg)` }}>
+                  <span className="am-anneau" style={{ background: `conic-gradient(var(--bleu-clair) ${pct * 3.6}deg, var(--ligne) ${pct * 3.6}deg)` }}>
                     <span className="am-anneau-int"><IconeDomaine domaine={cle} taille={18} /></span>
                   </span>
                   <b>{n}</b>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X, LogIn, Sparkles, Info } from "lucide-react";
+import ChoixTheme from "@/components/ChoixTheme";
 
 export default function MenuPublic() {
   const [ouvert, setOuvert] = useState(false);
@@ -32,6 +33,7 @@ export default function MenuPublic() {
           <Link href="/a-propos" onClick={() => setOuvert(false)}>
             <Info size={16} strokeWidth={1.8} aria-hidden /> À propos
           </Link>
+          <ChoixTheme compact />
         </nav>
       )}
     </div>

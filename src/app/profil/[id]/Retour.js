@@ -15,7 +15,7 @@ export default function Retour() {
   };
   return (
     <button className="p-retour" onClick={retour} aria-label="Retour"
-      style={{ border: "1px solid rgba(245,241,232,.18)", color: "var(--craie)", cursor: "pointer" }}>
+      style={{ border: "1px solid rgba(245,241,232,.18)", color: "var(--texte)", cursor: "pointer" }}>
       ←
     </button>
   );

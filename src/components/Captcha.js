@@ -74,7 +74,7 @@ export default function Captcha({ onJeton, essai = 0, onAbandon }) {
         boite.current.innerHTML = "";
         widget = window.turnstile.render(boite.current, {
           sitekey: CLE_PUBLIQUE,
-          theme: "dark",
+          theme: document.documentElement.getAttribute("data-theme") === "sombre" ? "dark" : "light",
           language: "fr",
           callback: (jeton) => { clearTimeout(minuteur); setSouci(""); onJeton(jeton); },
           "expired-callback": () => onJeton(""),

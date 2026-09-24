@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Photo from "./Photo";
+import ChoixTheme from "@/components/ChoixTheme";
 import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
 import RetourDynamique from "@/components/RetourDynamique";
@@ -160,7 +161,7 @@ export default function MonProfil() {
       </header>
 
       <div className="e-completion">
-        <div className="e-cerc" style={{ background: `conic-gradient(var(--bleu-clair) ${completion * 3.6}deg, rgba(147,165,192,.18) ${completion * 3.6}deg)` }}>
+        <div className="e-cerc" style={{ background: `conic-gradient(var(--bleu-clair) ${completion * 3.6}deg, var(--ligne) ${completion * 3.6}deg)` }}>
           <b>{completion}%</b>
         </div>
         <div className="txt">
@@ -173,7 +174,7 @@ export default function MonProfil() {
         <DemandesRecues signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3500); }} />
 
         {aMigrer && (
-          <div style={{ background: "rgba(59,111,209,.12)", border: "1px solid rgba(59,111,209,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--craie)", lineHeight: 1.55 }}>
+          <div style={{ background: "rgba(59,111,209,.12)", border: "1px solid rgba(59,111,209,.4)", borderRadius: 16, padding: "14px 16px", fontSize: 13.5, color: "var(--texte)", lineHeight: 1.55 }}>
             🎉 Tu es maintenant un ancien ! Choisis ton <b>domaine</b>{" "}et ta <b>situation</b>{" "}
             ci-dessous, et n&apos;hésite pas à ajouter ton poste et un conseil aux cadets.
           </div>
@@ -197,7 +198,7 @@ export default function MonProfil() {
         <div className="champ">
           <label htmlFor="situation">Situation actuelle</label>
           {estEleve ? (
-            <p style={{ fontSize: 13, color: "var(--craie-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
+            <p style={{ fontSize: 13, color: "var(--texte-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
               🎓 Élève au lycée — tu choisiras ta situation quand tu commenceras tes études supérieures.
             </p>
           ) : (
@@ -212,7 +213,7 @@ export default function MonProfil() {
         <div className="champ">
           <label htmlFor="mp-domaine">Domaine principal</label>
           {estEleve ? (
-            <p style={{ fontSize: 13, color: "var(--craie-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
+            <p style={{ fontSize: 13, color: "var(--texte-2)", background: "var(--carte)", border: "1px solid var(--ligne)", borderRadius: 16, padding: "13px 16px" }}>
               🎓 Élève — ton domaine s&apos;ouvrira quand tu entreras dans les études supérieures.
             </p>
           ) : (
@@ -397,6 +398,13 @@ export default function MonProfil() {
         <DoubleAuth profil={profil} />
 
         <div className="grande-partie" style={{ display: "grid", gap: 18 }}>
+          <div className="champ">
+            <label>Apparence</label>
+            <ChoixTheme compact />
+            <p style={{ fontSize: 12, color: "var(--brume)", marginTop: 8, lineHeight: 1.5 }}>
+              « Auto » suit l&apos;heure de ton appareil : clair le jour, sombre la nuit.
+            </p>
+          </div>
           <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>
           <Link href="/mot-de-passe/nouveau" className="btn btn-nu btn-bloc">
             Changer mon mot de passe

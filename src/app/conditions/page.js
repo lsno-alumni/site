@@ -20,7 +20,7 @@ export default function Conditions() {
         <p>Ce que tu acceptes en rejoignant le réseau — et ce que nous faisons de tes données.</p>
       </header>
 
-      <div className="f-corps" style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--craie-2)", paddingBottom: 48 }}>
+      <div className="f-corps" style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--texte-2)", paddingBottom: 48 }}>
         <p style={{ fontSize: 12, color: "var(--brume)" }}>Dernière mise à jour : 29 juillet 2026</p>
 
         <Titre>1. Ce qu&apos;est LSNO Amicale</Titre>

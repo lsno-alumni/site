@@ -7,8 +7,8 @@ export default function manifest() {
     description: "Le réseau des anciens du Lycée Scientifique National de Ouagadougou.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0A1B33",
-    theme_color: "#0A1B33",
+    background_color: "#F6F0E4",
+    theme_color: "#F6F0E4",
     icons: [
       { src: "/icone-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icone-512.png", sizes: "512x512", type: "image/png" },

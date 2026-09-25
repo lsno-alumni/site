@@ -672,7 +672,7 @@
   scroll-snap-type: x proximity; scroll-padding-left: 22px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .voisins::-webkit-scrollbar { display: none; }
-.voisins .polaroid { position: relative; flex: 0 0 122px; margin: 0; transform: none; opacity: 1; scroll-snap-align: start; transition: box-shadow .3s; }
+.voisins .polaroid { position: relative; left: 0; top: 0; flex: 0 0 122px; margin: 0; transform: none; opacity: 1; scroll-snap-align: start; transition: box-shadow .3s; }
 .voisins .polaroid:active { box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 24px 44px -18px rgba(31,34,48,.6), 0 0 0 1px rgba(var(--accent-rgb), .25); }
 .contact {
   display: flex; align-items: center; gap: 12px; background: var(--carte);

@@ -524,7 +524,12 @@
   border-bottom: 1px solid var(--ligne);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 12px 24px -18px rgba(31,34,48,.45);
 }
-:root[data-theme="sombre"] .n-panneau { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 24px -18px rgba(0,0,0,.7); }
+:root[data-theme="sombre"] .n-panneau {
+  /* même sombre que le bas des fiches profil : le bandeau s'accorde à la liste */
+  background-color: #0B0F18;
+  border-bottom-color: rgba(239, 232, 219, .1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 24px -18px rgba(0,0,0,.8);
+}
 .n-panneau .n-filtres { position: static; background: none; box-shadow: none; padding-top: 10px; padding-bottom: 6px; }
 .n-panneau .n-filtres + .n-filtres { padding-top: 0; }
 .n-filtres {

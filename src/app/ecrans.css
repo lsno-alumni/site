@@ -134,9 +134,6 @@
 .am-pierre { margin: 0 0 -90px !important; padding: 34px 22px 130px !important; position: relative; isolation: isolate; overflow: hidden; color: #EFE8DB; background: var(--pierre); }
 .am-pierre::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url("/img/lsno_promo2.jpg") center 35% / cover; opacity: .28; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%); }
 .am-pierre .a-titre { color: #fff; }
-/* accueil public : pas de barre d'onglets sous la bande pierre, elle enchaîne sur le pied de page (pierre aussi) */
-.am-pierre.pub { margin-bottom: 0 !important; padding-bottom: 36px !important; }
-.am-pierre.pub + .pied-public { margin-top: 0; }
 .am-pierre .a-sous, .am-pierre .roue3d-aide small { color: rgba(255,255,255,.75); }
 .am-pierre .roue3d-lien { color: #fff; }
 .am-pierre .carteh3d { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); color: #fff; }

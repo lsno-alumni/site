@@ -24,11 +24,7 @@ export default async function Accueil() {
 
   const stats = await statsPubliques();
   const parDomaine = stats.parDomaine;
-  // mêmes agrégats anonymes que l'accueil connecté : un chiffre par pays et par promo
-  const promos = Object.entries(stats.parPromo ?? {})
-    .map(([num, n]) => [Number(num), n])
-    .filter(([, n]) => n > 0)
-    .sort((a, b) => a[0] - b[0]);
+  // même agrégat anonyme que l'accueil connecté : un chiffre par pays
   const aDesPays = Object.keys(stats.parPays ?? {}).length > 0;
 
   return (
@@ -117,29 +113,6 @@ export default async function Accueil() {
         </div>
       </section>
       </Reveal>
-
-      {promos.length > 0 && (
-        <Reveal>
-        <section className="a-section am-pierre pub" style={{ paddingBottom: 30 }}>
-          <h2 className="a-titre">Le réseau par promotion</h2>
-          <Roue3D memo="public-promos"
-            sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."
-            sousListe="Anciens inscrits — touche une promotion pour la parcourir." axe="x" pitch={114} hauteur={100}
-            classeCarte="am-promo" classeListe="am-promos"
-            aria="Promotions — flèches gauche et droite pour parcourir"
-            items={promos.map(([num, n]) => ({
-              cle: `p${num}`,
-              href: `/annuaire?promo=${num}`,
-              rendu: (
-                <>
-                  <b>P{num}</b>
-                  <span>{n} ancien{n > 1 ? "s" : ""}</span>
-                </>
-              ),
-            }))} />
-        </section>
-        </Reveal>
-      )}
 
       <footer className="pied-public">
         <img className="ecusson" src="/img/logo.jpg" alt="" />

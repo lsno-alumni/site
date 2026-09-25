@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import FeuilleGlissante from "@/components/FeuilleGlissante";
-import { TeteProfil, SuiteProfil } from "@/app/profil/[id]/ContenuProfil";
+import { CouvertureProfil, TeteProfil, SuiteProfil } from "@/app/profil/[id]/ContenuProfil";
 
 // Fermer la feuille = revenir en arrière : Next quitte alors la route
 // interceptée et retrouve l'annuaire tel qu'il était (scroll compris),
@@ -17,7 +17,7 @@ export default function FeuilleProfilModal({ p, contacts, demande, id }) {
     <FeuilleGlissante
       onFermer={() => router.back()}
       tete={<>
-        <div className="p-cover" />
+        <CouvertureProfil p={p} />
         <TeteProfil p={p} />
       </>}
     >

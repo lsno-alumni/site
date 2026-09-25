@@ -324,11 +324,13 @@
 /* petit bouton vers l'espace conseils, en haut à droite du titre de l'annuaire */
 .n-vers-conseils {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
-  padding: 8px 13px; border-radius: 100px; font-size: 12.5px; white-space: nowrap; color: var(--sur-accent); font-weight: 600;
-  background: var(--bleu-clair); border: 1px solid transparent;
+  padding: 8px 13px; border-radius: 100px; font-size: 12.5px; white-space: nowrap; color: #fff; font-weight: 600;
+  /* discret : posé sur la photo d'en-tête, translucide, un simple filet */
+  background: rgba(var(--accent-rgb), .16); border: 1px solid rgba(var(--accent-rgb), .5);
+  backdrop-filter: blur(6px);
   transition: background .2s, border-color .2s;
 }
-.n-vers-conseils:hover { background: rgba(var(--accent-rgb), .16); border-color: rgba(var(--accent-rgb), .5); }
+.n-vers-conseils:hover { background: rgba(var(--accent-rgb), .3); border-color: rgba(var(--accent-rgb), .7); }
 
 /* offre ciblée par un lien de partage : halo doré temporaire */
 .offre-focus { border-color: var(--bleu) !important; box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .25); }
@@ -610,12 +612,26 @@
 .vide b { color: var(--texte); display: block; font-size: 16px; font-family: var(--font-titres), serif; margin-bottom: 4px; }
 
 /* ---------- PROFIL ---------- */
-.p-cover { height: 150px; background: url("/img/bg_study.jpg") center/cover; position: relative; }
-.p-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(var(--voile-rgb), .25), var(--fond)); }
+.p-cover {
+  height: 150px; position: relative; isolation: isolate; overflow: hidden;
+  /* sans photo : bande bleu nuit sur grain kraft (même matière que le parcours) */
+  background-color: var(--monde);
+  background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen;
+}
+/* avec photo : la photo du membre, agrandie et floutée, sous un voile bleu
+   nuit — le bord flou est débordé par le scale pour ne pas laisser de liseré */
+.p-cover.avec-photo::before {
+  content: ""; position: absolute; inset: -30px; z-index: -1;
+  background: var(--photo) center 30% / cover no-repeat;
+  filter: blur(26px) saturate(1.15); transform: scale(1.15);
+}
+.p-cover.avec-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .45); }
+:root[data-theme="sombre"] .p-cover.avec-photo::after { background: rgba(15, 21, 36, .58); }
+:root[data-theme="sombre"] .p-cover { background-color: #16253F; }
 .p-retour {
   position: absolute; top: 18px; left: 18px; z-index: 5; width: 36px; height: 36px; border-radius: 50%;
-  background: rgba(var(--voile-rgb), .55); backdrop-filter: blur(8px); display: grid; place-items: center;
-  font-size: 15px; border: 1px solid rgba(255,255,255, .18);
+  background: rgba(20, 16, 14, .38); backdrop-filter: blur(8px); display: grid; place-items: center;
+  font-size: 15px; border: 1px solid rgba(255,255,255, .28); color: #fff;
 }
 .p-corps { padding: 0 22px; margin-top: -44px; position: relative; }
 .p-photo {
@@ -732,6 +748,8 @@
 .frise .e-etape { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; align-items: flex-start; }
 .frise .e-etape b { font-family: var(--font-titres), serif; font-weight: 400; font-size: 16px; line-height: 1.3; color: #fff; }
 .frise .e-etape span { color: rgba(255,255,255,.7); font-size: 12.5px; margin-top: 4px; display: block; }
+.p-bloc .frise { margin-top: -2px; }
+.p-bloc .frise .e-etape .mini-blason { background: #fff; }
 .frise .e-crayon { color: #fff; font-size: 14px; border: 1px solid rgba(255,255,255,.25); border-radius: 100px; width: 30px; height: 30px; display: grid; place-items: center; }
 .frise .e-ajout { border-color: rgba(255,255,255,.35); color: #fff; }
 .frise .carte-sombre { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
@@ -1007,7 +1025,7 @@
 .fg-fermer {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   width: 42px; height: 42px; border-radius: 50%;
-  background: rgba(var(--voile-rgb), .5); border: 1px solid rgba(255,255,255, .2); color: var(--texte);
+  background: rgba(20, 16, 14, .38); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255, .28); color: #fff;
   cursor: pointer;
 }
 /* croix (aperçu) ↔ flèche retour (plein écran) : les deux icônes sont
@@ -1023,6 +1041,10 @@
    répéter son margin-top négatif — celui-ci ne s'applique qu'une fois,
    juste sous la couverture */
 .p-corps-suite { padding: 0 22px; margin-top: 14px; }
+/* sans parcours, ce qui suit les boutons doit garder l'air que la section
+   Parcours apportait */
+.p-corps-suite + .p-conseil { margin-top: 28px; }
+.p-corps-suite + .p-contacts, .p-corps-suite + .p-bloc.p-histoire { padding-top: 28px; }
 
 /* ============================================================
    CARROUSEL 3D « coverflow » (page À propos)

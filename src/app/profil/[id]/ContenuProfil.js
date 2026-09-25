@@ -22,6 +22,19 @@ function lienLinkedIn(v) {
   return `https://www.linkedin.com/in/${v.replace(/^@/, "")}`;
 }
 
+// Couverture du profil : la PROPRE photo du membre, agrandie et floutée sous
+// un voile bleu nuit — chaque profil a ainsi sa couleur, au lieu de la même
+// photo de bibliothèque pour tout le monde. Sans photo : bande bleu nuit sur
+// grain kraft. Reçoit les enfants (bouton retour / fermer) à poser dessus.
+export function CouvertureProfil({ p, children }) {
+  return (
+    <div className={`p-cover${p.photo ? " avec-photo" : ""}`}
+      style={p.photo ? { "--photo": `url("${p.photo}")` } : undefined}>
+      {children}
+    </div>
+  );
+}
+
 export function TeteProfil({ p }) {
   const domaine = nomDomaine(p.domaine, p.domainePrecision);
   return (
@@ -96,23 +109,39 @@ export function SuiteProfil({ p, contacts, demande, id }) {
         />
       </div>
 
-      <section className="p-bloc">
-        <h4>Parcours</h4>
-        <div className="chemin">
-          {p.parcours.map((e, i) => (
-            <div key={i} className={`pas${e.actuel ? " actuel" : ""}`}>
-              <div className="annees">{e.annees}</div>
-              <b>
-                {e.titre.startsWith("LSNO") && (
-                  <img src="/img/logo.jpg" alt="" className="mini-blason" />
-                )}
-                {e.titre}
-              </b>
-              <span>{e.detail}</span>
+      {p.parcours.length > 0 && (
+        <section className="p-bloc">
+          <h4>Parcours</h4>
+          {/* même panneau bleu nuit que « Mon profil » (validé le 24/09) :
+              règle des années du plus ancien au plus récent, puis une carte
+              translucide par étape, du présent vers le passé */}
+          <div className="frise">
+            <div className="regle" aria-hidden>
+              {[...p.parcours].sort((a, b) => (a.debut ?? 0) - (b.debut ?? 0)).map((e, i) => (
+                <div key={i}>
+                  <b className={e.actuel ? "now" : ""}>{e.debut ?? "—"}</b>
+                  <small>{e.fin ? `→ ${e.fin}` : "→ aujourd'hui"}</small>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+            <div className="e-etapes">
+              {p.parcours.map((e, i) => (
+                <div key={i} className="e-etape">
+                  <div>
+                    <b>
+                      {e.titre.startsWith("LSNO") && (
+                        <img src="/img/logo.jpg" alt="" className="mini-blason" />
+                      )}
+                      {e.titre}
+                    </b>
+                    <span>{e.annees}{e.detail ? ` · ${e.detail}` : ""}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {p.conseil && (
         <section className="p-conseil">

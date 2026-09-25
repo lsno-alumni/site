@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import { lireProfil, lireContacts, statutDemande, apercuProfil } from "@/lib/api";
-import ContenuProfil from "./ContenuProfil";
+import ContenuProfil, { CouvertureProfil } from "./ContenuProfil";
 import Retour from "./Retour";
 
 // Aperçu de partage : titre/description personnalisés (vitrine choisie),
@@ -52,9 +52,9 @@ export default async function PageProfil({ params }) {
 
   return (
     <main className="page avec-tabbar">
-      <div className="p-cover">
+      <CouvertureProfil p={p}>
         <Retour />
-      </div>
+      </CouvertureProfil>
       <ContenuProfil p={p} contacts={contacts} demande={demande} id={id} />
       <TabBar actif="Annuaire" />
     </main>

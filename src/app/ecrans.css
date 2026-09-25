@@ -660,7 +660,7 @@
 .p-conseil { margin: 6px 22px 24px; border-radius: 22px; background: var(--carte); color: var(--texte); border: 1px solid var(--ligne); padding: 20px; }
 .p-conseil .lbl { font-size: 10.5px; letter-spacing: .25em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 8px; }
 .p-conseil p { font-family: var(--font-titres), serif; font-style: italic; font-size: 14.5px; line-height: 1.55; white-space: pre-line; }
-.p-contacts { padding: 0 22px 44px; display: grid; gap: 10px; }
+.p-contacts { padding: 26px 22px 44px; display: grid; gap: 10px; }
 .contact {
   display: flex; align-items: center; gap: 12px; background: var(--carte);
   border: 1px solid var(--ligne); border-radius: 18px; padding: 13px 15px; font-size: 13.5px;
@@ -1069,7 +1069,7 @@
 /* sans parcours, ce qui suit les boutons doit garder l'air que la section
    Parcours apportait */
 .p-corps-suite + .p-conseil { margin-top: 28px; }
-.p-corps-suite + .p-contacts, .p-corps-suite + .p-bloc.p-histoire { padding-top: 28px; }
+.p-corps-suite + .p-bloc.p-histoire { padding-top: 28px; }
 
 /* ============================================================
    CARROUSEL 3D « coverflow » (page À propos)

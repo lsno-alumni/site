@@ -5,6 +5,7 @@ import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
+import NuagePays from "@/components/NuagePays";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
 import AccueilMembre from "./AccueilMembre";
@@ -23,6 +24,12 @@ export default async function Accueil() {
 
   const stats = await statsPubliques();
   const parDomaine = stats.parDomaine;
+  // mêmes agrégats anonymes que l'accueil connecté : un chiffre par pays et par promo
+  const promos = Object.entries(stats.parPromo ?? {})
+    .map(([num, n]) => [Number(num), n])
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => a[0] - b[0]);
+  const aDesPays = Object.keys(stats.parPays ?? {}).length > 0;
 
   return (
     <main className="page">
@@ -74,18 +81,19 @@ export default async function Accueil() {
       </Reveal>
 
       <Reveal>
-      <section className="a-monde" data-nb={stats.pays}>
-        <p className="tagline">Le réseau dans le monde</p>
-        <h4 className="serif">
+      <section className="a-section am-monde" style={{ paddingBottom: 30 }}>
+        <h2 className="a-titre">
           {stats.pays > 1
             ? `${stats.pays} pays et ça continue`
             : "Un réseau qui s'étend"}
-        </h4>
-        <p>
+        </h2>
+        <p className="a-sous">
           {stats.pays > 1
             ? "Où que tu veuilles aller, un ancien y est peut-être déjà."
             : "Du Burkina vers le monde : chaque nouvel inscrit étend la carte."}
         </p>
+        {aDesPays && <NuagePays parPays={stats.parPays} />}
+        {!aDesPays && (
         <div className="a-pays">
           <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina Faso</span>
           <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc</span>
@@ -94,6 +102,7 @@ export default async function Accueil() {
           <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal</span>
           <span>et ailleurs…</span>
         </div>
+        )}
       </section>
       </Reveal>
 
@@ -108,6 +117,29 @@ export default async function Accueil() {
         </div>
       </section>
       </Reveal>
+
+      {promos.length > 0 && (
+        <Reveal>
+        <section className="a-section am-pierre pub" style={{ paddingBottom: 30 }}>
+          <h2 className="a-titre">Le réseau par promotion</h2>
+          <Roue3D memo="public-promos"
+            sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."
+            sousListe="Anciens inscrits — touche une promotion pour la parcourir." axe="x" pitch={114} hauteur={100}
+            classeCarte="am-promo" classeListe="am-promos"
+            aria="Promotions — flèches gauche et droite pour parcourir"
+            items={promos.map(([num, n]) => ({
+              cle: `p${num}`,
+              href: `/annuaire?promo=${num}`,
+              rendu: (
+                <>
+                  <b>P{num}</b>
+                  <span>{n} ancien{n > 1 ? "s" : ""}</span>
+                </>
+              ),
+            }))} />
+        </section>
+        </Reveal>
+      )}
 
       <footer className="pied-public">
         <img className="ecusson" src="/img/logo.jpg" alt="" />

@@ -117,10 +117,8 @@
   content: ""; position: absolute; inset: 0; z-index: -1;
   /* un globe terrestre lumineux (photo, domaine public), l'Afrique au centre,
      fondu dans l'indigo : le nuage de drapeaux semble posé dessus */
-  background: url("/img/globe.jpg") center 60% / 118% auto no-repeat;
-  opacity: .6;
-  -webkit-mask-image: radial-gradient(72% 64% at 50% 62%, #000 45%, transparent 100%);
-  mask-image: radial-gradient(72% 64% at 50% 62%, #000 45%, transparent 100%);
+  background: url("/img/globe.jpg") center 56% / 100% auto no-repeat;
+  opacity: .7;
 }
 :root[data-theme="sombre"] .am-monde { background: #101E38; }
 :root[data-theme="sombre"] .am-monde::before { opacity: .42; }
@@ -189,6 +187,28 @@
   transition: border-color .25s, transform .25s;
 }
 .am-nouveau:hover { border-color: rgba(var(--accent-rgb), .4); transform: translateY(-2px); }
+/* effet intérieur : un reflet oblique balaie la carte (transform seul, rendu
+   GPU), et une lueur bleue douce respire derrière la photo */
+.am-nouveau { position: relative; overflow: hidden; isolation: isolate; }
+.am-nouveau::before {
+  content: ""; position: absolute; inset: -20% -60%; z-index: -1;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+  transform: translateX(-70%);
+  animation: am-reflet 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * .7s);
+}
+:root[data-theme="sombre"] .am-nouveau::before { background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.14) 50%, transparent 60%); }
+.am-nouveau::after {
+  content: ""; position: absolute; left: 50%; top: 40px; width: 88px; height: 88px; z-index: -1;
+  margin-left: -44px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .28) 0%, rgba(var(--accent-rgb), 0) 70%);
+  animation: am-lueur 4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * .7s);
+}
+@keyframes am-reflet { 0%, 55% { transform: translateX(-70%); } 85%, 100% { transform: translateX(70%); } }
+@keyframes am-lueur { 0%, 100% { transform: scale(.85); opacity: .7; } 50% { transform: scale(1.15); opacity: 1; } }
+.am-nouveau .am-nouveau-photo { position: relative; box-shadow: 0 8px 18px -8px rgba(var(--accent-rgb), .55); }
+@media (prefers-reduced-motion: reduce) { .am-nouveau::before, .am-nouveau::after { animation: none; } }
 /* avatar identique à celui de l'annuaire (52px, coins 18, initiales 17) */
 .am-nouveau-photo {
   width: 52px !important; height: 52px !important; border-radius: 18px;

@@ -70,8 +70,8 @@ export default function AccueilMembre({ moi, donnees }) {
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
           <p className="a-sous">Tu peux consulter leurs profils.</p>
           <div className="am-nouveaux">
-            {nouveaux.map((m) => (
-              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
+            {nouveaux.map((m, i) => (
+              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau" style={{ "--i": i }}>
                 <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
                 <b>{m.prenom}</b>
                 <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>

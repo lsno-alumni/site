@@ -112,7 +112,7 @@
 }
 .a-monde .tagline { color: #C9D6EC; }
 /* accueil connecté : la section des bulles devient la bande indigo, celle des promotions passe sur pierre avec la photo de promo */
-.am-monde { margin: 30px 0 0 !important; padding: 30px 22px 34px !important; position: relative; isolation: isolate; overflow: hidden; color: #fff; background: var(--monde); }
+.am-monde { margin: 30px 0 0 !important; padding: 30px 22px 34px !important; position: relative; isolation: isolate; overflow: hidden; color: #fff; background: #1E3A62; }
 .am-monde::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   /* un globe terrestre lumineux (photo, domaine public), l'Afrique au centre,
@@ -120,7 +120,12 @@
   background: url("/img/globe.jpg") center 56% / 100% auto no-repeat;
   opacity: .7;
 }
-:root[data-theme="sombre"] .am-monde { background: #101E38; }
+/* voile UNI (pas de dégradé) du même bleu nuit par-dessus le globe */
+.am-monde > * { position: relative; z-index: 1; }
+.am-monde .np-zone::before { content: none; }
+.am-monde::after { content: ""; position: absolute; inset: 0; z-index: 0; background: rgba(30, 58, 98, .55); }
+:root[data-theme="sombre"] .am-monde { background: #16294A; }
+:root[data-theme="sombre"] .am-monde::after { background: rgba(22, 41, 74, .6); }
 :root[data-theme="sombre"] .am-monde::before { opacity: .42; }
 .am-monde .a-titre { color: #fff; }
 .am-monde .a-sous { color: rgba(255,255,255,.8); }
@@ -187,9 +192,9 @@
   transition: border-color .25s, transform .25s;
 }
 .am-nouveau:hover { border-color: rgba(var(--accent-rgb), .4); transform: translateY(-2px); }
-/* effet intérieur : un reflet oblique balaie la carte (transform seul, rendu
-   GPU), et une lueur bleue douce respire derrière la photo */
 .am-nouveau { position: relative; overflow: hidden; isolation: isolate; }
+/* les effets ci-dessous sont désactivés (reflet + lueur refusés le 25/09) */
+.am-nouveau::before, .am-nouveau::after { content: none; }
 .am-nouveau::before {
   content: ""; position: absolute; inset: -20% -60%; z-index: -1;
   background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);

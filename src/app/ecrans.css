@@ -615,19 +615,28 @@
 .page-profil { background-color: var(--fond-profil); }
 .p-cover {
   height: 150px; position: relative; isolation: isolate; overflow: hidden;
-  /* sans photo : la photo de bibliothèque d'origine, fondue vers le sol du profil */
+  /* sans photo : la photo de bibliothèque, qui s'assombrit vers le bas
+     exactement comme en tête de Mon profil */
   background: url("/img/bg_study.jpg") center/cover;
 }
-.p-cover:not(.avec-photo)::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(var(--voile-rgb), .25), var(--fond-profil)); }
-/* avec photo : la photo du membre, agrandie et floutée, sous un voile bleu
-   nuit — le bord flou est débordé par le scale pour ne pas laisser de liseré */
+.p-cover:not(.avec-photo)::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(var(--voile-rgb), .2) 0%, rgba(var(--voile-rgb), .55) 50%, rgba(var(--voile-rgb), .94) 100%); }
+/* avec photo : DUOTONE bleu nuit — la photo du membre, nette, ne garde que
+   sa lumière (mode luminosité) sur le bleu nuit du parcours, avec le grain
+   kraft ; le portrait couleur reste posé par-dessus */
+.p-cover.avec-photo { background: var(--monde); }
 .p-cover.avec-photo::before {
-  content: ""; position: absolute; inset: -30px; z-index: -1;
-  background: var(--photo) center 30% / cover no-repeat;
-  filter: blur(26px) saturate(1.15); transform: scale(1.15);
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--photo) center 24% / cover no-repeat;
+  /* brightness < 1 : la lumière de la photo est ramenée vers le bleu nuit,
+     sinon un mur clair donne un bleu pastel */
+  filter: grayscale(1) contrast(1.1) brightness(.62); mix-blend-mode: luminosity; opacity: .85;
 }
-.p-cover.avec-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .45); }
-:root[data-theme="sombre"] .p-cover.avec-photo::after { background: rgba(15, 21, 36, .58); }
+.p-cover.avec-photo::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: url("/fonds/kraft-sombre.jpg") 0 0 / 420px auto; mix-blend-mode: screen; opacity: .3;
+}
+:root[data-theme="sombre"] .p-cover.avec-photo { background: #182B4A; }
+:root[data-theme="sombre"] .p-cover.avec-photo::before { filter: grayscale(1) contrast(1.1) brightness(.5); opacity: .8; }
 .p-retour {
   position: absolute; top: 18px; left: 18px; z-index: 5; width: 36px; height: 36px; border-radius: 50%;
   background: rgba(20, 16, 14, .38); backdrop-filter: blur(8px); display: grid; place-items: center;
@@ -994,9 +1003,10 @@
    bougeait PENDANT qu'une liste défilait) */
 .fg-scrim {
   position: fixed; inset: 0; z-index: 150;
-  background: rgba(var(--fond-rgb), .6);
+  background: rgba(var(--voile-rgb), .45);
   animation: vis-fondu .2s ease both;
 }
+:root[data-theme="sombre"] .fg-scrim { background: rgba(var(--fond-rgb), .6); }
 .fg-feuille {
   position: fixed; left: 0; right: 0; bottom: 0; height: 100dvh;
   /* même papier que les pages (grain kraft), un ton plus soutenu que le sol

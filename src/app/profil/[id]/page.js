@@ -51,7 +51,7 @@ export default async function PageProfil({ params }) {
   }
 
   return (
-    <main className="page avec-tabbar">
+    <main className="page page-profil avec-tabbar">
       <CouvertureProfil p={p}>
         <Retour />
       </CouvertureProfil>

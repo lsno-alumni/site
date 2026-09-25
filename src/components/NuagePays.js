@@ -123,66 +123,147 @@ export default function NuagePays({ parPays }) {
 
   const zone = useRef(null);
 
-  // Mouvement VRAIMENT aléatoire, lancé après l'hydratation (le rendu
-  // serveur ne connaît pas le hasard) : chaque bulle a sa propre vitesse et
-  // sa propre direction, rebondit sur les bords de son petit enclos (rayon
-  // AMPLITUDE) et est repoussée par ses voisines si elles se rapprochent
-  // trop. Un seul transform par bulle, calculé à chaque image : rendu GPU,
-  // pas de flou ni d'opacité en mouvement (voir .tabbar).
+  // Mouvement lancé après l'hydratation (le rendu serveur ne connaît pas le
+  // hasard). Chaque bulle dérive LENTEMENT autour de sa place (vitesse et
+  // direction propres, petite agitation continue, rebond dans un enclos),
+  // est repoussée par ses voisines si elles se touchent — et peut être
+  // ATTRAPÉE au doigt : on la déplace, elle bouscule les autres, et là où on
+  // la lâche devient sa nouvelle place, d'où elle reprend sa dérive.
+  // Un seul transform par bulle, calculé à chaque image : rendu GPU, pas de
+  // flou ni d'opacité en mouvement (voir .tabbar).
   useEffect(() => {
     const zoneEl = zone.current;
-    if (!zoneEl || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!zoneEl) return;
     const bulles = Array.from(zoneEl.querySelectorAll(".np-bulle"));
     if (bulles.length < 2) return;
+    const calme = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const largeur = () => zoneEl.getBoundingClientRect().width || TAILLE;
-    const AMPLITUDE = 7;          // px : rayon de l'enclos de chaque bulle
+    const AMPLITUDE = 6;   // px : rayon de l'enclos autour de la place de repos
+    const V_MAX = 5;       // px/s : la dérive reste paisible
+    const SEUIL_TAP = 6;   // px : en deçà, c'est un tap (le lien s'ouvre), pas un déplacement
+    // position de repos (unités du repère) + écart courant (px) + vitesse (px/s)
     const etat = items.map((it) => {
       const a = Math.random() * Math.PI * 2;
-      const v = 6 + Math.random() * 10;  // px/s
-      return { x: 0, y: 0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: it.r, cx: it.x, cy: it.y };
+      const v = 1.5 + Math.random() * 2.5;
+      return { r: it.r, cx: it.x, cy: it.y, x: 0, y: 0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, tenue: false };
     });
+    const poser = (i) => { bulles[i].style.transform = `translate(${etat[i].x.toFixed(2)}px, ${etat[i].y.toFixed(2)}px)`; };
+    // la bulle tenue impose sa position ; on écarte celles qu'elle rencontre
+    const bousculer = (i, echelle) => {
+      const e = etat[i];
+      for (let j = 0; j < etat.length; j++) {
+        if (j === i) continue;
+        const f = etat[j];
+        const dx = (f.cx * echelle + f.x) - (e.cx * echelle + e.x);
+        const dy = (f.cy * echelle + f.y) - (e.cy * echelle + e.y);
+        const d = Math.hypot(dx, dy) || 1;
+        const mini = (e.r + f.r) * echelle + 4;
+        if (d < mini) {
+          const pousse = mini - d;
+          // la bulle bousculée change de PLACE (pas seulement d'écart) : elle
+          // ne reviendra pas se coller à la bulle déplacée
+          f.cx += (dx / d) * pousse / echelle;
+          f.cy += (dy / d) * pousse / echelle;
+          f.cx = bloque(f.cx, f.r + MARGE, TAILLE - f.r - MARGE);
+          f.cy = bloque(f.cy, f.r + MARGE, TAILLE - f.r - MARGE);
+          bulles[j].style.left = `${(((f.cx - f.r) * 100) / TAILLE).toFixed(4)}%`;
+          bulles[j].style.top = `${(((f.cy - f.r) * 100) / TAILLE).toFixed(4)}%`;
+          f.vx += (dx / d) * 4; f.vy += (dy / d) * 4;   // petit élan dans le sens de la poussée
+          bousculer(j, echelle);                          // et elle bouscule à son tour
+        }
+      }
+    };
     let precedent = performance.now();
     let anim = 0;
     let visible = true;
     const pas = (t) => {
       const dt = Math.min(0.05, (t - precedent) / 1000);
       precedent = t;
-      const echelle = largeur() / TAILLE;  // unités du repère → px
+      const echelle = largeur() / TAILLE;
       for (let i = 0; i < etat.length; i++) {
         const e = etat[i];
-        // petite agitation aléatoire : la trajectoire ne se répète jamais
-        e.vx += (Math.random() - 0.5) * 12 * dt;
-        e.vy += (Math.random() - 0.5) * 12 * dt;
-        // répulsion douce entre voisines qui se rapprochent
+        if (e.tenue || calme) continue;
+        e.vx += (Math.random() - 0.5) * 3 * dt;
+        e.vy += (Math.random() - 0.5) * 3 * dt;
         for (let j = 0; j < etat.length; j++) {
           if (i === j) continue;
           const f = etat[j];
           const dx = (e.cx * echelle + e.x) - (f.cx * echelle + f.x);
           const dy = (e.cy * echelle + e.y) - (f.cy * echelle + f.y);
           const d = Math.hypot(dx, dy) || 1;
-          const mini = (e.r + f.r) * echelle + 6;
-          if (d < mini) { e.vx += (dx / d) * 30 * dt; e.vy += (dy / d) * 30 * dt; }
+          const mini = (e.r + f.r) * echelle + 4;
+          if (d < mini) { e.vx += (dx / d) * 20 * dt; e.vy += (dy / d) * 20 * dt; }
         }
-        // vitesse bornée
         const vit = Math.hypot(e.vx, e.vy);
-        if (vit > 18) { e.vx *= 18 / vit; e.vy *= 18 / vit; }
+        if (vit > V_MAX) { e.vx *= V_MAX / vit; e.vy *= V_MAX / vit; }
         e.x += e.vx * dt; e.y += e.vy * dt;
-        // rebond sur l'enclos
         if (Math.abs(e.x) > AMPLITUDE) { e.x = Math.sign(e.x) * AMPLITUDE; e.vx *= -1; }
         if (Math.abs(e.y) > AMPLITUDE) { e.y = Math.sign(e.y) * AMPLITUDE; e.vy *= -1; }
-        bulles[i].style.transform = `translate(${e.x.toFixed(2)}px, ${e.y.toFixed(2)}px)`;
+        poser(i);
       }
       if (visible) anim = requestAnimationFrame(pas);
     };
     anim = requestAnimationFrame(pas);
-    // on ne bouge que si la zone est à l'écran : pas de calcul pour rien
     const obs = new IntersectionObserver(([en]) => {
       visible = en.isIntersecting;
       if (visible) { precedent = performance.now(); anim = requestAnimationFrame(pas); }
       else cancelAnimationFrame(anim);
     });
     obs.observe(zoneEl);
-    return () => { cancelAnimationFrame(anim); obs.disconnect(); };
+
+    // ---- prise au doigt / à la souris ----
+    const retraits = [];
+    bulles.forEach((el, i) => {
+      let depart = null, deplace = false;
+      const bas = (ev) => {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        depart = { px: ev.clientX, py: ev.clientY };
+        deplace = false;
+        etat[i].tenue = true;
+        el.setPointerCapture?.(ev.pointerId);
+        el.classList.add("tenue");
+      };
+      const bouge = (ev) => {
+        if (!depart) return;
+        const dx = ev.clientX - depart.px, dy = ev.clientY - depart.py;
+        if (!deplace && Math.hypot(dx, dy) < SEUIL_TAP) return;
+        deplace = true;
+        ev.preventDefault();
+        const echelle = largeur() / TAILLE;
+        // la bulle suit le doigt : on déplace sa PLACE, l'écart reste petit
+        const e = etat[i];
+        e.cx = bloque(e.cx + dx / echelle, e.r + MARGE, TAILLE - e.r - MARGE);
+        e.cy = bloque(e.cy + dy / echelle, e.r + MARGE, TAILLE - e.r - MARGE);
+        depart.px = ev.clientX; depart.py = ev.clientY;
+        e.x = 0; e.y = 0; e.vx = 0; e.vy = 0; poser(i);
+        el.style.left = `${(((e.cx - e.r) * 100) / TAILLE).toFixed(4)}%`;
+        el.style.top = `${(((e.cy - e.r) * 100) / TAILLE).toFixed(4)}%`;
+        bousculer(i, echelle);
+      };
+      const haut = (ev) => {
+        if (!depart) return;
+        etat[i].tenue = false;
+        el.classList.remove("tenue");
+        el.releasePointerCapture?.(ev.pointerId);
+        // un vrai déplacement ne doit pas ouvrir le lien au relâchement
+        if (deplace) { const stop = (c) => { c.preventDefault(); el.removeEventListener("click", stop, true); }; el.addEventListener("click", stop, true); setTimeout(() => el.removeEventListener("click", stop, true), 0); }
+        depart = null;
+      };
+      // à la souris, le navigateur lance sinon un glisser-déposer natif du lien,
+      // qui coupe la prise en cours (pointercancel) — au toucher rien à faire
+      const pasDeDrag = (ev) => ev.preventDefault();
+      el.addEventListener("dragstart", pasDeDrag);
+      el.addEventListener("pointerdown", bas);
+      el.addEventListener("pointermove", bouge);
+      el.addEventListener("pointerup", haut);
+      el.addEventListener("pointercancel", haut);
+      retraits.push(() => {
+        el.removeEventListener("dragstart", pasDeDrag);
+        el.removeEventListener("pointerdown", bas); el.removeEventListener("pointermove", bouge);
+        el.removeEventListener("pointerup", haut); el.removeEventListener("pointercancel", haut);
+      });
+    });
+    return () => { cancelAnimationFrame(anim); obs.disconnect(); retraits.forEach((f) => f()); };
   }, [items]);
 
   if (!items.length) return null;

@@ -26,6 +26,7 @@
      pleins (boutons, badges), --bleu-texte = texte, --bleu-doux = fond pâle */
   --bleu: #1E3A62; --bleu-clair: #1E3A62; --bleu-texte: #1E3A62; --bleu-doux: #DCE4F0;
   --accent-rgb: 30, 58, 98;
+  --halo-rgb: 59, 111, 209;      /* le halo des boutons reste bleu vif, même quand l'accent est bleu nuit */
   --sur-accent: #F6F0E4;
   /* la bande « Le réseau dans le monde », seule seconde couleur du site */
   --monde: #1F3B63; --monde-2: #2B4E80;
@@ -49,6 +50,7 @@
   --ligne: rgba(239, 232, 219, .13);
   --bleu: #2B4E80; --bleu-clair: #3B6FD1; --bleu-texte: #6FA8F5; --bleu-doux: #1F2C45;
   --accent-rgb: 59, 111, 209;
+  --halo-rgb: 59, 111, 209;
   --sur-accent: #F6F0E4;
   --monde: #1B2F4F; --monde-2: #23406B;
   --pierre: #0E1017;
@@ -104,9 +106,9 @@ details[open] > summary .chevron { transform: rotate(180deg); }
      clair — et du texte clair, --encre (pensé pour l'or, nettement plus
      lumineux) n'a plus assez de contraste sur un fond bleu. */
   background: var(--bleu-clair); color: var(--sur-accent); font-weight: 700;
-  box-shadow: 0 12px 30px -10px rgba(var(--accent-rgb), .5);
+  box-shadow: 0 12px 30px -10px rgba(var(--halo-rgb), .6);
 }
-.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(var(--accent-rgb), .65); transform: translateY(-1px); }
+.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(var(--halo-rgb), .75); transform: translateY(-1px); }
 .btn-nu {
   background: rgba(var(--texte-rgb), .06); color: var(--texte);
   border: 1.5px solid rgba(var(--texte-rgb), .28);

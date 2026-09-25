@@ -112,17 +112,17 @@
 }
 .a-monde .tagline { color: #C9D6EC; }
 /* accueil connecté : la section des bulles devient la bande indigo, celle des promotions passe sur pierre avec la photo de promo */
-.am-monde { margin: 30px 0 0 !important; padding: 30px 22px 34px !important; position: relative; isolation: isolate; overflow: hidden; color: #fff; background: radial-gradient(120% 80% at 100% 0%, var(--monde-2), var(--monde) 60%); }
+.am-monde { margin: 30px 0 0 !important; padding: 30px 22px 34px !important; position: relative; isolation: isolate; overflow: hidden; color: #fff; background: var(--monde); }
 .am-monde::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   /* un globe terrestre lumineux (photo, domaine public), l'Afrique au centre,
      fondu dans l'indigo : le nuage de drapeaux semble posé dessus */
   background: url("/img/globe.jpg") center 60% / 118% auto no-repeat;
-  opacity: .5;
+  opacity: .6;
   -webkit-mask-image: radial-gradient(72% 64% at 50% 62%, #000 45%, transparent 100%);
   mask-image: radial-gradient(72% 64% at 50% 62%, #000 45%, transparent 100%);
 }
-:root[data-theme="sombre"] .am-monde { background: radial-gradient(120% 80% at 100% 0%, #16294A, #0F1D36 60%); }
+:root[data-theme="sombre"] .am-monde { background: #101E38; }
 :root[data-theme="sombre"] .am-monde::before { opacity: .42; }
 .am-monde .a-titre { color: #fff; }
 .am-monde .a-sous { color: rgba(255,255,255,.8); }
@@ -1177,3 +1177,23 @@
 /* sur un cylindre, les cartes doivent toutes faire la même largeur : le
    médaillon de promotion, lui, s'adaptait à son contenu */
 .carteh3d.am-promo { width: 104px; min-width: 0; }
+
+/* ---------- matière des conteneurs (25/09) ----------
+   Un conteneur n'est plus un aplat blanc/bleuâtre : c'est une feuille posée
+   sur le sol de la page — même grain kraft (très léger), un liseré clair sur
+   l'arête du haut (la lumière vient d'en haut), une ombre douce dessous.
+   Une seule règle pour tous, pour que la matière soit la même partout. */
+.am-nouveau, .am-offre, .a-temoin, .p-conseil, .contact, .f-note, .e-completion, .e-etape, .e-ligne,
+.bloc-install, .bloc-notif, .invite-notif, .carte-sombre, .sujet-case, .fiche .pied {
+  background-image: var(--kraft);
+  background-size: 420px auto;
+  background-blend-mode: var(--kraft-melange);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 12px 28px -20px rgba(31, 34, 48, .45);
+}
+:root[data-theme="sombre"] .am-nouveau, :root[data-theme="sombre"] .am-offre, :root[data-theme="sombre"] .a-temoin,
+:root[data-theme="sombre"] .p-conseil, :root[data-theme="sombre"] .contact, :root[data-theme="sombre"] .f-note,
+:root[data-theme="sombre"] .e-completion, :root[data-theme="sombre"] .e-etape, :root[data-theme="sombre"] .e-ligne,
+:root[data-theme="sombre"] .bloc-install, :root[data-theme="sombre"] .bloc-notif, :root[data-theme="sombre"] .invite-notif,
+:root[data-theme="sombre"] .carte-sombre, :root[data-theme="sombre"] .sujet-case, :root[data-theme="sombre"] .fiche .pied {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 12px 28px -20px rgba(0, 0, 0, .7);
+}

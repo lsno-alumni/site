@@ -149,10 +149,13 @@ export default function NuagePays({ parPays }) {
     });
     const poser = (i) => { bulles[i].style.transform = `translate(${etat[i].x.toFixed(2)}px, ${etat[i].y.toFixed(2)}px)`; };
     // la bulle tenue impose sa position ; on écarte celles qu'elle rencontre
-    const bousculer = (i, echelle) => {
+    // `deja` : les bulles déjà poussées dans CE geste ne relancent pas la
+    // chaîne — sinon deux bulles bloquées contre un bord se repoussent sans
+    // fin (dépassement de pile, vu le 25/09)
+    const bousculer = (i, echelle, deja = new Set([i])) => {
       const e = etat[i];
       for (let j = 0; j < etat.length; j++) {
-        if (j === i) continue;
+        if (j === i || deja.has(j)) continue;
         const f = etat[j];
         const dx = (f.cx * echelle + f.x) - (e.cx * echelle + e.x);
         const dy = (f.cy * echelle + f.y) - (e.cy * echelle + e.y);
@@ -162,14 +165,23 @@ export default function NuagePays({ parPays }) {
           const pousse = mini - d;
           // la bulle bousculée change de PLACE (pas seulement d'écart) : elle
           // ne reviendra pas se coller à la bulle déplacée
-          f.cx += (dx / d) * pousse / echelle;
-          f.cy += (dy / d) * pousse / echelle;
-          f.cx = bloque(f.cx, f.r + MARGE, TAILLE - f.r - MARGE);
-          f.cy = bloque(f.cy, f.r + MARGE, TAILLE - f.r - MARGE);
+          f.cx = bloque(f.cx + (dx / d) * pousse / echelle, f.r + MARGE, TAILLE - f.r - MARGE);
+          f.cy = bloque(f.cy + (dy / d) * pousse / echelle, f.r + MARGE, TAILLE - f.r - MARGE);
+          // coincée contre un bord ? elle glisse le long du bord (perpendiculaire
+          // à la poussée), du côté où il reste de la place
+          const reste = mini - Math.hypot((f.cx * echelle + f.x) - (e.cx * echelle + e.x), (f.cy * echelle + f.y) - (e.cy * echelle + e.y));
+          if (reste > 0.5) {
+            const px = -dy / d, py = dx / d;
+            const essai = (signe) => [bloque(f.cx + signe * px * reste / echelle, f.r + MARGE, TAILLE - f.r - MARGE), bloque(f.cy + signe * py * reste / echelle, f.r + MARGE, TAILLE - f.r - MARGE)];
+            const [ax, ay] = essai(1), [bx, by] = essai(-1);
+            const gain = (x, y) => Math.hypot((x * echelle + f.x) - (e.cx * echelle + e.x), (y * echelle + f.y) - (e.cy * echelle + e.y));
+            if (gain(ax, ay) >= gain(bx, by)) { f.cx = ax; f.cy = ay; } else { f.cx = bx; f.cy = by; }
+          }
           bulles[j].style.left = `${(((f.cx - f.r) * 100) / TAILLE).toFixed(4)}%`;
           bulles[j].style.top = `${(((f.cy - f.r) * 100) / TAILLE).toFixed(4)}%`;
           f.vx += (dx / d) * 4; f.vy += (dy / d) * 4;   // petit élan dans le sens de la poussée
-          bousculer(j, echelle);                          // et elle bouscule à son tour
+          deja.add(j);
+          bousculer(j, echelle, deja);                    // et elle bouscule à son tour, une seule fois
         }
       }
     };
@@ -243,6 +255,18 @@ export default function NuagePays({ parPays }) {
       const haut = (ev) => {
         if (!depart) return;
         etat[i].tenue = false;
+        // au relâchement, on range le nuage comme au chargement (relacher) :
+        // aucune bulle ne reste chevauchée, même après une bousculade dans un coin
+        if (deplace) {
+          const places = etat.map((e) => ({ x: e.cx, y: e.cy, r: e.r }));
+          relacher(places);
+          places.forEach((pl, k) => {
+            if (pl.x === etat[k].cx && pl.y === etat[k].cy) return;
+            etat[k].cx = pl.x; etat[k].cy = pl.y;
+            bulles[k].style.left = `${(((pl.x - pl.r) * 100) / TAILLE).toFixed(4)}%`;
+            bulles[k].style.top = `${(((pl.y - pl.r) * 100) / TAILLE).toFixed(4)}%`;
+          });
+        }
         el.classList.remove("tenue");
         el.releasePointerCapture?.(ev.pointerId);
         // un vrai déplacement ne doit pas ouvrir le lien au relâchement

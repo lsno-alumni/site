@@ -78,31 +78,32 @@ export async function lireProfil(id) {
   return data ? profilVersUI(data) : null;
 }
 
-// Fin de page du profil consulté : jusqu'à 4 anciens de la même promo, puis
-// jusqu'à 4 du même domaine (sans doublon, jamais le profil lui-même). On en
-// lit un peu plus que nécessaire et on mélange de façon STABLE (empreinte de
-// l'id) : la sélection varie d'un profil à l'autre sans changer à chaque
-// rechargement. « Élève » et « Autre » sont trop vagues pour un voisinage
-// par domaine.
+// Fin de page du profil consulté : 4 anciens de la même promo puis 4 du
+// même domaine (sans doublon, jamais le profil lui-même), tirés VRAIMENT au
+// hasard parmi tous les candidats à chaque ouverture (choix du 25/09). On lit
+// tous les candidats mais seulement six petites colonnes : une promo ou un
+// domaine entier reste quelques dizaines de lignes. « Élève » et « Autre »
+// sont trop vagues pour un voisinage par domaine.
 const CHAMPS_VOISIN = "id, prenom, nom, photo_url, domaine, domaine_precision, promotions!inner(numero)";
-function empreinte(s) {
-  let h = 0;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 1000003;
-  return h;
+function tirer(liste, n, exclus = new Set()) {
+  const l = (liste ?? []).filter((m) => !exclus.has(m.id));
+  for (let i = l.length - 1; i > 0; i--) {          // mélange de Fisher-Yates
+    const j = Math.floor(Math.random() * (i + 1));
+    [l[i], l[j]] = [l[j], l[i]];
+  }
+  return l.slice(0, n);
 }
 export async function profilsVoisins(id, promotion, domaine) {
   const supabase = await creerClientServeur();
-  const base = () => supabase.from("profiles").select(CHAMPS_VOISIN).eq("statut_compte", "valide").neq("id", id).limit(12);
+  const base = () => supabase.from("profiles").select(CHAMPS_VOISIN).eq("statut_compte", "valide").neq("id", id);
   const [rp, rd] = await Promise.all([
     promotion == null ? Promise.resolve({ data: [] }) : base().eq("promotions.numero", promotion),
     !domaine || domaine === "eleve" || domaine === "autre" ? Promise.resolve({ data: [] }) : base().eq("domaine", domaine),
   ]);
   if (rp.error) console.error("profilsVoisins (promo):", rp.error.message);
   if (rd.error) console.error("profilsVoisins (domaine):", rd.error.message);
-  const melange = (l) => [...(l ?? [])].sort((x, y) => empreinte(x.id + id) - empreinte(y.id + id));
-  const promo = melange(rp.data).slice(0, 4);
-  const pris = new Set(promo.map((m) => m.id));
-  const dom = melange(rd.data).filter((m) => !pris.has(m.id)).slice(0, 4);
+  const promo = tirer(rp.data, 4);
+  const dom = tirer(rd.data, 4, new Set(promo.map((m) => m.id)));
   return { promo, domaine: dom };
 }
 

@@ -956,6 +956,48 @@
 }
 
 /* pièces jointes des offres */
+/* ---------- OFFRES (25/09) : étiquette, tampon d'échéance, feuille ---------- */
+.fiche.offre { position: relative; }
+.o-corps-carte { display: block; padding: 16px 92px 4px 16px; color: inherit; cursor: pointer; }
+.fiche.offre:has(.o-corps-carte > .o-type:first-child) .o-corps-carte { padding-right: 16px; }   /* sans tampon, toute la largeur */
+.o-type { display: inline-block; font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 600; margin-bottom: 7px; }
+.o-corps-carte .o-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; display: block; }
+.o-meta { display: block; font-size: 12.5px; color: var(--texte-2); margin-top: 6px; line-height: 1.4; }
+.o-suite-carte { padding: 0 16px 12px; }
+/* le tampon d'agenda : jour en gros, mois dessous ; bleu quand ça presse */
+.o-tampon {
+  position: absolute; top: 14px; right: 14px; width: 56px; padding: 7px 4px 6px; border-radius: 12px; text-align: center; line-height: 1;
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 10px 22px -16px rgba(31,34,48,.45);
+}
+.o-tampon b { display: block; font-family: var(--font-titres), serif; font-weight: 500; font-size: 24px; color: var(--texte); font-variant-numeric: tabular-nums; }
+.o-tampon small { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--texte-2); margin-top: 3px; }
+.o-tampon i { display: block; font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; margin-top: 5px; padding-top: 4px; border-top: 1px solid var(--ligne); color: var(--texte); }
+.o-tampon.urgent { background: var(--bleu); border-color: var(--bleu); }
+.o-tampon.urgent b, .o-tampon.urgent small, .o-tampon.urgent i { color: var(--sur-accent); }
+.o-tampon.urgent i { border-top-color: rgba(255,255,255,.3); }
+:root[data-theme="sombre"] .o-tampon { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 22px -16px rgba(0,0,0,.7); }
+:root[data-theme="sombre"] .o-tampon.urgent { background: var(--bleu-clair); border-color: var(--bleu-clair); }
+.n-cloture.offres::before { background-image: url("/img/lsno_campus.jpg"); background-position: center 60%; }
+/* page / feuille d'une offre : bande bleu nuit sur kraft, le type en filigrane */
+.o-cover {
+  height: 150px; position: relative; isolation: isolate; overflow: hidden; color: #fff;
+  background-color: var(--monde); background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen;
+}
+:root[data-theme="sombre"] .o-cover { background-color: #16253F; }
+.o-cover .filigrane { position: absolute; left: 14px; bottom: -16px; font-family: var(--font-titres), serif; font-style: italic; font-weight: 400; font-size: 78px; line-height: 1; letter-spacing: -.02em; color: rgba(255,255,255,.1); white-space: nowrap; pointer-events: none; }
+.o-cover .o-type { position: absolute; left: 22px; bottom: 20px; margin: 0; color: rgba(255,255,255,.88); }
+.o-cover .o-tampon { top: auto; bottom: 16px; right: 18px; }
+.o-corps { padding: 22px 22px 0; }
+.o-corps h1 { font-size: 24px; line-height: 1.2; }
+.o-corps .o-meta { margin-top: 8px; font-size: 13.5px; }
+.o-corps .o-echeance { display: block; font-size: 12.5px; color: var(--bleu-texte); margin-top: 8px; }
+.o-desc { padding: 18px 22px 0; font-size: 14.5px; line-height: 1.65; color: var(--texte-2); white-space: pre-line; }
+.o-actions { display: flex; gap: 10px; flex-wrap: wrap; padding: 18px 22px 0; }
+.o-fichiers-page { padding: 0 22px; margin-top: 14px; }
+.o-posteur { margin: 26px 22px 40px; }
+.o-posteur h4 { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 12px; font-family: var(--font-ui), sans-serif; }
+.o-posteur .contact { text-decoration: none; color: inherit; }
 .o-fichiers { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .o-fichier {
   display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--texte-2);

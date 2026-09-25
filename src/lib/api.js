@@ -165,6 +165,19 @@ export async function apercuProfil(id) {
   return data;
 }
 
+// Une offre complète (page /offres/[id] et feuille glissante) — même sélection
+// que la liste, la RLS réserve la lecture aux membres validés.
+const CHAMPS_OFFRE = "id, type, titre, description, domaine, pays, ville, date_limite, lien, statut, cree_le, posteur:profiles!offres_posteur_fkey(id, prenom, nom, photo_url, promotions(numero)), fichiers:offre_fichiers(id, chemin, nom, type)";
+export async function lireOffre(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.from("offres").select(CHAMPS_OFFRE).eq("id", Number(id)).maybeSingle();
+  if (error) {
+    console.error("lireOffre:", error.message);
+    return null;
+  }
+  return data;
+}
+
 export async function apercuOffre(id) {
   // Vitrine d'une offre pour les aperçus de partage (sans session).
   const supabase = await creerClientServeur();

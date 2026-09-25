@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
-import { lireProfil, lireContacts, statutDemande, apercuProfil } from "@/lib/api";
+import { lireProfil, lireContacts, statutDemande, apercuProfil, profilsVoisins } from "@/lib/api";
 import ContenuProfil, { CouvertureProfil } from "./ContenuProfil";
 import Retour from "./Retour";
 
@@ -50,12 +50,13 @@ export default async function PageProfil({ params }) {
     );
   }
 
+  const voisins = await profilsVoisins(id, p.promotion, p.domaine);
   return (
     <main className="page page-profil avec-tabbar">
       <CouvertureProfil p={p}>
         <Retour />
       </CouvertureProfil>
-      <ContenuProfil p={p} contacts={contacts} demande={demande} id={id} />
+      <ContenuProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
       <TabBar actif="Annuaire" />
     </main>
   );

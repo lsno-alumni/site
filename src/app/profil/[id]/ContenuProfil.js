@@ -5,6 +5,7 @@ import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { PAYS, nomDomaine } from "@/lib/donnees";
 import DemandeContact from "./DemandeContact";
 import Histoire from "./Histoire";
+import Voisins from "./Voisins";
 
 // Le contenu visuel d'un profil, PARTAGÉ entre la vraie page (/profil/[id])
 // et la feuille glissante ouverte depuis l'annuaire (@modal). Coupé en deux :
@@ -66,7 +67,7 @@ export function TeteProfil({ p }) {
   );
 }
 
-export function SuiteProfil({ p, contacts, demande, id }) {
+export function SuiteProfil({ p, contacts, demande, id, voisins }) {
   // des contacts « sur demande » existent-ils chez ce membre ?
   const aSurDemande = ["whatsapp", "email", "linkedin"]
     .some((c) => contacts?.visi?.[c] === "demande");
@@ -165,15 +166,17 @@ export function SuiteProfil({ p, contacts, demande, id }) {
           )}
         </section>
       )}
+
+      <Voisins voisins={voisins} promotion={p.promotion} />
     </>
   );
 }
 
-export default function ContenuProfil({ p, contacts, demande, id }) {
+export default function ContenuProfil({ p, contacts, demande, id, voisins }) {
   return (
     <>
       <TeteProfil p={p} />
-      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} />
+      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
     </>
   );
 }

@@ -11,7 +11,7 @@ import { CouvertureProfil, TeteProfil, SuiteProfil } from "@/app/profil/[id]/Con
 // La feuille sépare TÊTE (couverture + identité, purement visuelle — c'est
 // la zone qu'on peut glisser) de SUITE (boutons, parcours, contacts — zone
 // interactive, jamais glissable, seulement défilante une fois dépliée).
-export default function FeuilleProfilModal({ p, contacts, demande, id }) {
+export default function FeuilleProfilModal({ p, contacts, demande, id, voisins }) {
   const router = useRouter();
   return (
     <FeuilleGlissante
@@ -21,7 +21,7 @@ export default function FeuilleProfilModal({ p, contacts, demande, id }) {
         <TeteProfil p={p} />
       </>}
     >
-      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} />
+      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
     </FeuilleGlissante>
   );
 }

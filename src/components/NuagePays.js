@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { PAYS, nomPays } from "@/lib/donnees";
 
@@ -61,21 +61,12 @@ function relacher(items) {
   }
 }
 
-// Quatre points de passage dans un rayon de 5 px, une durée entre 9 et 15 s
-// et un départ décalé : chaque bulle semble flotter à sa guise, sans jamais
-// quitter la zone où elle ne peut heurter personne.
-function derive(i) {
-  const pt = (k) => {
-    const a = (i * 7 + k * 3) * ANGLE_OR;
-    const r = 2.5 + (((i * 13 + k * 5) % 7) / 7) * 2.5;
-    return [`${(Math.cos(a) * r).toFixed(1)}px`, `${(Math.sin(a) * r).toFixed(1)}px`];
-  };
-  const [x1, y1] = pt(1), [x2, y2] = pt(2), [x3, y3] = pt(3);
-  return {
-    "--x1": x1, "--y1": y1, "--x2": x2, "--y2": y2, "--x3": x3, "--y3": y3,
-    "--duree": `${(9 + ((i * 5) % 7)).toFixed(0)}s`,
-    "--retard": `-${((i * 2.7) % 9).toFixed(1)}s`,
-  };
+// Empreinte stable d'un code pays (ex. « BF ») : sert à mélanger l'ordre
+// de placement sans hasard, donc sans décalage serveur/client.
+function empreinte(code) {
+  let h = 0;
+  for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 9973;
+  return (h * 7919) % 1000;
 }
 
 function empaqueter(entrees) {
@@ -89,12 +80,11 @@ function empaqueter(entrees) {
   const rGain = Math.max(20, 46 - nb * 1.1);
   const items = entrees
     .slice()
-    // décroissant par effectif ; à égalité, ordre alphabétique du code —
-    // sans ce second critère, deux pays à égalité peuvent se départager
-    // différemment entre le rendu SERVEUR et l'hydratation CLIENT (React
-    // le signale comme un décalage, sans lien avec le hasard de la spirale
-    // déjà rendue déterministe plus haut).
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    // ordre de placement MÉLANGÉ (mais déterministe : identique au serveur
+    // et au client) — trié par effectif, les gros se posaient au centre et
+    // les petits en anneau, ce qui dessinait des bandes bleu-blanc-rouge ;
+    // mélangés, gros et petits se côtoient partout dans le nuage
+    .sort((a, b) => empreinte(a[0]) - empreinte(b[0]))
     .map(([code, n]) => ({ code, n, r: rBase + Math.sqrt(n / max) * rGain }));
 
   const placees = [];
@@ -131,10 +121,74 @@ export default function NuagePays({ parPays }) {
     return entrees.length ? empaqueter(entrees) : [];
   }, [parPays]);
 
+  const zone = useRef(null);
+
+  // Mouvement VRAIMENT aléatoire, lancé après l'hydratation (le rendu
+  // serveur ne connaît pas le hasard) : chaque bulle a sa propre vitesse et
+  // sa propre direction, rebondit sur les bords de son petit enclos (rayon
+  // AMPLITUDE) et est repoussée par ses voisines si elles se rapprochent
+  // trop. Un seul transform par bulle, calculé à chaque image : rendu GPU,
+  // pas de flou ni d'opacité en mouvement (voir .tabbar).
+  useEffect(() => {
+    const zoneEl = zone.current;
+    if (!zoneEl || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bulles = Array.from(zoneEl.querySelectorAll(".np-bulle"));
+    if (bulles.length < 2) return;
+    const largeur = () => zoneEl.getBoundingClientRect().width || TAILLE;
+    const AMPLITUDE = 7;          // px : rayon de l'enclos de chaque bulle
+    const etat = items.map((it) => {
+      const a = Math.random() * Math.PI * 2;
+      const v = 6 + Math.random() * 10;  // px/s
+      return { x: 0, y: 0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: it.r, cx: it.x, cy: it.y };
+    });
+    let precedent = performance.now();
+    let anim = 0;
+    let visible = true;
+    const pas = (t) => {
+      const dt = Math.min(0.05, (t - precedent) / 1000);
+      precedent = t;
+      const echelle = largeur() / TAILLE;  // unités du repère → px
+      for (let i = 0; i < etat.length; i++) {
+        const e = etat[i];
+        // petite agitation aléatoire : la trajectoire ne se répète jamais
+        e.vx += (Math.random() - 0.5) * 12 * dt;
+        e.vy += (Math.random() - 0.5) * 12 * dt;
+        // répulsion douce entre voisines qui se rapprochent
+        for (let j = 0; j < etat.length; j++) {
+          if (i === j) continue;
+          const f = etat[j];
+          const dx = (e.cx * echelle + e.x) - (f.cx * echelle + f.x);
+          const dy = (e.cy * echelle + e.y) - (f.cy * echelle + f.y);
+          const d = Math.hypot(dx, dy) || 1;
+          const mini = (e.r + f.r) * echelle + 6;
+          if (d < mini) { e.vx += (dx / d) * 30 * dt; e.vy += (dy / d) * 30 * dt; }
+        }
+        // vitesse bornée
+        const vit = Math.hypot(e.vx, e.vy);
+        if (vit > 18) { e.vx *= 18 / vit; e.vy *= 18 / vit; }
+        e.x += e.vx * dt; e.y += e.vy * dt;
+        // rebond sur l'enclos
+        if (Math.abs(e.x) > AMPLITUDE) { e.x = Math.sign(e.x) * AMPLITUDE; e.vx *= -1; }
+        if (Math.abs(e.y) > AMPLITUDE) { e.y = Math.sign(e.y) * AMPLITUDE; e.vy *= -1; }
+        bulles[i].style.transform = `translate(${e.x.toFixed(2)}px, ${e.y.toFixed(2)}px)`;
+      }
+      if (visible) anim = requestAnimationFrame(pas);
+    };
+    anim = requestAnimationFrame(pas);
+    // on ne bouge que si la zone est à l'écran : pas de calcul pour rien
+    const obs = new IntersectionObserver(([en]) => {
+      visible = en.isIntersecting;
+      if (visible) { precedent = performance.now(); anim = requestAnimationFrame(pas); }
+      else cancelAnimationFrame(anim);
+    });
+    obs.observe(zoneEl);
+    return () => { cancelAnimationFrame(anim); obs.disconnect(); };
+  }, [items]);
+
   if (!items.length) return null;
 
   return (
-    <div className="np-zone">
+    <div className="np-zone" ref={zone}>
       {items.map((it, i) => (
         <Link key={it.code} href={`/annuaire?pays=${it.code}`} className="np-bulle"
           style={{
@@ -147,11 +201,8 @@ export default function NuagePays({ parPays }) {
             height: `${((it.r * 2 * 100) / TAILLE).toFixed(4)}%`,
             left: `${(((it.x - it.r) * 100) / TAILLE).toFixed(4)}%`,
             top: `${(((it.y - it.r) * 100) / TAILLE).toFixed(4)}%`,
-            // dérive propre à chaque bulle : points de passage et rythme tirés
-            // du nombre d'or (déterministes : identiques au serveur et au
-            // client), amplitude 5 px < la moitié de l'écart minimal garanti
-            ...derive(i),
           }}
+          data-i={i}
           aria-label={`${nomPays(it.code)} — ${it.n} membre${it.n > 1 ? "s" : ""}`}>
           <span className="np-disque"><img src={PAYS[it.code].drapeau} alt="" /></span>
           <span className="np-badge" aria-hidden>{it.n}</span>

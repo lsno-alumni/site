@@ -89,7 +89,7 @@ export default function AccueilMembre({ moi, donnees }) {
           <div className="am-offres">
             {offres.map((o) => (
               <Link key={o.id} href={`/offres#o-${o.id}`} className="am-offre">
-                <span className="meta doree" style={{ flexShrink: 0 }}>{TYPES_OFFRE[o.type]}</span>
+                <span className="meta doree" title={TYPES_OFFRE[o.type]} aria-label={TYPES_OFFRE[o.type]}>{TYPES_OFFRE[o.type]?.[0]}</span>
                 <span className="am-offre-titre">{o.titre}</span>
               </Link>
             ))}

@@ -208,6 +208,15 @@
   display: grid; place-items: center; font-family: var(--font-titres), serif; font-size: 34px; font-weight: 500; color: #F6F0E4;
   background: radial-gradient(circle at 30% 25%, #4E85E0 0%, #2E5590 45%, #1E3A62 100%);
 }
+:root[data-theme="sombre"] .polaroid-init {
+  background: radial-gradient(circle at 30% 25%, #6FA8F5 0%, #3B6FD1 40%, #1E3A62 100%);
+  color: #fff;
+}
+/* blason du lycée en miniature, en haut à droite des cartes sans photo */
+.polaroid-blason {
+  position: absolute; right: 8px; top: 8px; width: 24px; height: 24px; border-radius: 50%;
+  object-fit: cover; background: #fff; border: 1.5px solid rgba(255,255,255,.85); box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
 .polaroid-promo {
   position: absolute; left: 8px; top: 8px; font-size: 10px; font-weight: 700; letter-spacing: .04em;
   padding: 3px 7px; border-radius: 100px; background: rgba(20,24,36,.7); color: #fff;

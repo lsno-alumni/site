@@ -59,7 +59,10 @@ export default function Eventail({ membres }) {
               aria-hidden={d !== 0} tabIndex={d === 0 ? 0 : -1} draggable={false}>
               {m.photo_url
                 ? <img className="polaroid-photo" src={m.photo_url} alt="" draggable={false} />
-                : <span className="polaroid-photo polaroid-init">{(m.prenom[0] + (m.nom?.[0] ?? "")).toUpperCase()}</span>}
+                : <>
+                    <span className="polaroid-photo polaroid-init">{(m.prenom[0] + (m.nom?.[0] ?? "")).toUpperCase()}</span>
+                    <img className="polaroid-blason" src="/img/logo.jpg" alt="" draggable={false} />
+                  </>}
               <span className="polaroid-promo">P{m.promotions?.numero}</span>
               <span className="polaroid-nom">
                 <b>{m.prenom}</b>

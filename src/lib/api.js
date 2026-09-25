@@ -43,6 +43,8 @@ function profilVersUI(p) {
         titre: e.titre,
         detail: [e.etablissement, e.ville].filter(Boolean).join(", "),
         actuel: !e.annee_fin,
+        debut: e.annee_debut ?? null,
+        fin: e.annee_fin ?? null,
       })),
   };
 }

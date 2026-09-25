@@ -1059,7 +1059,9 @@
   position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 1;
   transition: opacity .2s;
 }
-.fg-poignee i { width: 42px; height: 5px; border-radius: 100px; background: rgba(var(--texte-rgb), .6); display: block; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+/* posée sur une couverture toujours sombre (duotone ou photo) : blanche, avec
+   une ombre, sinon elle se fond dans l'image en mode clair */
+.fg-poignee i { width: 46px; height: 5px; border-radius: 100px; background: rgba(255,255,255,.9); display: block; box-shadow: 0 1px 4px rgba(0,0,0,.55); }
 .fg-fermer {
   position: absolute; top: 10px; right: 10px; z-index: 2;
   width: 42px; height: 42px; border-radius: 50%;
@@ -1082,6 +1084,7 @@
 /* sans parcours, ce qui suit les boutons doit garder l'air que la section
    Parcours apportait */
 .p-corps-suite + .p-conseil { margin-top: 28px; }
+.p-bloc + .p-conseil { margin-top: 26px; }
 .p-corps-suite + .p-bloc.p-histoire { padding-top: 28px; }
 
 /* ============================================================

@@ -61,6 +61,23 @@ function relacher(items) {
   }
 }
 
+// Quatre points de passage dans un rayon de 5 px, une durée entre 9 et 15 s
+// et un départ décalé : chaque bulle semble flotter à sa guise, sans jamais
+// quitter la zone où elle ne peut heurter personne.
+function derive(i) {
+  const pt = (k) => {
+    const a = (i * 7 + k * 3) * ANGLE_OR;
+    const r = 2.5 + (((i * 13 + k * 5) % 7) / 7) * 2.5;
+    return [`${(Math.cos(a) * r).toFixed(1)}px`, `${(Math.sin(a) * r).toFixed(1)}px`];
+  };
+  const [x1, y1] = pt(1), [x2, y2] = pt(2), [x3, y3] = pt(3);
+  return {
+    "--x1": x1, "--y1": y1, "--x2": x2, "--y2": y2, "--x3": x3, "--y3": y3,
+    "--duree": `${(9 + ((i * 5) % 7)).toFixed(0)}s`,
+    "--retard": `-${((i * 2.7) % 9).toFixed(1)}s`,
+  };
+}
+
 function empaqueter(entrees) {
   const max = Math.max(...entrees.map(([, n]) => n));
   // TOUS les pays présents s'affichent (aucun plafond) — la taille de base
@@ -130,7 +147,10 @@ export default function NuagePays({ parPays }) {
             height: `${((it.r * 2 * 100) / TAILLE).toFixed(4)}%`,
             left: `${(((it.x - it.r) * 100) / TAILLE).toFixed(4)}%`,
             top: `${(((it.y - it.r) * 100) / TAILLE).toFixed(4)}%`,
-            animationDelay: `${(i * 0.35).toFixed(2)}s`,
+            // dérive propre à chaque bulle : points de passage et rythme tirés
+            // du nombre d'or (déterministes : identiques au serveur et au
+            // client), amplitude 5 px < la moitié de l'écart minimal garanti
+            ...derive(i),
           }}
           aria-label={`${nomPays(it.code)} — ${it.n} membre${it.n > 1 ? "s" : ""}`}>
           <span className="np-disque"><img src={PAYS[it.code].drapeau} alt="" /></span>

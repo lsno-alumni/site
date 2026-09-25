@@ -111,6 +111,23 @@
   color: rgba(255,255,255,.06); pointer-events: none;
 }
 .a-monde .tagline { color: #C9D6EC; }
+/* accueil connecté : la section des bulles devient la bande indigo, celle des promotions passe sur pierre avec la photo de promo */
+.am-monde { margin: 30px 0 0 !important; padding: 30px 22px 34px !important; position: relative; isolation: isolate; overflow: hidden; color: #fff; background: radial-gradient(120% 80% at 100% 0%, var(--monde-2), var(--monde) 60%); }
+.am-monde .a-titre { color: #fff; }
+.am-monde .a-sous { color: rgba(255,255,255,.8); }
+.am-monde .np-badge { background: var(--monde-2); color: #fff; box-shadow: 0 0 0 2px #fff; }
+.am-monde .np-disque { box-shadow: 0 10px 24px -10px rgba(0,0,0,.55), 0 0 0 3px rgba(255,255,255,.9); }
+.am-pierre { margin: 0 !important; padding: 34px 22px 40px !important; position: relative; isolation: isolate; overflow: hidden; color: #EFE8DB; background: var(--pierre); }
+.am-pierre::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url("/img/lsno_promo2.jpg") center 35% / cover; opacity: .28; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%); }
+.am-pierre .a-titre { color: #fff; }
+.am-pierre .a-sous, .am-pierre .roue3d-aide small { color: rgba(255,255,255,.75); }
+.am-pierre .roue3d-lien { color: #fff; }
+.am-pierre .carteh3d { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); color: #fff; }
+.am-pierre .carteh3d.actif { border-color: rgba(255,255,255,.55); background: rgba(255,255,255,.14); }
+.am-pierre .carteh3d .promo3d, .am-pierre .am-promo b { color: #F3E3CF; }
+.am-pierre .am-promo span { color: rgba(255,255,255,.7); }
+.am-pierre .points3d i { background: rgba(255,255,255,.3); }
+.am-pierre .points3d i.on { background: #fff; }
 .a-monde h4 { font-size: 24px; margin-top: 8px; color: #fff; }
 .a-monde p { font-size: 13.5px; color: rgba(255,255,255,.82); margin-top: 6px; }
 .a-pays { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
@@ -131,9 +148,15 @@
 }
 .am-tete::after {
   content: ""; position: absolute; inset: -3px; z-index: -1;
-  background: linear-gradient(178deg, rgba(var(--voile-rgb), .45) 0%, rgba(var(--voile-rgb), .9) 60%, var(--fond) 96%);
+  background: linear-gradient(180deg, rgba(var(--voile-rgb), .3) 0%, rgba(var(--voile-rgb), .55) 45%, rgba(var(--voile-rgb), .92) 100%);
 }
 .am-tete { color: #fff; }
+.am-haut { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 26px; }
+.am-haut .a-marque { white-space: nowrap; }
+.am-tete .choix-theme { background: rgba(0,0,0,.28); border-color: rgba(255,255,255,.22); }
+.am-tete .choix-theme { gap: 1px; padding: 2px; }
+.am-tete .choix-theme button { color: rgba(255,255,255,.8); padding: 6px 8px; font-size: 11.5px; gap: 4px; }
+.am-tete .choix-theme button.on { background: var(--bleu-clair); color: #fff; }
 .am-tete h1 { font-size: clamp(30px, 5vw, 38px); font-weight: 500; color: #fff; text-shadow: 0 1px 12px rgba(0,0,0,.35); }
 .am-tete h1 em { color: #F3E3CF; }
 .am-sous { color: rgba(255,255,255,.85); font-size: 13.5px; margin-top: 6px; }
@@ -204,7 +227,8 @@
 .np-zone { position: relative; width: 100%; aspect-ratio: 1 / 1; margin: 18px 0 4px; }
 .np-bulle {
   position: absolute; display: block; cursor: pointer;
-  animation: np-respire 7s ease-in-out infinite;
+  animation: np-derive var(--duree, 12s) ease-in-out infinite;
+  animation-delay: var(--retard, 0s);
   transform-origin: center;
 }
 .np-disque {
@@ -227,9 +251,15 @@
   box-shadow: 0 0 0 2px var(--fond);
   font-variant-numeric: tabular-nums;
 }
-@keyframes np-respire {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-4px) scale(1.015); }
+/* dérive lente et propre à chaque bulle : quatre points de passage tirés
+   (de façon déterministe) dans un rayon de 5 px — les bulles sont posées
+   avec 12 unités d'écart minimum, donc deux dérives de 5 px ne se rentrent
+   jamais dedans. Transform seul (rendu GPU des Mali, voir .tabbar). */
+@keyframes np-derive {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(var(--x1), var(--y1)); }
+  50% { transform: translate(var(--x2), var(--y2)); }
+  75% { transform: translate(var(--x3), var(--y3)); }
 }
 @media (prefers-reduced-motion: reduce) { .np-bulle { animation: none; } }
 
@@ -1104,7 +1134,8 @@
 .roue3d-zone.horiz { touch-action: pan-y; }
 
 /* dégradés d'extrémité posés PAR-DESSUS : un masque sur le conteneur casserait la 3D */
-.voile3d { position: absolute; left: 0; right: 0; height: 74px; pointer-events: none; z-index: 3; }
+/* les voiles dégradés aux extrémités des roues ont été retirés (24/09) : les tuiles s'estompent déjà d'elles-mêmes (opacité posée par Roue3D.js) */
+.voile3d { display: none; }
 .voile3d.haut { top: 0; background: linear-gradient(var(--fond), rgba(var(--fond-rgb), 0)); }
 .voile3d.bas { bottom: 0; background: linear-gradient(rgba(var(--fond-rgb), 0), var(--fond)); }
 .voile3d.gauche, .voile3d.droite { top: 0; bottom: 0; height: auto; width: 46px; left: auto; right: auto; }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hourglass, ArrowRight } from "lucide-react";
+import ChoixTheme from "@/components/ChoixTheme";
 import TabBar from "@/components/TabBar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import InviteNotifications from "@/components/InviteNotifications";
@@ -37,8 +38,11 @@ export default function AccueilMembre({ moi, donnees }) {
   return (
     <main className="page avec-tabbar">
       <header className="am-tete">
-        <div className="a-marque" style={{ marginBottom: 26 }}>
-          <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
+        <div className="am-haut">
+          <div className="a-marque">
+            <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
+          </div>
+          <ChoixTheme />
         </div>
         <h1><Salutation prenom={moi.prenom} /></h1>
         <p className="am-sous">Que peut le réseau pour toi aujourd&apos;hui ?</p>
@@ -106,7 +110,7 @@ export default function AccueilMembre({ moi, donnees }) {
               <span>Promotion {conseil.promotions?.numero} · voir son parcours</span>
             </div>
           </Link>
-          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--fond)", opacity: .75 }}>
+          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--bleu-texte)" }}>
             Tous les conseils par thème <ArrowRight size={13} aria-hidden />
           </Link>
         </section>
@@ -135,7 +139,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {parPays && Object.keys(parPays).length > 0 && (
         <Reveal>
-        <section className="a-section" style={{ paddingBottom: 30 }}>
+        <section className="a-section am-monde" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau dans le monde</h2>
           <p className="a-sous">Touche un pays pour voir qui y est.</p>
           <NuagePays parPays={parPays} />
@@ -168,7 +172,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {promos.length > 0 && (
         <Reveal>
-        <section className="a-section" style={{ paddingBottom: 30 }}>
+        <section className="a-section am-pierre" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
           <Roue3D memo="membre-promos"
             sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."

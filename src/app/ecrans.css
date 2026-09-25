@@ -612,12 +612,13 @@
 .vide b { color: var(--texte); display: block; font-size: 16px; font-family: var(--font-titres), serif; margin-bottom: 4px; }
 
 /* ---------- PROFIL ---------- */
+.page-profil { background-color: var(--fond-profil); }
 .p-cover {
   height: 150px; position: relative; isolation: isolate; overflow: hidden;
-  /* sans photo : bande bleu nuit sur grain kraft (même matière que le parcours) */
-  background-color: var(--monde);
-  background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen;
+  /* sans photo : la photo de bibliothèque d'origine, fondue vers le sol du profil */
+  background: url("/img/bg_study.jpg") center/cover;
 }
+.p-cover:not(.avec-photo)::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(var(--voile-rgb), .25), var(--fond-profil)); }
 /* avec photo : la photo du membre, agrandie et floutée, sous un voile bleu
    nuit — le bord flou est débordé par le scale pour ne pas laisser de liseré */
 .p-cover.avec-photo::before {
@@ -627,7 +628,6 @@
 }
 .p-cover.avec-photo::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .45); }
 :root[data-theme="sombre"] .p-cover.avec-photo::after { background: rgba(15, 21, 36, .58); }
-:root[data-theme="sombre"] .p-cover { background-color: #16253F; }
 .p-retour {
   position: absolute; top: 18px; left: 18px; z-index: 5; width: 36px; height: 36px; border-radius: 50%;
   background: rgba(20, 16, 14, .38); backdrop-filter: blur(8px); display: grid; place-items: center;
@@ -636,7 +636,7 @@
 .p-corps { padding: 0 22px; margin-top: -44px; position: relative; }
 .p-photo {
   width: 92px; height: 92px; border-radius: 32px; object-fit: cover;
-  border: 4px solid var(--fond); box-shadow: 0 18px 40px -14px rgba(0,0,0,.7); font-size: 30px;
+  border: 4px solid var(--fond-profil); box-shadow: 0 18px 40px -14px rgba(0,0,0,.7); font-size: 30px;
 }
 .p-corps h1 { font-size: 26px; margin-top: 14px; }
 .p-corps .statut { font-size: 13.5px; color: var(--brume); margin-top: 4px; line-height: 1.55; }
@@ -999,7 +999,11 @@
 }
 .fg-feuille {
   position: fixed; left: 0; right: 0; bottom: 0; height: 100dvh;
-  background: var(--fond-2); border-radius: 22px 22px 0 0;
+  /* même papier que les pages (grain kraft), un ton plus soutenu que le sol
+     de l'annuaire pour que la feuille se distingue de ce qu'elle recouvre */
+  background-color: var(--fond-profil);
+  background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border-radius: 22px 22px 0 0;
   box-shadow: 0 -20px 50px -10px rgba(0,0,0,.5);
   transform: translateY(100%);
   transition: transform .32s cubic-bezier(.32,.72,0,1), border-radius .32s;

@@ -139,7 +139,7 @@ details[open] > summary .chevron { transform: rotate(180deg); }
   display: inline-flex; align-items: center; gap: 5px;
 }
 .meta.doree { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .35); color: var(--bleu-texte); }
-.meta.verte { color: #9FD8B4; border-color: rgba(99, 199, 132, .35); }
+.meta.verte { color: var(--vert-ok); border-color: rgba(99, 199, 132, .45); }
 
 .champ label {
   font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;

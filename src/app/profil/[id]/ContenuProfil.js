@@ -112,30 +112,21 @@ export function SuiteProfil({ p, contacts, demande, id }) {
       {p.parcours.length > 0 && (
         <section className="p-bloc">
           <h4>Parcours</h4>
-          {/* même panneau bleu nuit que « Mon profil » (validé le 24/09) :
-              règle des années du plus ancien au plus récent, puis une carte
-              translucide par étape, du présent vers le passé */}
+          {/* le panneau bleu nuit de « Mon profil », avec le fil de l'ancien
+              système : la ligne se trace, les points s'allument, l'évolution
+              se lit du présent vers le lycée */}
           <div className="frise">
-            <div className="regle" aria-hidden>
-              {[...p.parcours].sort((a, b) => (a.debut ?? 0) - (b.debut ?? 0)).map((e, i) => (
-                <div key={i}>
-                  <b className={e.actuel ? "now" : ""}>{e.debut ?? "—"}</b>
-                  <small>{e.fin ? `→ ${e.fin}` : "→ aujourd'hui"}</small>
-                </div>
-              ))}
-            </div>
-            <div className="e-etapes">
+            <div className="chemin">
               {p.parcours.map((e, i) => (
-                <div key={i} className="e-etape">
-                  <div>
-                    <b>
-                      {e.titre.startsWith("LSNO") && (
-                        <img src="/img/logo.jpg" alt="" className="mini-blason" />
-                      )}
-                      {e.titre}
-                    </b>
-                    <span>{e.annees}{e.detail ? ` · ${e.detail}` : ""}</span>
-                  </div>
+                <div key={i} className={`pas${e.actuel ? " actuel" : ""}`}>
+                  <div className="annees">{e.annees}</div>
+                  <b>
+                    {e.titre.startsWith("LSNO") && (
+                      <img src="/img/logo.jpg" alt="" className="mini-blason" />
+                    )}
+                    {e.titre}
+                  </b>
+                  {e.detail && <span>{e.detail}</span>}
                 </div>
               ))}
             </div>

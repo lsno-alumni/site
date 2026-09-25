@@ -184,48 +184,42 @@
   display: inline-block; margin-top: 12px; font-size: 12.5px; color: rgba(255,255,255,.85);
   text-decoration: underline; text-underline-offset: 3px;
 }
-.am-nouveaux { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
-.am-nouveaux::-webkit-scrollbar { display: none; }
-.am-nouveau {
-  flex: 0 0 auto; width: 104px; text-align: center; padding: 14px 8px 12px;
-  background: var(--carte); border: 1px solid var(--ligne); border-radius: 20px;
-  transition: border-color .25s, transform .25s;
+/* ---------- « Ils viennent d'arriver » : polaroïds en éventail (Eventail.js) ----------
+   Carte = photo bord à bord + bandeau papier ; éventail = la carte de face
+   droite, les voisines rangées derrière, inclinées et décalées selon --d. */
+.eventail { margin-top: 6px; }
+.eventail-pile { position: relative; height: 196px; width: 100%; perspective: 900px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.polaroid {
+  position: absolute; left: 50%; top: 8px; width: 122px; margin-left: -61px;
+  border-radius: 18px; overflow: hidden; display: block; color: var(--texte);
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 14px 30px -18px rgba(31,34,48,.5);
+  transform-origin: 50% 140%;
+  transform: rotate(calc(var(--d) * 13deg)) translateX(calc(var(--d) * 26px)) translateY(calc(abs(var(--d)) * 4px)) scale(calc(1 - abs(var(--d)) * .06));
+  opacity: calc(1 - abs(var(--d)) * .22);
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s, box-shadow .45s;
+  -webkit-user-drag: none;
 }
-.am-nouveau:hover { border-color: rgba(var(--accent-rgb), .4); transform: translateY(-2px); }
-.am-nouveau { position: relative; overflow: hidden; isolation: isolate; }
-/* les effets ci-dessous sont désactivés (reflet + lueur refusés le 25/09) */
-.am-nouveau::before, .am-nouveau::after { content: none; }
-.am-nouveau::before {
-  content: ""; position: absolute; inset: -20% -60%; z-index: -1;
-  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
-  transform: translateX(-70%);
-  animation: am-reflet 6s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * .7s);
+.polaroid.devant { box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 24px 44px -18px rgba(31,34,48,.6), 0 0 0 1px rgba(var(--accent-rgb), .25); }
+:root[data-theme="sombre"] .polaroid { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 14px 30px -18px rgba(0,0,0,.7); }
+:root[data-theme="sombre"] .polaroid.devant { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 24px 44px -18px rgba(0,0,0,.8), 0 0 0 1px rgba(var(--accent-rgb), .35); }
+.polaroid-photo { display: block; width: 100%; height: 104px; object-fit: cover; }
+.polaroid-init {
+  display: grid; place-items: center; font-family: var(--font-titres), serif; font-size: 34px; font-weight: 500; color: #F6F0E4;
+  background: radial-gradient(circle at 30% 25%, #4E85E0 0%, #2E5590 45%, #1E3A62 100%);
 }
-:root[data-theme="sombre"] .am-nouveau::before { background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.14) 50%, transparent 60%); }
-.am-nouveau::after {
-  content: ""; position: absolute; left: 50%; top: 40px; width: 88px; height: 88px; z-index: -1;
-  margin-left: -44px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(var(--accent-rgb), .28) 0%, rgba(var(--accent-rgb), 0) 70%);
-  animation: am-lueur 4s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * .7s);
+.polaroid-promo {
+  position: absolute; left: 8px; top: 8px; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  padding: 3px 7px; border-radius: 100px; background: rgba(20,24,36,.7); color: #fff;
 }
-@keyframes am-reflet { 0%, 55% { transform: translateX(-70%); } 85%, 100% { transform: translateX(70%); } }
-@keyframes am-lueur { 0%, 100% { transform: scale(.85); opacity: .7; } 50% { transform: scale(1.15); opacity: 1; } }
-.am-nouveau .am-nouveau-photo { position: relative; box-shadow: 0 8px 18px -8px rgba(var(--accent-rgb), .55); }
-@media (prefers-reduced-motion: reduce) { .am-nouveau::before, .am-nouveau::after { animation: none; } }
-/* avatar identique à celui de l'annuaire (52px, coins 18, initiales 17) */
-.am-nouveau-photo {
-  width: 52px !important; height: 52px !important; border-radius: 18px;
-  object-fit: cover; margin: 0 auto 8px;
-  font-size: 17px; font-weight: 800; line-height: 1;
-  display: grid !important; place-items: center;
-}
-.am-nouveau b { font-size: 12.5px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.am-nouveau-detail { font-size: 10px; color: var(--brume); display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* les initiales gardent le style de l'annuaire (la règle du texte de carte
-   écrasait leur couleur/taille) */
-.am-nouveau .avatar-init { font-size: 17px; }
+.polaroid-nom { display: block; padding: 9px 8px 10px; text-align: center; }
+.polaroid-nom b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.polaroid-nom small { display: block; font-size: 10.5px; color: var(--brume); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eventail-points { display: flex; justify-content: center; gap: 5px; margin-top: 2px; }
+.eventail-points i { width: 5px; height: 5px; border-radius: 50%; background: var(--ligne); transition: width .3s, background .3s; }
+.eventail-points i.on { width: 14px; border-radius: 100px; background: var(--bleu-clair); }
+.eventail-aide { text-align: center; font-size: 11.5px; color: var(--brume); margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .polaroid { transition: none; } }
 .am-offres { display: grid; gap: 9px; }
 .am-offre {
   display: flex; align-items: center; gap: 10px; padding: 12px 14px;

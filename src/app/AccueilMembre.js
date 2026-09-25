@@ -12,6 +12,7 @@ import TexteReplie from "@/components/TexteReplie";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
+import Eventail from "@/components/Eventail";
 import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
@@ -68,16 +69,8 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Tu peux consulter leurs profils.</p>
-          <div className="am-nouveaux">
-            {nouveaux.map((m, i) => (
-              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau" style={{ "--i": i }}>
-                <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
-                <b>{m.prenom}</b>
-                <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
-              </Link>
-            ))}
-          </div>
+          <p className="a-sous">Touche une carte pour voir le profil.</p>
+          <Eventail membres={nouveaux} />
         </section>
         </Reveal>
       )}

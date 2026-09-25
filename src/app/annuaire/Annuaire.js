@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Surligne, { plat } from "@/components/Surligne";
-import { Search, BadgeCheck, Lightbulb, ArrowRight, Shuffle } from "lucide-react";
+import { Search, BadgeCheck, Lightbulb, ArrowRight, Shuffle, Share2 } from "lucide-react";
 import { DOMAINES, PAYS, LISTE_PAYS, nomPays, nomDomaine, PROMOTIONS, SITUATIONS } from "@/lib/donnees";
 
 const FILTRES_DOMAINE = [
@@ -69,6 +69,20 @@ export default function Annuaire({ membres }) {
 
   const raz = () => { setDomaine("tous"); setPromo(""); setPays(""); setSituation(""); setQ(""); };
 
+  // bande de clôture : inviter quelqu'un qui manque à l'annuaire
+  const [copie, setCopie] = useState(false);
+  const partagerSite = async () => {
+    const url = window.location.origin;
+    if (navigator.share) {
+      try { await navigator.share({ title: "LSNO Amicale", text: "Rejoins le réseau des anciens du LSNO", url }); } catch {}
+      return;
+    }
+    try { await navigator.clipboard.writeText(url); setCopie(true); setTimeout(() => setCopie(false), 2200); } catch {}
+  };
+  // repères de lettre : la liste est triée par prénom ; une lettre par groupe
+  const lettre = (m) => (m.prenom?.trim()[0] ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  const avecLettres = !q.trim() && resultats.length > 12;
+
   // ouvre le profil d'un membre pris au hasard PARMI LES RÉSULTATS actuels
   // (respecte les filtres/la recherche en cours) — depuis l'annuaire, ce
   // lien est intercepté et s'ouvre en feuille, comme n'importe quelle fiche
@@ -117,6 +131,7 @@ export default function Annuaire({ membres }) {
         </div>
       </header>
 
+      <div className="n-panneau">
       <div className="n-filtres" role="group" aria-label="Filtrer par domaine">
         {FILTRES_DOMAINE.map((f) => (
           <button
@@ -152,10 +167,15 @@ export default function Annuaire({ membres }) {
           ))}
         </select>
       </div>
+      </div>
 
       <div className="n-liste">
-        {resultats.map((m) => (
-          <Link key={m.id} href={`/profil/${m.id}`} className="fiche">
+        {resultats.map((m, i) => (
+          <Fragment key={m.id}>
+          {avecLettres && (i === 0 || lettre(resultats[i - 1]) !== lettre(m)) && (
+            <div className="n-lettre" aria-hidden><b>{lettre(m)}</b><i /></div>
+          )}
+          <Link href={`/profil/${m.id}`} className="fiche">
             <div className="haut">
               <Avatar profil={m} className="init" />
               <div>
@@ -178,6 +198,7 @@ export default function Annuaire({ membres }) {
               )}
             </div>
           </Link>
+          </Fragment>
         ))}
         {resultats.length === 0 && (
           <div className="vide">
@@ -190,6 +211,16 @@ export default function Annuaire({ membres }) {
           </div>
         )}
       </div>
+
+      {resultats.length > 0 && (
+        <section className="n-cloture">
+          <h2 className="a-titre">Tu ne trouves pas quelqu&apos;un ?</h2>
+          <p>Il n&apos;est peut-être pas encore inscrit. Envoie-lui le site, il rejoindra sa promotion en deux minutes.</p>
+          <button type="button" className="btn btn-nu" onClick={partagerSite}>
+            <Share2 size={15} aria-hidden /> {copie ? "Lien copié" : "Partager le site"}
+          </button>
+        </section>
+      )}
       <RestaurerDefilement />
     </>
     </GlisserRafraichir>

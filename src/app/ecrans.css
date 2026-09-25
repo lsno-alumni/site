@@ -517,6 +517,16 @@
 @keyframes gr-rotation { to { transform: rotate(360deg); } }
 /* portion d'un résultat qui correspond à la recherche en cours */
 .n-surligne { background: rgba(var(--accent-rgb), .22); color: var(--bleu-texte); border-radius: 3px; }
+/* bandeau papier collant qui regroupe la recherche par puces et les menus (25/09) */
+.n-panneau {
+  position: sticky; top: 0; z-index: 20; padding: 2px 0 4px; margin-bottom: 6px;
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border-bottom: 1px solid var(--ligne);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 12px 24px -18px rgba(31,34,48,.45);
+}
+:root[data-theme="sombre"] .n-panneau { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 24px -18px rgba(0,0,0,.7); }
+.n-panneau .n-filtres { position: static; background: none; box-shadow: none; padding-top: 10px; padding-bottom: 6px; }
+.n-panneau .n-filtres + .n-filtres { padding-top: 0; }
 .n-filtres {
   display: flex; gap: 8px; padding: 14px 22px; overflow-x: auto; scrollbar-width: none;
   position: sticky; top: 0; z-index: 20;
@@ -538,6 +548,27 @@
 }
 .puce.active { background: var(--bleu-clair); color: var(--sur-accent); font-weight: 700; border-color: var(--bleu-clair); }
 .n-liste { padding: 4px 22px 40px; display: grid; gap: 12px; }
+/* repère de lettre entre les groupes de prénoms */
+.n-lettre { display: flex; align-items: center; gap: 12px; padding: 14px 2px 2px; }
+.n-lettre b { font-family: var(--font-titres), serif; font-weight: 400; font-size: 30px; line-height: 1; color: var(--bleu-texte); }
+.n-lettre i { flex: 1; height: 1px; background: var(--ligne); }
+/* bande de clôture sur pierre, collée à la barre d'onglets (comme l'accueil connecté) */
+.n-cloture {
+  margin: 10px 0 -90px; padding: 34px 22px 130px; position: relative; isolation: isolate; overflow: hidden;
+  background: var(--pierre); color: #EFE8DB; text-align: center;
+}
+.n-cloture::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .28;
+  background: url("/img/lsno_groupe.jpg") center 30% / cover;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 40%, #000 70%, transparent 100%);
+}
+.n-cloture .a-titre { color: #fff; }
+.n-cloture p { font-size: 13.5px; color: rgba(255,255,255,.78); line-height: 1.55; margin: 8px auto 18px; max-width: 32ch; }
+.n-cloture .btn-nu { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.55); }
+/* en sombre, le haut translucide des fiches se détache un peu du fond */
+:root[data-theme="sombre"] .fiche .haut { background: rgba(var(--texte-rgb), .05); }
+:root[data-theme="sombre"] .fiche { border-color: rgba(var(--texte-rgb), .1); }
 
 .fiche {
   /* carte validée le 24/09 : haut translucide (le grain du papier transparaît),

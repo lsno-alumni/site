@@ -124,8 +124,8 @@
 .am-monde > * { position: relative; z-index: 1; }
 .am-monde .np-zone::before { content: none; }
 .am-monde::after { content: ""; position: absolute; inset: 0; z-index: 0; background: rgba(30, 58, 98, .55); }
-:root[data-theme="sombre"] .am-monde { background: #16294A; }
-:root[data-theme="sombre"] .am-monde::after { background: rgba(22, 41, 74, .6); }
+:root[data-theme="sombre"] .am-monde { background: #0F1524; }
+:root[data-theme="sombre"] .am-monde::after { background: rgba(15, 21, 36, .62); }
 :root[data-theme="sombre"] .am-monde::before { opacity: .42; }
 .am-monde .a-titre { color: #fff; }
 .am-monde .a-sous { color: rgba(255,255,255,.8); }

@@ -12,7 +12,7 @@ export const HEURE_JOUR = 6;
 export const HEURE_NUIT = 19;
 
 // même couleur que --fond, pour la barre du navigateur (meta theme-color)
-const COULEUR_BARRE = { clair: "#F6F0E4", sombre: "#141824" };
+const COULEUR_BARRE = { clair: "#F6F0E4", sombre: "#0F1219" };
 
 export function lireReglage() {
   try {

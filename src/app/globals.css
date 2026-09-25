@@ -40,8 +40,8 @@
 }
 :root[data-theme="sombre"] {
   color-scheme: dark;
-  --fond: #141824; --fond-rgb: 20, 24, 36;
-  --fond-2: #1A1F2D;
+  --fond: #0F1219; --fond-rgb: 15, 18, 25;
+  --fond-2: #151A26;
   --carte: #1D2231;
   --sable: #232939;
   --texte: #EFE8DB; --texte-rgb: 239, 232, 219;

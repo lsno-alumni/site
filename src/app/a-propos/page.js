@@ -4,6 +4,7 @@ import Carrousel from "@/components/Carrousel3D";
 import Compteur from "@/components/Compteur";
 import { BlocInstallation } from "@/components/InstallerAppli";
 import RetourDynamique from "@/components/RetourDynamique";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { statsPubliques, utilisateurCourant, listeDelegues, listeConseils } from "@/lib/api";
 import { nomDomaine } from "@/lib/donnees";
 
@@ -130,6 +131,7 @@ export default async function APropos() {
           <Link href="/conditions">Conditions &amp; confidentialité</Link>
         </p>
       </section>
+      <RestaurerDefilement />
       <TabBar actif="À propos" />
     </main>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
 import { initInstallation } from "@/lib/installation";
 
@@ -101,13 +101,21 @@ export default function SuiviNavigation() {
 // arrière ou au retour par la barre d'onglets. Ne fait rien si l'on arrive
 // par un lien ordinaire ou une adresse tapée.
 export function RestaurerDefilement() {
-  useEffect(() => {
+  // useLayoutEffect : on se replace AVANT la première peinture, la page
+  // apparaît directement à la bonne position (avec useEffect + deux frames,
+  // le haut de page s'affichait puis DÉFILAIT jusqu'à la position — jugé
+  // fatigant). `behavior: "instant"` : sans lui, le `scroll-behavior: smooth`
+  // global de la page anime le saut.
+  useLayoutEffect(() => {
     if (!estRetour() && !estViaOnglet()) return;
     const y = positions.get(cleCourante());
-    if (!y) return;
-    // deux frames, le temps que le contenu soit peint ; puis quelques essais
-    // espacés si la page est encore trop courte (blocs chargés en différé,
-    // ex. Notifications de Mon profil) — on s'arrête dès que le doigt bouge
+    // les liens de la barre d'onglets portent scroll={false} (sinon Next
+    // ramène en haut APRÈS nous, en glissant) : sans position mémorisée,
+    // c'est donc ici qu'on part du haut, d'un coup
+    if (!y) { if (estViaOnglet()) window.scrollTo({ top: 0, behavior: "instant" }); return; }
+    // quelques essais espacés si la page est encore trop courte (blocs
+    // chargés en différé, ex. Notifications de Mon profil) — on s'arrête
+    // dès que le doigt bouge
     let essais = 0, doigt = false;
     const geste = () => { doigt = true; };
     window.addEventListener("touchstart", geste, { passive: true, once: true });
@@ -115,10 +123,10 @@ export function RestaurerDefilement() {
     const tenter = () => {
       if (doigt) return;
       sautLe = Date.now();
-      window.scrollTo(0, y);
+      window.scrollTo({ top: y, behavior: "instant" });
       if (window.scrollY < y - 2 && essais++ < 6) setTimeout(tenter, 150);
     };
-    requestAnimationFrame(() => requestAnimationFrame(tenter));
+    tenter();
   }, []);
   return null;
 }

@@ -17,7 +17,7 @@ export const EMOJIS_PLUS = ["🔥", "👏", "🎉", "💯", "😍", "🤣", "�
 export const MODIF_MINUTES = 5;
 // durée de vie des pièces (la base fait foi : messages_avant_insert)
 export const JOURS_PIECE = { photo: 30, pdf: 14, video: 7, audio: 7 };
-const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree";
+const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree, sondage_id";
 
 // libellé d'une conversation vu par moi : le nom du groupe, ou l'autre personne
 export function nomConversation(c) {
@@ -68,7 +68,7 @@ export async function lireConversation(id) {
   const supabase = creerClientNavigateur();
   const { data, error } = await supabase
     .from("conversations")
-    .select("id, type, nom, cree_par, membres:conversation_membres(membre, lu_le, muet, epingle, profil:profiles(id, prenom, nom, photo_url))")
+    .select("id, type, nom, photo_url, description, message_epingle, cree_par, membres:conversation_membres(membre, lu_le, muet, epingle, profil:profiles(id, prenom, nom, photo_url))")
     .eq("id", id).maybeSingle();
   if (error) throw error;
   return data;
@@ -84,10 +84,10 @@ export async function chargerMessages(conversationId, { limite = 50, avant = nul
   return (data ?? []).reverse();   // du plus ancien au plus récent
 }
 
-export async function envoyerMessage(conversationId, texte, mentions = [], piece = null, reponseA = null) {
+export async function envoyerMessage(conversationId, texte, mentions = [], piece = null, reponseA = null, sondageId = null) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
-  const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA };
+  const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA, sondage_id: sondageId };
   if (piece) Object.assign(ligne, { fichier_chemin: piece.chemin, fichier_type: piece.type, fichier_nom: piece.nom, fichier_taille: piece.taille });
   const { data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_MESSAGE).single();
   if (error) {
@@ -224,9 +224,137 @@ export async function chercherMessages(q) {
 
 // libellé court d'une pièce pour la liste et les citations
 export function libellePiece(m) {
-  if (!m?.fichier_type) return "";
+  if (m?.sondage && !m?.fichier_type) return `Sondage : ${m.sondage}`;
+  if (!m?.fichier_type && !m?.sondage_id) return "";
+  if (m.sondage_id && !m.fichier_type) return "Sondage";
   return m.fichier_type === "photo" ? "Photo" : m.fichier_type === "video" ? "Vidéo" : m.fichier_type === "audio" ? "Message vocal"
     : m.fichier_type === "lien" ? `Lien : ${m.fichier_nom ?? ""}` : `Fichier : ${m.fichier_nom ?? "document"}`;
+}
+
+// un message précis (le message épinglé, s'il n'est plus dans les 50 chargés)
+export async function lireMessage(id) {
+  const supabase = creerClientNavigateur();
+  const { data } = await supabase.from("messages").select(CHAMPS_MESSAGE).eq("id", id).maybeSingle();
+  return data;
+}
+
+// ---- blocages ----
+export async function mesBlocages() {
+  const supabase = creerClientNavigateur();
+  const { data } = await supabase.from("blocages").select("bloque");
+  return (data ?? []).map((b) => b.bloque);
+}
+export async function bloquer(membre) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase.from("blocages").upsert({ bloqueur: user.id, bloque: membre }, { onConflict: "bloqueur,bloque", ignoreDuplicates: true });
+  if (error) throw error;
+}
+export async function debloquer(membre) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { error } = await supabase.from("blocages").delete().eq("bloqueur", user.id).eq("bloque", membre);
+  if (error) throw error;
+}
+
+// ---- signaler un message (le texte est recopié dans le motif : les
+//      modérateurs ne lisent pas les conversations) ----
+export async function signalerMessage(m, auteurNom) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const extrait = m.texte?.trim() ? `« ${m.texte.trim().slice(0, 160)} »` : libellePiece(m);
+  const { error } = await supabase.from("signalements").insert({
+    cible_type: "message", cible_id: String(m.id), auteur: user.id,
+    motif: `Message de ${auteurNom ?? "un membre"} : ${extrait}`.slice(0, 300),
+  });
+  if (error && error.code !== "23505") throw error;
+}
+export async function adminSupprimerMessage(id) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.rpc("admin_supprimer_message", { p_id: Number(id) });
+  if (error) throw error;
+}
+export async function adminStockage() {
+  const supabase = creerClientNavigateur();
+  const { data, error } = await supabase.rpc("admin_stockage");
+  if (error) throw error;
+  return data ?? [];
+}
+
+// ---- groupe : photo, description, message épinglé ----
+export async function majGroupe(id, champs) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.from("conversations").update(champs).eq("id", id);
+  if (error) throw error;
+}
+// la photo du groupe va dans le bucket public « medias » (dossier de celui qui l'envoie)
+export async function televerserPhotoGroupe(conversationId, fichier) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const corps = await compresserImage(fichier);
+  const chemin = `${user.id}/groupe-${conversationId}-${Date.now()}.jpg`;
+  const { error } = await supabase.storage.from("medias").upload(chemin, corps, { contentType: "image/jpeg" });
+  if (error) throw error;
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/medias/${chemin}`;
+}
+export async function epinglerMessage(conversationId, messageId) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.rpc("epingler_message", { p_conversation: conversationId, p_message: messageId });
+  if (error) throw error;
+}
+
+// ---- sondages ----
+export async function creerSondage(conversationId, question, choix, multiple) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase.from("sondages")
+    .insert({ conversation_id: conversationId, auteur: user.id, question: question.trim(), choix: choix.map((c) => c.trim()).filter(Boolean), multiple })
+    .select("id").single();
+  if (error) throw error;
+  return envoyerMessage(conversationId, "", [], null, null, data.id);
+}
+export async function lireSondages(ids) {
+  if (!ids.length) return { sondages: {}, votes: {} };
+  const supabase = creerClientNavigateur();
+  const [{ data: s }, { data: v }] = await Promise.all([
+    supabase.from("sondages").select("id, question, choix, multiple, auteur").in("id", ids),
+    supabase.from("sondage_votes").select("sondage_id, membre, choix").in("sondage_id", ids),
+  ]);
+  const votes = {};
+  for (const x of v ?? []) (votes[x.sondage_id] ??= []).push({ membre: x.membre, choix: x.choix });
+  return { sondages: Object.fromEntries((s ?? []).map((x) => [x.id, x])), votes };
+}
+export async function voter(sondageId, choix) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!choix.length) { await supabase.from("sondage_votes").delete().eq("sondage_id", sondageId).eq("membre", user.id); return; }
+  const { error } = await supabase.from("sondage_votes").upsert({ sondage_id: sondageId, membre: user.id, choix, maj_le: new Date().toISOString() }, { onConflict: "sondage_id,membre" });
+  if (error) throw error;
+}
+export function ecouterVotes(surChangement) {
+  const supabase = creerClientNavigateur();
+  const canal = supabase.channel("votes-" + Math.random().toString(36).slice(2, 8))
+    .on("postgres_changes", { event: "*", schema: "public", table: "sondage_votes" }, (p) => surChangement?.(p))
+    .subscribe();
+  return () => { supabase.removeChannel(canal); };
+}
+
+// ---- transférer un message vers une autre conversation ----
+export async function transfererMessage(m, versConversationId) {
+  const supabase = creerClientNavigateur();
+  let piece = null;
+  if (m.fichier_chemin && !m.fichier_expiree) {
+    if (m.fichier_type === "lien") piece = { chemin: m.fichier_chemin, type: "lien", nom: m.fichier_nom, taille: null };
+    else {
+      const { data: { user } } = await supabase.auth.getUser();
+      const ext = m.fichier_chemin.split(".").pop();
+      const chemin = `${versConversationId}/${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from(BUCKET_PIECES).copy(m.fichier_chemin, chemin);
+      if (error) throw error;
+      piece = { chemin, type: m.fichier_type, nom: m.fichier_nom, taille: m.fichier_taille };
+    }
+  }
+  return envoyerMessage(versConversationId, m.texte ?? "", [], piece, null, m.sondage_id ?? null);
 }
 
 export function tailleLisible(o) {

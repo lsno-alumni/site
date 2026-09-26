@@ -6,18 +6,22 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, ArrowDown, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check, Paperclip, FileText, Play,
   Mic, Square, Reply, BellOff, Bell, Pin, PinOff, Link as LienIcone, CheckCheck, Plus, Minus,
+  Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import LecteurAudio from "@/components/LecteurAudio";
+import Sondage from "./Sondage";
 import useClicDehors from "@/lib/useClicDehors";
 import { peutRevenir } from "@/components/SuiviNavigation";
 import * as memoire from "@/lib/memoire";
 import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres } from "@/lib/mentions";
 import {
-  lireConversation, chargerMessages, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages,
+  lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages,
   ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
-  renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables,
+  renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
   televerserPiece, urlsPieces, tailleLisible, libellePiece,
+  mesBlocages, bloquer, debloquer, signalerMessage, majGroupe, televerserPhotoGroupe, epinglerMessage,
+  creerSondage, lireSondages, ecouterVotes, transfererMessage, ouvrirDuo,
   nomConversation, heure, jour, MESSAGE_MAX, PIECE_VIDEO_SECONDES, PIECE_VIDEO_MO, PIECE_PDF_MO, VOCAL_SECONDES,
   EMOJIS, EMOJIS_PLUS, MODIF_MINUTES, JOURS_PIECE,
 } from "@/lib/messages";
@@ -25,18 +29,17 @@ import {
 // Le fil d'une conversation : bulles (les miennes à droite, en bleu ; les
 // autres à gauche, papier, avec le prénom dans les groupes), séparateurs de
 // jour, saisie collée en bas, arrivée en temps réel, lecture marquée à
-// l'ouverture et à chaque message reçu. Pièces jointes, vocal, coches
-// « vu » par message, « … écrit », réponse citée (menu ou glissement vers la
-// droite), réactions (six + grille), sourdine/épingle, modification dans
-// les 5 minutes, liens partagés. Appui long (ou clic droit, ou double clic)
-// sur une bulle = ses actions ; le geste est le nôtre, pas celui du
-// navigateur (sélection de texte, menu d'image ou de lien).
+// l'ouverture et à chaque message reçu. Pièces jointes (plusieurs photos
+// d'un coup), vocal, coches « vu » par message, « … écrit », réponse citée
+// (menu ou glissement vers la droite), réactions (six + grille), sourdine /
+// épingle, modification dans les 5 minutes, liens partagés, transfert,
+// signalement, blocage, message épinglé, sondages, photo et description de
+// groupe, réponse en privé depuis un groupe, brouillon gardé. Appui long
+// (ou clic droit, ou double clic) sur une bulle = ses actions.
 
 const SEUIL_REPONSE = 56;   // px de glissement vers la droite pour répondre
 const APPUI_LONG = 450;     // ms
-
-// ---- sous-composants au niveau module (jamais recréés à chaque rendu :
-//      sinon le lecteur audio, par exemple, repartirait de zéro) ----
+const cleBrouillon = (id) => `brouillon-conv-${id}`;
 
 function Citation({ c, nom }) {
   if (!c) return <div className="msg-citation"><small>Message plus ancien</small></div>;
@@ -84,7 +87,7 @@ function Reactions({ liste, moiId, nomDe, mienne, onTap }) {
 
 // une ligne = une bulle, avec ses gestes : appui long / clic droit / double
 // clic → menu ; glissement vers la droite → répondre
-function Rang({ mien, suite, groupe, auteur, enfants, onMenu, onRepondre }) {
+function Rang({ mid, mien, suite, groupe, auteur, enfants, onMenu, onRepondre }) {
   const geste = useRef(null);
   const bulle = useRef(null);
   const [decal, setDecal] = useState(0);
@@ -98,7 +101,7 @@ function Rang({ mien, suite, groupe, auteur, enfants, onMenu, onRepondre }) {
     const g = geste.current;
     if (!g || g.long) return;
     const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
-    if (!g.glisse && Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { clearTimeout(g.minuteur); geste.current = null; poser(0, true); return; }   // on défile
+    if (!g.glisse && Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { clearTimeout(g.minuteur); geste.current = null; poser(0, true); return; }
     if (dx > 12 && Math.abs(dx) > Math.abs(dy)) {
       if (!g.glisse) { g.glisse = true; clearTimeout(g.minuteur); e.currentTarget.setPointerCapture?.(g.id); }
       poser(Math.min(dx - 12, 80), false);
@@ -110,12 +113,11 @@ function Rang({ mien, suite, groupe, auteur, enfants, onMenu, onRepondre }) {
     clearTimeout(g.minuteur);
     if (g.glisse && decal >= SEUIL_REPONSE) onRepondre();
     poser(0, true);
-    // un appui long ou un glissement ne doit pas déclencher le clic qui suit (lien, photo)
     if (g.long || g.glisse) { const bloque = (ev) => { ev.preventDefault(); ev.stopPropagation(); }; document.addEventListener("click", bloque, { capture: true, once: true }); setTimeout(() => document.removeEventListener("click", bloque, { capture: true }), 400); }
     geste.current = null;
   };
   return (
-    <div className={`msg-rang${mien ? " mien" : ""}${suite ? " suite" : ""}`}
+    <div className={`msg-rang${mien ? " mien" : ""}${suite ? " suite" : ""}`} id={`m-${mid}`}
       onPointerDown={debut} onPointerMove={bouge} onPointerUp={fin} onPointerCancel={fin}
       onContextMenu={(e) => { e.preventDefault(); if (!geste.current?.long) onMenu(); }}
       onDoubleClick={onMenu}>
@@ -134,64 +136,72 @@ export default function Conversation({ id, moi }) {
   const routeur = useRouter();
   const [conv, setConv] = useState(null);
   const [messages, setMessages] = useState(null);
-  const [debut, setDebut] = useState(false);      // tout l'historique chargé
+  const [debut, setDebut] = useState(false);
   const [texte, setTexte] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [panneau, setPanneau] = useState(null);   // "membres" | "renommer" | "ajouter"
+  const [panneau, setPanneau] = useState(null);   // "membres" | "renommer" | "ajouter" | "infos" | "transfert" | "sondage"
   const [nom, setNom] = useState("");
+  const [description, setDescription] = useState("");
   const [carnet, setCarnet] = useState(null);
   const [ajout, setAjout] = useState([]);
   const [souci, setSouci] = useState("");
   const [toast, setToast] = useState("");
   const [menuMsg, setMenuMsg] = useState(null);
   const [plusEmojis, setPlusEmojis] = useState(false);
-  const [reponseA, setReponseA] = useState(null);   // message cité
-  const [edition, setEdition] = useState(null);     // message en cours de modification
-  const [reactions, setReactions] = useState({});   // messageId → [{membre, emoji}]
-  const [lectures, setLectures] = useState({});     // membre → lu_le
-  const [frappe, setFrappe] = useState(null);       // { prenom } ou null
-  const [enregistrement, setEnregistrement] = useState(null); // { debut } pendant un vocal
-  const [secondes, setSecondes] = useState(0);      // compteur du vocal en cours
-  const [maintenant, setMaintenant] = useState(0);  // figé à l'ouverture d'un menu (« modifiable ? »)
-  const [nouveaux, setNouveaux] = useState(0);      // arrivés pendant qu'on lisait plus haut
+  const [reponseA, setReponseA] = useState(null);
+  const [edition, setEdition] = useState(null);
+  const [reactions, setReactions] = useState({});
+  const [lectures, setLectures] = useState({});
+  const [frappe, setFrappe] = useState(null);
+  const [enregistrement, setEnregistrement] = useState(null);
+  const [secondes, setSecondes] = useState(0);
+  const [maintenant, setMaintenant] = useState(0);
+  const [nouveaux, setNouveaux] = useState(0);
+  const [blocages, setBlocages] = useState([]);      // ids que J'AI bloqués
+  const [epingle, setEpingle] = useState(null);      // le message épinglé (objet)
+  const [sondages, setSondages] = useState({});      // id → sondage
+  const [votes, setVotes] = useState({});            // sondageId → [{membre, choix}]
+  const [joindreMenu, setJoindreMenu] = useState(false);
+  const [aTransferer, setATransferer] = useState(null);
+  const [convs, setConvs] = useState(null);          // pour le transfert
+  const [sondageForm, setSondageForm] = useState({ question: "", choix: ["", ""], multiple: false });
+  const [photoGroupe, setPhotoGroupe] = useState(null);
   const enBas = useRef(true);
   const bas = useRef(null);
-  const zone = useRef(null);
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
-  const [annuaire, setAnnuaire] = useState({});   // id → {prenom, nom}, pour les mentions hors conversation
+  const [annuaire, setAnnuaire] = useState({});
   useEffect(() => { carnetMembres().then((l) => setAnnuaire(Object.fromEntries(l.map((m) => [m.id, m])))).catch(() => {}); }, []);
   const fichierRef = useRef(null);
-  const [piece, setPiece] = useState(null);      // { type, fichier, url (aperçu), duree }
-  const [urls, setUrls] = useState({});          // chemin → URL signée
+  const pdfRef = useRef(null);
+  const photoGroupeRef = useRef(null);
+  const [piece, setPiece] = useState(null);      // { type, fichier, url, duree } ou { type: "photos", fichiers: [{fichier, url}] }
+  const [urls, setUrls] = useState({});
   const enregistreur = useRef(null);
   const frappeRef = useRef({ canal: null, dernier: 0, minuteur: null });
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu, (e) => !!e.target.closest?.(".msg-menu"), () => setMenu(false));
   useClicDehors(menuMsg !== null, (e) => !!e.target.closest?.(".msg-bulle-liste"), () => { setMenuMsg(null); setPlusEmojis(false); });
+  useClicDehors(joindreMenu, (e) => !!e.target.closest?.(".msg-joindre-conteneur"), () => setJoindreMenu(false));
 
   const membres = useMemo(() => (conv?.membres ?? []).map((m) => m.profil).filter(Boolean), [conv]);
   const parId = useMemo(() => Object.fromEntries(membres.map((m) => [m.id, m])), [membres]);
   const moiMembre = useMemo(() => (conv?.membres ?? []).find((m) => m.membre === moi.id), [conv, moi.id]);
   const vue = conv ? { ...conv, membres: membres.filter((m) => m.id !== moi.id) } : null;
   const anime = conv?.type === "groupe" && conv?.cree_par === moi.id;
-  // tout en bas de la PAGE (le repère de fin passait sous la barre de saisie
-  // collée en bas : il manquait toujours un message)
+  const autre = vue?.type === "duo" ? vue.membres[0] : null;
+  const bloqueParMoi = !!autre && blocages.includes(autre.id);
   const descendre = (doux = false) => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: doux ? "smooth" : "instant" });
-  // « descendre après le prochain rendu » : posé par l'envoi et l'arrivée d'un
-  // message, exécuté une fois la bulle réellement dans la page
-  const doitDescendre = useRef(null);   // null | "instant" | "smooth"
+  const doitDescendre = useRef(null);
   useEffect(() => {
     if (!doitDescendre.current || !messages) return;
     const mode = doitDescendre.current; doitDescendre.current = null;
     descendre(mode === "smooth");
-    // une photo ou un lecteur peut encore grandir après coup : on redescend un peu plus tard
     const t = setTimeout(() => descendre(mode === "smooth"), 350);
     return () => clearTimeout(t);
   }, [messages]);
 
-  // suis-je en bas du fil ? (la page défile, pas la zone)
   useEffect(() => {
     const verif = () => {
       const b = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 140;
@@ -202,6 +212,22 @@ export default function Conversation({ id, moi }) {
     window.addEventListener("scroll", verif, { passive: true });
     return () => window.removeEventListener("scroll", verif);
   }, []);
+
+  // brouillon : gardé par conversation, restitué au retour, effacé à l'envoi
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    try {
+      const b = localStorage.getItem(cleBrouillon(id));
+      const citer = new URLSearchParams(window.location.search).get("citer");
+      if (citer) { setTexte(`« ${citer.slice(0, 200)} »\n`); window.history.replaceState(null, "", window.location.pathname); }
+      else if (b) setTexte(b);
+    } catch { /* stockage indisponible */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+  useEffect(() => {
+    if (edition) return;
+    try { if (texte.trim()) localStorage.setItem(cleBrouillon(id), texte); else localStorage.removeItem(cleBrouillon(id)); } catch { /* idem */ }
+  }, [texte, id, edition]);
 
   const signer = async (liste) => {
     const manquants = [...new Set((liste ?? []).filter((m) => m.fichier_chemin && m.fichier_type !== "lien" && !m.fichier_expiree && !urls[m.fichier_chemin]).map((m) => m.fichier_chemin))];
@@ -220,18 +246,29 @@ export default function Conversation({ id, moi }) {
       return n;
     });
   };
+  const chargerSondages = async (liste) => {
+    const ids = [...new Set((liste ?? []).map((m) => m.sondage_id).filter(Boolean))].filter((i) => !sondages[i]);
+    if (!ids.length) return;
+    const r = await lireSondages(ids);
+    setSondages((s) => ({ ...s, ...r.sondages }));
+    setVotes((v) => ({ ...v, ...r.votes }));
+  };
+  const chargerEpingle = async (c, liste) => {
+    if (!c?.message_epingle) { setEpingle(null); return; }
+    const local = (liste ?? []).find((m) => m.id === c.message_epingle);
+    setEpingle(local ?? (await lireMessage(c.message_epingle)));
+  };
 
-  // chargement + temps réel (messages, modifications, lectures, réactions, frappe)
   useEffect(() => {
     let vivant = true;
     (async () => {
       try {
-        const [c, m] = await Promise.all([lireConversation(id), chargerMessages(id)]);
+        const [c, m, b] = await Promise.all([lireConversation(id), chargerMessages(id), mesBlocages().catch(() => [])]);
         if (!vivant) return;
         if (!c) { setSouci("Cette conversation n'existe pas, ou tu n'en fais pas partie."); setMessages([]); return; }
-        setConv(c); setMessages(m); setDebut(m.length < 50);
+        setConv(c); setMessages(m); setDebut(m.length < 50); setBlocages(b);
         setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, x.lu_le])));
-        signer(m); chargerReactions(m);
+        signer(m); chargerReactions(m); chargerSondages(m); chargerEpingle(c, m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
         doitDescendre.current = "instant";
       } catch (e) { if (vivant) { setSouci(e.message ?? "Erreur"); setMessages([]); } }
@@ -240,9 +277,8 @@ export default function Conversation({ id, moi }) {
       ecouterMessages(id, {
         surInsertion: (m) => {
           setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
-          signer([m]);
+          signer([m]); chargerSondages([m]);
           if (m.auteur !== moi.id) { marquerLu(id); memoire.ecrire("messages.liste", null); setFrappe(null); }
-          // en bas du fil (ou c'est le mien) : on suit ; plus haut : une pastille, sans bouger
           if (m.auteur === moi.id || enBas.current) doitDescendre.current = "smooth";
           else setNouveaux((n) => n + 1);
         },
@@ -258,6 +294,15 @@ export default function Conversation({ id, moi }) {
           if (!(mid in prev)) return prev;
           const sans = (prev[mid] ?? []).filter((r) => r.membre !== qui);
           return { ...prev, [mid]: p.eventType === "DELETE" ? sans : [...sans, { membre: p.new.membre, emoji: p.new.emoji }] };
+        });
+      }),
+      ecouterVotes((p) => {
+        const sid = p.new?.sondage_id ?? p.old?.sondage_id;
+        const qui = p.new?.membre ?? p.old?.membre;
+        if (!sid) return;
+        setVotes((prev) => {
+          const sans = (prev[sid] ?? []).filter((v) => v.membre !== qui);
+          return { ...prev, [sid]: p.eventType === "DELETE" ? sans : [...sans, { membre: p.new.membre, choix: p.new.choix }] };
         });
       }),
     ];
@@ -283,13 +328,12 @@ export default function Conversation({ id, moi }) {
     const avant = messages[0].cree_le;
     const h = document.documentElement.scrollHeight;
     const anciens = await chargerMessages(id, { avant });
-    signer(anciens); chargerReactions(anciens);
+    signer(anciens); chargerReactions(anciens); chargerSondages(anciens);
     setMessages((l) => [...anciens, ...l]);
     setDebut(anciens.length < 50);
     requestAnimationFrame(() => window.scrollBy({ top: document.documentElement.scrollHeight - h, behavior: "instant" }));
   };
 
-  // « … écrit » : au plus un signal toutes les 2 s
   const surSaisie = (e) => {
     mentions.surChangement(e);
     const t = Date.now();
@@ -299,12 +343,16 @@ export default function Conversation({ id, moi }) {
     }
   };
 
-  // ---- pièces jointes ----
+  // ---- pièces jointes (plusieurs photos d'un coup, une vidéo, un PDF) ----
   const choisirPiece = (e) => {
-    const f = e.target.files?.[0];
+    const fichiers = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!f) return;
+    setJoindreMenu(false);
+    if (!fichiers.length) return;
     setSouci("");
+    const images = fichiers.filter((f) => f.type.startsWith("image/"));
+    if (images.length > 1) { setPiece({ type: "photos", fichiers: images.slice(0, 10).map((f) => ({ fichier: f, url: URL.createObjectURL(f) })) }); return; }
+    const f = fichiers[0];
     if (f.type.startsWith("image/")) { setPiece({ type: "photo", fichier: f, url: URL.createObjectURL(f) }); return; }
     if (f.type === "application/pdf") {
       if (f.size > PIECE_PDF_MO * 1048576) { signale(`PDF trop lourd (${tailleLisible(f.size)}). ${PIECE_PDF_MO} Mo au maximum.`); return; }
@@ -325,9 +373,12 @@ export default function Conversation({ id, moi }) {
     }
     signale("Photo, vidéo ou PDF seulement.");
   };
-  const retirerPiece = () => { if (piece?.url) URL.revokeObjectURL(piece.url); setPiece(null); };
+  const retirerPiece = () => {
+    if (piece?.url) URL.revokeObjectURL(piece.url);
+    if (piece?.type === "photos") piece.fichiers.forEach((p) => URL.revokeObjectURL(p.url));
+    setPiece(null);
+  };
 
-  // ---- message vocal (MediaRecorder ; webm/opus, sinon mp4 sur iPhone) ----
   const demarrerVocal = async () => {
     try {
       const flux = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -353,7 +404,7 @@ export default function Conversation({ id, moi }) {
   };
   const arreterVocal = () => { const r = enregistreur.current; if (r) { clearTimeout(r.limite); if (r.rec.state === "recording") r.rec.stop(); } };
 
-  const annulerSaisie = () => { setReponseA(null); setEdition(null); setTexte(""); mentions.vider(); };
+  const annulerSaisie = () => { setReponseA(null); setEdition(null); setTexte(""); mentions.vider(); try { localStorage.removeItem(cleBrouillon(id)); } catch { /* idem */ } };
 
   const envoyer = async (e) => {
     e.preventDefault();
@@ -363,6 +414,18 @@ export default function Conversation({ id, moi }) {
       if (edition) {
         const m = await modifierMessage(edition.id, texte, mentions.idsPour(texte));
         setMessages((l) => l.map((x) => (x.id === m.id ? { ...x, ...m } : x)));
+      } else if (piece?.type === "photos") {
+        // un message par photo, le texte avec la première
+        let premier = true;
+        for (const p of piece.fichiers) {
+          const jointe = await televerserPiece(id, { type: "photo", fichier: p.fichier });
+          const m = await envoyerMessage(id, premier ? texte : "", premier ? mentions.idsPour(texte) : [], jointe, premier ? (reponseA?.id ?? null) : null);
+          premier = false;
+          setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
+          signer([m]); setReactions((r) => ({ ...r, [m.id]: [] }));
+        }
+        retirerPiece();
+        doitDescendre.current = "smooth";
       } else {
         const jointe = piece ? await televerserPiece(id, piece) : null;
         const m = await envoyerMessage(id, texte, mentions.idsPour(texte), jointe, reponseA?.id ?? null);
@@ -382,10 +445,17 @@ export default function Conversation({ id, moi }) {
     setMenu(false); setSouci("");
     try {
       if (action === "membres") setPanneau("membres");
-      if (action === "renommer") { setNom(conv.nom ?? ""); setPanneau("renommer"); }
+      if (action === "infos") { setNom(conv.nom ?? ""); setDescription(conv.description ?? ""); setPhotoGroupe(null); setPanneau("infos"); }
       if (action === "ajouter") { setPanneau("ajouter"); setAjout([]); if (!carnet) setCarnet(await membresJoignables()); }
       if (action === "sourdine") { const muet = !moiMembre?.muet; await reglerConversation(id, { muet }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(muet ? "Conversation en sourdine" : "Notifications rétablies"); }
-      if (action === "epingle") { const epingle = !moiMembre?.epingle; await reglerConversation(id, { epingle }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(epingle ? "Épinglée en haut de la liste" : "Désépinglée"); }
+      if (action === "epingle") { const ep = !moiMembre?.epingle; await reglerConversation(id, { epingle: ep }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(ep ? "Épinglée en haut de la liste" : "Désépinglée"); }
+      if (action === "bloquer" && autre) {
+        if (bloqueParMoi) { await debloquer(autre.id); setBlocages((b) => b.filter((x) => x !== autre.id)); signale(`${autre.prenom} débloqué·e`); }
+        else {
+          if (!confirm(`Bloquer ${autre.prenom} ? Plus de conversation possible entre vous.`)) return;
+          await bloquer(autre.id); setBlocages((b) => [...b, autre.id]); signale(`${autre.prenom} bloqué·e`);
+        }
+      }
       if (action === "quitter") {
         if (!confirm("Quitter ce groupe ?")) return;
         await retirerMembre(id, moi.id); memoire.ecrire("messages.liste", null); routeur.replace("/messages");
@@ -396,9 +466,14 @@ export default function Conversation({ id, moi }) {
       }
     } catch (e) { signale("Action impossible : " + (e.message ?? "")); }
   };
-  const validerNom = async () => {
-    try { await renommerGroupe(id, nom); setConv((c) => ({ ...c, nom: nom.trim() })); setPanneau(null); memoire.ecrire("messages.liste", null); }
-    catch (e) { signale("Impossible de renommer : " + (e.message ?? "")); }
+  const validerInfos = async () => {
+    try {
+      const champs = { nom: nom.trim() || conv.nom, description: description.trim() || null };
+      if (photoGroupe) champs.photo_url = await televerserPhotoGroupe(id, photoGroupe);
+      await majGroupe(id, champs);
+      if (champs.nom !== conv.nom) await renommerGroupe(id, champs.nom);
+      setConv(await lireConversation(id)); setPanneau(null); memoire.ecrire("messages.liste", null); signale("Groupe mis à jour");
+    } catch (e) { signale("Impossible d'enregistrer : " + (e.message ?? "")); }
   };
   const validerAjout = async () => {
     try { await ajouterMembres(id, ajout); setConv(await lireConversation(id)); setPanneau(null); signale(`${ajout.length} membre${ajout.length > 1 ? "s" : ""} ajouté${ajout.length > 1 ? "s" : ""}`); }
@@ -408,6 +483,17 @@ export default function Conversation({ id, moi }) {
     if (!confirm(`Retirer ${m.prenom} du groupe ?`)) return;
     try { await retirerMembre(id, m.id); setConv(await lireConversation(id)); }
     catch (e) { signale("Impossible de retirer : " + (e.message ?? "")); }
+  };
+  const validerSondage = async () => {
+    const choix = sondageForm.choix.map((c) => c.trim()).filter(Boolean);
+    if (!sondageForm.question.trim() || choix.length < 2) { signale("Une question et au moins deux choix."); return; }
+    try {
+      const m = await creerSondage(id, sondageForm.question, choix, sondageForm.multiple);
+      setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
+      chargerSondages([m]); setReactions((p) => ({ ...p, [m.id]: [] }));
+      setPanneau(null); setSondageForm({ question: "", choix: ["", ""], multiple: false });
+      doitDescendre.current = "smooth"; memoire.ecrire("messages.liste", null);
+    } catch (e) { signale("Sondage impossible : " + (e.message ?? "")); }
   };
 
   // ---- actions sur une bulle ----
@@ -430,16 +516,45 @@ export default function Conversation({ id, moi }) {
     try { await reagir(m.id, nouvelle); }
     catch { setReactions((p) => ({ ...p, [m.id]: (p[m.id] ?? []).filter((r) => r.membre !== moi.id) })); signale("Réaction impossible pour l'instant."); }
   };
-  const modifiable = (m) => m.auteur === moi.id && !m.fichier_chemin && maintenant - new Date(m.cree_le).getTime() < MODIF_MINUTES * 60000;
+  const modifiable = (m) => m.auteur === moi.id && !m.fichier_chemin && !m.sondage_id && maintenant - new Date(m.cree_le).getTime() < MODIF_MINUTES * 60000;
+  const epinglerMsg = async (m) => {
+    fermerMenuMsg();
+    try {
+      const retirerEp = epingle?.id === m.id;
+      await epinglerMessage(id, retirerEp ? null : m.id);
+      setEpingle(retirerEp ? null : m); setConv((c) => ({ ...c, message_epingle: retirerEp ? null : m.id }));
+      signale(retirerEp ? "Message désépinglé" : "Message épinglé en haut");
+    } catch (e) { signale("Impossible d'épingler : " + (e.message ?? "")); }
+  };
+  const signalerMsg = async (m) => {
+    fermerMenuMsg();
+    if (!confirm("Signaler ce message aux modérateurs ?")) return;
+    try { await signalerMessage(m, nomDe(m.auteur)); signale("Merci, les modérateurs sont prévenus."); }
+    catch (e) { signale("Signalement impossible : " + (e.message ?? "")); }
+  };
+  const transferer = async (m) => { fermerMenuMsg(); setATransferer(m); setPanneau("transfert"); if (!convs) setConvs(await mesConversations().catch(() => [])); };
+  const validerTransfert = async (c) => {
+    try { await transfererMessage(aTransferer, c.id); setPanneau(null); setATransferer(null); signale(`Transféré à ${nomConversation(c)}`); }
+    catch (e) { signale("Transfert impossible : " + (e.message ?? "")); }
+  };
+  const repondreEnPrive = async (m) => {
+    fermerMenuMsg();
+    try { const cid = await ouvrirDuo(m.auteur); routeur.push(`/messages/${cid}?citer=${encodeURIComponent(m.texte?.trim() ? m.texte.slice(0, 200) : libellePiece(m))}`); }
+    catch (e) { signale("Impossible : " + (e.message ?? "")); }
+  };
+  const allerA = (mid) => {
+    const el = document.getElementById(`m-${mid}`);
+    if (!el) { signale("Ce message n'est plus dans la conversation chargée."); return; }
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    const b = el.querySelector(".msg-bulle"); b?.classList.add("cible"); setTimeout(() => b?.classList.remove("cible"), 1800);
+  };
 
-  // coches : mon message est-il lu ? (à deux : par l'autre ; en groupe : par tous les autres)
   const autres = useMemo(() => membres.filter((m) => m.id !== moi.id), [membres, moi.id]);
   const estLu = (m) => autres.length > 0 && autres.every((x) => lectures[x.id] && new Date(lectures[x.id]) >= new Date(m.cree_le));
   const estLuParUn = (m) => autres.some((x) => lectures[x.id] && new Date(lectures[x.id]) >= new Date(m.cree_le));
-
-  const autre = vue?.type === "duo" ? vue.membres[0] : null;
   const parIdMsg = useMemo(() => Object.fromEntries((messages ?? []).map((m) => [m.id, m])), [messages]);
   const nomDe = (uid) => (uid === moi.id ? "Toi" : (parId[uid] ?? annuaire[uid])?.prenom ?? "Membre");
+  const majChoix = (i, v) => setSondageForm((f) => { const c = [...f.choix]; c[i] = v; return { ...f, choix: c }; });
 
   return (
     <div className="msg-page">
@@ -449,11 +564,11 @@ export default function Conversation({ id, moi }) {
           autre ? (
             <Link href={`/profil/${autre.id}`} className="msg-tete-qui">
               <Avatar profil={{ prenom: autre.prenom, nom: autre.nom, photo: autre.photo_url }} className="pub-avatar" />
-              <span><b>{nomConversation(vue)}</b><small className={frappe ? "msg-frappe" : ""}>{frappe ? "écrit…" : "voir le profil"}</small></span>
+              <span><b>{nomConversation(vue)}</b><small className={frappe ? "msg-frappe" : ""}>{frappe ? "écrit…" : bloqueParMoi ? "bloqué·e" : "voir le profil"}</small></span>
             </Link>
           ) : (
             <button type="button" className="msg-tete-qui" onClick={() => agir("membres")}>
-              <span className="msg-vignette groupe petite" aria-hidden><Users size={16} strokeWidth={1.9} /></span>
+              {vue.photo_url ? <img src={vue.photo_url} alt="" className="msg-vignette" /> : <span className="msg-vignette groupe petite" aria-hidden><Users size={16} strokeWidth={1.9} /></span>}
               <span><b>{nomConversation(vue)}</b><small className={frappe ? "msg-frappe" : ""}>{frappe ? `${frappe.prenom} écrit…` : `${membres.length} membres · voir`}</small></span>
             </button>
           )
@@ -467,8 +582,9 @@ export default function Conversation({ id, moi }) {
                 <button type="button" onClick={() => agir("epingle")}>{moiMembre?.epingle ? <><PinOff size={15} aria-hidden /> Désépingler</> : <><Pin size={15} aria-hidden /> Épingler en haut</>}</button>
                 <button type="button" onClick={() => agir("sourdine")}>{moiMembre?.muet ? <><Bell size={15} aria-hidden /> Rétablir les notifications</> : <><BellOff size={15} aria-hidden /> Mettre en sourdine</>}</button>
                 {vue.type === "groupe" && <button type="button" onClick={() => agir("membres")}><Users size={15} aria-hidden /> Membres</button>}
-                {anime && <button type="button" onClick={() => agir("renommer")}><Pencil size={15} aria-hidden /> Renommer</button>}
+                {vue.type === "groupe" && <button type="button" onClick={() => agir("infos")}><Info size={15} aria-hidden /> {anime ? "Photo, nom, description" : "Infos du groupe"}</button>}
                 {anime && <button type="button" onClick={() => agir("ajouter")}><UserPlus size={15} aria-hidden /> Ajouter des membres</button>}
+                {autre && <button type="button" className={bloqueParMoi ? "" : "danger"} onClick={() => agir("bloquer")}><Ban size={15} aria-hidden /> {bloqueParMoi ? `Débloquer ${autre.prenom}` : `Bloquer ${autre.prenom}`}</button>}
                 {vue.type === "groupe" && <button type="button" onClick={() => agir("quitter")}><LogOut size={15} aria-hidden /> Quitter le groupe</button>}
                 {vue.type === "groupe" && (anime || moi.role === "admin") && <button type="button" className="danger" onClick={() => agir("supprimer")}><Trash2 size={15} aria-hidden /> Supprimer le groupe</button>}
               </span>
@@ -476,8 +592,17 @@ export default function Conversation({ id, moi }) {
           </span>
         )}
       </header>
+      {vue?.type === "groupe" && vue.description && <p className="msg-description">{vue.description}</p>}
 
-      <div className="msg-zone" ref={zone}>
+      {epingle && (
+        <div className="msg-epingle" role="button" tabIndex={0} onClick={() => allerA(epingle.id)} onKeyDown={(e) => e.key === "Enter" && allerA(epingle.id)}>
+          <Pin size={15} aria-hidden />
+          <span><small>Message épinglé · {nomDe(epingle.auteur)}</small>{epingle.texte?.trim() ? epingle.texte : libellePiece({ ...epingle, sondage: sondages[epingle.sondage_id]?.question })}</span>
+          <button type="button" onClick={(e) => { e.stopPropagation(); epinglerMsg(epingle); }} aria-label="Désépingler"><X size={14} aria-hidden /></button>
+        </div>
+      )}
+
+      <div className="msg-zone">
         {messages === null && <p className="pu-vide">Chargement…</p>}
         {messages && !debut && <button type="button" className="btn btn-nu msg-plus" onClick={plusAncien}>Messages plus anciens</button>}
         {messages?.length === 0 && !souci && <p className="pu-vide">Personne n&apos;a encore écrit. À toi.</p>}
@@ -493,13 +618,15 @@ export default function Conversation({ id, moi }) {
           return (
             <div key={m.id}>
               {nouveauJour && <div className="msg-jour"><span>{jour(m.cree_le)}</span></div>}
-              <Rang mien={mien} suite={suite} groupe={conv?.type === "groupe"} auteur={a}
+              <Rang mid={m.id} mien={mien} suite={suite} groupe={conv?.type === "groupe"} auteur={a}
                 onMenu={() => ouvrirMenuMsg(m.id)} onRepondre={() => repondre(m)}
                 enfants={<>
                   <div className={`msg-bulle${mien ? " mienne" : ""}`}>
                     {!mien && conv?.type === "groupe" && !suite && <b className="msg-auteur">{a ? a.prenom : "Membre"}</b>}
                     {m.reponse_a && <Citation c={parIdMsg[m.reponse_a]} nom={parIdMsg[m.reponse_a] ? nomDe(parIdMsg[m.reponse_a].auteur) : ""} />}
                     <Piece m={m} url={urls[m.fichier_chemin]} mienne={mien} />
+                    {m.sondage_id && <Sondage sondage={sondages[m.sondage_id]} votes={votes[m.sondage_id] ?? []} moiId={moi.id} nomDe={nomDe}
+                      onMaj={(choix) => setVotes((v) => ({ ...v, [m.sondage_id]: [...(v[m.sondage_id] ?? []).filter((x) => x.membre !== moi.id), ...(choix.length ? [{ membre: moi.id, choix }] : [])] }))} />}
                     {m.texte?.trim() && <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>}
                     <time>
                       {m.modifie_le && <em>modifié · </em>}{heure(m.cree_le)}
@@ -519,7 +646,11 @@ export default function Conversation({ id, moi }) {
                         </span>
                       )}
                       <button type="button" onClick={() => repondre(m)}><Reply size={14} aria-hidden /> Répondre</button>
+                      {!mien && conv?.type === "groupe" && <button type="button" onClick={() => repondreEnPrive(m)}><MessageSquare size={14} aria-hidden /> Répondre en privé</button>}
+                      <button type="button" onClick={() => transferer(m)}><Forward size={14} aria-hidden /> Transférer</button>
+                      <button type="button" onClick={() => epinglerMsg(m)}><Pin size={14} aria-hidden /> {epingle?.id === m.id ? "Désépingler" : "Épingler en haut"}</button>
                       {modifiable(m) && <button type="button" onClick={() => modifier(m)}><Pencil size={14} aria-hidden /> Modifier</button>}
+                      {!mien && <button type="button" onClick={() => signalerMsg(m)}><Flag size={14} aria-hidden /> Signaler</button>}
                       {(mien || moi.role === "admin") && <button type="button" className="danger" onClick={() => effacer(m)}><Trash2 size={14} aria-hidden /> Supprimer</button>}
                     </span>
                   )}
@@ -537,6 +668,11 @@ export default function Conversation({ id, moi }) {
         </button>
       )}
 
+      {bloqueParMoi ? (
+        <div className="msg-saisie" style={{ alignItems: "center", textAlign: "center", fontSize: 13, color: "var(--texte-2)" }}>
+          Tu as bloqué {autre.prenom}. <button type="button" className="btn btn-nu" style={{ padding: "8px 12px", fontSize: 12 }} onClick={() => agir("bloquer")}>Débloquer</button>
+        </div>
+      ) : (
       <form className="msg-saisie" onSubmit={envoyer}>
         <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-haut" />
         {(reponseA || edition) && (
@@ -550,20 +686,35 @@ export default function Conversation({ id, moi }) {
         {piece && (
           <div className="msg-piece-apercu">
             {piece.type === "photo" && <img src={piece.url} alt="" />}
+            {piece.type === "photos" && <span className="msg-piece-photos">{piece.fichiers.slice(0, 4).map((p, i) => <img key={i} src={p.url} alt="" />)}</span>}
             {piece.type === "video" && <video src={piece.url} muted playsInline preload="metadata" />}
             {piece.type === "audio" && <LecteurAudio src={piece.url} />}
             {piece.type === "pdf" && <span className="msg-piece-pdf statique"><FileText size={20} strokeWidth={1.7} aria-hidden /><span><b>{piece.fichier.name}</b><small>PDF · {tailleLisible(piece.fichier.size)}</small></span></span>}
-            <span className="msg-piece-note">{piece.type === "video" || piece.type === "audio" ? `${piece.duree} s · gardé ${JOURS_PIECE[piece.type]} jours` : piece.type === "photo" ? `réduite avant l'envoi · gardée ${JOURS_PIECE.photo} jours` : `gardé ${JOURS_PIECE.pdf} jours`}</span>
+            <span className="msg-piece-note">
+              {piece.type === "photos" ? `${piece.fichiers.length} photos · réduites avant l'envoi · gardées ${JOURS_PIECE.photo} jours`
+                : piece.type === "video" || piece.type === "audio" ? `${piece.duree} s · gardé ${JOURS_PIECE[piece.type]} jours`
+                : piece.type === "photo" ? `réduite avant l'envoi · gardée ${JOURS_PIECE.photo} jours` : `gardé ${JOURS_PIECE.pdf} jours`}
+            </span>
             <button type="button" className="cp-photo-retirer" onClick={retirerPiece} aria-label="Retirer la pièce jointe"><X size={14} aria-hidden /></button>
           </div>
         )}
         <div className="msg-saisie-ligne">
           {!edition && (
-            <button type="button" className="msg-joindre" onClick={() => fichierRef.current?.click()} aria-label="Joindre une photo, une vidéo ou un PDF" disabled={envoi || !!enregistrement}>
-              <Paperclip size={19} strokeWidth={1.9} aria-hidden />
-            </button>
+            <span className="msg-joindre-conteneur">
+              <button type="button" className="msg-joindre" onClick={() => setJoindreMenu(!joindreMenu)} aria-label="Joindre" aria-expanded={joindreMenu} disabled={envoi || !!enregistrement}>
+                <Paperclip size={19} strokeWidth={1.9} aria-hidden />
+              </button>
+              {joindreMenu && (
+                <span className="msg-joindre-menu">
+                  <button type="button" onClick={() => fichierRef.current?.click()}><ImageIcone size={16} aria-hidden /> Photos ou vidéo</button>
+                  <button type="button" onClick={() => pdfRef.current?.click()}><FileText size={16} aria-hidden /> Document PDF</button>
+                  <button type="button" onClick={() => { setJoindreMenu(false); setPanneau("sondage"); }}><BarChart3 size={16} aria-hidden /> Sondage</button>
+                </span>
+              )}
+            </span>
           )}
-          <input ref={fichierRef} type="file" accept="image/*,video/*,application/pdf" hidden onChange={choisirPiece} />
+          <input ref={fichierRef} type="file" accept="image/*,video/*" multiple hidden onChange={choisirPiece} />
+          <input ref={pdfRef} type="file" accept="application/pdf" hidden onChange={choisirPiece} />
           {enregistrement ? (
             <div className="msg-enregistre" aria-live="polite">
               <span className="msg-enregistre-point" aria-hidden />
@@ -585,27 +736,51 @@ export default function Conversation({ id, moi }) {
           )}
         </div>
       </form>
+      )}
 
       {panneau && (
         <div className="fg-scrim msg-voile" role="presentation" onClick={() => setPanneau(null)}>
           <div className="msg-panneau" onClick={(e) => e.stopPropagation()}>
             <div className="msg-panneau-tete">
-              <b>{panneau === "membres" ? `${membres.length} membres` : panneau === "renommer" ? "Renommer le groupe" : "Ajouter des membres"}</b>
+              <b>{panneau === "membres" ? `${membres.length} membres` : panneau === "infos" ? "Le groupe" : panneau === "ajouter" ? "Ajouter des membres" : panneau === "transfert" ? "Transférer à…" : "Nouveau sondage"}</b>
               <button type="button" className="cp-fermer" onClick={() => setPanneau(null)} aria-label="Fermer"><X size={18} aria-hidden /></button>
             </div>
-            {panneau === "membres" && membres.map((m) => (
-              <div key={m.id} className="msg-personne statique">
-                <Link href={`/profil/${m.id}`} className="msg-personne-lien">
-                  <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="pub-avatar" />
-                  <span><b>{m.prenom} {m.nom}</b><small>{m.id === conv.cree_par ? "a créé le groupe" : m.id === moi.id ? "toi" : ""}</small></span>
-                </Link>
-                {anime && m.id !== moi.id && <button type="button" className="btn btn-nu msg-retirer" onClick={() => retirer(m)}>Retirer</button>}
-              </div>
-            ))}
-            {panneau === "renommer" && (
-              <div className="msg-panneau-form">
-                <input className="saisie" value={nom} maxLength={60} onChange={(e) => setNom(e.target.value)} autoFocus />
-                <button type="button" className="btn btn-or" disabled={!nom.trim()} onClick={validerNom}>Enregistrer</button>
+            {panneau === "membres" && (
+              <>
+                {vue?.description && <p className="msg-aide" style={{ padding: "0 10px 10px" }}>{vue.description}</p>}
+                {membres.map((m) => (
+                  <div key={m.id} className="msg-personne statique">
+                    <Link href={`/profil/${m.id}`} className="msg-personne-lien">
+                      <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="pub-avatar" />
+                      <span><b>{m.prenom} {m.nom}</b><small>{m.id === conv.cree_par ? "a créé le groupe" : m.id === moi.id ? "toi" : ""}</small></span>
+                    </Link>
+                    {anime && m.id !== moi.id && <button type="button" className="btn btn-nu msg-retirer" onClick={() => retirer(m)}>Retirer</button>}
+                  </div>
+                ))}
+              </>
+            )}
+            {panneau === "infos" && (
+              <div className="groupe-infos">
+                <div className="groupe-infos-photo">
+                  {photoGroupe ? <img src={URL.createObjectURL(photoGroupe)} alt="" /> : vue.photo_url ? <img src={vue.photo_url} alt="" /> : <span className="msg-vignette groupe" aria-hidden><Users size={22} /></span>}
+                  {anime && <>
+                    <button type="button" className="btn btn-nu" style={{ padding: "9px 13px", fontSize: 12.5 }} onClick={() => photoGroupeRef.current?.click()}><Camera size={14} aria-hidden /> {vue.photo_url ? "Changer la photo" : "Ajouter une photo"}</button>
+                    <input ref={photoGroupeRef} type="file" accept="image/*" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) setPhotoGroupe(f); }} />
+                  </>}
+                </div>
+                {anime ? (
+                  <>
+                    <input className="saisie" value={nom} maxLength={60} onChange={(e) => setNom(e.target.value)} placeholder="Nom du groupe" />
+                    <textarea className="saisie" value={description} maxLength={300} onChange={(e) => setDescription(e.target.value)} placeholder="Description (facultative) : à quoi sert ce groupe, pour qui…" />
+                    <button type="button" className="btn btn-or" disabled={!nom.trim()} onClick={validerInfos}>Enregistrer</button>
+                  </>
+                ) : (
+                  <>
+                    <b style={{ fontSize: 16 }}>{vue.nom}</b>
+                    <p className="msg-aide" style={{ padding: 0 }}>{vue.description || "Pas de description."}</p>
+                    <small style={{ color: "var(--brume)", fontSize: 12 }}>Seule la personne qui a créé le groupe peut modifier ces informations.</small>
+                  </>
+                )}
               </div>
             )}
             {panneau === "ajouter" && (
@@ -629,6 +804,31 @@ export default function Conversation({ id, moi }) {
                   <button type="button" className="btn btn-or" disabled={ajout.length === 0} onClick={validerAjout}>Ajouter {ajout.length > 0 ? `(${ajout.length})` : ""}</button>
                 </div>
               </>
+            )}
+            {panneau === "transfert" && (
+              <div className="msg-carnet court">
+                {convs === null && <p className="pu-vide">Chargement…</p>}
+                {convs?.filter((c) => c.id !== id).map((c) => (
+                  <button key={c.id} type="button" className="msg-personne" onClick={() => validerTransfert(c)}>
+                    {c.type === "groupe"
+                      ? (c.photo_url ? <img src={c.photo_url} alt="" className="pub-avatar" /> : <span className="msg-vignette groupe petite" aria-hidden><Users size={16} /></span>)
+                      : <Avatar profil={{ prenom: c.membres?.[0]?.prenom ?? "?", nom: c.membres?.[0]?.nom ?? "", photo: c.membres?.[0]?.photo_url }} className="pub-avatar" />}
+                    <span><b>{nomConversation(c)}</b><small>{c.type === "groupe" ? `${c.nb_membres} membres` : "conversation à deux"}</small></span>
+                  </button>
+                ))}
+                {convs && convs.filter((c) => c.id !== id).length === 0 && <p className="pu-vide">Aucune autre conversation.</p>}
+              </div>
+            )}
+            {panneau === "sondage" && (
+              <div className="sondage-form">
+                <input className="saisie" placeholder="La question" value={sondageForm.question} maxLength={200} onChange={(e) => setSondageForm((f) => ({ ...f, question: e.target.value }))} autoFocus />
+                {sondageForm.choix.map((c, i) => (
+                  <input key={i} className="saisie" placeholder={`Choix ${i + 1}`} value={c} maxLength={80} onChange={(e) => majChoix(i, e.target.value)} />
+                ))}
+                {sondageForm.choix.length < 6 && <button type="button" className="btn btn-nu" style={{ padding: "8px 12px", fontSize: 12.5 }} onClick={() => setSondageForm((f) => ({ ...f, choix: [...f.choix, ""] }))}><Plus size={14} aria-hidden /> Un choix de plus</button>}
+                <label><input type="checkbox" checked={sondageForm.multiple} onChange={(e) => setSondageForm((f) => ({ ...f, multiple: e.target.checked }))} /> Plusieurs réponses possibles</label>
+                <button type="button" className="btn btn-or" onClick={validerSondage}>Envoyer le sondage</button>
+              </div>
             )}
           </div>
         </div>

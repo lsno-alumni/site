@@ -2115,3 +2115,46 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .lecteur-audio-piste { min-width: 90px; height: 5px; }
 .msg-emojis-plus { display: inline-flex !important; align-items: center; justify-content: center; align-self: center; line-height: 0; }
 .msg-emojis-plus svg { display: block; }
+
+/* ---- messagerie : blocage, épinglé, sondages, infos de groupe, transfert ---- */
+.p-bloquer { display: block; margin: 12px auto 0; background: none; border: 0; font: inherit; font-size: 12px; color: var(--brume); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.lecteur-audio-vitesse { border: 1px solid rgba(var(--texte-rgb), .25); background: none; color: var(--texte-2); font: inherit; font-size: 11px; padding: 2px 6px; border-radius: 100px; cursor: pointer; flex-shrink: 0; }
+.lecteur-audio.mien .lecteur-audio-vitesse { border-color: rgba(255,255,255,.4); color: rgba(246,240,228,.9); }
+.msg-epingle {
+  position: sticky; top: 62px; z-index: 4; margin: 0 12px 6px; padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px;
+  background: var(--carte); border: 1px solid var(--ligne); box-shadow: 0 6px 16px -10px rgba(0,0,0,.35); font-size: 13px; cursor: pointer;
+}
+.msg-epingle > svg { color: var(--bleu-texte); flex-shrink: 0; }
+.msg-epingle span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-epingle small { display: block; font-size: 11px; color: var(--bleu-texte); letter-spacing: .08em; text-transform: uppercase; }
+.msg-epingle button { background: none; border: 0; color: var(--brume); cursor: pointer; display: inline-flex; }
+.msg-bulle.cible { outline: 2px solid var(--bleu-clair); outline-offset: 2px; transition: outline-color 1.5s; }
+.msg-tete-qui img.msg-vignette { width: 40px !important; height: 40px !important; }
+.sondage { min-width: 220px; max-width: 100%; padding: 2px 0 4px; }
+.sondage-question { display: block; font-size: 15px; line-height: 1.35; }
+.sondage-aide { display: block; font-size: 11.5px; opacity: .75; margin: 3px 0 8px; }
+.sondage-choix { display: grid; gap: 6px; }
+.sondage-option { position: relative; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(var(--texte-rgb), .18); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; overflow: hidden; }
+.msg-bulle.mienne .sondage-option { border-color: rgba(255,255,255,.35); }
+.sondage-barre { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(var(--accent-rgb), .18); transition: width .3s; }
+.msg-bulle.mienne .sondage-barre { background: rgba(255,255,255,.18); }
+.sondage-case { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor; display: grid; place-items: center; flex-shrink: 0; opacity: .7; position: relative; }
+.sondage-option.on .sondage-case { background: var(--bleu-clair); border-color: var(--bleu-clair); color: #fff; opacity: 1; }
+.msg-bulle.mienne .sondage-option.on .sondage-case { background: #fff; border-color: #fff; color: var(--bleu); }
+.sondage-texte { flex: 1; min-width: 0; position: relative; font-size: 14px; }
+.sondage-compte { position: relative; font-size: 12px; opacity: .8; font-variant-numeric: tabular-nums; }
+.msg-joindre-menu { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 7; min-width: 210px; display: flex; flex-direction: column; padding: 6px; background: var(--carte); border: 1px solid var(--ligne); border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.18); }
+.msg-joindre-menu button { display: flex; align-items: center; gap: 10px; background: none; border: 0; text-align: left; padding: 10px 12px; border-radius: 10px; font: inherit; font-size: 13.5px; color: var(--texte); cursor: pointer; }
+.msg-joindre-menu button:hover { background: rgba(var(--texte-rgb), .06); }
+.msg-joindre-conteneur { position: relative; }
+.sondage-form { display: grid; gap: 8px; padding: 6px 6px 0; }
+.sondage-form .saisie { padding: 11px 14px; font-size: 14px; }
+.sondage-form label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texte-2); }
+.groupe-infos { display: grid; gap: 10px; padding: 6px 6px 0; }
+.groupe-infos-photo { display: flex; align-items: center; gap: 12px; }
+.groupe-infos-photo img, .groupe-infos-photo .msg-vignette { width: 64px !important; height: 64px !important; border-radius: 50%; object-fit: cover; }
+.groupe-infos textarea.saisie { min-height: 70px; resize: vertical; }
+.msg-description { font-size: 12.5px; color: var(--texte-2); padding: 6px 14px 0; line-height: 1.45; }
+
+.msg-piece-photos { display: flex; gap: 4px; flex-shrink: 0; }
+.msg-piece-photos img { width: 40px !important; height: 40px !important; border-radius: 8px !important; object-fit: cover; }

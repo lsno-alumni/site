@@ -397,13 +397,13 @@
 
 .a-temoin {
   margin: 30px 22px 0; border-radius: 22px; background: var(--carte); color: var(--texte); border: 1px solid var(--ligne);
-  padding: 46px 22px 22px; position: relative; box-shadow: var(--ombre);
+  padding: 24px 22px 22px; position: relative; overflow: hidden; box-shadow: var(--ombre);
 }
-/* le guillemet ouvre la carte, à l'intérieur, en haut à gauche ; le texte
-   commence dessous (il débordait au-dessus du bord et mordait le titre) */
+/* le guillemet comme en prod : géant, très pâle, en filigrane dans le coin
+   haut droit, rogné par la carte ; le texte passe dessus */
 .a-temoin::before {
-  content: "“"; position: absolute; top: 6px; left: 18px;
-  font-family: var(--font-titres), serif; font-size: 72px; line-height: 1; color: var(--bleu-clair);
+  content: "“"; position: absolute; top: -18px; right: 14px;
+  font-family: var(--font-titres), serif; font-size: 130px; line-height: 1; color: rgba(var(--accent-rgb), .09);
 }
 .a-temoin p {
   font-family: var(--font-titres), serif; font-style: italic; font-size: 16.5px;
@@ -456,7 +456,7 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 24px 50px -26px rgba(31,59,99,.8);
 }
 :root[data-theme="sombre"] .a-temoin.c-ouverture { background-color: #16253F; }
-.a-temoin.c-ouverture::before { color: rgba(255,255,255,.55); }
+.a-temoin.c-ouverture::before { color: rgba(255,255,255,.12); }
 .a-temoin.c-ouverture .lire-suite, .a-temoin.c-ouverture .qui span:not(.avatar-init) { color: rgba(255,255,255,.7); }
 .a-temoin.c-ouverture .qui b { color: #fff; }
 .a-temoin.c-ouverture .avatar-init { background: rgba(255,255,255,.14); color: #fff; }

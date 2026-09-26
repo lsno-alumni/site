@@ -296,7 +296,7 @@ export default function Conversation({ id, moi }) {
   };
   const modifiable = (m) => m.auteur === moi.id && !m.fichier_chemin && maintenant - new Date(m.cree_le).getTime() < MODIF_MINUTES * 60000;
   // eslint-disable-next-line react-hooks/purity
-  const ouvrirMenuMsg = (mid) => { setMaintenant(Date.now()); setMenuMsg(mid); };
+  const ouvrirMenuMsg = (mid) => { setMaintenant(Date.now()); setMenuMsg(mid); window.getSelection?.()?.removeAllRanges(); };   // le double tap sélectionnait un mot
 
   // « vu » : mon dernier message, lu par les autres ?
   const dernierMien = useMemo(() => (messages ?? []).filter((m) => m.auteur === moi.id).at(-1), [messages, moi.id]);

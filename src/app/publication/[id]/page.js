@@ -23,7 +23,7 @@ export default async function PagePublication({ params }) {
         <div className="pu-page">
           <div className="pu-bandeau"><Retour secours="/fil" /></div>
           <ContenuPublication p={r.publication} commentaires={r.commentaires} moderateur={moderateur}
-            moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url }} />
+            moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role }} />
         </div>
       </RafraichirPage>
       <TabBar actif="Fil" />

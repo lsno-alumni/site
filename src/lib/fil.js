@@ -120,6 +120,18 @@ export async function envoyerCommentaire(type, id, texte, reponseA = null) {
   if (error) throw error;
 }
 
+export async function modifierCommentaire(id, texte) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.from("commentaires").update({ texte: texte.trim() }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function supprimerCommentaire(id) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.from("commentaires").delete().eq("id", id);
+  if (error) throw error;
+}
+
 export async function signaler(type, id, motif) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();

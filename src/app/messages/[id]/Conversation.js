@@ -149,6 +149,7 @@ export default function Conversation({ id, moi }) {
   const [toast, setToast] = useState("");
   const [menuMsg, setMenuMsg] = useState(null);
   const [plusEmojis, setPlusEmojis] = useState(false);
+  const [menuSens, setMenuSens] = useState("haut");   // vers le haut, ou vers le bas si la bulle est près du haut de l'écran
   const [reponseA, setReponseA] = useState(null);
   const [edition, setEdition] = useState(null);
   const [reactions, setReactions] = useState({});
@@ -500,8 +501,13 @@ export default function Conversation({ id, moi }) {
 
   // ---- actions sur une bulle ----
   const fermerMenuMsg = () => { setMenuMsg(null); setPlusEmojis(false); };
-  // eslint-disable-next-line react-hooks/purity
-  const ouvrirMenuMsg = (mid) => { setMaintenant(Date.now()); setPlusEmojis(false); setMenuMsg(mid); window.getSelection?.()?.removeAllRanges(); };
+  const ouvrirMenuMsg = (mid) => {
+    // eslint-disable-next-line react-hooks/purity
+    setMaintenant(Date.now()); setPlusEmojis(false);
+    const r = document.getElementById(`m-${mid}`)?.getBoundingClientRect();
+    setMenuSens(r && r.top < 340 ? "bas" : "haut");
+    setMenuMsg(mid); window.getSelection?.()?.removeAllRanges();
+  };
   const effacer = async (m) => {
     fermerMenuMsg();
     if (!confirm("Supprimer ce message ?")) return;
@@ -637,7 +643,7 @@ export default function Conversation({ id, moi }) {
                   </div>
                   <Reactions liste={reactions[m.id]} moiId={moi.id} nomDe={nomDe} mienne={mien} onTap={(e) => reaction(m, e)} />
                   {menuMsg === m.id && (
-                    <span className="pub-menu-liste msg-bulle-liste" onPointerDown={(e) => e.stopPropagation()}>
+                    <span className={`pub-menu-liste msg-bulle-liste${menuSens === "bas" ? " vers-le-bas" : ""}`} onPointerDown={(e) => e.stopPropagation()}>
                       <span className="msg-emojis">
                         {EMOJIS.map((e) => <button key={e} type="button" className={(reactions[m.id] ?? []).some((r) => r.membre === moi.id && r.emoji === e) ? "on" : ""} onClick={() => reaction(m, e)} aria-label={`Réagir ${e}`}>{e}</button>)}
                         <button type="button" className={`msg-emojis-plus${plusEmojis ? " on" : ""}`} onClick={() => setPlusEmojis(!plusEmojis)} aria-label={plusEmojis ? "Moins d'emoji" : "Plus d'emoji"} aria-expanded={plusEmojis}>{plusEmojis ? <Minus size={16} aria-hidden /> : <Plus size={16} aria-hidden />}</button>

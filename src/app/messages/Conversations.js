@@ -45,6 +45,14 @@ export default function Conversations({ moi }) {
     return () => clearTimeout(minuteur);
   }, [q]);
   const recherche = q.trim().length >= 2 ? resultats : null;   // null = liste normale
+  // brouillons laissés dans des conversations (stockage du téléphone)
+  const [brouillons, setBrouillons] = useState({});
+  useEffect(() => {
+    const b = {};
+    try { for (const c of liste ?? []) { const t = localStorage.getItem(`brouillon-conv-${c.id}`); if (t?.trim()) b[c.id] = t.trim(); } } catch { /* stockage indisponible */ }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBrouillons(b);
+  }, [liste, chemin]);
   // « Ana écrit… » sur la ligne d'une conversation, même sans l'ouvrir
   const [frappes, setFrappes] = useState({});   // conversationId → prenom
   const minuteurs = useRef({});
@@ -123,7 +131,9 @@ export default function Conversations({ moi }) {
                   <small>{d ? depuis(d.cree_le) : ""}</small>
                 </span>
                 <span className="msg-ligne-bas">
-                  <span className={`msg-apercu${frappes[c.id] ? " msg-frappe" : ""}`}>{frappes[c.id] ? `${frappes[c.id]} écrit…` : apercu}</span>
+                  <span className={`msg-apercu${frappes[c.id] ? " msg-frappe" : brouillons[c.id] ? " msg-brouillon" : ""}`}>
+                    {frappes[c.id] ? `${frappes[c.id]} écrit…` : brouillons[c.id] ? <><b>Brouillon :</b> {brouillons[c.id]}</> : apercu}
+                  </span>
                   {c.non_lus > 0 && <span className="msg-pastille">{c.non_lus > 99 ? "99+" : c.non_lus}</span>}
                 </span>
                 {c.type === "groupe" && <small className="msg-ligne-meta">{c.nb_membres} membres</small>}

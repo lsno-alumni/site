@@ -16,7 +16,7 @@ export async function POST(requete) {
 
   // « profil » (un seul) ou « profils » (lot — les diffusions à tout le réseau
   // arrivent par paquets de 50 pour rester loin de la limite de temps Vercel)
-  const { profil, profils, titre, corps, url, groupe, famille } = await requete.json();
+  const { profil, profils, titre, corps, url, groupe, famille, extra } = await requete.json();
   const cibles = Array.isArray(profils) ? profils : profil ? [profil] : [];
   if (!cibles.length || !titre) return Response.json({ erreur: "incomplet" }, { status: 400 });
 
@@ -41,7 +41,8 @@ export async function POST(requete) {
   if (error) return Response.json({ erreur: error.message }, { status: 500 });
 
   // « famille » sert au service worker à regrouper (réseau, offres) au-delà du seuil
-  const charge = JSON.stringify({ titre, corps: corps ?? "", url: url ?? "/", groupe, famille });
+  // « extra » : fermer (message supprimé) ou silencieux (message modifié)
+  const charge = JSON.stringify({ titre, corps: corps ?? "", url: url ?? "/", groupe, famille, ...(extra && typeof extra === "object" ? extra : {}) });
   const perimes = [];
   let envoyes = 0;
 

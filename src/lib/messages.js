@@ -411,7 +411,7 @@ export function ecouterMessages(conversationId, { surInsertion, surSuppression }
 export function ecouterTousMessages(surInsertion) {
   const supabase = creerClientNavigateur();
   const canal = supabase.channel("messages-tous-" + Math.random().toString(36).slice(2, 8))
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (p) => surInsertion?.(p.new))
+    .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, (p) => surInsertion?.(p.new ?? p.old, p.eventType))
     .subscribe();
   return () => { supabase.removeChannel(canal); };
 }

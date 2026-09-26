@@ -134,6 +134,8 @@ with attendu(num, laisse, present) as (
   union all select 56, 'messagerie : blocages, signalement de message, stockage, photo/description/épinglé de groupe, sondages',
     to_regclass('public.blocages') is not null and to_regclass('public.sondages') is not null
     and to_regprocedure('admin_stockage()') is not null
+  union all select 57, 'push : suppression et modification d''un message répercutées sur les notifications',
+    to_regprocedure('envoyer_push_liste(uuid[], text, text, text, text, text, jsonb)') is not null
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

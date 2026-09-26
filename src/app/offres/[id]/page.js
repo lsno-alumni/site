@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Retour from "@/app/profil/[id]/Retour";
-import { utilisateurCourant, apercuOffre, lireOffre } from "@/lib/api";
+import { utilisateurCourant, apercuOffre, lireOffre, suiteOffre } from "@/lib/api";
 import { nomType, joursRestants } from "@/lib/offres";
 import { CouvertureOffre, TeteOffre, SuiteOffre } from "./ContenuOffre";
 
@@ -32,13 +32,14 @@ export default async function PageOffre({ params }) {
   if (moi && moi.statut_compte === "valide") {
     const o = await lireOffre(id);
     if (!o) notFound();
+    const suite = await suiteOffre(id, o.domaine);
     return (
       <main className="page page-profil avec-tabbar">
         <CouvertureOffre o={o} jours={joursRestants(o.date_limite)}>
           <Retour secours="/offres" />
         </CouvertureOffre>
         <TeteOffre o={o} />
-        <SuiteOffre o={o} moiId={moi.id} />
+        <SuiteOffre o={o} moiId={moi.id} suite={suite} />
         <TabBar actif="Offres" />
       </main>
     );

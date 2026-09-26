@@ -991,16 +991,18 @@
 }
 :root[data-theme="sombre"] .o-cover { background-color: #16253F; }
 /* la photo du type, sous un voile bleu nuit UNI (pas de dégradé, cf. accueil) */
-.o-cover::before { content: ""; position: absolute; inset: 0; z-index: -1; background: center / cover no-repeat; }
-.o-cover::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .55); }
-:root[data-theme="sombre"] .o-cover::after { background: rgba(15, 21, 36, .62); }
+/* illustrations 3D (fournies par l'association) : cadrées sur les personnages, voile léger */
+.o-cover::before { content: ""; position: absolute; inset: 0; z-index: -1; background: center 45% / cover no-repeat; }
+.o-cover::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .38); }
+:root[data-theme="sombre"] .o-cover::after { background: rgba(15, 21, 36, .52); }
 .o-cover[data-type="stage"]::before { background-image: url("/img/offres/stage.jpg"); }
 .o-cover[data-type="emploi"]::before { background-image: url("/img/offres/emploi.jpg"); }
 .o-cover[data-type="bourse"]::before { background-image: url("/img/offres/bourse.jpg"); }
 .o-cover[data-type="cooptation"]::before { background-image: url("/img/offres/cooptation.jpg"); }
 .o-cover[data-type="concours"]::before { background-image: url("/img/offres/concours.jpg"); }
 .o-cover[data-type="autre"]::before { background-image: url("/img/offres/autre.jpg"); }
-.o-cover .filigrane { color: rgba(255,255,255,.14); }
+.o-cover .filigrane { display: none; }   /* inutile devant une illustration */
+.o-cover .o-type { background: rgba(20, 24, 36, .62); padding: 7px 11px; border-radius: 100px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); left: 18px; bottom: 18px; }
 .o-cover .filigrane { position: absolute; left: 14px; bottom: -16px; font-family: var(--font-titres), serif; font-style: italic; font-weight: 400; font-size: 78px; line-height: 1; letter-spacing: -.02em; color: rgba(255,255,255,.1); white-space: nowrap; pointer-events: none; }
 .o-cover .o-type { position: absolute; left: 22px; bottom: 20px; margin: 0; color: rgba(255,255,255,.88); }
 .o-cover .o-tampon { top: auto; bottom: 16px; right: 18px; }

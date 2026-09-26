@@ -14,6 +14,7 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import Sauvegarde from "./Sauvegarde";
 import Journal from "./Journal";
+import Signalements from "./Signalements";
 import Annonce from "./Annonce";
 import EtatSysteme from "./EtatSysteme";
 import MenuAdmin from "./MenuAdmin";
@@ -294,6 +295,9 @@ export default function Validation() {
                 clearTimeout(minuteur.current);
                 minuteur.current = setTimeout(() => setSnack(null), 4200);
               }} />
+            </div>
+            <div id="sec-signalements" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+              <Signalements />
             </div>
             <div id="sec-journal" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <Journal />

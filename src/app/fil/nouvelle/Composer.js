@@ -4,14 +4,14 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, Camera, Clapperboard, Trash2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import * as memoire from "@/lib/memoire";
+import { publier as publierEnBase, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS } from "@/lib/fil";
 
 const MAX = 1000;
 // Vidéos : acceptées avec des bornes strictes, parce que le stockage et le
 // débit sortant sont comptés sur le palier gratuit — 30 s, 20 Mo, et une
-// durée de vie de 14 jours (la publication garde son texte ensuite).
-const VIDEO_SECONDES = 30;
-const VIDEO_MO = 20;
-export const VIDEO_JOURS = 14;
+// durée de vie de 14 jours (la publication garde son texte ensuite). Les
+// bornes vivent dans lib/fil.js, avec l'envoi.
 
 // Le composer : le texte d'abord, une photo OU une vidéo en option, un seul
 // bouton. Ouvert en feuille depuis le Fil (enFeuille) ou en pleine page.
@@ -22,6 +22,7 @@ export default function Composer({ moi, enFeuille = false }) {
   const [texte, setTexte] = useState("");
   const [media, setMedia] = useState(null);   // { type: "photo"|"video", url, duree }
   const [souci, setSouci] = useState("");
+  const [envoi, setEnvoi] = useState(false);
   const fichierPhoto = useRef(null);
   const fichierVideo = useRef(null);
 
@@ -30,7 +31,7 @@ export default function Composer({ moi, enFeuille = false }) {
     e.target.value = "";
     if (!f || !f.type.startsWith("image/")) return;
     setSouci("");
-    setMedia({ type: "photo", url: URL.createObjectURL(f) });
+    setMedia({ type: "photo", url: URL.createObjectURL(f), fichier: f });
   };
   const choisirVideo = (e) => {
     const f = e.target.files?.[0];
@@ -43,25 +44,34 @@ export default function Composer({ moi, enFeuille = false }) {
     v.onloadedmetadata = () => {
       if (v.duration > VIDEO_SECONDES + 0.5) { setSouci(`Vidéo trop longue (${Math.round(v.duration)} s). ${VIDEO_SECONDES} secondes au maximum.`); URL.revokeObjectURL(url); return; }
       setSouci("");
-      setMedia({ type: "video", url, duree: Math.round(v.duration) });
+      setMedia({ type: "video", url, duree: Math.round(v.duration), fichier: f });
     };
     v.onerror = () => { setSouci("Cette vidéo ne peut pas être lue ici."); URL.revokeObjectURL(url); };
     v.src = url;
   };
   const retirer = () => { if (media) URL.revokeObjectURL(media.url); setMedia(null); };
-  const publier = (e) => {
+  const publier = async (e) => {
     e.preventDefault();
-    if (!texte.trim() && !media) return;
-    routeur.push("/fil");
+    if ((!texte.trim() && !media) || envoi) return;
+    setEnvoi(true); setSouci("");
+    try {
+      await publierEnBase({ texte, media });
+      memoire.ecrire("fil.items", null);   // le Fil se rechargera avec la nouvelle publication en tête
+      routeur.push("/fil");
+      routeur.refresh();
+    } catch (err) {
+      setSouci("Publication impossible : " + (err?.message ?? "réessaie dans un instant."));
+      setEnvoi(false);
+    }
   };
-  const pret = texte.trim().length > 0 || media;
+  const pret = (texte.trim().length > 0 || media) && !envoi;
 
   return (
     <form className={`cp${enFeuille ? " cp-feuille" : ""}`} onSubmit={publier}>
       <header className="cp-tete">
         <button type="button" className="cp-fermer" onClick={() => routeur.back()} aria-label="Annuler"><X size={20} aria-hidden /></button>
         <span className="cp-titre">Nouvelle publication</span>
-        <button type="submit" className={`btn btn-or cp-publier${pret ? "" : " off"}`} disabled={!pret}>Publier</button>
+        <button type="submit" className={`btn btn-or cp-publier${pret ? "" : " off"}`} disabled={!pret}>{envoi ? "Envoi…" : "Publier"}</button>
       </header>
 
       <div className="cp-qui">

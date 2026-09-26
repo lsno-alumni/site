@@ -116,6 +116,11 @@ with attendu(num, laisse, present) as (
   -- ⚠ ne JAMAIS citer une table créée par une migration dans ce fichier : si
   -- elle manque, tout le contrôle plante au lieu de dire « MANQUE » (vécu
   -- le 23/09 avec sante_fonctions_ouvertes). Passer par pg_proc / to_regclass.
+  union all select 52, 'le Fil : publications, réactions, commentaires, signalements, purge des vidéos',
+    to_regclass('public.publications') is not null and to_regclass('public.reactions') is not null
+    and to_regclass('public.commentaires') is not null and to_regclass('public.signalements') is not null
+    and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'fil_publications')
+    and exists (select 1 from cron.job where jobname = 'purge-videos-expirees')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

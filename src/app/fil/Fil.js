@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Camera, ThumbsUp, MessageCircle, Share2, MoreHorizontal, PenLine, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Camera, MessageCircle, Share2, MoreHorizontal, PenLine, ArrowRight, Play } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import Bravo from "@/components/Bravo";
 import TamponDate from "@/components/TamponDate";
-import RafraichirPage from "@/components/RafraichirPage";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
-import { joursRestants } from "@/lib/offres";
+import { SqueletteOffre } from "@/components/Squelettes";
+import * as memoire from "@/lib/memoire";
+import { joursRestants, nomType } from "@/lib/offres";
+import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
+import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication } from "@/lib/fil";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
-// (texte, photo) se mêlent à des cartes AUTOMATIQUES — arrivées, offres,
-// conseils — pour que le fil ne paraisse jamais vide, même quand personne
-// n'a rien écrit depuis des jours. Chaque famille a sa matière (papier /
-// bleu nuit / tampon / citation) : la variété des fonds fait le rythme.
-//
-// MAQUETTE (branche `social`) : données de démonstration, pas encore de base.
+// (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
+// offres, conseils — pour que le fil ne paraisse jamais vide. Chaque famille
+// a sa matière (papier / bleu nuit / tampon / citation).
 
 const FILTRES = [
   { cle: "tout", nom: "Tout" },
@@ -25,50 +28,75 @@ const FILTRES = [
   { cle: "conseil", nom: "Conseils" },
 ];
 
-function Publication({ p }) {
-  const [bravo, setBravo] = useState(p.jai_bravo);
-  const n = p.bravos + (bravo ? 1 : 0) - (p.jai_bravo ? 1 : 0);
+function Publication({ p, moi, moderateur, onChange, signale }) {
+  const [menu, setMenu] = useState(false);
+  const mienne = p.auteur.id === moi.id;
+  const agir = async (action) => {
+    setMenu(false);
+    try {
+      if (action === "supprimer") {
+        if (!confirm("Supprimer cette publication ?")) return;
+        await supprimerPublication(p); onChange(); signale("Publication supprimée");
+      }
+      if (action === "signaler") { await signaler("publication", p.id, "Publication signalée depuis l'application"); signale("Merci, les modérateurs sont prévenus."); }
+      if (action === "masquer") { await moderer("publication", p.id, !p.masquee); onChange(); }
+      if (action === "partager") {
+        const url = `${window.location.origin}/publication/${p.id}`;
+        if (navigator.share) await navigator.share({ title: `${p.auteur.prenom} sur LSNO Amicale`, url });
+        else { await navigator.clipboard.writeText(url); signale("Lien copié"); }
+      }
+    } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + (e.message ?? "")); }
+  };
   return (
-    <article className="pub">
+    <article className={`pub${p.masquee ? " pub-masquee" : ""}`}>
       <header className="pub-tete">
         <Link href={`/profil/${p.auteur.id}`} className="pub-qui">
-          <Avatar profil={{ prenom: p.auteur.prenom, nom: p.auteur.nom, photo: p.auteur.photo }} className="pub-avatar" />
+          <Avatar profil={{ prenom: p.auteur.prenom, nom: p.auteur.nom, photo: p.auteur.photo_url }} className="pub-avatar" />
           <span>
             <b>{p.auteur.prenom} {p.auteur.nom}</b>
-            <small>Promo {p.auteur.promo} · {p.il_y_a}</small>
+            <small>Promo {p.auteur.promo} · {depuis(p.cree_le)}{p.masquee ? " · masquée" : ""}</small>
           </span>
         </Link>
-        <button type="button" className="pub-plus" aria-label="Options"><MoreHorizontal size={18} aria-hidden /></button>
+        <span className="pub-menu">
+          <button type="button" className="pub-plus" aria-label="Options" onClick={() => setMenu(!menu)}><MoreHorizontal size={18} aria-hidden /></button>
+          {menu && (
+            <span className="pub-menu-liste">
+              <button type="button" onClick={() => agir("partager")}>Partager</button>
+              {!mienne && <button type="button" onClick={() => agir("signaler")}>Signaler</button>}
+              {moderateur && <button type="button" onClick={() => agir("masquer")}>{p.masquee ? "Rétablir" : "Masquer"}</button>}
+              {(mienne || moi.role === "admin") && <button type="button" className="danger" onClick={() => agir("supprimer")}>Supprimer</button>}
+            </span>
+          )}
+        </span>
       </header>
       <Link href={`/publication/${p.id}`} className="pub-ouvrir">
-        <p className="pub-texte">{p.texte}</p>
-        {p.photo && <img className="pub-photo" src={p.photo} alt="" />}
+        {p.texte && <p className="pub-texte">{p.texte}</p>}
+        {p.media_type === "photo" && p.media_chemin && <img className="pub-photo" src={urlMedia(p.media_chemin)} alt="" loading="lazy" />}
+        {p.media_type === "video" && p.media_chemin && (
+          <span className="pub-video"><video src={urlMedia(p.media_chemin)} preload="metadata" playsInline muted /><span className="pub-video-lire"><Play size={22} aria-hidden /></span></span>
+        )}
+        {p.media_type === "video_expiree" && <p className="pub-expiree">Vidéo expirée (les vidéos restent 14 jours).</p>}
       </Link>
       <footer className="pub-pied">
-        <button type="button" className={`pub-action${bravo ? " on" : ""}`} onClick={() => setBravo(!bravo)} aria-pressed={bravo}>
-          <ThumbsUp size={16} strokeWidth={bravo ? 2.4 : 1.9} aria-hidden /> Bravo{n > 0 && <b>{n}</b>}
-        </button>
+        <Bravo type="publication" id={p.id} nombre={p.bravos} actif={p.jai_bravo} />
         <Link href={`/publication/${p.id}`} className="pub-action">
-          <MessageCircle size={16} strokeWidth={1.9} aria-hidden /> {p.commentaires > 0 ? <>Commenter<b>{p.commentaires}</b></> : "Commenter"}
+          <MessageCircle size={16} strokeWidth={1.9} aria-hidden /> Commenter{p.commentaires > 0 && <b>{p.commentaires}</b>}
         </Link>
-        <button type="button" className="pub-action" aria-label="Partager"><Share2 size={16} strokeWidth={1.9} aria-hidden /></button>
+        <button type="button" className="pub-action" aria-label="Partager" onClick={() => agir("partager")}><Share2 size={16} strokeWidth={1.9} aria-hidden /></button>
       </footer>
     </article>
   );
 }
 
-// carte automatique : un membre validé vient d'arriver — bleu nuit, comme la
-// première voix d'un chapitre de conseils
-function Arrivee({ a }) {
-  const m = a.membre;
+function Arrivee({ m }) {
   return (
     <article className="pub pub-arrivee">
       <Link href={`/profil/${m.id}`} className="pub-arrivee-corps">
-        <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo }} className="pub-avatar grand" />
+        <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="pub-avatar grand" />
         <span>
-          <small className="pub-etiquette">Nouveau membre · {a.il_y_a}</small>
+          <small className="pub-etiquette">Nouveau membre · {depuis(m.valide_le)}</small>
           <b>{m.prenom} {m.nom}</b>
-          <span className="pub-arrivee-meta">Promo {m.promo} · {m.domaine}{m.ville ? ` · ${m.ville}` : ""}</span>
+          <span className="pub-arrivee-meta">Promo {m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}{m.ville ? ` · ${m.ville}` : ""}</span>
         </span>
       </Link>
       <Link href={`/profil/${m.id}`} className="btn btn-nu pub-arrivee-btn">Dire bonjour <ArrowRight size={13} aria-hidden /></Link>
@@ -76,52 +104,78 @@ function Arrivee({ a }) {
   );
 }
 
-// carte automatique : une offre vient d'être partagée — le tampon d'échéance
 function Offre({ o }) {
-  const f = o.offre;
+  const domaine = DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0];
+  const lieu = [o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", ");
   return (
-    <Link href={`/offres/${f.id}`} className="pub pub-offre">
-      <TamponDate date={f.date_limite} jours={joursRestants(f.date_limite)} />
-      <small className="pub-etiquette">Nouvelle offre · {o.il_y_a}</small>
-      <span className="o-type">{f.type === "stage" ? "Stage" : f.type}</span>
-      <b className="pub-offre-titre">{f.titre}</b>
-      <span className="o-meta">{f.domaine} · {f.lieu}</span>
-      <span className="pub-offre-par">partagée par {f.posteur}</span>
+    <Link href={`/offres/${o.id}`} className="pub pub-offre">
+      <TamponDate date={o.date_limite} jours={joursRestants(o.date_limite)} />
+      <small className="pub-etiquette">Nouvelle offre · {depuis(o.cree_le)}</small>
+      <span className="o-type">{nomType(o.type)}</span>
+      <b className="pub-offre-titre">{o.titre}</b>
+      <span className="o-meta">{[domaine, lieu].filter(Boolean).join(" · ")}</span>
+      {o.posteur && <span className="pub-offre-par">partagée par {o.posteur.prenom} {o.posteur.nom}</span>}
     </Link>
   );
 }
 
-// carte automatique : un conseil — la citation, comme sur l'accueil
 function Conseil({ c }) {
-  const k = c.conseil;
   return (
     <article className="a-temoin pub-conseil">
-      <small className="pub-etiquette">Conseil aux cadets · {k.theme}</small>
-      <p>{k.texte}</p>
-      <Link href={`/profil/${k.id}`} className="qui">
-        <Avatar profil={{ prenom: k.prenom, nom: k.nom, photo: k.photo }} className="am-conseil-photo" />
+      <small className="pub-etiquette">Conseil aux cadets{c.conseil_theme ? ` · ${c.conseil_theme}` : ""}</small>
+      <p>{c.conseil}</p>
+      <Link href={`/profil/${c.id}`} className="qui">
+        <Avatar profil={{ prenom: c.prenom, nom: c.nom, photo: c.photo_url }} className="am-conseil-photo" />
         <div>
-          <b>{k.prenom} {k.nom}</b>
-          <span>Promotion {k.promo} · voir son parcours</span>
+          <b>{c.prenom} {c.nom}</b>
+          <span>Promotion {c.promotions?.numero} · voir son parcours</span>
         </div>
       </Link>
     </article>
   );
 }
 
-export default function Fil({ moi, fil }) {
+export default function Fil({ moi, moderateur }) {
+  const routeur = useRouter();
   const [filtre, setFiltre] = useState("tout");
-  const visibles = filtre === "tout" ? fil : fil.filter((x) => x.type === filtre);
+  const [items, setItems] = useState(() => memoire.lire("fil.items") ?? null);
+  const [fin, setFin] = useState(false);
+  const [dernierePub, setDernierePub] = useState(null);
+  const [encore, setEncore] = useState(false);
+  const [toast, setToast] = useState("");
+  const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
+
+  const charger = async () => {
+    try {
+      const r = await chargerFil();
+      setItems(r.items); setFin(r.fin); setDernierePub(r.dernierePub);
+    } catch (e) { signale("Le fil ne répond pas : " + (e.message ?? "")); }
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { charger(); }, []);
+  useEffect(() => { memoire.ecrire("fil.items", items); }, [items]);
+
+  const suite = async () => {
+    if (encore || fin || !dernierePub) return;
+    setEncore(true);
+    try {
+      const r = await chargerFil({ avant: dernierePub });
+      setItems((l) => [...l, ...r.items]); setFin(r.fin); setDernierePub(r.dernierePub);
+    } catch { /* on réessaiera */ }
+    setEncore(false);
+  };
+  const rafraichir = async () => { await charger(); routeur.refresh(); };
+
+  const visibles = (items ?? []).filter((x) => filtre === "tout" || x.type === filtre);
 
   return (
-    <RafraichirPage>
+    <GlisserRafraichir onRafraichir={rafraichir}>
     <>
       <header className="n-tete tete-fil">
         <h1>Le <em>fil</em></h1>
         <p className="cpt">Ce qui se passe dans le réseau.</p>
       </header>
 
-      {/* composer : une feuille de papier qui chevauche la photo */}
       <Link href="/fil/nouvelle" className="fil-compose">
         <Avatar profil={moi} className="pub-avatar" />
         <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
@@ -137,21 +191,30 @@ export default function Fil({ moi, fil }) {
       </div>
 
       <div className="fil-liste">
+        {items === null && [0, 1, 2].map((i) => <SqueletteOffre key={i} />)}
         {visibles.map((x) => {
-          if (x.type === "publication") return <Publication key={x.id} p={x} />;
-          if (x.type === "arrivee") return <Arrivee key={x.id} a={x} />;
-          if (x.type === "offre") return <Offre key={x.id} o={x} />;
-          if (x.type === "conseil") return <Conseil key={x.id} c={x} />;
+          if (x.type === "publication") return <Publication key={x.id} p={x.p} moi={moi} moderateur={moderateur} onChange={charger} signale={signale} />;
+          if (x.type === "arrivee") return <Arrivee key={x.id} m={x.m} />;
+          if (x.type === "offre") return <Offre key={x.id} o={x.o} />;
+          if (x.type === "conseil") return <Conseil key={x.id} c={x.c} />;
           return null;
         })}
-        <p className="fil-fin">Tu es à jour.</p>
+        {items !== null && visibles.length === 0 && (
+          <div className="vide" style={{ paddingTop: 30 }}>
+            <b>Rien par ici pour l&apos;instant</b>{" "}
+            {filtre === "publication" ? "Sois le premier à publier quelque chose." : "Reviens un peu plus tard."}
+          </div>
+        )}
+        {items !== null && !fin && filtre === "tout" && (
+          <button type="button" className="btn btn-nu fil-suite" onClick={suite} disabled={encore}>{encore ? "Chargement…" : "Voir plus"}</button>
+        )}
+        {items !== null && (fin || filtre !== "tout") && visibles.length > 0 && <p className="fil-fin">Tu es à jour.</p>}
       </div>
 
-      {/* écrire depuis n'importe où dans le fil */}
       <Link href="/fil/nouvelle" className="fil-fab" aria-label="Publier"><PenLine size={20} strokeWidth={2} aria-hidden /></Link>
-
+      <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
       <RestaurerDefilement />
     </>
-    </RafraichirPage>
+    </GlisserRafraichir>
   );
 }

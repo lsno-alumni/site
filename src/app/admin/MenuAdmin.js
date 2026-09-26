@@ -12,6 +12,7 @@ const SECTIONS = [
   { id: "sec-roles", nom: "Rôles" },
   { id: "sec-gerer", nom: "Gérer un membre" },
   { id: "sec-annonce", nom: "Annonce" },
+  { id: "sec-signalements", nom: "Signalements" },
   { id: "sec-journal", nom: "Journal" },
   { id: "sec-sauvegarde", nom: "Sauvegarde" },
   { id: "sec-etat", nom: "État du système" },

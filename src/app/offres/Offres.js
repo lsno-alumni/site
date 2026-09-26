@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
@@ -36,7 +36,6 @@ export default function Offres() {
   const [q, setQ] = useState("");
   const [formulaire, setFormulaire] = useState(false);
   const [edition, setEdition] = useState(null); // id de l'offre en cours de modification
-  const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
   const [fichiers, setFichiers] = useState([]);              // nouveaux File à téléverser
   const [fichiersExistants, setFichiersExistants] = useState([]); // {id, chemin, nom, type} (édition)
@@ -376,41 +375,15 @@ export default function Offres() {
                   {[
                     DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0],
                     [o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", "),
+                    o.fichiers?.length > 0 && `${o.fichiers.length} pièce${o.fichiers.length > 1 ? "s" : ""} jointe${o.fichiers.length > 1 ? "s" : ""}`,
                   ].filter(Boolean).join(" · ")}
                 </span>
               </Link>
-              <div className="o-suite-carte">
-                <p className={`offre-desc${depliees[o.id] ? " ouverte" : ""}`}>
-                  <Surligne texte={o.description} terme={q} />
-                </p>
-                {o.description.length > 120 && (
-                  <button
-                    className="offre-lire-plus"
-                    onClick={() => setDepliees((d) => ({ ...d, [o.id]: !d[o.id] }))}
-                  >
-                    {depliees[o.id] ? "Réduire" : "Lire plus"}
-                  </button>
-                )}
-                {o.lien && (
-                  <a href={lienAbsolu(o.lien)} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: 12.5, color: "var(--bleu-texte)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
-                    Voir l&apos;annonce <ExternalLink size={12} aria-hidden />
-                  </a>
-                )}
-                {o.fichiers?.length > 0 && (
-                  <div className="o-fichiers">
-                    {o.fichiers.map((f) => (
-                      <a key={f.id} className="o-fichier" href={urlPublique(f.chemin)}
-                        target="_blank" rel="noopener noreferrer" download={f.nom}>
-                        {f.type === "application/pdf"
-                          ? <FileText size={14} aria-hidden />
-                          : <ImageIcon size={14} aria-hidden />}
-                        <span className="o-fichier-nom">{f.nom}</span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* deux lignes de description, rien de plus : tout se lit dans la
+                  feuille, un tap sur la tête de carte l'ouvre */}
+              <Link href={`/offres/${o.id}`} className="o-suite-carte" tabIndex={-1} aria-hidden>
+                <p className="offre-desc"><Surligne texte={o.description} terme={q} /></p>
+              </Link>
               <div className="pied" style={{ gap: 9 }}>
                 <Link href={`/profil/${o.posteur?.id}`} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <Avatar profil={{ prenom: o.posteur?.prenom ?? "?", nom: o.posteur?.nom ?? "", photo: o.posteur?.photo_url }}

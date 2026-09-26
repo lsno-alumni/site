@@ -958,12 +958,17 @@
 /* pièces jointes des offres */
 /* ---------- OFFRES (25/09) : étiquette, tampon d'échéance, feuille ---------- */
 .fiche.offre { position: relative; }
-.o-corps-carte { display: block; padding: 16px 92px 4px 16px; color: inherit; cursor: pointer; }
+.o-corps-carte {
+  display: block; padding: 15px 92px 12px 16px; color: inherit; cursor: pointer;
+  /* même tête translucide que les fiches de l'annuaire, avec plus de flou */
+  background: rgba(var(--fond-rgb), .22); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
 .fiche.offre:has(.o-corps-carte > .o-type:first-child) .o-corps-carte { padding-right: 16px; }   /* sans tampon, toute la largeur */
 .o-type { display: inline-block; font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 600; margin-bottom: 7px; }
 .o-corps-carte .o-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; display: block; }
 .o-meta { display: block; font-size: 12.5px; color: var(--texte-2); margin-top: 6px; line-height: 1.4; }
-.o-suite-carte { padding: 0 16px 12px; }
+.o-suite-carte { display: block; padding: 10px 16px 12px; color: inherit; }
+.o-suite-carte .offre-desc { margin-top: 0; }
 /* le tampon d'agenda : jour en gros, mois dessous ; bleu quand ça presse */
 .o-tampon {
   position: absolute; top: 14px; right: 14px; width: 56px; padding: 7px 4px 6px; border-radius: 12px; text-align: center; line-height: 1;
@@ -985,6 +990,17 @@
   background-color: var(--monde); background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen;
 }
 :root[data-theme="sombre"] .o-cover { background-color: #16253F; }
+/* la photo du type, sous un voile bleu nuit UNI (pas de dégradé, cf. accueil) */
+.o-cover::before { content: ""; position: absolute; inset: 0; z-index: -1; background: center / cover no-repeat; }
+.o-cover::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(31, 59, 99, .55); }
+:root[data-theme="sombre"] .o-cover::after { background: rgba(15, 21, 36, .62); }
+.o-cover[data-type="stage"]::before { background-image: url("/img/offres/stage.jpg"); }
+.o-cover[data-type="emploi"]::before { background-image: url("/img/offres/emploi.jpg"); }
+.o-cover[data-type="bourse"]::before { background-image: url("/img/offres/bourse.jpg"); }
+.o-cover[data-type="cooptation"]::before { background-image: url("/img/offres/cooptation.jpg"); }
+.o-cover[data-type="concours"]::before { background-image: url("/img/offres/concours.jpg"); }
+.o-cover[data-type="autre"]::before { background-image: url("/img/offres/autre.jpg"); }
+.o-cover .filigrane { color: rgba(255,255,255,.14); }
 .o-cover .filigrane { position: absolute; left: 14px; bottom: -16px; font-family: var(--font-titres), serif; font-style: italic; font-weight: 400; font-size: 78px; line-height: 1; letter-spacing: -.02em; color: rgba(255,255,255,.1); white-space: nowrap; pointer-events: none; }
 .o-cover .o-type { position: absolute; left: 22px; bottom: 20px; margin: 0; color: rgba(255,255,255,.88); }
 .o-cover .o-tampon { top: auto; bottom: 16px; right: 18px; }

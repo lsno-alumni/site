@@ -17,11 +17,12 @@ export function metaOffre(o) {
   return [domaine, lieu].filter(Boolean).join(" · ");
 }
 
-// bande bleu nuit sur grain kraft : le type en filigrane, l'étiquette en bas
-// à gauche, le tampon d'échéance en bas à droite
+// une photo par TYPE d'offre (public/img/offres, CC0, voir SOURCES.md) sous
+// un voile bleu nuit uni : le type en filigrane, l'étiquette en bas à gauche,
+// le tampon d'échéance en bas à droite
 export function CouvertureOffre({ o, jours, children }) {
   return (
-    <div className="o-cover">
+    <div className="o-cover" data-type={o.type}>
       <span className="filigrane" aria-hidden>{nomType(o.type)}</span>
       <span className="o-type">{nomType(o.type)}</span>
       <TamponDate date={o.date_limite} jours={jours} />

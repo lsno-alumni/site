@@ -79,7 +79,7 @@ export default function Parcours({ profilId, signale }) {
           <div style={{ display: "flex", gap: 4 }}>
             <button className="e-crayon" aria-label={`Modifier ${e.titre}`}
               onClick={() => setEdition({ ...e, annee_debut: e.annee_debut ?? "", annee_fin: e.annee_fin ?? "" })}>✎</button>
-            <button className="e-crayon" style={{ color: "var(--rouge)" }} aria-label={`Supprimer ${e.titre}`}
+            <button className="e-crayon suppr" aria-label={`Supprimer ${e.titre}`}
               onClick={() => supprimer(e.id)}>✕</button>
           </div>
         </div>

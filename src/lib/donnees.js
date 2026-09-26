@@ -347,12 +347,26 @@ export function estEncoreEleve(promoNumero) {
 // Taux de complétion du profil — UNE seule source de vérité, utilisée par
 // Mon profil ET l'accueil connecté (sinon deux calculs divergent). Un élève
 // n'a ni poste ni conseil : on ne les compte pas pour lui.
+const CHAMPS_COMPLETION = {
+  photo_url: { nom: "une photo", ancre: "mp-photo" },
+  statut_titre: { nom: "une ligne de présentation", ancre: "titre" },
+  ville: { nom: "ta ville", ancre: "ville" },
+  pays: { nom: "ton pays", ancre: "pays" },
+  conseil: { nom: "un conseil aux cadets", ancre: "conseil" },
+};
+function champsCompletion(p) {
+  return estEncoreEleve(p?.promotions?.numero)
+    ? ["photo_url", "ville", "pays"]
+    : ["photo_url", "statut_titre", "ville", "pays", "conseil"];
+}
 export function tauxCompletion(p) {
-  const champs = estEncoreEleve(p?.promotions?.numero)
-    ? ["ville", "pays", "photo_url"]
-    : ["statut_titre", "ville", "pays", "conseil", "photo_url"];
+  const champs = champsCompletion(p);
   const remplis = champs.filter((c) => p?.[c]).length;
   return Math.round(((remplis + 3) / (champs.length + 3)) * 100);
+}
+// ce qui manque encore, dans l'ordre de la page : [{ nom, ancre }]
+export function manquesCompletion(p) {
+  return champsCompletion(p).filter((c) => !p?.[c]).map((c) => CHAMPS_COMPLETION[c]);
 }
 
 export function nomDomaine(cle, precision, court = false) {

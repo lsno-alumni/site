@@ -2109,3 +2109,9 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 /* 7. l'appui long est à nous : ni sélection, ni menu d'image ou de lien du navigateur */
 .msg-bulle, .msg-bulle * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .msg-bulle img, .msg-bulle a { -webkit-user-drag: none; }
+
+/* retours : largeur fixe du lecteur (la piste disparaissait dans une bulle ajustée au contenu) ; bouton + centré */
+.lecteur-audio { width: 232px; max-width: 68vw; }
+.lecteur-audio-piste { min-width: 90px; height: 5px; }
+.msg-emojis-plus { display: inline-flex !important; align-items: center; justify-content: center; align-self: center; line-height: 0; }
+.msg-emojis-plus svg { display: block; }

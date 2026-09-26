@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, ArrowDown, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check, Paperclip, FileText, Play,
-  Mic, Square, Reply, BellOff, Bell, Pin, PinOff, Link as LienIcone, CheckCheck, Plus,
+  Mic, Square, Reply, BellOff, Bell, Pin, PinOff, Link as LienIcone, CheckCheck, Plus, Minus,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import LecteurAudio from "@/components/LecteurAudio";
@@ -176,7 +176,20 @@ export default function Conversation({ id, moi }) {
   const moiMembre = useMemo(() => (conv?.membres ?? []).find((m) => m.membre === moi.id), [conv, moi.id]);
   const vue = conv ? { ...conv, membres: membres.filter((m) => m.id !== moi.id) } : null;
   const anime = conv?.type === "groupe" && conv?.cree_par === moi.id;
-  const descendre = (doux = false) => bas.current?.scrollIntoView({ block: "end", behavior: doux ? "smooth" : "instant" });
+  // tout en bas de la PAGE (le repère de fin passait sous la barre de saisie
+  // collée en bas : il manquait toujours un message)
+  const descendre = (doux = false) => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: doux ? "smooth" : "instant" });
+  // « descendre après le prochain rendu » : posé par l'envoi et l'arrivée d'un
+  // message, exécuté une fois la bulle réellement dans la page
+  const doitDescendre = useRef(null);   // null | "instant" | "smooth"
+  useEffect(() => {
+    if (!doitDescendre.current || !messages) return;
+    const mode = doitDescendre.current; doitDescendre.current = null;
+    descendre(mode === "smooth");
+    // une photo ou un lecteur peut encore grandir après coup : on redescend un peu plus tard
+    const t = setTimeout(() => descendre(mode === "smooth"), 350);
+    return () => clearTimeout(t);
+  }, [messages]);
 
   // suis-je en bas du fil ? (la page défile, pas la zone)
   useEffect(() => {
@@ -220,7 +233,7 @@ export default function Conversation({ id, moi }) {
         setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, x.lu_le])));
         signer(m); chargerReactions(m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
-        requestAnimationFrame(() => descendre());
+        doitDescendre.current = "instant";
       } catch (e) { if (vivant) { setSouci(e.message ?? "Erreur"); setMessages([]); } }
     })();
     const stops = [
@@ -230,7 +243,7 @@ export default function Conversation({ id, moi }) {
           signer([m]);
           if (m.auteur !== moi.id) { marquerLu(id); memoire.ecrire("messages.liste", null); setFrappe(null); }
           // en bas du fil (ou c'est le mien) : on suit ; plus haut : une pastille, sans bouger
-          if (m.auteur === moi.id || enBas.current) requestAnimationFrame(() => descendre(true));
+          if (m.auteur === moi.id || enBas.current) doitDescendre.current = "smooth";
           else setNouveaux((n) => n + 1);
         },
         surSuppression: (mid) => setMessages((l) => (l ? l.filter((x) => x.id !== mid) : l)),
@@ -356,7 +369,7 @@ export default function Conversation({ id, moi }) {
         setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
         signer([m]); setReactions((p) => ({ ...p, [m.id]: [] }));
         retirerPiece();
-        requestAnimationFrame(() => descendre(true));
+        doitDescendre.current = "smooth";
       }
       annulerSaisie(); memoire.ecrire("messages.liste", null);
     } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
@@ -498,7 +511,7 @@ export default function Conversation({ id, moi }) {
                     <span className="pub-menu-liste msg-bulle-liste" onPointerDown={(e) => e.stopPropagation()}>
                       <span className="msg-emojis">
                         {EMOJIS.map((e) => <button key={e} type="button" className={(reactions[m.id] ?? []).some((r) => r.membre === moi.id && r.emoji === e) ? "on" : ""} onClick={() => reaction(m, e)} aria-label={`Réagir ${e}`}>{e}</button>)}
-                        <button type="button" className={`msg-emojis-plus${plusEmojis ? " on" : ""}`} onClick={() => setPlusEmojis(!plusEmojis)} aria-label="Plus d'emoji" aria-expanded={plusEmojis}><Plus size={16} aria-hidden /></button>
+                        <button type="button" className={`msg-emojis-plus${plusEmojis ? " on" : ""}`} onClick={() => setPlusEmojis(!plusEmojis)} aria-label={plusEmojis ? "Moins d'emoji" : "Plus d'emoji"} aria-expanded={plusEmojis}>{plusEmojis ? <Minus size={16} aria-hidden /> : <Plus size={16} aria-hidden />}</button>
                       </span>
                       {plusEmojis && (
                         <span className="msg-emojis-grille">

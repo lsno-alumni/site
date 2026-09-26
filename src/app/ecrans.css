@@ -2162,3 +2162,13 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-brouillon b { color: var(--rouge); font-weight: 600; }
 .msg-brouillon { color: var(--texte-2); font-style: italic; }
 .msg-bulle-liste.vers-le-bas { bottom: auto; top: calc(100% + 6px); }
+
+/* le menu d'une bulle passe au-dessus des bulles suivantes */
+.msg-rang.menu-ouvert { z-index: 30; }
+.msg-bulle-liste { z-index: 40; }
+/* actions d'une conversation (appui long dans la liste) */
+.msg-ligne { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: pan-y; }
+.msg-actions-conv { display: grid; gap: 2px; padding: 4px 2px 0; }
+.msg-actions-conv button { display: flex; align-items: center; gap: 12px; padding: 12px 12px; border-radius: 12px; background: none; border: 0; font: inherit; font-size: 14.5px; color: var(--texte); text-align: left; cursor: pointer; }
+.msg-actions-conv button:hover { background: rgba(var(--texte-rgb), .06); }
+.msg-actions-conv button.danger { color: var(--rouge); }

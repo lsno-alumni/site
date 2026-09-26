@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, ArrowDown, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check, Paperclip, FileText, Play,
   Mic, Square, Reply, BellOff, Bell, Pin, PinOff, Link as LienIcone, CheckCheck, Plus, Minus,
-  Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera,
+  Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera, Copy,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import LecteurAudio from "@/components/LecteurAudio";
@@ -87,7 +87,7 @@ function Reactions({ liste, moiId, nomDe, mienne, onTap }) {
 
 // une ligne = une bulle, avec ses gestes : appui long / clic droit / double
 // clic → menu ; glissement vers la droite → répondre
-function Rang({ mid, mien, suite, groupe, auteur, enfants, onMenu, onRepondre }) {
+function Rang({ mid, mien, suite, groupe, auteur, enfants, onMenu, onRepondre, ouvert }) {
   const geste = useRef(null);
   const bulle = useRef(null);
   const [decal, setDecal] = useState(0);
@@ -117,7 +117,7 @@ function Rang({ mid, mien, suite, groupe, auteur, enfants, onMenu, onRepondre })
     geste.current = null;
   };
   return (
-    <div className={`msg-rang${mien ? " mien" : ""}${suite ? " suite" : ""}`} id={`m-${mid}`}
+    <div className={`msg-rang${mien ? " mien" : ""}${suite ? " suite" : ""}${ouvert ? " menu-ouvert" : ""}`} id={`m-${mid}`}
       onPointerDown={debut} onPointerMove={bouge} onPointerUp={fin} onPointerCancel={fin}
       onContextMenu={(e) => { e.preventDefault(); if (!geste.current?.long) onMenu(); }}
       onDoubleClick={onMenu}>
@@ -540,6 +540,11 @@ export default function Conversation({ id, moi }) {
     try { await signalerMessage(m, nomDe(m.auteur)); signale("Merci, les modérateurs sont prévenus."); }
     catch (e) { signale("Signalement impossible : " + (e.message ?? "")); }
   };
+  const copier = async (m) => {
+    fermerMenuMsg();
+    try { await navigator.clipboard.writeText(m.texte ?? ""); signale("Message copié"); }
+    catch { signale("Copie impossible sur cet appareil."); }
+  };
   const transferer = async (m) => { fermerMenuMsg(); setATransferer(m); setPanneau("transfert"); if (!convs) setConvs(await mesConversations().catch(() => [])); };
   const validerTransfert = async (c) => {
     try { await transfererMessage(aTransferer, c.id); setPanneau(null); setATransferer(null); signale(`Transféré à ${nomConversation(c)}`); }
@@ -626,7 +631,7 @@ export default function Conversation({ id, moi }) {
           return (
             <div key={m.id}>
               {nouveauJour && <div className="msg-jour"><span>{jour(m.cree_le)}</span></div>}
-              <Rang mid={m.id} mien={mien} suite={suite} groupe={conv?.type === "groupe"} auteur={a}
+              <Rang mid={m.id} mien={mien} suite={suite} groupe={conv?.type === "groupe"} auteur={a} ouvert={menuMsg === m.id}
                 onMenu={() => ouvrirMenuMsg(m.id)} onRepondre={() => repondre(m)}
                 enfants={<>
                   <div className={`msg-bulle${mien ? " mienne" : ""}`}>
@@ -655,6 +660,7 @@ export default function Conversation({ id, moi }) {
                       )}
                       <button type="button" onClick={() => repondre(m)}><Reply size={14} aria-hidden /> Répondre</button>
                       {!mien && conv?.type === "groupe" && <button type="button" onClick={() => repondreEnPrive(m)}><MessageSquare size={14} aria-hidden /> Répondre en privé</button>}
+                      {m.texte?.trim() && <button type="button" onClick={() => copier(m)}><Copy size={14} aria-hidden /> Copier</button>}
                       <button type="button" onClick={() => transferer(m)}><Forward size={14} aria-hidden /> Transférer</button>
                       <button type="button" onClick={() => epinglerMsg(m)}><Pin size={14} aria-hidden /> {epingle?.id === m.id ? "Désépingler" : "Épingler en haut"}</button>
                       {modifiable(m) && <button type="button" onClick={() => modifier(m)}><Pencil size={14} aria-hidden /> Modifier</button>}

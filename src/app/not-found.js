@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Sceau from "@/components/Sceau";
 
 // Page introuvable : l'habillage du site (la page par défaut de Next était
 // blanche, en anglais, sans thème), et deux sorties.
@@ -6,7 +7,7 @@ export const metadata = { title: "Page introuvable — LSNO Amicale" };
 
 export default function Introuvable() {
   return (
-    <main className="page">
+    <main className="page page-sceau">
       <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <h1>Cette page<br />n&apos;existe <em>pas.</em></h1>
         <p>Le lien est peut-être ancien, ou mal recopié.</p>
@@ -20,6 +21,7 @@ export default function Introuvable() {
           <Link href="/annuaire" className="btn btn-nu" style={{ padding: "12px 22px" }}>Annuaire</Link>
         </div>
       </div>
+      <Sceau />
     </main>
   );
 }

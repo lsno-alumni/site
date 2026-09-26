@@ -5,6 +5,7 @@ import Retour from "@/app/profil/[id]/Retour";
 import { utilisateurCourant, apercuOffre, lireOffre, suiteOffre } from "@/lib/api";
 import { nomType, joursRestants } from "@/lib/offres";
 import { CouvertureOffre, TeteOffre, SuiteOffre } from "./ContenuOffre";
+import Sceau from "@/components/Sceau";
 
 // Lien de partage d'une offre : aperçu personnalisé pour les robots, la page
 // complète de l'offre pour les membres validés (même habillage que la feuille
@@ -48,7 +49,7 @@ export default async function PageOffre({ params }) {
   const o = await apercuOffre(id);
   if (!o) notFound();
   return (
-    <main className="page">
+    <main className="page page-sceau">
       <div className="vide" style={{ paddingTop: 120 }}>
         <img src="/img/logo.jpg" alt="" style={{ width: 64, height: 64, borderRadius: "50%", margin: "0 auto 14px" }} />
         <b>{nomType(o.type) === "Autre" ? "Opportunité" : nomType(o.type)} : {o.titre}</b>{" "}
@@ -57,6 +58,7 @@ export default async function PageOffre({ params }) {
           <Link href="/connexion" className="btn btn-or" style={{ padding: "12px 22px" }}>Se connecter</Link>
         </div>
       </div>
+      <Sceau />
     </main>
   );
 }

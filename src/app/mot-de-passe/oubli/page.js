@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MailCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import Captcha, { captchaActif } from "@/components/Captcha";
+import Sceau from "@/components/Sceau";
 
 export default function MotDePasseOublie() {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ export default function MotDePasseOublie() {
   };
 
   return (
-    <main className="page">
+    <main className="page page-sceau">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <Link href="/connexion" className="retour">← Connexion</Link>
         <h1>Mot de passe<br /><em>oublié ?</em></h1>
@@ -71,6 +72,7 @@ export default function MotDePasseOublie() {
           </button>
         </form>
       )}
+      <Sceau />
     </main>
   );
 }

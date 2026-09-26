@@ -7,6 +7,7 @@ import Captcha, { captchaActif } from "@/components/Captcha";
 import PreuveReseau from "@/components/PreuveReseau";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
 import { DOMAINES, PROMOTIONS, nomDomaine } from "@/lib/donnees";
+import Sceau from "@/components/Sceau";
 
 // Flux d'inscription en 3 étapes (maquette v3 validée).
 // signUp crée le compte Auth ; un trigger côté base crée le profil
@@ -101,7 +102,7 @@ export default function Inscription() {
   };
 
   return (
-    <main className="page">
+    <main className="page page-sceau">
       <header className={`f-tete${envoye && [1, 2, 3].includes(form.promotion) ? " tete-promo-choisie" : ""}`}
         style={{ paddingTop: 20, "--photo": `url("/img/lsno_promo${form.promotion}.jpg")` }}>
         <Link href="/" className="retour">← Retour</Link>
@@ -281,6 +282,7 @@ export default function Inscription() {
         </div>
       )}
       <PreuveReseau avant={envoye ? "Tu rejoins " : "Tu vas rejoindre "} />
+      <Sceau />
     </main>
   );
 }

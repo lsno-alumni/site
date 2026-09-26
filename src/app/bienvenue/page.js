@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MailCheck, Hourglass } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import Sceau from "@/components/Sceau";
 
 // Atterrissage du lien « Confirme ton email » : on célèbre, on explique
 // la suite (validation par le délégué), on oriente vers le profil.
@@ -34,7 +35,7 @@ export default function Bienvenue() {
   const sansSession = statut?.statut_compte === "inconnu";
 
   return (
-    <main className="page">
+    <main className="page page-sceau">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <h1 style={{ marginTop: 30 }}>Email confirmé,<br /><em>bienvenue !</em></h1>
       </header>
@@ -83,6 +84,7 @@ export default function Bienvenue() {
           </>
         )}
       </div>
+      <Sceau />
     </main>
   );
 }

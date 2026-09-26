@@ -4,6 +4,7 @@ import TabBar from "@/components/TabBar";
 import { lireProfil, lireContacts, statutDemande, apercuProfil, profilsVoisins } from "@/lib/api";
 import ContenuProfil, { CouvertureProfil } from "./ContenuProfil";
 import Retour from "./Retour";
+import Sceau from "@/components/Sceau";
 
 // Aperçu de partage : titre/description personnalisés (vitrine choisie),
 // jamais indexé par les moteurs.
@@ -37,7 +38,7 @@ export default async function PageProfil({ params }) {
     const ap = await apercuProfil(id);
     if (!ap) notFound();
     return (
-      <main className="page">
+      <main className="page page-sceau">
         <div className="vide" style={{ paddingTop: 120 }}>
           <img src="/img/logo.jpg" alt="" style={{ width: 64, height: 64, borderRadius: "50%", margin: "0 auto 14px" }} />
           <b>{ap.prenom} {ap.nom} — Promotion {ap.promo}</b>{" "}
@@ -46,6 +47,7 @@ export default async function PageProfil({ params }) {
             <Link href="/connexion" className="btn btn-or" style={{ padding: "12px 22px" }}>Se connecter</Link>
           </div>
         </div>
+        <Sceau />
       </main>
     );
   }

@@ -74,6 +74,17 @@ const enTetes = [
 ];
 
 const nextConfig = {
+  // « L'affaire du cache » (26/09). Chaque tap sur un onglet dynamique
+  // (accueil, annuaire, conseils, profil, à propos) repartait au serveur, même
+  // dix secondes après la visite précédente : ~1 s et un squelette à chaque
+  // fois. Ce réglage garde la page reçue 30 s dans le navigateur : l'aller-
+  // retour entre onglets devient instantané. C'était le comportement PAR
+  // DÉFAUT de Next 14 (passé à 0 en v15) ; encore étiqueté « experimental »
+  // en 16.2 mais présent depuis 14.2. Fraîcheur : 30 s au pire pour ce que
+  // les AUTRES ont changé ; ce que je change moi-même se voit tout de suite
+  // (router.refresh() après chaque écriture). Retirer ces trois lignes = retour
+  // à l'état d'avant.
+  experimental: { staleTimes: { dynamic: 30, static: 300 } },
   async headers() {
     return [{ source: "/(.*)", headers: enTetes }];
   },

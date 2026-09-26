@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import * as memoire from "@/lib/memoire";
 import TabBar from "@/components/TabBar";
 import Avatar from "@/components/Avatar";
 import { Lock, ChevronDown } from "lucide-react";
@@ -19,13 +21,15 @@ import MenuAdmin from "./MenuAdmin";
 // La RLS limite un délégué à sa promotion ; un admin voit tout.
 export default function Validation() {
   const supabase = creerClientNavigateur();
-  const [moi, setMoi] = useState(null);
-  const [demandes, setDemandes] = useState([]);
-  const [membres, setMembres] = useState([]);
+  const routeur = useRouter();
+  // mémoire d'onglet (src/lib/memoire.js) : affichage immédiat, rechargement derrière
+  const [moi, setMoi] = useState(() => memoire.lire("admin.moi") ?? null);
+  const [demandes, setDemandes] = useState(() => memoire.lire("admin.demandes") ?? []);
+  const [membres, setMembres] = useState(() => memoire.lire("admin.membres") ?? []);
   const [rechercheRole, setRechercheRole] = useState("");
   const [promoRole, setPromoRole] = useState("");   // filtre promotion des rôles
   const [triPromo, setTriPromo] = useState(false);  // classer par promotion
-  const [stats, setStats] = useState({ valides: 0, promo: null });
+  const [stats, setStats] = useState(() => memoire.lire("admin.stats") ?? { valides: 0, promo: null });
   const [snack, setSnack] = useState(null); // { demande, valide } ou { info }
   const minuteur = useRef(null);
 
@@ -73,6 +77,10 @@ export default function Validation() {
   // charger() dépend du rôle du membre connu seulement après une 1re requête
   // (délégué → + son propre compte) : la séquence appartient à l'effet.
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { memoire.ecrire("admin.moi", moi); }, [moi]);
+  useEffect(() => { memoire.ecrire("admin.demandes", demandes); }, [demandes]);
+  useEffect(() => { memoire.ecrire("admin.membres", membres); }, [membres]);
+  useEffect(() => { memoire.ecrire("admin.stats", stats); }, [stats]);
 
   const traiter = async (d, valide) => {
     const { error } = await supabase
@@ -86,6 +94,7 @@ export default function Validation() {
       return;
     }
     setDemandes((l) => l.filter((x) => x.id !== d.id));
+    routeur.refresh();   // l'annuaire et l'accueil sont en cache 30 s : un membre validé doit y apparaître tout de suite
     if (valide) setStats((s) => ({ valides: s.valides + 1 }));
     setSnack({ demande: d, valide });
     clearTimeout(minuteur.current);
@@ -113,6 +122,7 @@ export default function Validation() {
       setSnack({ erreur: "Refusé : " + error.message });
     } else {
       setMembres((l) => l.map((x) => (x.id === m.id ? { ...x, role } : x)));
+      routeur.refresh();
       setSnack({ info: `${m.prenom} ${m.nom} → ${role === "delegue" ? "délégué·e ✓" : "membre"}` });
     }
     clearTimeout(minuteur.current);
@@ -123,6 +133,7 @@ export default function Validation() {
     const { demande, valide } = snack;
     await supabase.from("profiles").update({ statut_compte: "en_attente" }).eq("id", demande.id);
     setDemandes((l) => [...l, demande]);
+    routeur.refresh();
     if (valide) setStats((s) => ({ valides: s.valides - 1 }));
     setSnack(null);
   };

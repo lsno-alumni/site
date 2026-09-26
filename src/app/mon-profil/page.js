@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as memoire from "@/lib/memoire";
 import TabBar from "@/components/TabBar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import Photo from "./Photo";
@@ -49,10 +50,12 @@ const CONTACTS = [
 export default function MonProfil() {
   const routeur = useRouter();
   const supabase = creerClientNavigateur();
-  const [profil, setProfil] = useState(null);
+  // mémoire d'onglet (src/lib/memoire.js) : le profil s'affiche tout de suite
+  // au retour sur la page, le rechargement se fait derrière
+  const [profil, setProfil] = useState(() => memoire.lire("profil.moi") ?? null);
   const [toast, setToast] = useState("");
   const [sujetLibre, setSujetLibre] = useState("");
-  const [enregistre, setEnregistre] = useState(null);   // empreinte du dernier état enregistré
+  const [enregistre, setEnregistre] = useState(() => memoire.lire("profil.enregistre") ?? null);   // empreinte du dernier état enregistré
   const modifie = profil !== null && enregistre !== null && empreinte(profil) !== enregistre;
 
   // quitter la page avec des modifications non enregistrées : le navigateur demande confirmation
@@ -80,9 +83,13 @@ export default function MonProfil() {
       linkedin: contacts?.linkedin ?? "",
     };
     setEnregistre(empreinte(charge));
-    setProfil(charge);
+    // si l'on a déjà commencé à modifier (données venues de la mémoire
+    // d'onglet), le rechargement ne doit pas écraser la saisie en cours
+    setProfil((courant) => (courant && enregistre !== null && empreinte(courant) !== enregistre ? courant : charge));
   };
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { if (profil && !modifie) memoire.ecrire("profil.moi", profil); }, [profil, modifie]);
+  useEffect(() => { memoire.ecrire("profil.enregistre", enregistre); }, [enregistre]);
 
   const majChamp = (champ) => (e) => setProfil({ ...profil, [champ]: e.target.value });
 
@@ -125,12 +132,13 @@ export default function MonProfil() {
     // un ancien ne garde pas la situation « élève » : défaut sensé = étudiant
     if (!estEleve && champs.situation === "eleve") champs.situation = "etudiant";
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);
-    if (!error) setEnregistre(empreinte(profil));
+    if (!error) { setEnregistre(empreinte(profil)); memoire.ecrire("profil.moi", profil); routeur.refresh(); }
     setToast(error ? "Échec de l'enregistrement : " + error.message : "Profil enregistré ✓");
     setTimeout(() => setToast(""), 3000);
   };
 
   const deconnecter = async () => {
+    memoire.toutOublier();
     await supabase.auth.signOut();
     routeur.push("/");
     routeur.refresh();
@@ -221,7 +229,7 @@ export default function MonProfil() {
         <div className="champ" id="mp-photo">
           <label>Ma photo</label>
           <Photo profil={profil}
-            onPhoto={(url) => setProfil({ ...profil, photo_url: url })}
+            onPhoto={(url) => { setProfil({ ...profil, photo_url: url }); routeur.refresh(); }}
             signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3000); }} />
         </div>
 

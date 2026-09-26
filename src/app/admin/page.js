@@ -155,9 +155,7 @@ export default function Validation() {
   return (
     <GlisserRafraichir onRafraichir={charger}>
     <main className="page avec-tabbar">
-      {/* hors de l'en-tête : ses fonds photo rognent tout débord (le panneau était coupé) */}
-      {moi?.role === "admin" && <MenuAdmin />}
-      <header className="n-tete tete-eleves" style={{ paddingBottom: 18 }} id="sec-demandes">
+      <header className="n-tete tete-eleves ad-tete" id="sec-demandes">
         <p className="tagline">
           {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
         </p>
@@ -166,6 +164,7 @@ export default function Validation() {
           {demandes.length > 0 ? `${demandes.length} en attente` : "Tout est à jour ✓"}
         </p>
       </header>
+      {moi?.role === "admin" && <MenuAdmin />}
 
       <div className="n-liste">
         {demandes.map((d) => (
@@ -191,13 +190,14 @@ export default function Validation() {
           </div>
         ))}
 
-        <h2 className="a-titre" style={{ marginTop: 18 }}>Le réseau</h2>
-        <div className="e-stat" style={stats.promo === null ? { gridTemplateColumns: "auto 1fr" } : undefined}>
-          {/* libellés courts côté délégué : à 340px avec de grands nombres, les longs replient */}
-          <b>{stats.valides}</b><span>{stats.promo === null ? "membres validés" : "membres"}</span>
-          {stats.promo !== null && (
-            <><b>{stats.promo}</b><span>promo {moi?.promotions?.numero}</span></>
-          )}
+        <h2 className="a-titre ad-chapitre" id="sec-reseau" style={{ marginTop: 18 }}>Le réseau</h2>
+        {/* les chiffres de l'espace, sur le bleu nuit de l'accueil */}
+        <div className="a-stats ad-stats">
+          <div className="a-stat"><b>{stats.valides}</b><span>validés</span></div>
+          {stats.promo !== null
+            ? <div className="a-stat"><b>{stats.promo}</b><span>promo {moi?.promotions?.numero}</span></div>
+            : <div className="a-stat"><b>{membres.filter((m) => m.role === "delegue").length}</b><span>délégués</span></div>}
+          <div className="a-stat"><b>{demandes.length}</b><span>en attente</span></div>
         </div>
 
         {moi?.role === "admin" && (
@@ -206,7 +206,7 @@ export default function Validation() {
                 ~200 membres en entier avant même d'avoir cherché quoi que ce
                 soit — repliable comme les grandes sections de Mon profil */}
             <details className="grande-partie" id="sec-roles" style={{ marginTop: 18, scrollMarginTop: 12 }}>
-              <summary className="a-titre" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+              <summary className="a-titre ad-chapitre" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
                 Rôles
                 <span style={{ fontSize: 13, fontWeight: 400, color: "var(--brume)" }}>
                   ({membres.length} membre{membres.length > 1 ? "s" : ""})
@@ -225,7 +225,7 @@ export default function Validation() {
                   aria-label="Chercher un membre"
                 />
                 {/* filtrer par promotion et/ou regrouper la liste par promotion */}
-                <div className="n-filtres" style={{ position: "static", padding: "10px 0", flexWrap: "wrap" }}>
+                <div className="n-filtres libre">
                   <select className="puce" value={promoRole} onChange={(e) => setPromoRole(e.target.value)}
                     aria-label="Filtrer les rôles par promotion">
                     <option value="">Promo — toutes</option>

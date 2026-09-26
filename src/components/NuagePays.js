@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { PAYS, nomPays } from "@/lib/donnees";
 
@@ -61,6 +61,14 @@ function relacher(items) {
   }
 }
 
+// Empreinte stable d'un code pays (ex. « BF ») : sert à mélanger l'ordre
+// de placement sans hasard, donc sans décalage serveur/client.
+function empreinte(code) {
+  let h = 0;
+  for (const c of code) h = (h * 31 + c.charCodeAt(0)) % 9973;
+  return (h * 7919) % 1000;
+}
+
 function empaqueter(entrees) {
   const max = Math.max(...entrees.map(([, n]) => n));
   // TOUS les pays présents s'affichent (aucun plafond) — la taille de base
@@ -72,12 +80,11 @@ function empaqueter(entrees) {
   const rGain = Math.max(20, 46 - nb * 1.1);
   const items = entrees
     .slice()
-    // décroissant par effectif ; à égalité, ordre alphabétique du code —
-    // sans ce second critère, deux pays à égalité peuvent se départager
-    // différemment entre le rendu SERVEUR et l'hydratation CLIENT (React
-    // le signale comme un décalage, sans lien avec le hasard de la spirale
-    // déjà rendue déterministe plus haut).
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    // ordre de placement MÉLANGÉ (mais déterministe : identique au serveur
+    // et au client) — trié par effectif, les gros se posaient au centre et
+    // les petits en anneau, ce qui dessinait des bandes bleu-blanc-rouge ;
+    // mélangés, gros et petits se côtoient partout dans le nuage
+    .sort((a, b) => empreinte(a[0]) - empreinte(b[0]))
     .map(([code, n]) => ({ code, n, r: rBase + Math.sqrt(n / max) * rGain }));
 
   const placees = [];
@@ -114,10 +121,179 @@ export default function NuagePays({ parPays }) {
     return entrees.length ? empaqueter(entrees) : [];
   }, [parPays]);
 
+  const zone = useRef(null);
+
+  // Mouvement lancé après l'hydratation (le rendu serveur ne connaît pas le
+  // hasard). Chaque bulle dérive LENTEMENT autour de sa place (vitesse et
+  // direction propres, petite agitation continue, rebond dans un enclos),
+  // est repoussée par ses voisines si elles se touchent — et peut être
+  // ATTRAPÉE au doigt : on la déplace, elle bouscule les autres, et là où on
+  // la lâche devient sa nouvelle place, d'où elle reprend sa dérive.
+  // Un seul transform par bulle, calculé à chaque image : rendu GPU, pas de
+  // flou ni d'opacité en mouvement (voir .tabbar).
+  useEffect(() => {
+    const zoneEl = zone.current;
+    if (!zoneEl) return;
+    const bulles = Array.from(zoneEl.querySelectorAll(".np-bulle"));
+    if (bulles.length < 2) return;
+    const calme = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const largeur = () => zoneEl.getBoundingClientRect().width || TAILLE;
+    const AMPLITUDE = 6;   // px : rayon de l'enclos autour de la place de repos
+    const V_MAX = 5;       // px/s : la dérive reste paisible
+    const SEUIL_TAP = 6;   // px : en deçà, c'est un tap (le lien s'ouvre), pas un déplacement
+    // position de repos (unités du repère) + écart courant (px) + vitesse (px/s)
+    const etat = items.map((it) => {
+      const a = Math.random() * Math.PI * 2;
+      const v = 1.5 + Math.random() * 2.5;
+      return { r: it.r, cx: it.x, cy: it.y, x: 0, y: 0, vx: Math.cos(a) * v, vy: Math.sin(a) * v, tenue: false };
+    });
+    const poser = (i) => { bulles[i].style.transform = `translate(${etat[i].x.toFixed(2)}px, ${etat[i].y.toFixed(2)}px)`; };
+    // la bulle tenue impose sa position ; on écarte celles qu'elle rencontre
+    // `deja` : les bulles déjà poussées dans CE geste ne relancent pas la
+    // chaîne — sinon deux bulles bloquées contre un bord se repoussent sans
+    // fin (dépassement de pile, vu le 25/09)
+    const bousculer = (i, echelle, deja = new Set([i])) => {
+      const e = etat[i];
+      for (let j = 0; j < etat.length; j++) {
+        if (j === i || deja.has(j)) continue;
+        const f = etat[j];
+        const dx = (f.cx * echelle + f.x) - (e.cx * echelle + e.x);
+        const dy = (f.cy * echelle + f.y) - (e.cy * echelle + e.y);
+        const d = Math.hypot(dx, dy) || 1;
+        const mini = (e.r + f.r) * echelle + 4;
+        if (d < mini) {
+          const pousse = mini - d;
+          // la bulle bousculée change de PLACE (pas seulement d'écart) : elle
+          // ne reviendra pas se coller à la bulle déplacée
+          f.cx = bloque(f.cx + (dx / d) * pousse / echelle, f.r + MARGE, TAILLE - f.r - MARGE);
+          f.cy = bloque(f.cy + (dy / d) * pousse / echelle, f.r + MARGE, TAILLE - f.r - MARGE);
+          // coincée contre un bord ? elle glisse le long du bord (perpendiculaire
+          // à la poussée), du côté où il reste de la place
+          const reste = mini - Math.hypot((f.cx * echelle + f.x) - (e.cx * echelle + e.x), (f.cy * echelle + f.y) - (e.cy * echelle + e.y));
+          if (reste > 0.5) {
+            const px = -dy / d, py = dx / d;
+            const essai = (signe) => [bloque(f.cx + signe * px * reste / echelle, f.r + MARGE, TAILLE - f.r - MARGE), bloque(f.cy + signe * py * reste / echelle, f.r + MARGE, TAILLE - f.r - MARGE)];
+            const [ax, ay] = essai(1), [bx, by] = essai(-1);
+            const gain = (x, y) => Math.hypot((x * echelle + f.x) - (e.cx * echelle + e.x), (y * echelle + f.y) - (e.cy * echelle + e.y));
+            if (gain(ax, ay) >= gain(bx, by)) { f.cx = ax; f.cy = ay; } else { f.cx = bx; f.cy = by; }
+          }
+          bulles[j].style.left = `${(((f.cx - f.r) * 100) / TAILLE).toFixed(4)}%`;
+          bulles[j].style.top = `${(((f.cy - f.r) * 100) / TAILLE).toFixed(4)}%`;
+          f.vx += (dx / d) * 4; f.vy += (dy / d) * 4;   // petit élan dans le sens de la poussée
+          deja.add(j);
+          bousculer(j, echelle, deja);                    // et elle bouscule à son tour, une seule fois
+        }
+      }
+    };
+    let precedent = performance.now();
+    let anim = 0;
+    let visible = true;
+    const pas = (t) => {
+      const dt = Math.min(0.05, (t - precedent) / 1000);
+      precedent = t;
+      const echelle = largeur() / TAILLE;
+      for (let i = 0; i < etat.length; i++) {
+        const e = etat[i];
+        if (e.tenue || calme) continue;
+        e.vx += (Math.random() - 0.5) * 3 * dt;
+        e.vy += (Math.random() - 0.5) * 3 * dt;
+        for (let j = 0; j < etat.length; j++) {
+          if (i === j) continue;
+          const f = etat[j];
+          const dx = (e.cx * echelle + e.x) - (f.cx * echelle + f.x);
+          const dy = (e.cy * echelle + e.y) - (f.cy * echelle + f.y);
+          const d = Math.hypot(dx, dy) || 1;
+          const mini = (e.r + f.r) * echelle + 4;
+          if (d < mini) { e.vx += (dx / d) * 20 * dt; e.vy += (dy / d) * 20 * dt; }
+        }
+        const vit = Math.hypot(e.vx, e.vy);
+        if (vit > V_MAX) { e.vx *= V_MAX / vit; e.vy *= V_MAX / vit; }
+        e.x += e.vx * dt; e.y += e.vy * dt;
+        if (Math.abs(e.x) > AMPLITUDE) { e.x = Math.sign(e.x) * AMPLITUDE; e.vx *= -1; }
+        if (Math.abs(e.y) > AMPLITUDE) { e.y = Math.sign(e.y) * AMPLITUDE; e.vy *= -1; }
+        poser(i);
+      }
+      if (visible) anim = requestAnimationFrame(pas);
+    };
+    anim = requestAnimationFrame(pas);
+    const obs = new IntersectionObserver(([en]) => {
+      visible = en.isIntersecting;
+      if (visible) { precedent = performance.now(); anim = requestAnimationFrame(pas); }
+      else cancelAnimationFrame(anim);
+    });
+    obs.observe(zoneEl);
+
+    // ---- prise au doigt / à la souris ----
+    const retraits = [];
+    bulles.forEach((el, i) => {
+      let depart = null, deplace = false;
+      const bas = (ev) => {
+        if (ev.button !== undefined && ev.button !== 0) return;
+        depart = { px: ev.clientX, py: ev.clientY };
+        deplace = false;
+        etat[i].tenue = true;
+        el.setPointerCapture?.(ev.pointerId);
+        el.classList.add("tenue");
+      };
+      const bouge = (ev) => {
+        if (!depart) return;
+        const dx = ev.clientX - depart.px, dy = ev.clientY - depart.py;
+        if (!deplace && Math.hypot(dx, dy) < SEUIL_TAP) return;
+        deplace = true;
+        ev.preventDefault();
+        const echelle = largeur() / TAILLE;
+        // la bulle suit le doigt : on déplace sa PLACE, l'écart reste petit
+        const e = etat[i];
+        e.cx = bloque(e.cx + dx / echelle, e.r + MARGE, TAILLE - e.r - MARGE);
+        e.cy = bloque(e.cy + dy / echelle, e.r + MARGE, TAILLE - e.r - MARGE);
+        depart.px = ev.clientX; depart.py = ev.clientY;
+        e.x = 0; e.y = 0; e.vx = 0; e.vy = 0; poser(i);
+        el.style.left = `${(((e.cx - e.r) * 100) / TAILLE).toFixed(4)}%`;
+        el.style.top = `${(((e.cy - e.r) * 100) / TAILLE).toFixed(4)}%`;
+        bousculer(i, echelle);
+      };
+      const haut = (ev) => {
+        if (!depart) return;
+        etat[i].tenue = false;
+        // au relâchement, on range le nuage comme au chargement (relacher) :
+        // aucune bulle ne reste chevauchée, même après une bousculade dans un coin
+        if (deplace) {
+          const places = etat.map((e) => ({ x: e.cx, y: e.cy, r: e.r }));
+          relacher(places);
+          places.forEach((pl, k) => {
+            if (pl.x === etat[k].cx && pl.y === etat[k].cy) return;
+            etat[k].cx = pl.x; etat[k].cy = pl.y;
+            bulles[k].style.left = `${(((pl.x - pl.r) * 100) / TAILLE).toFixed(4)}%`;
+            bulles[k].style.top = `${(((pl.y - pl.r) * 100) / TAILLE).toFixed(4)}%`;
+          });
+        }
+        el.classList.remove("tenue");
+        el.releasePointerCapture?.(ev.pointerId);
+        // un vrai déplacement ne doit pas ouvrir le lien au relâchement
+        if (deplace) { const stop = (c) => { c.preventDefault(); el.removeEventListener("click", stop, true); }; el.addEventListener("click", stop, true); setTimeout(() => el.removeEventListener("click", stop, true), 0); }
+        depart = null;
+      };
+      // à la souris, le navigateur lance sinon un glisser-déposer natif du lien,
+      // qui coupe la prise en cours (pointercancel) — au toucher rien à faire
+      const pasDeDrag = (ev) => ev.preventDefault();
+      el.addEventListener("dragstart", pasDeDrag);
+      el.addEventListener("pointerdown", bas);
+      el.addEventListener("pointermove", bouge);
+      el.addEventListener("pointerup", haut);
+      el.addEventListener("pointercancel", haut);
+      retraits.push(() => {
+        el.removeEventListener("dragstart", pasDeDrag);
+        el.removeEventListener("pointerdown", bas); el.removeEventListener("pointermove", bouge);
+        el.removeEventListener("pointerup", haut); el.removeEventListener("pointercancel", haut);
+      });
+    });
+    return () => { cancelAnimationFrame(anim); obs.disconnect(); retraits.forEach((f) => f()); };
+  }, [items]);
+
   if (!items.length) return null;
 
   return (
-    <div className="np-zone">
+    <div className="np-zone" ref={zone}>
       {items.map((it, i) => (
         <Link key={it.code} href={`/annuaire?pays=${it.code}`} className="np-bulle"
           style={{
@@ -130,8 +306,8 @@ export default function NuagePays({ parPays }) {
             height: `${((it.r * 2 * 100) / TAILLE).toFixed(4)}%`,
             left: `${(((it.x - it.r) * 100) / TAILLE).toFixed(4)}%`,
             top: `${(((it.y - it.r) * 100) / TAILLE).toFixed(4)}%`,
-            animationDelay: `${(i * 0.35).toFixed(2)}s`,
           }}
+          data-i={i}
           aria-label={`${nomPays(it.code)} — ${it.n} membre${it.n > 1 ? "s" : ""}`}>
           <span className="np-disque"><img src={PAYS[it.code].drapeau} alt="" /></span>
           <span className="np-badge" aria-hidden>{it.n}</span>

@@ -1,4 +1,4 @@
-import { lireProfil, lireContacts, statutDemande } from "@/lib/api";
+import { lireProfil, lireContacts, statutDemande, profilsVoisins } from "@/lib/api";
 import FeuilleProfilModal from "./FeuilleProfilModal";
 
 // Route INTERCEPTÉE : un clic sur une fiche de l'annuaire (Link vers
@@ -16,6 +16,7 @@ export default async function ModalProfil({ params }) {
   // cas limite (session perdue pendant la navigation) : pas de feuille,
   // la vraie page /profil/[id] gère déjà cet état correctement
   if (!p) return null;
+  const voisins = await profilsVoisins(id, p.promotion, p.domaine);
 
-  return <FeuilleProfilModal p={p} contacts={contacts} demande={demande} id={id} />;
+  return <FeuilleProfilModal p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />;
 }

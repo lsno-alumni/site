@@ -5,6 +5,7 @@ import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
+import NuagePays from "@/components/NuagePays";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
 import AccueilMembre from "./AccueilMembre";
@@ -23,6 +24,8 @@ export default async function Accueil() {
 
   const stats = await statsPubliques();
   const parDomaine = stats.parDomaine;
+  // même agrégat anonyme que l'accueil connecté : un chiffre par pays
+  const aDesPays = Object.keys(stats.parPays ?? {}).length > 0;
 
   return (
     <main className="page">
@@ -45,12 +48,12 @@ export default async function Accueil() {
           <Link href="/inscription" className="btn btn-or">Rejoindre le réseau</Link>
           <Link href="/connexion" className="btn btn-nu">Se connecter</Link>
         </div>
-        <div className="a-stats">
-          <div className="a-stat"><b><Compteur valeur={stats.anciens} /></b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
-          <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
-          <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
-        </div>
       </header>
+      <div className="a-stats">
+        <div className="a-stat"><b><Compteur valeur={stats.anciens} /></b><span>ancien{stats.anciens > 1 ? "s" : ""}</span></div>
+        <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
+        <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
+      </div>
 
       <Reveal>
       <section className="a-section">
@@ -74,18 +77,19 @@ export default async function Accueil() {
       </Reveal>
 
       <Reveal>
-      <section className="a-monde">
-        <p className="tagline">Le réseau dans le monde</p>
-        <h4 className="serif">
+      <section className="a-section am-monde" style={{ paddingBottom: 30 }}>
+        <h2 className="a-titre">
           {stats.pays > 1
             ? `${stats.pays} pays et ça continue`
             : "Un réseau qui s'étend"}
-        </h4>
-        <p>
+        </h2>
+        <p className="a-sous">
           {stats.pays > 1
             ? "Où que tu veuilles aller, un ancien y est peut-être déjà."
             : "Du Burkina vers le monde : chaque nouvel inscrit étend la carte."}
         </p>
+        {aDesPays && <NuagePays parPays={stats.parPays} />}
+        {!aDesPays && (
         <div className="a-pays">
           <span><img className="drapo" src={PAYS.BF.drapeau} alt="" /> Burkina Faso</span>
           <span><img className="drapo" src={PAYS.MA.drapeau} alt="" /> Maroc</span>
@@ -94,6 +98,7 @@ export default async function Accueil() {
           <span><img className="drapo" src={PAYS.SN.drapeau} alt="" /> Sénégal</span>
           <span>et ailleurs…</span>
         </div>
+        )}
       </section>
       </Reveal>
 

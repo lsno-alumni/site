@@ -95,7 +95,7 @@ export default function EtatSysteme() {
           return (
             <div key={j.nom} style={{ display: "flex", gap: 8, alignItems: "baseline", padding: "8px 0", borderBottom: "1px solid var(--ligne)", fontSize: 12.5 }}>
               <span aria-hidden style={{ color: ok ? "#9FD8B4" : "var(--rouge)" }}>{ok ? "✓" : "✗"}</span>
-              <span style={{ flex: 1, color: "var(--craie-2)" }}>{NOMS[j.nom] ?? j.nom}</span>
+              <span style={{ flex: 1, color: "var(--texte-2)" }}>{NOMS[j.nom] ?? j.nom}</span>
               <span style={{ color: ok ? "var(--brume)" : "var(--rouge)", whiteSpace: "nowrap" }}>
                 {j.derniere ? `${date(j.derniere.quand)}${ok ? "" : " — échec"}` : "en attente"}
               </span>
@@ -104,7 +104,7 @@ export default function EtatSysteme() {
         })}
         <div style={{ display: "flex", gap: 14, padding: "10px 0", fontSize: 12.5, color: "var(--brume)", flexWrap: "wrap" }}>
           <span>
-            Comptes fantômes à purger : <b style={{ color: "var(--craie)" }}>{etat.fantomes}</b>
+            Comptes fantômes à purger : <b style={{ color: "var(--texte)" }}>{etat.fantomes}</b>
             {etat.fantomes > 0 && (
               <button type="button" onClick={() => ouvrirListe("fantomes")}
                 style={{ background: "none", border: "none", padding: "0 0 0 8px", cursor: "pointer",
@@ -115,7 +115,7 @@ export default function EtatSysteme() {
           </span>
           {etat.non_confirmes !== undefined && (
             <span>
-              Emails jamais confirmés : <b style={{ color: "var(--craie)" }}>{etat.non_confirmes}</b>
+              Emails jamais confirmés : <b style={{ color: "var(--texte)" }}>{etat.non_confirmes}</b>
               {etat.non_confirmes > 0 && (
                 <button type="button" onClick={() => ouvrirListe("nonConfirmes")}
                 style={{ background: "none", border: "none", padding: "0 0 0 8px", cursor: "pointer",
@@ -125,7 +125,7 @@ export default function EtatSysteme() {
               )}
             </span>
           )}
-          <span>Offres expirant sous 14 j : <b style={{ color: "var(--craie)" }}>{etat.offres_expirent_14j}</b></span>
+          <span>Offres expirant sous 14 j : <b style={{ color: "var(--texte)" }}>{etat.offres_expirent_14j}</b></span>
         </div>
         {liste !== null && (
           <div style={{ borderTop: "1px solid var(--ligne)", padding: "10px 0 12px", display: "grid", gap: 8, fontSize: 12.5 }}>
@@ -143,7 +143,7 @@ export default function EtatSysteme() {
                 {liste.donnees.length === 0 && <span style={{ color: "var(--brume)" }}>Plus aucun compte concerné.</span>}
                 {liste.donnees.map((f) => (
                   <div key={f.email} style={{ background: "rgba(245,241,232,.05)", border: "1px solid var(--ligne)", borderRadius: 12, padding: "9px 11px" }}>
-                    <b style={{ color: "var(--craie)", overflowWrap: "anywhere" }}>{f.email}</b>
+                    <b style={{ color: "var(--texte)", overflowWrap: "anywhere" }}>{f.email}</b>
                     <span style={{ display: "block", color: "var(--brume)", fontSize: 12, marginTop: 2, lineHeight: 1.5 }}>
                       Inscrit le {new Date(f.cree_le).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
                       {f.prenom ? ` · ${f.prenom} ${f.nom ?? ""}`.trimEnd() : " · profil jamais rempli"}

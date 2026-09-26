@@ -233,7 +233,7 @@ Vérifie son identité par un autre canal (appel, WhatsApp) AVANT de continuer, 
             <button className="btn btn-nu" style={btn} onClick={() => setChoisi(null)}>Fermer</button>
           </div>
 
-          <div style={{ fontSize: 12.5, color: "var(--craie-2)", wordBreak: "break-all" }}>
+          <div style={{ fontSize: 12.5, color: "var(--texte-2)", wordBreak: "break-all" }}>
             <span style={{ color: "var(--brume)" }}>Email de connexion : </span><b>{email}</b>
             {confirme === true && <span style={{ color: "#9FD8B4" }}> · confirmé ✓</span>}
             {confirme === false && (

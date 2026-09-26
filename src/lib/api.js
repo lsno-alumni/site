@@ -78,6 +78,35 @@ export async function lireProfil(id) {
   return data ? profilVersUI(data) : null;
 }
 
+// Fin de page du profil consulté : 4 anciens de la même promo puis 4 du
+// même domaine (sans doublon, jamais le profil lui-même), tirés VRAIMENT au
+// hasard parmi tous les candidats à chaque ouverture (choix du 25/09). On lit
+// tous les candidats mais seulement six petites colonnes : une promo ou un
+// domaine entier reste quelques dizaines de lignes. « Élève » et « Autre »
+// sont trop vagues pour un voisinage par domaine.
+const CHAMPS_VOISIN = "id, prenom, nom, photo_url, domaine, domaine_precision, promotions!inner(numero)";
+function tirer(liste, n, exclus = new Set()) {
+  const l = (liste ?? []).filter((m) => !exclus.has(m.id));
+  for (let i = l.length - 1; i > 0; i--) {          // mélange de Fisher-Yates
+    const j = Math.floor(Math.random() * (i + 1));
+    [l[i], l[j]] = [l[j], l[i]];
+  }
+  return l.slice(0, n);
+}
+export async function profilsVoisins(id, promotion, domaine) {
+  const supabase = await creerClientServeur();
+  const base = () => supabase.from("profiles").select(CHAMPS_VOISIN).eq("statut_compte", "valide").neq("id", id);
+  const [rp, rd] = await Promise.all([
+    promotion == null ? Promise.resolve({ data: [] }) : base().eq("promotions.numero", promotion),
+    !domaine || domaine === "eleve" || domaine === "autre" ? Promise.resolve({ data: [] }) : base().eq("domaine", domaine),
+  ]);
+  if (rp.error) console.error("profilsVoisins (promo):", rp.error.message);
+  if (rd.error) console.error("profilsVoisins (domaine):", rd.error.message);
+  const promo = tirer(rp.data, 4);
+  const dom = tirer(rd.data, 4, new Set(promo.map((m) => m.id)));
+  return { promo, domaine: dom };
+}
+
 export async function statsPubliques() {
   const supabase = await creerClientServeur();
   const { data, error } = await supabase.rpc("stats_publiques");
@@ -124,6 +153,20 @@ export async function listeConseils() {
   return data ?? [];
 }
 
+// Les délégués (page À propos) : membres validés portant le rôle, par promotion
+export async function listeDelegues() {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, prenom, nom, photo_url, domaine, domaine_precision, promotions!inner(numero)")
+    .eq("statut_compte", "valide").eq("role", "delegue");
+  if (error) {
+    console.error("listeDelegues:", error.message);
+    return [];
+  }
+  return (data ?? []).sort((x, y) => (x.promotions.numero - y.promotions.numero) || x.prenom.localeCompare(y.prenom, "fr"));
+}
+
 export async function apercuProfil(id) {
   // Vitrine publique volontaire (nom, photo, promo, une ligne) pour les
   // aperçus de partage — fonctionne SANS session (fonction dédiée en base).
@@ -134,6 +177,52 @@ export async function apercuProfil(id) {
     return null;
   }
   return data;
+}
+
+// Une offre complète (page /offres/[id] et feuille glissante) — même sélection
+// que la liste, la RLS réserve la lecture aux membres validés.
+const CHAMPS_OFFRE = "id, type, titre, description, domaine, pays, ville, date_limite, lien, statut, cree_le, posteur:profiles!offres_posteur_fkey(id, prenom, nom, photo_url, promotions(numero)), fichiers:offre_fichiers(id, chemin, nom, type)";
+export async function lireOffre(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.from("offres").select(CHAMPS_OFFRE).eq("id", Number(id)).maybeSingle();
+  if (error) {
+    console.error("lireOffre:", error.message);
+    return null;
+  }
+  return data;
+}
+
+// Fin de page d'une offre ouverte : jusqu'à 3 autres offres actives (les
+// échéances les plus proches d'abord, puis les plus récentes) et jusqu'à 4
+// anciens du même domaine (ceux qui répondent aux cadets d'abord, tirés au
+// hasard parmi tous). « Élève » et « Autre » sont trop vagues pour un domaine.
+export async function suiteOffre(id, domaine) {
+  const supabase = await creerClientServeur();
+  const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const [ro, ra] = await Promise.all([
+    supabase.from("offres")
+      .select("id, type, titre, domaine, pays, ville, date_limite, cree_le")
+      .eq("statut", "active").neq("id", Number(id))
+      .or(`date_limite.gte.${aujourdhui},and(date_limite.is.null,cree_le.gte.${limite60})`)
+      .order("date_limite", { ascending: true, nullsFirst: false })
+      .order("cree_le", { ascending: false })
+      .limit(3),
+    !domaine || domaine === "eleve" || domaine === "autre"
+      ? Promise.resolve({ data: [] })
+      : supabase.from("profiles")
+          .select("id, prenom, nom, photo_url, domaine, domaine_precision, repond_cadets, promotions!inner(numero)")
+          .eq("statut_compte", "valide").eq("domaine", domaine),
+  ]);
+  if (ro.error) console.error("suiteOffre (offres):", ro.error.message);
+  if (ra.error) console.error("suiteOffre (anciens):", ra.error.message);
+  const l = [...(ra.data ?? [])];
+  for (let i = l.length - 1; i > 0; i--) {                    // mélange, puis ceux qui répondent devant
+    const j = Math.floor(Math.random() * (i + 1));
+    [l[i], l[j]] = [l[j], l[i]];
+  }
+  l.sort((x, y) => (y.repond_cadets ? 1 : 0) - (x.repond_cadets ? 1 : 0));
+  return { offres: ro.data ?? [], anciens: l.slice(0, 4) };
 }
 
 export async function apercuOffre(id) {

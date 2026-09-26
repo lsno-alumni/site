@@ -15,10 +15,12 @@ import { initInstallation } from "@/lib/installation";
 //  2) Le mode d'affichage choisi par le membre (roue ou liste) pour chaque
 //     section réglable — pour qu'un aller-retour ne le lui reprenne pas.
 //  3) La position de défilement de chaque page, mémorisée AU CLIC sur un lien
-//     interne (avant que Next remonte en haut) et restaurée uniquement lors
-//     d'un vrai retour arrière — via <RestaurerDefilement /> posé dans les
-//     pages concernées (les pages « force-dynamic » se rechargent au retour :
-//     il faut attendre que leur contenu soit rendu pour restaurer).
+//     interne (avant que Next remonte en haut) et restaurée lors d'un vrai
+//     retour arrière OU d'un tap sur la barre d'onglets (depuis le 26/09 :
+//     chaque onglet retrouve sa position, comme dans une appli) — via
+//     <RestaurerDefilement /> posé dans les pages concernées. Un lien
+//     ordinaire (une fiche, « voir tous les conseils »…) mène toujours en
+//     haut de la page visée.
 //
 // État au niveau MODULE : il survit aux navigations client et repart de zéro
 // à un vrai rechargement — exactement ce qu'on veut.
@@ -27,15 +29,25 @@ import { initInstallation } from "@/lib/installation";
 let profondeur = 0;   // navigations internes depuis l'ouverture de l'onglet
 let premier = true;
 let retourLe = 0;     // horodatage du dernier retour arrière (popstate)
+let ongletLe = 0;     // horodatage du dernier tap sur la barre d'onglets
+let sautLe = 0;       // horodatage du dernier saut de position PROGRAMMÉ (restauration)
 const positions = new Map();
 const affichages = new Map();   // section -> mode d'affichage choisi
 
 const DELAI_RETOUR = 2000; // ms : fenêtre pendant laquelle on considère « retour »
 const cleCourante = () => window.location.pathname + window.location.search;
 const estRetour = () => Date.now() - retourLe < DELAI_RETOUR;
+const estViaOnglet = () => Date.now() - ongletLe < DELAI_RETOUR;
 
 export function peutRevenir() {
   return profondeur > 0;
+}
+
+// La barre d'onglets se range quand on DESCEND dans la page ; une restauration
+// de position est un saut programmé vers le bas, pas un geste du doigt — elle
+// ne doit pas la faire disparaître (TabBar.js l'interroge).
+export function sautRecent() {
+  return Date.now() - sautLe < 500;
 }
 
 // Mode d'affichage d'une section (roue / liste). Lu PENDANT le rendu, donc
@@ -63,6 +75,7 @@ export default function SuiviNavigation() {
       const href = a.getAttribute("href") ?? "";
       if (a.target === "_blank" || /^(https?:|mailto:|tel:|#)/.test(href)) return;
       positions.set(cleCourante(), window.scrollY);
+      if (a.closest("nav.tabbar")) ongletLe = Date.now();
     };
     const auRetour = () => {
       profondeur = Math.max(0, profondeur - 1);
@@ -84,15 +97,28 @@ export default function SuiviNavigation() {
   return null;
 }
 
-// À poser dans une page dont on veut retrouver la position exacte au retour.
-// Ne fait rien si l'on arrive autrement (barre d'onglets, lien direct…).
+// À poser dans une page dont on veut retrouver la position exacte au retour
+// arrière ou au retour par la barre d'onglets. Ne fait rien si l'on arrive
+// par un lien ordinaire ou une adresse tapée.
 export function RestaurerDefilement() {
   useEffect(() => {
-    if (!estRetour()) return;
+    if (!estRetour() && !estViaOnglet()) return;
     const y = positions.get(cleCourante());
     if (!y) return;
-    // deux frames : le temps que la liste rendue par le serveur soit peinte
-    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+    // deux frames, le temps que le contenu soit peint ; puis quelques essais
+    // espacés si la page est encore trop courte (blocs chargés en différé,
+    // ex. Notifications de Mon profil) — on s'arrête dès que le doigt bouge
+    let essais = 0, doigt = false;
+    const geste = () => { doigt = true; };
+    window.addEventListener("touchstart", geste, { passive: true, once: true });
+    window.addEventListener("wheel", geste, { passive: true, once: true });
+    const tenter = () => {
+      if (doigt) return;
+      sautLe = Date.now();
+      window.scrollTo(0, y);
+      if (window.scrollY < y - 2 && essais++ < 6) setTimeout(tenter, 150);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(tenter));
   }, []);
   return null;
 }

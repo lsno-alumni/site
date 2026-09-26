@@ -8,6 +8,7 @@ import Avatar from "@/components/Avatar";
 import { Lock, ChevronDown } from "lucide-react";
 import { SqueletteEnTeteListe, SqueletteFiche } from "@/components/Squelettes";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
@@ -324,6 +325,7 @@ export default function Validation() {
           </button>
         )}
       </div>
+      <RestaurerDefilement />
       <TabBar actif="Validation" />
     </main>
     </GlisserRafraichir>

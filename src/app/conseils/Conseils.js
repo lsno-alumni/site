@@ -5,11 +5,12 @@ import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import TexteReplie from "@/components/TexteReplie";
+import { PenLine } from "lucide-react";
 import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
 
 const GENERAL = "Général";
 
-export default function Conseils({ conseils }) {
+export default function Conseils({ conseils, moiId }) {
   const [theme, setTheme] = useState("tous");
 
   // regroupe par thème choisi par l'auteur (défaut « Général ») ; ordre :
@@ -33,7 +34,8 @@ export default function Conseils({ conseils }) {
 
   return (
     <>
-      <div className="n-filtres" style={{ position: "static" }}>
+      <div className="n-panneau">
+      <div className="n-filtres">
         <button className={`puce${theme === "tous" ? " active" : ""}`} onClick={() => setTheme("tous")}>Tous</button>
         {groupes.map((g) => (
           <button key={g.theme} className={`puce${theme === g.theme ? " active" : ""}`} onClick={() => setTheme(g.theme)}>
@@ -41,13 +43,18 @@ export default function Conseils({ conseils }) {
           </button>
         ))}
       </div>
+      </div>
 
-      <div className="n-liste" style={{ paddingTop: 4 }}>
+      <div className="n-liste c-liste">
         {visibles.map((g) => (
-          <section key={g.theme} style={{ marginBottom: 8 }}>
-            <h2 className="a-titre" style={{ marginBottom: 10 }}>{g.theme}</h2>
-            {g.items.map((c) => (
-              <div key={c.id} className="a-temoin" style={{ margin: "0 0 12px" }}>
+          <section key={g.theme} className="c-chapitre">
+            {/* un chapitre par thème : titre, nombre de voix, filet */}
+            <header className="c-tete">
+              <h2 className="a-titre">{g.theme}</h2>
+              <span>{g.items.length} {g.items.length > 1 ? "voix" : "voix"}</span>
+            </header>
+            {g.items.map((c, i) => (
+              <div key={c.id} className={`a-temoin${i === 0 ? " c-ouverture" : ""}`}>
                 <TexteReplie lignes={4}>{c.conseil}</TexteReplie>
                 <Link href={`/profil/${c.id}`} className="qui">
                   <Avatar profil={{ prenom: c.prenom, nom: c.nom, photo: c.photo_url }} className="am-conseil-photo" />
@@ -68,6 +75,16 @@ export default function Conseils({ conseils }) {
           </div>
         )}
       </div>
+      {/* fin de page : à son tour — le conseil se saisit dans Mon profil */}
+      {groupes.length > 0 && (
+        <section className="n-cloture conseils">
+          <h2 className="a-titre">Toi aussi, laisse un conseil</h2>
+          <p>Une phrase, un regret, une astuce : ce que tu aurais aimé qu&apos;on te dise en terminale. Les cadets le liront ici, signé de ton nom.</p>
+          <Link href="/mon-profil#conseil" className="btn btn-nu">
+            <PenLine size={15} aria-hidden /> {moiId && conseils.some((c) => c.id === moiId) ? "Relire mon conseil" : "Écrire mon conseil"}
+          </Link>
+        </section>
+      )}
       <RestaurerDefilement />
     </>
   );

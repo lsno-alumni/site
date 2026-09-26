@@ -35,7 +35,7 @@ export default function Bienvenue() {
 
   return (
     <main className="page">
-      <header className="f-tete" style={{ paddingTop: 20, paddingBottom: 20 }}>
+      <header className="f-tete" style={{ paddingTop: 20 }}>
         <h1 style={{ marginTop: 30 }}>Email confirmé,<br /><em>bienvenue !</em></h1>
       </header>
 

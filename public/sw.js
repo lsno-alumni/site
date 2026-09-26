@@ -51,6 +51,11 @@ const RESUMES = {
     corps: "Elles viennent d'être partagées.",
     url: "/offres",
   },
+  fil: {
+    titre: (n) => `${n} nouveautés dans le fil`,
+    corps: "Publications et discussions du réseau.",
+    url: "/fil",
+  },
 };
 
 async function afficher(d) {

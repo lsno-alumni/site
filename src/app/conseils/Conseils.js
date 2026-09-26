@@ -9,11 +9,24 @@ import PartagerVoix from "./PartagerVoix";
 import RafraichirPage from "@/components/RafraichirPage";
 import { PenLine } from "lucide-react";
 import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
+import Bravo from "@/components/Bravo";
+import { creerClientNavigateur } from "@/lib/supabase/client";
 
 const GENERAL = "Général";
 
 export default function Conseils({ conseils, moiId }) {
   const [theme, setTheme] = useState("tous");
+  // les bravos des conseils (compte + « j'ai bravo »), lus en une requête
+  const [bravos, setBravos] = useState(null);
+  useEffect(() => {
+    if (!moiId) return;
+    creerClientNavigateur().from("reactions").select("cible_id, membre").eq("cible_type", "conseil")
+      .then(({ data }) => {
+        const b = {};
+        for (const r of data ?? []) { (b[r.cible_id] ??= { n: 0, moi: false }).n++; if (r.membre === moiId) b[r.cible_id].moi = true; }
+        setBravos(b);
+      });
+  }, [moiId]);
 
   // regroupe par thème choisi par l'auteur (défaut « Général ») ; ordre :
   // thèmes proposés d'abord, puis thèmes libres alpha, puis Général en dernier
@@ -90,6 +103,9 @@ export default function Conseils({ conseils, moiId }) {
                       <span>Promotion {c.promotions?.numero} · {nomDomaine(c.domaine, c.domaine_precision, true)}</span>
                     </div>
                   </Link>
+                  {moiId && c.id !== moiId && bravos && (
+                    <Bravo type="conseil" id={c.id} nombre={bravos[c.id]?.n ?? 0} actif={bravos[c.id]?.moi ?? false} className="voix-bravo" />
+                  )}
                   <PartagerVoix id={c.id} prenom={c.prenom} />
                 </div>
               </div>

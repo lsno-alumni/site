@@ -9,8 +9,15 @@
 --   d'une même conversation remplacent la notification précédente au lieu
 --   de s'empiler ; rien n'est affiché si la conversation est ouverte à
 --   l'écran) et quand on est ajouté à un groupe — famille « messages »
---   (nouvel interrupteur dans Mon profil). Bonus Fil : un bravo sur ta
---   publication te prévient (famille « mes_demandes »).
+--   (nouvel interrupteur dans Mon profil).
+--   LE FIL, tout ce qui le fait vivre (section 6c) :
+--     - nouvelle publication → les membres de son cercle (famille « fil »,
+--       regroupées sur l'appareil au-delà de 4 : « 5 nouvelles publications »)
+--     - bravo sur ma publication / mon offre / mon conseil → moi
+--     - commentaire là où j'ai déjà commenté → « X a aussi commenté »
+--     - ma publication ou mon commentaire masqué par la modération → moi
+--   (le commentaire sur MA publication et la réponse à MON commentaire
+--    existaient déjà : migration 52)
 --   Rejouable. Se termine par ses GRANT explicites (CONTRIBUTING § Pièges).
 -- ============================================================
 
@@ -18,8 +25,9 @@
 -- 0. Préférence push « messages »
 -- ------------------------------------------------------------
 alter table profiles add column if not exists push_messages boolean not null default true;
-grant select (push_messages) on profiles to authenticated;
-grant update (push_messages) on profiles to authenticated;
+alter table profiles add column if not exists push_fil      boolean not null default true;
+grant select (push_messages, push_fil) on profiles to authenticated;
+grant update (push_messages, push_fil) on profiles to authenticated;
 
 -- ------------------------------------------------------------
 -- 1. Tables
@@ -319,24 +327,115 @@ drop trigger if exists membres_apres_insert on conversation_membres;
 create trigger membres_apres_insert after insert on conversation_membres
   for each row execute function apres_ajout_membre();
 
--- bonus Fil : un bravo sur MA publication me prévient (les bravos successifs
--- sur la même publication remplacent la vignette précédente)
+-- ------------------------------------------------------------
+-- 6c. LE FIL : ce qui le fait vivre
+-- ------------------------------------------------------------
+-- nouvelle publication → les membres validés de son cercle (famille « fil »)
+create or replace function push_publication() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_qui text; v_promo int; v_domaine text; cibles uuid[];
+begin
+  select prenom || ' ' || nom, promotion_id, domaine into v_qui, v_promo, v_domaine from profiles where id = new.auteur;
+  select array_agg(id) into cibles from profiles
+   where statut_compte = 'valide' and id <> new.auteur
+     and (new.visibilite = 'tous'
+          or (new.visibilite = 'promo'   and promotion_id = v_promo)
+          or (new.visibilite = 'domaine' and domaine = v_domaine));
+  if cibles is not null then
+    perform envoyer_push_liste(cibles, v_qui || ' a publié',
+      coalesce(nullif(left(new.texte, 100), ''), case new.media_type when 'video' then 'Une vidéo' else 'Une photo' end),
+      '/publication/' || new.id, 'fil', 'pub-' || new.id);
+  end if;
+  return new;
+end $$;
+drop trigger if exists publications_push on publications;
+create trigger publications_push after insert on publications
+  for each row execute function push_publication();
+
+-- bravo sur MA publication, MON offre ou MON conseil → moi (les bravos
+-- successifs sur la même cible remplacent la vignette précédente)
 create or replace function push_bravo() returns trigger
 language plpgsql security definer set search_path = public as $$
-declare v_auteur uuid; v_qui text; v_texte text;
+declare v_auteur uuid; v_qui text; v_texte text; v_quoi text; v_url text;
 begin
-  if new.cible_type <> 'publication' then return new; end if;
-  select auteur, texte into v_auteur, v_texte from publications where id = new.cible_id::bigint;
+  if new.cible_type = 'publication' then
+    select auteur, coalesce(nullif(left(texte, 100), ''), 'Ta photo ou ta vidéo') into v_auteur, v_texte
+      from publications where id = new.cible_id::bigint;
+    v_quoi := 'ta publication'; v_url := '/publication/' || new.cible_id;
+  elsif new.cible_type = 'offre' then
+    select posteur, left(titre, 100) into v_auteur, v_texte from offres where id = new.cible_id::bigint;
+    v_quoi := 'ton offre'; v_url := '/offres/' || new.cible_id;
+  else
+    select id, left(conseil, 100) into v_auteur, v_texte from profiles where id = new.cible_id::uuid;
+    v_quoi := 'ton conseil aux cadets'; v_url := '/profil/' || new.cible_id;
+  end if;
   if v_auteur is null or v_auteur = new.membre then return new; end if;
   select prenom || ' ' || nom into v_qui from profiles where id = new.membre;
-  perform envoyer_push_liste(array[v_auteur], v_qui || ' a applaudi ta publication',
-    coalesce(nullif(left(v_texte, 100), ''), 'Ta photo ou ta vidéo'),
-    '/publication/' || new.cible_id, 'mes_demandes', 'bravo-' || new.cible_id);
+  perform envoyer_push_liste(array[v_auteur], v_qui || ' a applaudi ' || v_quoi, coalesce(v_texte, ''),
+    v_url, 'mes_demandes', 'bravo-' || new.cible_type || '-' || new.cible_id);
   return new;
 end $$;
 drop trigger if exists reactions_push on reactions;
 create trigger reactions_push after insert on reactions
   for each row execute function push_bravo();
+
+-- commentaire : en plus de l'auteur de la publication / de l'offre et de la
+-- personne à qui l'on répond (migration 52), les AUTRES qui ont déjà
+-- commenté là sont prévenus (famille « fil », une vignette par discussion)
+create or replace function push_commentaire_participants() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_qui text; v_proprio uuid; v_nom_proprio text; v_repond uuid; cibles uuid[]; v_url text;
+begin
+  select prenom || ' ' || nom into v_qui from profiles where id = new.auteur;
+  if new.cible_type = 'publication' then
+    select auteur into v_proprio from publications where id = new.cible_id::bigint;
+    v_url := '/publication/' || new.cible_id;
+  else
+    select posteur into v_proprio from offres where id = new.cible_id::bigint;
+    v_url := '/offres/' || new.cible_id;
+  end if;
+  if new.reponse_a is not null then select auteur into v_repond from commentaires where id = new.reponse_a; end if;
+  select prenom into v_nom_proprio from profiles where id = v_proprio;
+  select array_agg(distinct auteur) into cibles from commentaires
+   where cible_type = new.cible_type and cible_id = new.cible_id and not masque
+     and auteur <> new.auteur and auteur is distinct from v_proprio and auteur is distinct from v_repond;
+  if cibles is not null then
+    perform envoyer_push_liste(cibles,
+      v_qui || ' a aussi commenté ' || case when new.cible_type = 'publication' then 'la publication' else 'l''offre' end
+        || case when v_nom_proprio is not null then ' de ' || v_nom_proprio else '' end,
+      left(new.texte, 100), v_url, 'fil', 'com-' || new.cible_type || '-' || new.cible_id);
+  end if;
+  return new;
+end $$;
+drop trigger if exists commentaires_push_participants on commentaires;
+create trigger commentaires_push_participants after insert on commentaires
+  for each row execute function push_commentaire_participants();
+
+-- masqué par la modération → l'auteur est prévenu (transparence)
+create or replace function push_masquage() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_table_name = 'publications' then
+    if new.masquee and not old.masquee then
+      perform envoyer_push(new.auteur, 'Ta publication a été masquée',
+        'La modération l''a retirée de la vue des autres membres. Écris à un délégué pour en parler.',
+        '/publication/' || new.id, 'mes_demandes');
+    end if;
+  else
+    if new.masque and not old.masque then
+      perform envoyer_push(new.auteur, 'Ton commentaire a été masqué',
+        'La modération l''a retiré de la vue des autres membres.',
+        case when new.cible_type = 'publication' then '/publication/' else '/offres/' end || new.cible_id, 'mes_demandes');
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists publications_push_masquage on publications;
+create trigger publications_push_masquage after update of masquee on publications
+  for each row execute function push_masquage();
+drop trigger if exists commentaires_push_masquage on commentaires;
+create trigger commentaires_push_masquage after update of masque on commentaires
+  for each row execute function push_masquage();
 
 -- le texte est nettoyé à l'entrée
 create or replace function messages_avant_insert() returns trigger

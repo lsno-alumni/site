@@ -1967,3 +1967,17 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
   position: absolute; top: -4px; left: calc(50% + 4px); min-width: 17px; height: 17px; padding: 0 4px; border-radius: 100px;
   display: grid; place-items: center; background: var(--bleu-clair); color: var(--sur-accent); font-size: 10px; font-weight: 700; letter-spacing: 0;
 }
+
+/* ---- réactions sur les offres et les conseils ---- */
+.o-reactions { margin: 8px 8px 12px; }
+.o-reactions-pied { border-top: 1px solid var(--ligne); border-bottom: 1px solid var(--ligne); margin: 0 0 4px; padding: 8px 6px; }
+.o-reactions .pu-commentaires { padding: 10px 8px 6px; }
+.com-saisie-inline { position: static; background: none; border-top: 0; padding: 6px 8px 0; margin-top: 4px; }
+.voix-bravo {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 100px;
+  background: none; border: 1px solid var(--ligne); color: var(--texte-2); font: inherit; font-size: 12px; cursor: pointer; transition: border-color .2s, color .2s;
+}
+.voix-bravo b { font-weight: 700; }
+.voix-bravo.on { border-color: rgba(var(--accent-rgb), .6); color: var(--bleu-texte); }
+.a-temoin.c-ouverture .voix-bravo { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.85); }
+.a-temoin.c-ouverture .voix-bravo.on { border-color: #fff; color: #fff; }

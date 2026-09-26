@@ -461,6 +461,10 @@ export default function MonProfil() {
       <section className="n-cloture compte">
         <p className="lbl">Mon compte</p>
         <div className="mp-compte">
+          {profil.role && profil.role !== "membre" && (
+            <Link href="/admin" className="btn btn-or">Espace {profil.role === "admin" ? "admin" : "délégué"} · Validation</Link>
+          )}
+          <Link href="/a-propos" className="btn btn-nu">À propos du réseau</Link>
           <Link href="/mot-de-passe/nouveau" className="btn btn-nu">Changer mon mot de passe</Link>
           <button className="btn btn-nu" onClick={deconnecter}>Se déconnecter</button>
         </div>

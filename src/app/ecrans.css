@@ -353,6 +353,87 @@
    au-delà de l'écran (contenu coupé à droite, page décentrée) */
 .n-liste > *, .sec-admin > *, .sec-admin .carte-sombre > * { min-width: 0; }
 .sec-admin .a-titre { margin-top: 10px; }
+/* ---------- LE FIL (26/09, branche social) ---------- */
+.tete-fil::before { background-image: url("/img/lsno_jardin.jpg"); background-position: center 40%; }
+.n-tete.tete-fil { padding-bottom: 58px; }
+/* le composer : une feuille qui chevauche la photo, comme le bandeau des chiffres */
+.fil-compose {
+  display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); margin: -30px 16px 0; position: relative; z-index: 2;
+  padding: 12px 12px 12px 14px; border-radius: 100px; text-align: left; cursor: pointer;
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 18px 40px -22px rgba(31,34,48,.5);
+  color: var(--texte); font: inherit;
+}
+:root[data-theme="sombre"] .fil-compose { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 40px -22px rgba(0,0,0,.8); }
+.fil-compose-texte { flex: 1; font-size: 14.5px; color: var(--brume); }
+.fil-compose-photo { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--bleu); color: var(--sur-accent); flex-shrink: 0; }
+.fil-filtres { margin-top: 14px; }
+.fil-liste { padding: 4px 16px 60px; display: grid; gap: 12px; }
+.fil-fin { text-align: center; font-family: var(--font-titres), serif; font-style: italic; color: var(--brume); padding: 18px 0 6px; }
+/* la publication : feuille de papier, photo bord à bord dans la feuille */
+.pub {
+  border-radius: 18px; overflow: hidden; color: var(--texte); display: block;
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 12px 28px -20px rgba(31,34,48,.45);
+}
+:root[data-theme="sombre"] .pub { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 28px -20px rgba(0,0,0,.7); }
+.pub-tete { display: flex; align-items: center; gap: 10px; padding: 14px 10px 0 14px; }
+.pub-qui { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; color: inherit; }
+.pub-qui span { display: flex; flex-direction: column; min-width: 0; }
+.pub-qui b { font-size: 14px; line-height: 1.2; }
+.pub-qui small { font-size: 12px; color: var(--brume); margin-top: 2px; }
+.pub-avatar { width: 40px !important; height: 40px !important; border-radius: 50%; object-fit: cover; font-size: 13px; flex-shrink: 0; }
+.pub-avatar.grand { width: 52px !important; height: 52px !important; font-size: 16px; }
+.pub-plus { background: none; border: 0; color: var(--brume); padding: 8px; cursor: pointer; border-radius: 50%; }
+.pub-texte { font-size: 15px; line-height: 1.55; padding: 12px 14px 0; white-space: pre-line; }
+.pub-photo { display: block; width: 100%; max-height: 360px; object-fit: cover; margin-top: 12px; }
+.pub-pied { display: flex; align-items: center; gap: 4px; padding: 8px 8px 8px; border-top: 1px solid var(--ligne); margin-top: 12px; }
+.pub-photo + .pub-pied { margin-top: 0; border-top: 0; }
+.pub-action {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border-radius: 100px; background: none; border: 0;
+  font: inherit; font-size: 13px; color: var(--texte-2); cursor: pointer; transition: background .2s, color .2s;
+}
+.pub-action b { font-weight: 600; color: var(--texte-2); }
+.pub-action.on { color: var(--bleu-texte); }
+.pub-action.on b { color: var(--bleu-texte); }
+.pub-action:last-child { margin-left: auto; }
+.pub-action:hover { background: rgba(var(--texte-rgb), .06); }
+/* étiquette des cartes automatiques */
+.pub-etiquette { display: block; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 6px; }
+/* arrivée : bleu nuit, texte craie */
+.pub-arrivee {
+  background-color: var(--monde); background-image: url("/fonds/kraft-sombre.jpg"); background-blend-mode: screen; color: #fff;
+  border-color: rgba(255,255,255,.12); padding: 14px 14px 14px; display: flex; flex-direction: column; gap: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 24px 50px -26px rgba(31,59,99,.8);
+}
+:root[data-theme="sombre"] .pub-arrivee { background-color: #16253F; }
+.pub-arrivee-corps { display: flex; align-items: center; gap: 12px; color: inherit; }
+.pub-arrivee-corps > span { display: flex; flex-direction: column; min-width: 0; }
+.pub-arrivee .pub-etiquette { color: #F3E3CF; }
+.pub-arrivee b { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; }
+.pub-arrivee-meta { font-size: 12.5px; color: rgba(255,255,255,.75); margin-top: 3px; }
+.pub-arrivee .avatar-init { background: rgba(255,255,255,.14); color: #fff; box-shadow: none; }
+.pub-arrivee-btn { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.45); justify-content: center; }
+/* offre : la carte papier avec le tampon */
+.pub-offre { position: relative; padding: 14px 84px 14px 14px; }
+.pub-offre .o-tampon { top: 14px; right: 14px; }
+.pub-offre .o-type { margin-bottom: 5px; }
+.pub-offre-titre { display: block; font-family: var(--font-titres), serif; font-weight: 500; font-size: 17px; line-height: 1.25; }
+.pub-offre .o-meta { margin-top: 5px; }
+.pub-offre-par { display: block; font-size: 12px; color: var(--brume); margin-top: 8px; }
+/* conseil : la citation, ici sans marge extérieure */
+.fil-liste .pub-conseil { margin: 0; }
+.pub-conseil .pub-etiquette { position: relative; }
+/* le bouton d'écriture flottant, au-dessus de la barre d'onglets */
+.fil-fab {
+  position: fixed; right: max(18px, calc((100vw - 480px) / 2 + 18px)); bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 45;
+  width: 54px; height: 54px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center;
+  background: var(--bleu); color: var(--sur-accent); box-shadow: 0 16px 34px -12px rgba(30,58,98,.6), 0 0 0 1px rgba(255,255,255,.12) inset;
+  transition: bottom .6s cubic-bezier(.4,0,.2,1), transform .2s;
+}
+:root.tb-cachee .fil-fab { bottom: calc(18px + env(safe-area-inset-bottom)); }
+.fil-fab:active { transform: scale(.94); }
+
 /* ---------- ESPACE ADMIN (26/09) ---------- */
 .n-tete.ad-tete { padding-top: 34px; padding-bottom: 78px; }   /* deux classes : .n-tete, plus bas dans le fichier, écrasait sinon ce padding */   /* place pour le sommaire qui chevauche, sans cacher « Tout est à jour » */
 .ad-tete .tagline { color: #F3E3CF; text-shadow: 0 1px 6px rgba(0,0,0,.45); }

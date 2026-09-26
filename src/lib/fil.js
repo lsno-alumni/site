@@ -40,7 +40,7 @@ export async function chargerFil({ limite = 20, avant = null } = {}) {
   const supabase = creerClientNavigateur();
   const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
   const aujourdhui = new Date().toISOString().slice(0, 10);
-  const [pubs, arrivees, offres, conseils] = await Promise.all([
+  const [pubs, arrivees, offres, conseils, questions] = await Promise.all([
     supabase.rpc("fil_publications", { p_limite: limite, p_avant: avant }),
     avant ? Promise.resolve({ data: [] }) : supabase
       .from("profiles")
@@ -59,6 +59,7 @@ export async function chargerFil({ limite = 20, avant = null } = {}) {
       .select("id, prenom, nom, photo_url, conseil, conseil_theme, maj_le, promotions(numero)")
       .eq("statut_compte", "valide").not("conseil", "is", null).neq("conseil", "")
       .order("maj_le", { ascending: false }).limit(6),
+    avant ? Promise.resolve({ data: [] }) : supabase.rpc("liste_questions", { p_filtre: "toutes", p_theme: null, p_limite: 8, p_avant: null }),
   ]);
   if (pubs.error) throw pubs.error;
 
@@ -66,6 +67,7 @@ export async function chargerFil({ limite = 20, avant = null } = {}) {
     ...(pubs.data ?? []).map((p) => ({ type: "publication", id: `p${p.id}`, date: p.cree_le, p })),
     ...(arrivees.data ?? []).map((m) => ({ type: "arrivee", id: `a${m.id}`, date: m.valide_le, m })),
     ...(offres.data ?? []).map((o) => ({ type: "offre", id: `o${o.id}`, date: o.cree_le, o })),
+    ...(questions.data ?? []).filter((q) => !q.masquee).map((q) => ({ type: "question", id: `q${q.id}`, date: q.cree_le, q })),
   ].sort((x, y) => new Date(y.date) - new Date(x.date));
 
   // un conseil toutes les 5 cartes (leur date n'est pas parlante) — ordre

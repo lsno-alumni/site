@@ -32,6 +32,10 @@ const ACTIONS = {
   masquage_commentaire: "Commentaire masqué",
   retablissement_commentaire: "Commentaire rétabli",
   suppression_message: "Message supprimé par la modération",
+  masquage_question: "Question masquée",
+  retablissement_question: "Question rétablie",
+  masquage_reponse: "Réponse masquée",
+  retablissement_reponse: "Réponse rétablie",
 };
 
 const ROLES = { membre: "membre", delegue: "délégué·e", admin: "admin" };

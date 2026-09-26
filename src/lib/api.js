@@ -329,6 +329,14 @@ export async function donneesAccueilMembre(moi) {
   };
 }
 
+// ---------- Questions aux anciens (migration 59) ----------
+export async function lireQuestionServeur(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("lire_question", { p_id: Number(id) });
+  if (error) { console.error("lireQuestionServeur:", error.message); return null; }
+  return data ?? null;
+}
+
 // ---------- Le Fil (migration 52) ----------
 // bravos + commentaires d'une offre (ou d'un conseil), pour la feuille et la page
 export async function lireInteractions(type, id) {

@@ -16,6 +16,7 @@ import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
 import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
 import useClicDehors from "@/lib/useClicDehors";
 import { TexteMentions } from "@/lib/mentions";
+import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
 // (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
@@ -67,6 +68,7 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
           {menu && (
             <span className="pub-menu-liste">
               <button type="button" onClick={() => agir("partager")}>Partager</button>
+              <EnvoyerEnMessage chemin={`/publication/${p.id}`} titre={`Publication de ${p.auteur.prenom} ${p.auteur.nom}`} className="pub-menu-envoyer" />
               {!mienne && <button type="button" onClick={() => agir("signaler")}>Signaler</button>}
               {moderateur && <button type="button" onClick={() => agir("masquer")}>{p.masquee ? "Rétablir" : "Masquer"}</button>}
               {(mienne || moi.role === "admin") && <button type="button" className="danger" onClick={() => agir("supprimer")}>Supprimer</button>}

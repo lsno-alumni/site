@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send, Check, Share2 } from "lucide-react";
+import { Send, Check, Share2, MessageCircle } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 // Boutons d'action du profil : « Demander le contact » (mise en relation)
@@ -33,6 +33,13 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
     setFormulaire(false);
   };
 
+  const ecrire = async () => {
+    try {
+      const { ouvrirDuo } = await import("@/lib/messages");
+      const cid = await ouvrirDuo(cibleId);
+      window.location.assign(`/messages/${cid}`);
+    } catch (e) { setErreur("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setTimeout(() => setErreur(""), 3000); }
+  };
   const partager = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -62,6 +69,9 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
             <Check size={15} aria-hidden /> Demande envoyée
           </span>
         )}
+        <button className="btn btn-nu" onClick={ecrire}>
+          <MessageCircle size={15} aria-hidden /> Message
+        </button>
         <button className="btn btn-nu" onClick={partager}>
           <Share2 size={15} aria-hidden /> Partager
         </button>

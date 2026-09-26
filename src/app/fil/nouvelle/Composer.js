@@ -2,36 +2,62 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Camera, Trash2 } from "lucide-react";
+import { X, Camera, Clapperboard, Trash2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 
 const MAX = 1000;
+// Vidéos : acceptées avec des bornes strictes, parce que le stockage et le
+// débit sortant sont comptés sur le palier gratuit — 30 s, 20 Mo, et une
+// durée de vie de 14 jours (la publication garde son texte ensuite).
+const VIDEO_SECONDES = 30;
+const VIDEO_MO = 20;
+export const VIDEO_JOURS = 14;
 
-// Le composer : le texte d'abord, la photo en option, un seul bouton.
+// Le composer : le texte d'abord, une photo OU une vidéo en option, un seul
+// bouton. Ouvert en feuille depuis le Fil (enFeuille) ou en pleine page.
 // MAQUETTE (branche `social`) : rien n'est enregistré ; « Publier » ramène
 // au Fil.
-export default function Composer({ moi }) {
+export default function Composer({ moi, enFeuille = false }) {
   const routeur = useRouter();
   const [texte, setTexte] = useState("");
-  const [photo, setPhoto] = useState(null);   // URL locale d'aperçu
-  const champ = useRef(null);
-  const fichier = useRef(null);
+  const [media, setMedia] = useState(null);   // { type: "photo"|"video", url, duree }
+  const [souci, setSouci] = useState("");
+  const fichierPhoto = useRef(null);
+  const fichierVideo = useRef(null);
 
-  const choisir = (e) => {
+  const choisirPhoto = (e) => {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f || !f.type.startsWith("image/")) return;
-    setPhoto(URL.createObjectURL(f));
+    setSouci("");
+    setMedia({ type: "photo", url: URL.createObjectURL(f) });
   };
+  const choisirVideo = (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f || !f.type.startsWith("video/")) return;
+    if (f.size > VIDEO_MO * 1024 * 1024) { setSouci(`Vidéo trop lourde (${Math.round(f.size / 1048576)} Mo). ${VIDEO_MO} Mo au maximum.`); return; }
+    const url = URL.createObjectURL(f);
+    const v = document.createElement("video");
+    v.preload = "metadata";
+    v.onloadedmetadata = () => {
+      if (v.duration > VIDEO_SECONDES + 0.5) { setSouci(`Vidéo trop longue (${Math.round(v.duration)} s). ${VIDEO_SECONDES} secondes au maximum.`); URL.revokeObjectURL(url); return; }
+      setSouci("");
+      setMedia({ type: "video", url, duree: Math.round(v.duration) });
+    };
+    v.onerror = () => { setSouci("Cette vidéo ne peut pas être lue ici."); URL.revokeObjectURL(url); };
+    v.src = url;
+  };
+  const retirer = () => { if (media) URL.revokeObjectURL(media.url); setMedia(null); };
   const publier = (e) => {
     e.preventDefault();
-    if (!texte.trim() && !photo) return;
+    if (!texte.trim() && !media) return;
     routeur.push("/fil");
   };
-  const pret = texte.trim().length > 0 || photo;
+  const pret = texte.trim().length > 0 || media;
 
   return (
-    <form className="cp" onSubmit={publier}>
+    <form className={`cp${enFeuille ? " cp-feuille" : ""}`} onSubmit={publier}>
       <header className="cp-tete">
         <button type="button" className="cp-fermer" onClick={() => routeur.back()} aria-label="Annuler"><X size={20} aria-hidden /></button>
         <span className="cp-titre">Nouvelle publication</span>
@@ -46,21 +72,29 @@ export default function Composer({ moi }) {
         </span>
       </div>
 
-      <textarea ref={champ} className="cp-texte" placeholder="Une réussite, une question aux anciens, une photo de retrouvailles…"
-        value={texte} onChange={(e) => setTexte(e.target.value.slice(0, MAX))} rows={6} autoFocus />
+      <textarea className="cp-texte" placeholder="Une réussite, une question aux anciens, une photo de retrouvailles…"
+        value={texte} onChange={(e) => setTexte(e.target.value.slice(0, MAX))} rows={enFeuille ? 5 : 6} autoFocus />
 
-      {photo && (
+      {media && (
         <div className="cp-photo">
-          <img src={photo} alt="" />
-          <button type="button" className="cp-photo-retirer" onClick={() => setPhoto(null)} aria-label="Retirer la photo"><Trash2 size={15} aria-hidden /></button>
+          {media.type === "photo"
+            ? <img src={media.url} alt="" />
+            : <video src={media.url} controls playsInline preload="metadata" />}
+          {media.type === "video" && <span className="cp-video-note">{media.duree} s · visible {VIDEO_JOURS} jours</span>}
+          <button type="button" className="cp-photo-retirer" onClick={retirer} aria-label="Retirer"><Trash2 size={15} aria-hidden /></button>
         </div>
       )}
+      {souci && <p className="cp-souci" role="alert">{souci}</p>}
 
       <footer className="cp-pied">
-        <button type="button" className="cp-outil" onClick={() => fichier.current?.click()}>
-          <Camera size={18} strokeWidth={1.9} aria-hidden /> {photo ? "Changer la photo" : "Ajouter une photo"}
+        <button type="button" className="cp-outil" onClick={() => fichierPhoto.current?.click()}>
+          <Camera size={18} strokeWidth={1.9} aria-hidden /> {media?.type === "photo" ? "Changer" : "Photo"}
         </button>
-        <input ref={fichier} type="file" accept="image/*" hidden onChange={choisir} />
+        <button type="button" className="cp-outil" onClick={() => fichierVideo.current?.click()}>
+          <Clapperboard size={18} strokeWidth={1.9} aria-hidden /> {media?.type === "video" ? "Changer" : "Vidéo"}
+        </button>
+        <input ref={fichierPhoto} type="file" accept="image/*" hidden onChange={choisirPhoto} />
+        <input ref={fichierVideo} type="file" accept="video/*" hidden onChange={choisirVideo} />
         <span className={`cp-compte${texte.length > MAX - 80 ? " proche" : ""}`}>{texte.length} / {MAX}</span>
       </footer>
     </form>

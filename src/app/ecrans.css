@@ -500,6 +500,13 @@
 .cp-outil { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); font: inherit; font-size: 13.5px; cursor: pointer; }
 .cp-compte { margin-left: auto; font-size: 12px; color: var(--brume); font-variant-numeric: tabular-nums; }
 .cp-compte.proche { color: var(--rouge); }
+/* en feuille : pas de pleine hauteur imposée, la poignée sert de marge haute */
+.cp-prise { height: 26px; }
+.cp-feuille { min-height: calc(100dvh - 26px); }
+.cp-feuille .cp-tete { top: 0; }
+.cp-photo video { display: block; width: 100%; max-height: 360px; background: #000; }
+.cp-video-note { position: absolute; left: 10px; bottom: 10px; font-size: 11.5px; color: #fff; background: rgba(20,16,14,.6); padding: 5px 9px; border-radius: 100px; backdrop-filter: blur(6px); }
+.cp-souci { margin: 0 20px 12px; font-size: 13px; color: var(--rouge); line-height: 1.5; }
 
 /* ---------- ESPACE ADMIN (26/09) ---------- */
 .n-tete.ad-tete { padding-top: 34px; padding-bottom: 78px; }   /* deux classes : .n-tete, plus bas dans le fichier, écrasait sinon ce padding */   /* place pour le sommaire qui chevauche, sans cacher « Tout est à jour » */

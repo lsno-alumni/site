@@ -19,8 +19,11 @@ import { X, ArrowLeft } from "lucide-react";
 // `children` (défilant), jamais dans `tete`.
 const PEEK = 0.7; // fraction de l'écran COUVERTE (pas le décalage) à l'ouverture
 
-export default function FeuilleGlissante({ tete, children, onFermer }) {
-  const [etat, setEtat] = useState("peek"); // peek | plein | ferme
+// depart="plein" : la feuille monte du bas et s'ouvre ENTIÈREMENT d'un seul
+// mouvement (le composer du Fil) — même façon d'apparaître qu'une feuille,
+// sans l'étape à mi-écran. sansFermer : le contenu a déjà son propre bouton.
+export default function FeuilleGlissante({ tete, children, onFermer, depart = "peek", sansFermer = false }) {
+  const [etat, setEtat] = useState(depart); // peek | plein | ferme
   const feuilleRef = useRef(null);
   const priseRef = useRef(null);
   const poigneeRef = useRef(null);
@@ -84,9 +87,11 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
       f.style.overflowY = "hidden";
       f.style.transition = "none";
       f.style.transform = `translateY(${hauteurRef.current}px)`;
+      f.getBoundingClientRect(); // force le point de départ avant d'animer
       requestAnimationFrame(() => {
         f.style.transition = "";
-        f.style.transform = `translateY(${hauteurRef.current * (1 - PEEK)}px)`;
+        if (depart === "plein") aller("plein");
+        else f.style.transform = `translateY(${hauteurRef.current * (1 - PEEK)}px)`;
       });
     }
     const esc = (e) => e.key === "Escape" && aller("ferme");
@@ -169,11 +174,13 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
           <div ref={poigneeRef} className="fg-poignee"><i /></div>
           {tete}
         </div>
-        <button type="button" className="fg-fermer"
-          aria-label={etat === "plein" ? "Retour" : "Fermer"} onClick={() => aller("ferme")}>
-          <X size={20} aria-hidden className={`fg-icone${etat === "plein" ? " cachee" : ""}`} />
-          <ArrowLeft size={20} aria-hidden className={`fg-icone${etat === "plein" ? "" : " cachee"}`} />
-        </button>
+        {!sansFermer && (
+          <button type="button" className="fg-fermer"
+            aria-label={etat === "plein" ? "Retour" : "Fermer"} onClick={() => aller("ferme")}>
+            <X size={20} aria-hidden className={`fg-icone${etat === "plein" ? " cachee" : ""}`} />
+            <ArrowLeft size={20} aria-hidden className={`fg-icone${etat === "plein" ? "" : " cachee"}`} />
+          </button>
+        )}
         <div className="fg-contenu">
           {children}
         </div>

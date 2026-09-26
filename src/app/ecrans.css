@@ -794,7 +794,6 @@
 .ap-pas p { font-size: 13.5px; line-height: 1.6; color: var(--texte-2); margin-top: 4px; }
 .ap-delegues .voisins { padding-left: 0; padding-right: 0; margin: 0 -22px; padding-left: 22px; }
 .ap-delegues .a-sous { margin-bottom: 12px; }
-.cv3d-legende { text-align: center; font-family: var(--font-titres), serif; font-style: italic; font-size: 14.5px; color: var(--texte-2); margin: 6px 0 2px; }
 /* bloc d'installation replié : le titre sert de poignée */
 .bloc-install summary { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .bloc-install summary h3 { flex: 1; margin: 0; }

@@ -129,6 +129,8 @@ with attendu(num, laisse, present) as (
   union all select 54, 'pièces jointes dans les messages (colonnes fichier_*, politiques du bucket pieces)',
     exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'messages' and column_name = 'fichier_chemin')
     and exists (select 1 from pg_policies where tablename = 'objects' and policyname = 'pieces_lecture')
+  union all select 55, 'réactions libres sur les messages (contrainte emoji assouplie)',
+    exists (select 1 from pg_constraint where conname = 'message_reactions_emoji_check' and pg_get_constraintdef(oid) like '%char_length%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

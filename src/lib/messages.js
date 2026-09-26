@@ -12,6 +12,8 @@ export const PIECE_VIDEO_MO = 20;
 export const PIECE_PDF_MO = 10;
 export const VOCAL_SECONDES = 60;
 export const EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
+// la grille du « + » (la base accepte n'importe quel emoji court : migration 55)
+export const EMOJIS_PLUS = ["🔥", "👏", "🎉", "💯", "😍", "🤣", "😊", "😎", "🤔", "😅", "😭", "😡", "🥳", "🙌", "💪", "🤝", "👌", "✅", "❌", "⭐", "💡", "📚", "🎓", "🏆", "☕", "🍀", "🌍", "🇧🇫", "🕊️", "💬"];
 export const MODIF_MINUTES = 5;
 // durée de vie des pièces (la base fait foi : messages_avant_insert)
 export const JOURS_PIECE = { photo: 30, pdf: 14, video: 7, audio: 7 };
@@ -181,6 +183,17 @@ export function canalFrappe(conversationId, surFrappe) {
     signaler: (payload) => canal.send({ type: "broadcast", event: "frappe", payload }),
     arreter: () => { supabase.removeChannel(canal); },
   };
+}
+
+// « … écrit » pour PLUSIEURS conversations (l'onglet Messages) : un canal par
+// conversation, sans rien en base ; renvoie la fonction d'arrêt
+export function ecouterFrappes(conversationIds, surFrappe) {
+  const supabase = creerClientNavigateur();
+  const canaux = conversationIds.slice(0, 30).map((cid) =>
+    supabase.channel(`frappe-${cid}`, { config: { broadcast: { self: false } } })
+      .on("broadcast", { event: "frappe" }, (p) => surFrappe?.(cid, p.payload))
+      .subscribe());
+  return () => { canaux.forEach((c) => supabase.removeChannel(c)); };
 }
 
 // ---- sourdine, épingle ----

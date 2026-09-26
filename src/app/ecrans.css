@@ -1000,6 +1000,10 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .frise .e-crayon.suppr { color: #F2A9A0; border-color: rgba(242,169,160,.45); }
 .frise .carte-sombre { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.12); }
 .frise .saisie { background: rgba(255,255,255,.92); color: #1F2230; }
+/* en sombre, la règle « champs sur la feuille » (fond noir translucide) est
+   plus spécifique et gagnait : texte sombre sur fond sombre → on la redouble */
+:root[data-theme="sombre"] .frise .saisie { background: rgba(255,255,255,.92); color: #1F2230; border-color: rgba(255,255,255,.3); }
+.frise .saisie::placeholder { color: #6B7280; }
 
 .e-etape { display: flex; justify-content: space-between; align-items: center; background: var(--carte); border: 1px solid var(--ligne); border-radius: 16px; padding: 13px 15px; }
 .e-etape b { font-size: 13.5px; display: block; }

@@ -1,5 +1,4 @@
-import { utilisateurCourant } from "@/lib/api";
-import { FIL_DEMO, COMMENTAIRES_DEMO, MOI } from "@/app/fil/demo";
+import { utilisateurCourant, lirePublication } from "@/lib/api";
 import FeuillePublicationModal from "./FeuillePublicationModal";
 
 // Route INTERCEPTÉE : un tap sur une publication du Fil (Link vers
@@ -7,8 +6,10 @@ import FeuillePublicationModal from "./FeuillePublicationModal";
 export default async function ModalPublication({ params }) {
   const { id } = await params;
   const moi = await utilisateurCourant();
-  const p = FIL_DEMO.find((x) => x.type === "publication" && String(x.id) === id);
-  if (!p || !moi) return null;
-  return <FeuillePublicationModal p={p} commentaires={COMMENTAIRES_DEMO[p.id] ?? []}
-    moi={{ prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url ?? MOI.photo }} />;
+  if (!moi) return null;
+  const r = await lirePublication(id);
+  if (!r) return null;
+  return <FeuillePublicationModal p={r.publication} commentaires={r.commentaires}
+    moderateur={moi.role === "admin" || moi.role === "delegue"}
+    moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url }} />;
 }

@@ -27,6 +27,10 @@ const ACTIONS = {
   reglage: "Réglage modifié",
   export: "Export de la base",
   controle_sante: "Contrôle de santé de la base",
+  masquage_publication: "Publication masquée",
+  retablissement_publication: "Publication rétablie",
+  masquage_commentaire: "Commentaire masqué",
+  retablissement_commentaire: "Commentaire rétabli",
 };
 
 const ROLES = { membre: "membre", delegue: "délégué·e", admin: "admin" };

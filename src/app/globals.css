@@ -132,14 +132,14 @@ details[open] > summary .chevron { transform: rotate(180deg); }
 /* pages sans barre de navigation : le sceau (blason + devise) est poussé tout
    en bas quand la page est courte, suit le contenu quand elle est longue */
 .page-sceau { display: flex; flex-direction: column; }
-.page-sceau > *:not(.sceau) { flex-shrink: 0; }
-.sceau {
+.page-sceau > *:not(.pied-sceau) { flex-shrink: 0; }
+.pied-sceau {
   margin-top: auto; padding: 36px 24px calc(28px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; opacity: .55;
 }
-.sceau img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(var(--texte-rgb), .25); }
-.sceau span { font-family: var(--font-titres), serif; font-size: 14px; color: var(--texte); margin-top: 4px; }
-.sceau small { font-size: 9.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--texte-2); }
+.pied-sceau img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(var(--texte-rgb), .25); }
+.pied-sceau span { font-family: var(--font-titres), serif; font-size: 14px; color: var(--texte); margin-top: 4px; }
+.pied-sceau small { font-size: 9.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--texte-2); }
 
 .carte-sombre {
   background: var(--carte); border: 1px solid var(--ligne); border-radius: 20px;

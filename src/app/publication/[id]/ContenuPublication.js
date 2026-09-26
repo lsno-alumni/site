@@ -6,7 +6,8 @@ import { MessageCircle, Share2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Bravo from "@/components/Bravo";
 import Commentaires from "@/components/Commentaires";
-import { depuis, urlMedia, VISIBILITES } from "@/lib/fil";
+import { depuis, urlMedia, photosDe, VISIBILITES } from "@/lib/fil";
+import Collage from "@/components/Collage";
 import { TexteMentions } from "@/lib/mentions";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 
@@ -41,7 +42,7 @@ export function SuitePublication({ p, commentaires, moi, moderateur, enFeuille =
   };
   return (
     <>
-      {p.media_type === "photo" && p.media_chemin && <img className="pu-photo" src={urlMedia(p.media_chemin)} alt="" />}
+      <Collage urls={photosDe(p)} className="collage-page" />
       {p.media_type === "video" && p.media_chemin && (
         <video className="pu-video" src={urlMedia(p.media_chemin)} controls playsInline preload="metadata" />
       )}

@@ -167,11 +167,37 @@ export function compresserImage(fichier) {
   });
 }
 
-export async function publier({ texte, media, visibilite = "tous", mentions = [] }) {
+export const PHOTOS_MAX = 10;   // photos par publication
+
+// les photos d'une publication, dans l'ordre : la colonne photos (plusieurs)
+// ou l'ancienne photo unique (media_chemin)
+export function photosDe(p) {
+  if (p.photos?.length) return p.photos.map(urlMedia);
+  if (p.media_type === "photo" && p.media_chemin) return [urlMedia(p.media_chemin)];
+  return [];
+}
+
+export async function publier({ texte, media, photos = [], visibilite = "tous", mentions = [] }) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   let media_chemin = null, media_type = null;
-  if (media) {
+  const chemins = [];
+  if (photos.length) {
+    // chaque photo est réduite puis envoyée ; si l'une échoue, on retire celles déjà envoyées
+    const base = Date.now();
+    try {
+      for (let i = 0; i < Math.min(photos.length, PHOTOS_MAX); i++) {
+        const corps = await compresserImage(photos[i]);
+        const chemin = `${user.id}/${base}-${i}.jpg`;
+        const up = await supabase.storage.from(BUCKET_MEDIAS).upload(chemin, corps, { contentType: "image/jpeg" });
+        if (up.error) throw up.error;
+        chemins.push(chemin);
+      }
+    } catch (e) {
+      if (chemins.length) await supabase.storage.from(BUCKET_MEDIAS).remove(chemins);
+      throw e;
+    }
+  } else if (media) {
     const estVideo = media.type === "video";
     const corps = estVideo ? media.fichier : await compresserImage(media.fichier);
     const ext = estVideo ? (media.fichier.name.split(".").pop() || "mp4").toLowerCase().slice(0, 5) : "jpg";
@@ -183,10 +209,11 @@ export async function publier({ texte, media, visibilite = "tous", mentions = []
     media_type = estVideo ? "video" : "photo";
   }
   const { data, error } = await supabase.from("publications")
-    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type, visibilite, mentions })
+    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type, photos: chemins, visibilite, mentions })
     .select("id").single();
   if (error) {
-    if (media_chemin) await supabase.storage.from(BUCKET_MEDIAS).remove([media_chemin]);
+    const aRetirer = [...chemins, ...(media_chemin ? [media_chemin] : [])];
+    if (aRetirer.length) await supabase.storage.from(BUCKET_MEDIAS).remove(aRetirer);
     throw error;
   }
   return data.id;
@@ -194,7 +221,8 @@ export async function publier({ texte, media, visibilite = "tous", mentions = []
 
 export async function supprimerPublication(p) {
   const supabase = creerClientNavigateur();
-  if (p.media_chemin) await supabase.storage.from(BUCKET_MEDIAS).remove([p.media_chemin]);
+  const fichiers = [...(p.photos ?? []), ...(p.media_chemin ? [p.media_chemin] : [])];
+  if (fichiers.length) await supabase.storage.from(BUCKET_MEDIAS).remove(fichiers);
   const { error } = await supabase.from("publications").delete().eq("id", p.id);
   if (error) throw error;
 }

@@ -356,7 +356,7 @@ export async function lirePublication(id) {
   const supabase = await creerClientServeur();
   const { data: p } = await supabase
     .from("publications")
-    .select("id, texte, media_chemin, media_type, media_expire_le, visibilite, masquee, cree_le, mentions, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
+    .select("id, texte, media_chemin, media_type, media_expire_le, photos, visibilite, masquee, cree_le, mentions, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
     .eq("id", id).maybeSingle();
   if (!p) return null;
   const [{ data: cpt }, { data: commentaires }, { data: mentionnes }] = await Promise.all([

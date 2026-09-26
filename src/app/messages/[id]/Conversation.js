@@ -414,7 +414,8 @@ export default function Conversation({ id, moi }) {
     const mienne = (reactions[m.id] ?? []).find((r) => r.membre === moi.id)?.emoji;
     const nouvelle = mienne === emoji ? null : emoji;
     setReactions((p) => ({ ...p, [m.id]: [...(p[m.id] ?? []).filter((r) => r.membre !== moi.id), ...(nouvelle ? [{ membre: moi.id, emoji: nouvelle }] : [])] }));
-    try { await reagir(m.id, nouvelle); } catch (e) { signale("Réaction impossible : " + (e.message ?? "")); }
+    try { await reagir(m.id, nouvelle); }
+    catch { setReactions((p) => ({ ...p, [m.id]: (p[m.id] ?? []).filter((r) => r.membre !== moi.id) })); signale("Réaction impossible pour l'instant."); }
   };
   const modifiable = (m) => m.auteur === moi.id && !m.fichier_chemin && maintenant - new Date(m.cree_le).getTime() < MODIF_MINUTES * 60000;
 

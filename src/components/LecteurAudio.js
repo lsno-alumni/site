@@ -15,11 +15,19 @@ export default function LecteurAudio({ src, mienne = false }) {
   useEffect(() => {
     const a = audio.current;
     if (!a) return;
-    const maj = () => setTemps(a.currentTime);
-    const meta = () => setDuree(Number.isFinite(a.duration) ? a.duration : 0);
+    const maj = () => { if (Number.isFinite(a.duration) || a.currentTime < 1e100) setTemps(a.currentTime); };
+    // un vocal enregistré dans le navigateur (webm) ne porte pas sa durée : on
+    // la force en sautant à la fin, puis on revient au début
+    const meta = () => {
+      if (Number.isFinite(a.duration)) setDuree(a.duration);
+      else if (a.duration === Infinity && !a.dataset.sonde) { a.dataset.sonde = "1"; a.currentTime = 1e101; }
+    };
+    const dureeChangee = () => {
+      if (Number.isFinite(a.duration)) { setDuree(a.duration); if (a.dataset.sonde === "1") { a.dataset.sonde = "2"; a.currentTime = 0; setTemps(0); } }
+    };
     const fin = () => { setJoue(false); setTemps(0); };
-    a.addEventListener("timeupdate", maj); a.addEventListener("loadedmetadata", meta); a.addEventListener("durationchange", meta); a.addEventListener("ended", fin);
-    return () => { a.removeEventListener("timeupdate", maj); a.removeEventListener("loadedmetadata", meta); a.removeEventListener("durationchange", meta); a.removeEventListener("ended", fin); };
+    a.addEventListener("timeupdate", maj); a.addEventListener("loadedmetadata", meta); a.addEventListener("durationchange", dureeChangee); a.addEventListener("ended", fin);
+    return () => { a.removeEventListener("timeupdate", maj); a.removeEventListener("loadedmetadata", meta); a.removeEventListener("durationchange", dureeChangee); a.removeEventListener("ended", fin); };
   }, [src]);
   const basculer = (e) => {
     e.stopPropagation();
@@ -46,7 +54,7 @@ export default function LecteurAudio({ src, mienne = false }) {
         <div className="lecteur-audio-fait" style={{ width: `${part}%` }} />
         <div className="lecteur-audio-curseur" style={{ left: `${part}%` }} />
       </div>
-      <span className="lecteur-audio-temps">{joue || temps > 0 ? mmss(temps) : mmss(duree)}</span>
+      <span className="lecteur-audio-temps">{joue || temps > 0 ? mmss(temps) : duree ? mmss(duree) : "vocal"}</span>
     </div>
   );
 }

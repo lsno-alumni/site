@@ -8,7 +8,7 @@ import Avatar from "@/components/Avatar";
 import useClicDehors from "@/lib/useClicDehors";
 import { peutRevenir } from "@/components/SuiviNavigation";
 import * as memoire from "@/lib/memoire";
-import { useMentions, SuggestionsMention, TexteMentions, carnet } from "@/lib/mentions";
+import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres } from "@/lib/mentions";
 import {
   lireConversation, chargerMessages, envoyerMessage, supprimerMessage, marquerLu, ecouterMessages,
   renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables,
@@ -40,7 +40,7 @@ export default function Conversation({ id, moi }) {
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
   const [annuaire, setAnnuaire] = useState({});   // id → {prenom, nom}, pour les mentions hors conversation
-  useEffect(() => { carnet().then((l) => setAnnuaire(Object.fromEntries(l.map((m) => [m.id, m])))).catch(() => {}); }, []);
+  useEffect(() => { carnetMembres().then((l) => setAnnuaire(Object.fromEntries(l.map((m) => [m.id, m])))).catch(() => {}); }, []);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu, (e) => !!e.target.closest?.(".msg-menu"), () => setMenu(false));
   useClicDehors(menuMsg !== null, (e) => !!e.target.closest?.(".msg-bulle-menu"), () => setMenuMsg(null));

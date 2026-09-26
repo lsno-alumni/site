@@ -36,7 +36,7 @@ const FAMILLES = [
   { cle: "push_mes_demandes", nom: "Mes demandes", detail: "Mise en relation, validation de mon compte, mon rôle" },
   { cle: "push_reseau", nom: "Le réseau", detail: "Arrivées de nouveaux membres (portée réglable ci-dessous)" },
   { cle: "push_offres", nom: "Offres", detail: "Nouvelles opportunités partagées" },
-  { cle: "push_messages", nom: "Messages", detail: "Nouveaux messages dans tes conversations et groupes (au plus un par conversation toutes les 10 min)" },
+  { cle: "push_messages", nom: "Messages", detail: "Chaque nouveau message reçu, et quand on t\u2019ajoute à un groupe (rien si la conversation est déjà ouverte)" },
   { cle: "push_annonces", nom: "Annonces", detail: "Messages adressés à tout le réseau" },
 ];
 

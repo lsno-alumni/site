@@ -48,10 +48,9 @@ export default function Conseils({ conseils, moiId }) {
       <div className="n-liste c-liste">
         {visibles.map((g) => (
           <section key={g.theme} className="c-chapitre">
-            {/* un chapitre par thème : titre, nombre de voix, filet */}
+            {/* un chapitre par thème : titre et filet */}
             <header className="c-tete">
               <h2 className="a-titre">{g.theme}</h2>
-              <span>{g.items.length} {g.items.length > 1 ? "voix" : "voix"}</span>
             </header>
             {g.items.map((c, i) => (
               <div key={c.id} className={`a-temoin${i === 0 ? " c-ouverture" : ""}`}>

@@ -397,11 +397,13 @@
 
 .a-temoin {
   margin: 30px 22px 0; border-radius: 22px; background: var(--carte); color: var(--texte); border: 1px solid var(--ligne);
-  padding: 26px 22px 22px; position: relative; box-shadow: var(--ombre);
+  padding: 46px 22px 22px; position: relative; box-shadow: var(--ombre);
 }
+/* le guillemet ouvre la carte, à l'intérieur, en haut à gauche ; le texte
+   commence dessous (il débordait au-dessus du bord et mordait le titre) */
 .a-temoin::before {
-  content: "“"; position: absolute; top: -26px; left: 16px;
-  font-family: var(--font-titres), serif; font-size: 96px; line-height: 1; color: var(--bleu-clair);
+  content: "“"; position: absolute; top: 6px; left: 18px;
+  font-family: var(--font-titres), serif; font-size: 72px; line-height: 1; color: var(--bleu-clair);
 }
 .a-temoin p {
   font-family: var(--font-titres), serif; font-style: italic; font-size: 16.5px;
@@ -443,7 +445,7 @@
 .c-chapitre { margin-bottom: 26px; }
 .c-chapitre .a-temoin { margin: 0 0 12px; }
 /* le titre du thème laisse la place au grand guillemet de la première carte */
-.c-tete { display: flex; align-items: baseline; gap: 12px; margin: 6px 0 34px; padding-bottom: 10px; border-bottom: 1px solid var(--ligne); }
+.c-tete { display: flex; align-items: baseline; gap: 12px; margin: 6px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--ligne); }
 .c-tete .a-titre { margin: 0; }
 .c-tete span { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--texte-2); white-space: nowrap; }
 /* la première voix de chaque thème ouvre le chapitre sur le bleu nuit du
@@ -985,6 +987,7 @@
   /* même tête translucide que les fiches de l'annuaire, avec plus de flou */
   background: rgba(var(--fond-rgb), .22); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
+:root[data-theme="sombre"] .o-corps-carte { background: rgba(var(--texte-rgb), .07); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .fiche.offre:has(.o-corps-carte > .o-type:first-child) .o-corps-carte { padding-right: 16px; }   /* sans tampon, toute la largeur */
 .o-type { display: inline-block; font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 600; margin-bottom: 7px; }
 .o-corps-carte .o-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; display: block; }

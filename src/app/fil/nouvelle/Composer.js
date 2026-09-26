@@ -61,7 +61,9 @@ export default function Composer({ moi, enFeuille = false }) {
     try {
       await publierEnBase({ texte, media, visibilite });
       memoire.ecrire("fil.items", null);   // le Fil se rechargera avec la nouvelle publication en tête
-      routeur.push("/fil");
+      // en feuille, seul un retour arrière referme la feuille (une navigation
+      // vers /fil laisserait le créneau parallèle sur son dernier état)
+      if (enFeuille) routeur.back(); else routeur.push("/fil");
       routeur.refresh();
     } catch (err) {
       setSouci("Publication impossible : " + (err?.message ?? "réessaie dans un instant."));

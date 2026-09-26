@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ThumbsUp } from "lucide-react";
 import { basculerBravo } from "@/lib/fil";
+import * as memoire from "@/lib/memoire";
 
 // Le « bravo » : un tap ajoute ou retire, le compteur suit tout de suite, la
 // base confirme derrière (et corrige si elle n'est pas d'accord).
@@ -14,7 +15,7 @@ export default function Bravo({ type, id, nombre = 0, actif = false, className =
     if (attente) return;
     const avant = { on, n };
     setOn(!on); setN(n + (on ? -1 : 1)); setAttente(true);
-    try { const total = await basculerBravo(type, id); setN(total); }
+    try { const total = await basculerBravo(type, id); setN(total); memoire.ecrire("fil.items", null); }
     catch { setOn(avant.on); setN(avant.n); }
     setAttente(false);
   };

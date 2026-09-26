@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Send, CornerDownRight, MoreHorizontal } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { commentairesDe, envoyerCommentaire, depuis, signaler, moderer } from "@/lib/fil";
+import * as memoire from "@/lib/memoire";
 
 // Les commentaires d'une cible (publication ou offre) et la saisie collée en
 // bas. Réponse à un commentaire = même liste, indentée sous son parent.
@@ -34,6 +35,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
     try {
       await envoyerCommentaire(type, id, texte, reponseA?.id ?? null);
       setTexte(""); setReponseA(null);
+      memoire.ecrire("fil.items", null);   // le compteur de la carte du Fil suivra au retour
       await recharger();
     } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
     setEnvoi(false);

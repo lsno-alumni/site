@@ -438,6 +438,28 @@
    sombres), bien visible avec le bleu, plus clair. */
 .a-temoin .qui span:not(.avatar-init) { font-size: 11.5px; color: var(--brume); }
 
+/* ---------- CONSEILS (26/09) : chapitres par thème, ouverture bleu nuit ---------- */
+.c-liste { padding-top: 4px; }
+.c-chapitre { margin-bottom: 26px; }
+.c-chapitre .a-temoin { margin: 0 0 12px; }
+/* le titre du thème laisse la place au grand guillemet de la première carte */
+.c-tete { display: flex; align-items: baseline; gap: 12px; margin: 6px 0 34px; padding-bottom: 10px; border-bottom: 1px solid var(--ligne); }
+.c-tete .a-titre { margin: 0; }
+.c-tete span { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--texte-2); white-space: nowrap; }
+/* la première voix de chaque thème ouvre le chapitre sur le bleu nuit du
+   parcours : même matière (kraft en lumière), texte craie, guillemet clair */
+.a-temoin.c-ouverture {
+  background-color: var(--monde); background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen;
+  color: #fff; border-color: rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 24px 50px -26px rgba(31,59,99,.8);
+}
+:root[data-theme="sombre"] .a-temoin.c-ouverture { background-color: #16253F; }
+.a-temoin.c-ouverture::before { color: rgba(255,255,255,.55); }
+.a-temoin.c-ouverture .lire-suite, .a-temoin.c-ouverture .qui span:not(.avatar-init) { color: rgba(255,255,255,.7); }
+.a-temoin.c-ouverture .qui b { color: #fff; }
+.a-temoin.c-ouverture .avatar-init { background: rgba(255,255,255,.14); color: #fff; }
+.n-cloture.conseils::before { background-image: url("/img/lsno_jardin.jpg"); background-position: center 50%; }
+
 .pied-public {
   position: relative; isolation: isolate; overflow: hidden; margin-top: 30px;
   text-align: center; padding: 130px 24px 50px; color: #D9D2C4; font-size: 12.5px; line-height: 1.7;

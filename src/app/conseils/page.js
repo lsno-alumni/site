@@ -1,13 +1,13 @@
 import TabBar from "@/components/TabBar";
 import Conseils from "./Conseils";
 import RetourDynamique from "@/components/RetourDynamique";
-import { listeConseils } from "@/lib/api";
+import { listeConseils, utilisateurCourant } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Conseils aux cadets — LSNO Amicale" };
 
 export default async function PageConseils() {
-  const conseils = await listeConseils();
+  const [conseils, moi] = await Promise.all([listeConseils(), utilisateurCourant()]);
   return (
     <main className="page avec-tabbar">
       <header className="n-tete tete-promo1" style={{ paddingBottom: 18 }}>
@@ -15,7 +15,7 @@ export default async function PageConseils() {
         <h1 style={{ marginTop: 8 }}>Conseils<br />aux <em>cadets</em></h1>
         <p className="cpt">La sagesse des anciens, réunie par thème.</p>
       </header>
-      <Conseils conseils={conseils} />
+      <Conseils conseils={conseils} moiId={moi?.id ?? null} />
       <TabBar />
     </main>
   );

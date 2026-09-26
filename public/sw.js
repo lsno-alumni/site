@@ -1,14 +1,27 @@
-// Service worker — UNIQUEMENT les notifications push.
-// ⚠ Aucune mise en cache volontairement : mettre les pages en cache ici
-// créerait des problèmes de fraîcheur (voir la décision « pas de cache client »).
-// Il ne sert donc qu'à recevoir les push et ouvrir la bonne page au clic.
+// Service worker — les notifications push, et une page « hors ligne ».
+// ⚠ Aucune page ni donnée du site n'est mise en cache : la fraîcheur reste
+// intacte (décision « pas de cache client »). Seule la page hors ligne et le
+// blason sont gardés, pour répondre quand le réseau MANQUE — et seulement là.
 
-self.addEventListener("install", () => self.skipWaiting());
+const CACHE_HORS_LIGNE = "lsno-hors-ligne-v1";
+const PAGE_HORS_LIGNE = "/hors-ligne.html";
 
-// ⚠ Gestionnaire « fetch » VOLONTAIREMENT VIDE : Chrome exige sa présence pour
-// proposer l'installation de l'appli. Il ne fait rien — aucune requête n'est
-// interceptée ni mise en cache (la fraîcheur des données reste intacte).
-self.addEventListener("fetch", () => {});
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE_HORS_LIGNE)
+      .then((c) => c.addAll([PAGE_HORS_LIGNE, "/img/logo.jpg"]))
+      .catch(() => { /* sans réseau à l'installation : la page viendra à la prochaine */ })
+  );
+  self.skipWaiting();
+});
+
+// Navigations uniquement (l'ouverture d'une page) : on laisse passer la
+// requête telle quelle, et si le réseau échoue, on répond la page hors ligne.
+// Les autres requêtes (données, images, scripts) ne sont pas touchées.
+self.addEventListener("fetch", (e) => {
+  if (e.request.mode !== "navigate") return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(PAGE_HORS_LIGNE)));
+});
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 
 // ------------------------------------------------------------

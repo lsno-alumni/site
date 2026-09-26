@@ -33,6 +33,9 @@ let ongletLe = 0;     // horodatage du dernier tap sur la barre d'onglets
 let sautLe = 0;       // horodatage du dernier saut de position PROGRAMMÉ (restauration)
 const positions = new Map();
 const affichages = new Map();   // section -> mode d'affichage choisi
+// chemin d'un onglet (/annuaire) -> dernière adresse complète vue (avec
+// recherche et filtres) : la barre d'onglets y ramène, pas à la page nue
+const adressesOnglets = new Map();
 
 const DELAI_RETOUR = 2000; // ms : fenêtre pendant laquelle on considère « retour »
 const cleCourante = () => window.location.pathname + window.location.search;
@@ -41,6 +44,12 @@ const estViaOnglet = () => Date.now() - ongletLe < DELAI_RETOUR;
 
 export function peutRevenir() {
   return profondeur > 0;
+}
+
+// Dernière adresse complète d'un onglet (filtres et recherche compris), ou
+// undefined si l'onglet n'a pas encore été visité dans cette session.
+export function derniereAdresse(chemin) {
+  return adressesOnglets.get(chemin);
 }
 
 // La barre d'onglets se range quand on DESCEND dans la page ; une restauration
@@ -75,6 +84,7 @@ export default function SuiviNavigation() {
       const href = a.getAttribute("href") ?? "";
       if (a.target === "_blank" || /^(https?:|mailto:|tel:|#)/.test(href)) return;
       positions.set(cleCourante(), window.scrollY);
+      adressesOnglets.set(window.location.pathname, cleCourante());
       if (a.closest("nav.tabbar")) ongletLe = Date.now();
     };
     const auRetour = () => {

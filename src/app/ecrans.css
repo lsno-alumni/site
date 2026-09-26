@@ -379,7 +379,8 @@
 :root[data-theme="sombre"] .pub { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 12px 28px -20px rgba(0,0,0,.7); }
 .pub-tete { display: flex; align-items: center; gap: 10px; padding: 14px 10px 0 14px; }
 .pub-qui { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; color: inherit; }
-.pub-qui span { display: flex; flex-direction: column; min-width: 0; }
+/* :not(.avatar-init) — les initiales sont un <span> aussi : sans ça la colonne flex décentrait les lettres dans le cercle */
+.pub-qui > span:not(.avatar-init) { display: flex; flex-direction: column; min-width: 0; }
 .pub-qui b { font-size: 14px; line-height: 1.2; }
 .pub-qui small { font-size: 12px; color: var(--brume); margin-top: 2px; }
 .pub-avatar { width: 40px !important; height: 40px !important; border-radius: 50%; object-fit: cover; font-size: 13px; flex-shrink: 0; }
@@ -408,7 +409,7 @@
 }
 :root[data-theme="sombre"] .pub-arrivee { background-color: #16253F; }
 .pub-arrivee-corps { display: flex; align-items: center; gap: 12px; color: inherit; }
-.pub-arrivee-corps > span { display: flex; flex-direction: column; min-width: 0; }
+.pub-arrivee-corps > span:not(.avatar-init) { display: flex; flex-direction: column; min-width: 0; }
 .pub-arrivee .pub-etiquette { color: #F3E3CF; }
 .pub-arrivee b { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; }
 .pub-arrivee-meta { font-size: 12.5px; color: rgba(255,255,255,.75); margin-top: 3px; }

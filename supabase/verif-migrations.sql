@@ -144,6 +144,9 @@ with attendu(num, laisse, present) as (
     and to_regprocedure('lire_question(bigint)') is not null
   union all select 60, 'bravo sur les questions et les réponses (basculer_bravo élargi)',
     exists (select 1 from pg_proc where proname = 'basculer_bravo' and prosrc like '%reponse%')
+  union all select 61, 'questions : pièce jointe, recherche, fermeture automatique (liste_questions à 5 paramètres)',
+    to_regprocedure('liste_questions(text, text, integer, timestamptz, text)') is not null
+    and exists (select 1 from cron.job where jobname = 'fermer-questions')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

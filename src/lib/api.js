@@ -282,7 +282,7 @@ export async function donneesAccueilMembre(moi) {
   const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
   const aujourdhui = new Date().toISOString().slice(0, 10);
 
-  const [nouveaux, offres, conseils, demandes, stats] = await Promise.all([
+  const [nouveaux, offres, conseils, demandes, stats, questions] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, prenom, nom, photo_url, domaine, domaine_precision, promotions(numero)")
@@ -313,10 +313,12 @@ export async function donneesAccueilMembre(moi) {
           .eq("statut_compte", "en_attente")
       : Promise.resolve({ count: 0 }),
     supabase.rpc("stats_publiques"),
+    supabase.rpc("liste_questions", { p_filtre: "sans_reponse", p_theme: null, p_limite: 3, p_avant: null, p_q: null }),
   ]);
 
   const listeConseils = conseils.data ?? [];
   return {
+    questions: (questions.data ?? []).filter((q) => !q.masquee),
     nouveaux: nouveaux.data ?? [],
     offres: offres.data ?? [],
     conseil: listeConseils.length

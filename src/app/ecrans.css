@@ -2229,3 +2229,18 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .qa-reponses-fixe { padding-bottom: 100px; }
 
 .qa-form-edition { padding: 14px 22px 0; }
+
+/* questions : suite (accueil, pièce, liées, fermée) */
+.am-sous-titre { font-size: 13px; color: var(--texte-2); margin-bottom: 12px; line-height: 1.5; }
+.am-question { display: grid; gap: 4px; }
+.am-question .qa-theme { font-size: 10px; }
+.am-question-repondre { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--bleu-texte); font-weight: 600; }
+.qa-piece-photo { display: block; margin: 14px 22px 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--ligne); }
+.qa-piece-photo img { display: block; width: 100%; max-height: 360px; object-fit: cover; }
+.qa-piece-pdf { margin: 14px 22px 0; color: var(--texte); }
+.qa-liees { padding: 8px 16px 0; display: grid; gap: 10px; }
+.qa-liees h4 { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--bleu-texte); font-family: var(--font-ui), sans-serif; }
+.qa-liees .qa-carte { padding: 10px 14px; gap: 5px; }
+.qa-liees .qa-titre { font-size: 15px; }
+.qa-liees .qa-extrait { display: none; }
+.qa-fermee { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 13px; color: var(--texte-2); flex-wrap: wrap; }

@@ -40,6 +40,34 @@ const STATUTS = { valide: "validé", en_attente: "en attente de validation", sus
 const CLE_EMAILS = "emails_inscription_admins";  // les EMAILS aux admins
 const CLE_PUSH   = "push_inscription_admins";    // les NOTIFICATIONS aux admins (migration 45)
 
+// fichiers et octets par bucket (photos, ressources, medias, pieces) : le
+// palier gratuit s'arrête à 1 Go, on s'inquiète à partir de 700 Mo
+const NOMS_BUCKETS = { photos: "Photos de profil", ressources: "Ressources", medias: "Fil (photos, vidéos) et photos de groupe", pieces: "Pièces jointes des messages" };
+const SEUIL_MO = 700;
+function Stockage() {
+  const [liste, setListe] = useState(null);
+  useEffect(() => { import("@/lib/messages").then(({ adminStockage }) => adminStockage().then(setListe).catch(() => setListe([]))); }, []);
+  const total = (liste ?? []).reduce((s, b) => s + Number(b.octets), 0);
+  const mo = (o) => (o / 1048576).toFixed(1).replace(".", ",") + " Mo";
+  const alerte = total > SEUIL_MO * 1048576;
+  return (
+    <div className="carte-sombre" style={{ padding: "10px 14px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 12.5 }}>
+        <b>Stockage</b>
+        <span style={{ color: alerte ? "var(--rouge)" : "var(--texte-2)" }}>{liste === null ? "…" : `${mo(total)} / 1 Go${alerte ? " — proche de la limite" : ""}`}</span>
+      </div>
+      {liste?.map((b) => (
+        <div key={b.bucket} style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--brume)", padding: "4px 0" }}>
+          <span style={{ flex: 1 }}>{NOMS_BUCKETS[b.bucket] ?? b.bucket}</span>
+          <span>{b.fichiers} fichier{b.fichiers > 1 ? "s" : ""}</span>
+          <span style={{ minWidth: 64, textAlign: "right", color: "var(--texte-2)" }}>{mo(Number(b.octets))}</span>
+        </div>
+      ))}
+      {liste?.length === 0 && <p style={{ fontSize: 12, color: "var(--brume)" }}>Rien à afficher (réservé aux modérateurs).</p>}
+    </div>
+  );
+}
+
 export default function EtatSysteme() {
   const supabase = creerClientNavigateur();
   const [etat, setEtat] = useState(null);
@@ -89,6 +117,7 @@ export default function EtatSysteme() {
       <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6 }}>
         Les tâches automatiques et leur dernière exécution.
       </p>
+      <Stockage />
       <div className="carte-sombre" style={{ padding: "6px 14px" }}>
         {(etat.jobs ?? []).map((j) => {
           const ok = !j.derniere || j.derniere.statut === "succeeded";

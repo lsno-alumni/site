@@ -126,7 +126,12 @@ export default function TabBar({ actif }) {
   useEffect(() => {
     if (connecte === false) return;
     let vivant = true;
-    const lire = () => nonLus().then((n) => { if (vivant) { nonLusCache = n; setNonLu(n); } }).catch(() => {});
+    const lire = () => nonLus().then((n) => {
+      if (!vivant) return;
+      nonLusCache = n; setNonLu(n);
+      // pastille sur l'icône de l'appli installée (Android, ordinateur) : rien à demander à l'utilisateur
+      try { if (n > 0) navigator.setAppBadge?.(n); else navigator.clearAppBadge?.(); } catch { /* non pris en charge */ }
+    }).catch(() => {});
     lire();
     // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit
     const stop = ecouterTousMessages(() => lire());

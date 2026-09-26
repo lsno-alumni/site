@@ -131,6 +131,9 @@ with attendu(num, laisse, present) as (
     and exists (select 1 from pg_policies where tablename = 'objects' and policyname = 'pieces_lecture')
   union all select 55, 'réactions libres sur les messages (contrainte emoji assouplie)',
     exists (select 1 from pg_constraint where conname = 'message_reactions_emoji_check' and pg_get_constraintdef(oid) like '%char_length%')
+  union all select 56, 'messagerie : blocages, signalement de message, stockage, photo/description/épinglé de groupe, sondages',
+    to_regclass('public.blocages') is not null and to_regclass('public.sondages') is not null
+    and to_regprocedure('admin_stockage()') is not null
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

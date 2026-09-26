@@ -18,6 +18,7 @@ import { mesConversations, nomConversation, ecouterTousMessages, ecouterFrappes,
 
 function Vignette({ c }) {
   if (c.type === "groupe") {
+    if (c.photo_url) return <img src={c.photo_url} alt="" className="msg-vignette" />;
     const deux = (c.membres ?? []).slice(0, 2);
     return (
       <span className="msg-vignette groupe" aria-hidden>

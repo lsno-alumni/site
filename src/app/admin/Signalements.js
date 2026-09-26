@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { moderer } from "@/lib/fil";
+import { adminSupprimerMessage } from "@/lib/messages";
 
 // Signalements du Fil (migration 52) : ce que les membres ont signalé et qui
 // n'a pas encore été traité. Lecture réservée aux délégués et admins par la
 // politique RLS. Traiter = masquer la cible (tracé au journal) ou classer
 // sans suite ; dans les deux cas la ligne sort de la liste.
 
-const TYPES = { publication: "Publication", commentaire: "Commentaire", offre: "Offre" };
+const TYPES = { publication: "Publication", commentaire: "Commentaire", offre: "Offre", message: "Message privé" };
 
 function quand(d) {
   return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -49,7 +50,8 @@ export default function Signalements() {
   const traiter = async (s, masquer) => {
     setSouci("");
     try {
-      if (masquer && s.cible_type !== "offre") await moderer(s.cible_type, s.cible_id, true);
+      if (masquer && s.cible_type === "message") await adminSupprimerMessage(s.cible_id);
+      else if (masquer && s.cible_type !== "offre") await moderer(s.cible_type, s.cible_id, true);
       const { data: { user } } = await supabase.auth.getUser();
       // tous les signalements de la même cible sont classés d'un coup
       const { error } = await supabase.from("signalements")
@@ -86,7 +88,7 @@ export default function Signalements() {
             <div className="ad-signal-actions">
               {url && <Link href={url} className="btn btn-nu">Voir</Link>}
               {s.cible_type !== "offre" && !ap?.masque && (
-                <button type="button" className="btn btn-nu danger" onClick={() => traiter(s, true)}>Masquer</button>
+                <button type="button" className="btn btn-nu danger" onClick={() => traiter(s, true)}>{s.cible_type === "message" ? "Supprimer le message" : "Masquer"}</button>
               )}
               <button type="button" className="btn btn-nu" onClick={() => traiter(s, false)}>Classer sans suite</button>
             </div>

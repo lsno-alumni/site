@@ -12,6 +12,13 @@ export default function LecteurAudio({ src, mienne = false }) {
   const [joue, setJoue] = useState(false);
   const [temps, setTemps] = useState(0);
   const [duree, setDuree] = useState(0);
+  const [vitesse, setVitesse] = useState(1);
+  const changerVitesse = (e) => {
+    e.stopPropagation();
+    const v = vitesse === 1 ? 1.5 : vitesse === 1.5 ? 2 : 1;
+    setVitesse(v);
+    if (audio.current) audio.current.playbackRate = v;
+  };
   useEffect(() => {
     const a = audio.current;
     if (!a) return;
@@ -55,6 +62,7 @@ export default function LecteurAudio({ src, mienne = false }) {
         <div className="lecteur-audio-curseur" style={{ left: `${part}%` }} />
       </div>
       <span className="lecteur-audio-temps">{joue || temps > 0 ? mmss(temps) : duree ? mmss(duree) : "vocal"}</span>
+      <button type="button" className="lecteur-audio-vitesse" onClick={changerVitesse} aria-label={`Vitesse ${vitesse}×`}>{vitesse === 1 ? "1×" : vitesse === 1.5 ? "1,5×" : "2×"}</button>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export default function ChoixTheme({ compact = false }) {
       {OPTIONS.map(({ cle, nom, Icone }) => (
         <button key={cle} type="button" className={reglage === cle ? "on" : ""}
           aria-pressed={reglage === cle} onClick={() => choisir(cle)}>
-          <Icone size={14} strokeWidth={1.9} aria-hidden /> {nom}
+          <Icone size={14} strokeWidth={1.9} aria-hidden /> <span className="ct-nom">{nom}</span>
         </button>
       ))}
     </div>

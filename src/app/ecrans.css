@@ -913,19 +913,25 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .mp-chapitre { padding: 22px 0 10px; border-bottom: 1px solid var(--ligne); scroll-margin-top: 70px; }
 .f-corps > .mp-chapitre:first-child { padding-top: 6px; }
 .n-cloture.compte { text-align: left; padding-top: 30px; }
-/* la même matière que la carte Double authentification (carte-sombre) :
-   papier kraft et texte du thème, en clair comme en sombre — pas de pierre ici */
+/* CLAIR : exactement l'intérieur de la carte Double authentification
+   (.bloc-notif : --fond-2 + grain kraft + liseré + bordure) ; SOMBRE : la pierre au grain
+   kraft, telle qu'elle était */
 .n-cloture.compte::before { display: none; }
 .n-cloture.compte {
-  background-color: var(--sable); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  background-color: var(--fond-2); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
   color: var(--texte); border-top: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
 }
-:root[data-theme="sombre"] .n-cloture.compte { box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
 .n-cloture.compte .lbl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 14px; }
 .n-cloture.compte p { max-width: none; margin: 0 0 14px; color: var(--texte); }
 .mp-compte { display: grid; gap: 10px; }
-.n-cloture.compte .btn-nu { background: var(--carte); color: var(--texte); border-color: var(--ligne); justify-content: center; }
+.n-cloture.compte .btn-nu { background: transparent; color: var(--texte); border-color: var(--ligne); justify-content: center; }
 .n-cloture.compte .e-danger { display: block; margin: 18px auto 0; color: var(--rouge); }
+:root[data-theme="sombre"] .n-cloture.compte::before { display: block; background: url("/fonds/kraft-sombre.jpg") 0 0 / 420px auto; opacity: .4; mix-blend-mode: screen; -webkit-mask-image: none; mask-image: none; }
+:root[data-theme="sombre"] .n-cloture.compte { background: var(--pierre); color: #EFE8DB; border-top: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+:root[data-theme="sombre"] .n-cloture.compte .lbl { color: #F3E3CF; }
+:root[data-theme="sombre"] .n-cloture.compte p { color: rgba(239,232,219,.82); }
+:root[data-theme="sombre"] .n-cloture.compte .btn-nu { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.4); }
+:root[data-theme="sombre"] .n-cloture.compte .e-danger { color: #F2A9A0; }
 /* la barre d'enregistrement : au-dessus de la navigation, glisse quand une
    modification attend ; suit la barre de navigation quand celle-ci se range */
 .mp-barre {

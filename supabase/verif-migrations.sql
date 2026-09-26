@@ -142,6 +142,8 @@ with attendu(num, laisse, present) as (
   union all select 59, 'Questions aux anciens : tables questions et reponses, liste_questions, lire_question',
     to_regclass('public.questions') is not null and to_regclass('public.reponses') is not null
     and to_regprocedure('lire_question(bigint)') is not null
+  union all select 60, 'bravo sur les questions et les réponses (basculer_bravo élargi)',
+    exists (select 1 from pg_proc where proname = 'basculer_bravo' and prosrc like '%reponse%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

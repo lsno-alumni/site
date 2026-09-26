@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import * as memoire from "@/lib/memoire";
 import { Plus, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
@@ -28,8 +30,11 @@ function lienAbsolu(v) {
 
 export default function Offres() {
   const supabase = creerClientNavigateur();
-  const [moi, setMoi] = useState(null);
-  const [offres, setOffres] = useState(null); // null = chargement
+  const routeur = useRouter();
+  // mémoire d'onglet : ce qu'on avait s'affiche tout de suite, le vrai
+  // chargement se fait derrière (voir src/lib/memoire.js)
+  const [moi, setMoi] = useState(() => memoire.lire("offres.moi") ?? null);
+  const [offres, setOffres] = useState(() => memoire.lire("offres.liste") ?? null); // null = chargement
   const [type, setType] = useState("tous");
   const [domaine, setDomaine] = useState("");
   const [triLimite, setTriLimite] = useState(false); // date limite la plus proche d'abord
@@ -94,6 +99,8 @@ export default function Offres() {
     setOffres(data ?? []);
   };
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { memoire.ecrire("offres.liste", offres); }, [offres]);
+  useEffect(() => { memoire.ecrire("offres.moi", moi); }, [moi]);
 
   // lien de partage /offres/ID → arrivée sur #o-ID : défile et surligne l'offre
   useEffect(() => {
@@ -187,6 +194,7 @@ export default function Offres() {
     reinitialiser();
     signale(edition ? "Offre modifiée ✓" : "Offre publiée ✓");
     charger();
+    routeur.refresh();   // l'accueil (3 dernières offres) est en cache 30 s : on le rafraîchit
   };
 
   const modifier = (o) => {
@@ -206,6 +214,7 @@ export default function Offres() {
     await supabase.from("offres").update({ statut: "cloturee" }).eq("id", o.id);
     setOffres((l) => l.filter((x) => x.id !== o.id));
     signale("Offre clôturée ✓");
+    routeur.refresh();
   };
 
   const supprimer = async (o) => {
@@ -217,6 +226,7 @@ export default function Offres() {
     await supabase.from("offres").delete().eq("id", o.id);
     setOffres((l) => l.filter((x) => x.id !== o.id));
     signale("Offre supprimée");
+    routeur.refresh();
   };
 
   return (

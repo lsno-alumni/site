@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -9,6 +10,7 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 // contacts « sur demande » au demandeur ; refuser reste silencieux pour lui.
 export default function DemandesRecues({ signale }) {
   const supabase = creerClientNavigateur();
+  const routeur = useRouter();
   const [demandes, setDemandes] = useState([]);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function DemandesRecues({ signale }) {
       return;
     }
     setDemandes((l) => l.filter((x) => x.id !== d.id));
+    routeur.refresh();   // le profil consulté par le demandeur est en cache 30 s
     signale(accepte
       ? `Contacts ouverts à ${d.demandeur.prenom} ✓`
       : "Demande refusée (il n'en sera pas informé)");

@@ -1328,6 +1328,9 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
      de l'annuaire pour que la feuille se distingue de ce qu'elle recouvre */
   background-color: var(--fond-profil);
   background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  /* le grain défile AVEC le contenu de la feuille, comme sur les pages (sinon
+     il reste accroché à la boîte fixe pendant que le texte bouge) */
+  background-attachment: local;
   border-radius: 22px 22px 0 0;
   box-shadow: 0 -20px 50px -10px rgba(0,0,0,.5);
   transform: translateY(100%);

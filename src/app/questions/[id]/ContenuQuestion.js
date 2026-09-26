@@ -35,7 +35,7 @@ export function TeteQuestion({ q }) {
   );
 }
 
-export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false }) {
+export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, onMaj }) {
   const routeur = useRouter();
   const [q, setQ] = useState(initial);
   const [texte, setTexte] = useState("");
@@ -47,7 +47,8 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false }
   const mentions = useMentions(texte, setTexte, champ);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu !== null, (e) => !!e.target.closest?.(".qa-menu"), () => setMenu(null));
-  const recharger = async () => { try { const n = await lireQuestion(q.id); if (n) setQ(n); memoire.ecrire("questions.liste", null); memoire.ecrire("fil.items", null); } catch { /* on garde l'état */ } };
+  // la tête (titre, badge « Résolue ») vit chez le parent : on la tient au courant
+  const recharger = async () => { try { const n = await lireQuestion(q.id); if (n) { setQ(n); onMaj?.(n); } memoire.ecrire("questions.liste", null); memoire.ecrire("fil.items", null); } catch { /* on garde l'état */ } };
 
   const envoyer = async (e) => {
     e.preventDefault();
@@ -168,11 +169,12 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false }
   );
 }
 
-export default function ContenuQuestion({ q, moi, moderateur }) {
+export default function ContenuQuestion({ q: initial, moi, moderateur }) {
+  const [q, setQ] = useState(initial);
   return (
     <>
       <TeteQuestion q={q} />
-      <SuiteQuestion q={q} moi={moi} moderateur={moderateur} />
+      <SuiteQuestion q={q} moi={moi} moderateur={moderateur} onMaj={setQ} />
     </>
   );
 }

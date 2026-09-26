@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Camera, MessageCircle, Share2, MoreHorizontal, PenLine, ArrowRight, Play } from "lucide-react";
@@ -14,6 +14,7 @@ import * as memoire from "@/lib/memoire";
 import { joursRestants, nomType } from "@/lib/offres";
 import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
 import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
+import useClicDehors from "@/lib/useClicDehors";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
 // (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
@@ -30,6 +31,8 @@ const FILTRES = [
 
 function Publication({ p, moi, moderateur, onChange, signale }) {
   const [menu, setMenu] = useState(false);
+  const menuRef = useRef(null);
+  useClicDehors(menu, (e) => menuRef.current?.contains(e.target), () => setMenu(false));
   const mienne = p.auteur.id === moi.id;
   const agir = async (action) => {
     setMenu(false);
@@ -58,7 +61,7 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
               {p.visibilite && p.visibilite !== "tous" && <span className="pub-visi">{VISIBILITES.find((v) => v.cle === p.visibilite)?.court}</span>}</small>
           </span>
         </Link>
-        <span className="pub-menu">
+        <span className="pub-menu" ref={menuRef}>
           <button type="button" className="pub-plus" aria-label="Options" onClick={() => setMenu(!menu)}><MoreHorizontal size={18} aria-hidden /></button>
           {menu && (
             <span className="pub-menu-liste">

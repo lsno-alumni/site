@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hors ligne — LSNO Amicale</title>
+<!-- Page servie par le service worker quand le réseau manque (voir public/sw.js).
+     Autonome : aucune police ni image externe, seul le blason est mis en cache
+     avec elle. Le thème suit le réglage de l'appli (localStorage lsno-theme). -->
+<script>
+  try {
+    var r = localStorage.getItem("lsno-theme") || "auto";
+    var h = new Date().getHours();
+    document.documentElement.setAttribute("data-theme", r === "auto" ? (h >= 6 && h < 19 ? "clair" : "sombre") : r);
+  } catch (e) {}
+</script>
+<style>
+  :root { --fond: #F6F0E4; --texte: #1F2230; --texte-2: #3E4454; --brume: #7C8190; --carte: #FFFCF6; --ligne: rgba(31,34,48,.12); --bleu: #1E3A62; --bleu-texte: #1E3A62; --sur-accent: #F6F0E4; }
+  :root[data-theme="sombre"] { --fond: #0F1219; --texte: #EFE8DB; --texte-2: #C9C2B4; --brume: #8B90A0; --carte: #1D2231; --ligne: rgba(239,232,219,.13); --bleu: #3B6FD1; --bleu-texte: #6FA8F5; --sur-accent: #fff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { background: var(--fond); color: var(--texte); font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+  main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 28px; }
+  .rond { width: 84px; height: 84px; border-radius: 50%; background: var(--bleu); display: grid; place-items: center; margin-bottom: 22px; box-shadow: 0 18px 44px -14px rgba(30,58,98,.5); }
+  .rond svg { width: 38px; height: 38px; stroke: var(--sur-accent); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  h1 { font-family: "Fraunces", Georgia, "Times New Roman", serif; font-weight: 500; font-size: 30px; line-height: 1.1; margin: 0 0 12px; }
+  h1 em { font-style: italic; color: var(--bleu-texte); }
+  p { color: var(--texte-2); font-size: 15px; line-height: 1.6; max-width: 32ch; margin: 0 0 26px; }
+  button { font: inherit; font-weight: 700; color: var(--sur-accent); background: var(--bleu); border: 0; border-radius: 100px; padding: 14px 26px; cursor: pointer; }
+  footer { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 24px; opacity: .55; }
+  footer img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ligne); }
+  footer span { font-family: "Fraunces", Georgia, serif; font-size: 14px; }
+  footer small { font-size: 9.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--texte-2); }
+</style>
+</head>
+<body>
+<main>
+  <div class="rond" aria-hidden>
+    <svg viewBox="0 0 24 24"><path d="M1 1l22 22"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg>
+  </div>
+  <h1>Tu es <em>hors ligne.</em></h1>
+  <p>Le réseau reviendra. LSNO Amicale ne garde rien en mémoire sur ton téléphone, il attend simplement la connexion.</p>
+  <button type="button" onclick="location.reload()">Réessayer</button>
+</main>
+<footer aria-label="LSNO Amicale">
+  <img src="/img/logo.jpg" alt="">
+  <span>LSNO Amicale</span>
+  <small>Travail · Excellence · Discipline</small>
+</footer>
+<script>
+  // dès que le réseau revient, on recharge tout seul
+  window.addEventListener("online", function () { location.reload(); });
+</script>
+</body>
+</html>

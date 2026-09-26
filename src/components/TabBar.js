@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { sautRecent } from "@/components/SuiviNavigation";
+import { useRouter } from "next/navigation";
+import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 
 // 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
 // délégués et admins (les membres n'y ont pas accès — la page affiche
@@ -112,6 +113,7 @@ function useCacherAuDefilement() {
 }
 
 export default function TabBar({ actif }) {
+  const routeur = useRouter();
   const [role, setRole] = useState(roleCache);
   const [connecte, setConnecte] = useState(connecteCache ?? (roleCache ? true : null));
   const cachee = useCacherAuDefilement();
@@ -151,14 +153,35 @@ export default function TabBar({ actif }) {
 
   const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;
 
+  // Un onglet est un ÉTAT, pas une page (comme dans une appli) :
+  //  - un tap sur l'onglet déjà actif remonte en haut ;
+  //  - un tap sur un autre onglet ramène à sa dernière adresse complète
+  //    (recherche et filtres compris), à la position mémorisée — SuiviNavigation
+  //    a déjà noté le tap (écouteur en capture) quand on arrive ici.
+  const auTap = (e, o) => {
+    if (actif === o.nom) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const adresse = derniereAdresse(o.href);
+    if (adresse && adresse !== o.href) {
+      e.preventDefault();
+      routeur.push(adresse, { scroll: false });
+    }
+  };
+
   if (connecte === false) return null;
   return (
     <nav className={`tabbar${cachee ? " tabbar-cachee" : ""}`} aria-label="Navigation principale">
       {/* scroll={false} : c'est RestaurerDefilement (SuiviNavigation.js) qui place la
           page — à la position mémorisée de l'onglet, ou en haut — d'un coup, sans
-          le glissement vers le haut que Next ferait après coup */}
+          le glissement vers le haut que Next ferait après coup.
+          prefetch : les onglets sont chargés en arrière-plan dès l'ouverture (en
+          production seulement) et gardés 5 min — le premier tap est instantané */}
       {onglets.map((o) => (
-        <Link key={o.href} href={o.href} scroll={false} className={`tab${actif === o.nom ? " on" : ""}`}>
+        <Link key={o.href} href={o.href} scroll={false} prefetch={true} onClick={(e) => auTap(e, o)}
+          className={`tab${actif === o.nom ? " on" : ""}`}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
         </Link>

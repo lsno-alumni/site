@@ -5,7 +5,7 @@
 // courte (.page-sceau), il suit le contenu quand elle est longue.
 export default function Sceau() {
   return (
-    <footer className="sceau" aria-label="LSNO Amicale">
+    <footer className="pied-sceau" aria-label="LSNO Amicale">
       <img src="/img/logo.jpg" alt="" width={44} height={44} />
       <span>LSNO Amicale</span>
       <small>Travail · Excellence · Discipline</small>

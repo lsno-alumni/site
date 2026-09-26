@@ -102,6 +102,9 @@ create or replace function net.http_post(
   url text, body jsonb default '{}'::jsonb, params jsonb default '{}'::jsonb,
   headers jsonb default '{}'::jsonb, timeout_milliseconds int default 5000
 ) returns bigint language sql as $$ select 1::bigint $$;
+create or replace function net.http_delete(
+  url text, params jsonb default '{}'::jsonb, headers jsonb default '{}'::jsonb, timeout_milliseconds int default 5000
+) returns bigint language sql as $$ select 1::bigint $$;
 
 -- ---------- le schéma storage ----------
 create schema if not exists storage;

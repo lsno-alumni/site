@@ -45,4 +45,5 @@ select set_config('essai.uid', 'aaaaaaaa-0000-0000-0000-000000000001', false);
 set role authenticated;
 select 'A après expiration' as essai, json_array_length(rail_moments()->0->'moments') as moments;
 reset role;
-select 'purge' as essai, purge_moments_expires() as purges, (select count(*)::int from moments) as restants;
+select 'purge' as essai, purge_moments_expires() as purges;
+select 'restants' as essai, count(*)::int as n from moments;   -- instruction séparée : dans la même, le compte verrait l'état d'avant

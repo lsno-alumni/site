@@ -8,7 +8,7 @@ import { CouvertureOffre, TeteOffre, SuiteOffre } from "@/app/offres/[id]/Conten
 // et retrouve la liste telle qu'elle était (filtres et position compris).
 // TÊTE (couverture + titre, purement visuelle) = zone glissable ;
 // SUITE (description, boutons, auteur) = zone défilante, jamais glissable.
-export default function FeuilleOffreModal({ o, moiId, jours }) {
+export default function FeuilleOffreModal({ o, moiId, jours, suite }) {
   const router = useRouter();
   return (
     <FeuilleGlissante
@@ -18,7 +18,7 @@ export default function FeuilleOffreModal({ o, moiId, jours }) {
         <TeteOffre o={o} />
       </>}
     >
-      <SuiteOffre o={o} moiId={moiId} />
+      <SuiteOffre o={o} moiId={moiId} suite={suite} />
     </FeuilleGlissante>
   );
 }

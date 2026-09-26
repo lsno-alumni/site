@@ -5,6 +5,7 @@ import TamponDate from "@/components/TamponDate";
 import { DOMAINES, nomPays } from "@/lib/donnees";
 import { nomType, echeanceLongue, urlFichier, ilYA } from "@/lib/offres";
 import PartagerOffre from "./PartagerOffre";
+import SuiteOffres from "./SuiteOffres";
 
 // Le contenu visuel d'une offre, PARTAGÉ entre la vraie page (/offres/[id])
 // et la feuille glissante ouverte depuis la liste (@modal). Même découpe que
@@ -42,7 +43,7 @@ export function TeteOffre({ o }) {
   );
 }
 
-export function SuiteOffre({ o, moiId }) {
+export function SuiteOffre({ o, moiId, suite }) {
   const p = o.posteur;
   const mienne = moiId && p?.id === moiId;
   return (
@@ -82,6 +83,8 @@ export function SuiteOffre({ o, moiId }) {
           </Link>
         </section>
       )}
+
+      <SuiteOffres suite={suite} domaine={DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0]?.toLowerCase()} />
     </>
   );
 }

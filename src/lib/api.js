@@ -178,6 +178,39 @@ export async function lireOffre(id) {
   return data;
 }
 
+// Fin de page d'une offre ouverte : jusqu'à 3 autres offres actives (les
+// échéances les plus proches d'abord, puis les plus récentes) et jusqu'à 4
+// anciens du même domaine (ceux qui répondent aux cadets d'abord, tirés au
+// hasard parmi tous). « Élève » et « Autre » sont trop vagues pour un domaine.
+export async function suiteOffre(id, domaine) {
+  const supabase = await creerClientServeur();
+  const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const [ro, ra] = await Promise.all([
+    supabase.from("offres")
+      .select("id, type, titre, domaine, pays, ville, date_limite, cree_le")
+      .eq("statut", "active").neq("id", Number(id))
+      .or(`date_limite.gte.${aujourdhui},and(date_limite.is.null,cree_le.gte.${limite60})`)
+      .order("date_limite", { ascending: true, nullsFirst: false })
+      .order("cree_le", { ascending: false })
+      .limit(3),
+    !domaine || domaine === "eleve" || domaine === "autre"
+      ? Promise.resolve({ data: [] })
+      : supabase.from("profiles")
+          .select("id, prenom, nom, photo_url, domaine, domaine_precision, repond_cadets, promotions!inner(numero)")
+          .eq("statut_compte", "valide").eq("domaine", domaine),
+  ]);
+  if (ro.error) console.error("suiteOffre (offres):", ro.error.message);
+  if (ra.error) console.error("suiteOffre (anciens):", ra.error.message);
+  const l = [...(ra.data ?? [])];
+  for (let i = l.length - 1; i > 0; i--) {                    // mélange, puis ceux qui répondent devant
+    const j = Math.floor(Math.random() * (i + 1));
+    [l[i], l[j]] = [l[j], l[i]];
+  }
+  l.sort((x, y) => (y.repond_cadets ? 1 : 0) - (x.repond_cadets ? 1 : 0));
+  return { offres: ro.data ?? [], anciens: l.slice(0, 4) };
+}
+
 export async function apercuOffre(id) {
   // Vitrine d'une offre pour les aperçus de partage (sans session).
   const supabase = await creerClientServeur();

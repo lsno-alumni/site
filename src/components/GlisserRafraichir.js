@@ -30,8 +30,8 @@ import { Loader2, ArrowDown, Check } from "lucide-react";
 // `touchmove` non passif annulé peut le faire, et c'est ainsi que procèdent
 // les bibliothèques de glisser-rafraîchir qui marchent sur iPhone. Réactivé
 // le 26/09 à la demande de l'utilisateur, avec cette annulation tactile
-// explicite — À VALIDER SUR UN VRAI iPHONE (rien ne l'émule ici). Si le
-// rebond gagne encore, rétablir l'exclusion (`estIOS()` ci-dessous).
+// explicite — VALIDÉ sur iPhone par l'utilisateur le 26/09 (« tout
+// marche »). `estIOS()` reste disponible si un modèle devait faire exception.
 const SEUIL = 70; // px de tirage pour déclencher au lâcher
 
 export function estIOS() {

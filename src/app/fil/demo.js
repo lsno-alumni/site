@@ -50,3 +50,23 @@ export const FIL_DEMO = [
     membre: { id: "a7", prenom: "Yacouba", nom: "DIALLO", promo: 1, domaine: "Aéronautique", photo: null, ville: "Toulouse" },
   },
 ];
+
+// commentaires de démonstration, par publication
+export const COMMENTAIRES_DEMO = {
+  1: [
+    { id: 11, il_y_a: "il y a 1 h", auteur: { id: "b1", prenom: "Ibrahim", nom: "ZONGO", promo: 2, photo: "/img/av5.jpg" }, texte: "Félicitations Aïcha ! On savait depuis la première que tu irais loin." },
+    { id: 12, il_y_a: "il y a 50 min", auteur: { id: "b2", prenom: "Rasmata", nom: "NIKIÉMA", promo: 4, photo: null }, texte: "Bravo ! Tu reviens au pays ou tu continues au Maroc ?" },
+    { id: 13, il_y_a: "il y a 40 min", auteur: { id: "a1", prenom: "Aïcha", nom: "KABORÉ", promo: 2, photo: "/img/av2.jpg" }, texte: "Merci ! Je rentre en septembre, un poste m'attend à Ouaga.", reponse_a: 12 },
+    { id: 14, il_y_a: "il y a 10 min", auteur: { id: "b3", prenom: "Moussa", nom: "TRAORÉ", promo: 1, photo: null }, texte: "La relève est assurée. Fier de la promo 2." },
+  ],
+  3: [
+    { id: 31, il_y_a: "hier", auteur: { id: "b4", prenom: "Fatimata", nom: "SAWADOGO", promo: 3, photo: "/img/av4.jpg" }, texte: "Oui, je l'ai faite en 2024 pour ma licence. Compte 8 mois et un dossier très détaillé. Je t'écris en privé." },
+    { id: 32, il_y_a: "hier", auteur: { id: "b1", prenom: "Ibrahim", nom: "ZONGO", promo: 2, photo: "/img/av5.jpg" }, texte: "Le point qui bloque souvent : les relevés de notes traduits et certifiés. Anticipe." },
+  ],
+  5: [
+    { id: 51, il_y_a: "avant-hier", auteur: { id: "b5", prenom: "Yacouba", nom: "DIALLO", promo: 1, photo: null }, texte: "La promo 1 vous attend pour la prochaine, on fera les deux ensemble." },
+  ],
+  7: [
+    { id: 71, il_y_a: "il y a 2 j", auteur: { id: "a1", prenom: "Aïcha", nom: "KABORÉ", promo: 2, photo: "/img/av2.jpg" }, texte: "Courage Rasmata. Un ancien de la promo 1 l'a eue en 2023, je te mets en contact." },
+  ],
+};

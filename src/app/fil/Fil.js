@@ -40,15 +40,17 @@ function Publication({ p }) {
         </Link>
         <button type="button" className="pub-plus" aria-label="Options"><MoreHorizontal size={18} aria-hidden /></button>
       </header>
-      <p className="pub-texte">{p.texte}</p>
-      {p.photo && <img className="pub-photo" src={p.photo} alt="" />}
+      <Link href={`/publication/${p.id}`} className="pub-ouvrir">
+        <p className="pub-texte">{p.texte}</p>
+        {p.photo && <img className="pub-photo" src={p.photo} alt="" />}
+      </Link>
       <footer className="pub-pied">
         <button type="button" className={`pub-action${bravo ? " on" : ""}`} onClick={() => setBravo(!bravo)} aria-pressed={bravo}>
           <ThumbsUp size={16} strokeWidth={bravo ? 2.4 : 1.9} aria-hidden /> Bravo{n > 0 && <b>{n}</b>}
         </button>
-        <button type="button" className="pub-action">
+        <Link href={`/publication/${p.id}`} className="pub-action">
           <MessageCircle size={16} strokeWidth={1.9} aria-hidden /> {p.commentaires > 0 ? <>Commenter<b>{p.commentaires}</b></> : "Commenter"}
-        </button>
+        </Link>
         <button type="button" className="pub-action" aria-label="Partager"><Share2 size={16} strokeWidth={1.9} aria-hidden /></button>
       </footer>
     </article>
@@ -120,11 +122,11 @@ export default function Fil({ moi, fil }) {
       </header>
 
       {/* composer : une feuille de papier qui chevauche la photo */}
-      <button type="button" className="fil-compose">
+      <Link href="/fil/nouvelle" className="fil-compose">
         <Avatar profil={moi} className="pub-avatar" />
         <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
         <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
-      </button>
+      </Link>
 
       <div className="n-panneau fil-filtres">
         <div className="n-filtres">
@@ -146,7 +148,7 @@ export default function Fil({ moi, fil }) {
       </div>
 
       {/* écrire depuis n'importe où dans le fil */}
-      <button type="button" className="fil-fab" aria-label="Publier"><PenLine size={20} strokeWidth={2} aria-hidden /></button>
+      <Link href="/fil/nouvelle" className="fil-fab" aria-label="Publier"><PenLine size={20} strokeWidth={2} aria-hidden /></Link>
 
       <RestaurerDefilement />
     </>

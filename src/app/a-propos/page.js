@@ -104,7 +104,7 @@ export default async function APropos() {
 
       <section className="ap-section ap-photos">
         <h2 className="a-titre">Le lycée, <em>en images</em></h2>
-        <Carrousel legendes />
+        <Carrousel />
       </section>
 
       <div className="ap-installer">

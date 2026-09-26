@@ -219,6 +219,7 @@ select.saisie { appearance: none; cursor: pointer; }
   transition: padding-bottom .6s cubic-bezier(.4, 0, .2, 1);
 }
 :root.tb-cachee .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+:root.sans-tabbar .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }   /* visiteur : pas de barre */
 
 /* toast */
 .toast {

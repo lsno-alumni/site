@@ -7,23 +7,35 @@ export const metadata = {
 };
 
 // Page statique publique : lisible avant de s'inscrire.
-const Titre = ({ children }) => (
-  <h2 style={{ fontSize: 16, marginTop: 26, marginBottom: 8 }}>{children}</h2>
+// Un sommaire collant (les 9 sections) permet d'aller droit au point qui
+// intéresse — sur un téléphone, ce texte fait dix écrans.
+const SECTIONS = [
+  "Ce qu'est LSNO Amicale", "Qui peut s'inscrire", "Les données que nous collectons",
+  "Qui voit tes informations", "Tes droits sur tes données", "Les règles de bonne conduite",
+  "Responsabilités", "Hébergement", "Évolution de ces conditions",
+];
+const Titre = ({ n, children }) => (
+  <h2 id={`s${n}`} className="cg-titre"><span>{n}</span>{children}</h2>
 );
 
 export default function Conditions() {
   return (
     <main className="page">
-      <header className="f-tete tete-portail" style={{ paddingTop: 20, paddingBottom: 24 }}>
+      <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/" libelle="Retour" />
         <h1>Conditions<br />&amp; <em>confidentialité</em></h1>
         <p>Ce que tu acceptes en rejoignant le réseau — et ce que nous faisons de tes données.</p>
       </header>
 
-      <div className="f-corps" style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--texte-2)", paddingBottom: 48 }}>
-        <p style={{ fontSize: 12, color: "var(--brume)" }}>Dernière mise à jour : 29 juillet 2026</p>
+      <nav className="n-panneau cg-sommaire" aria-label="Sommaire">
+        <div className="n-filtres">
+          {SECTIONS.map((t, i) => <a key={t} href={`#s${i + 1}`} className="puce"><b>{i + 1}</b> {t}</a>)}
+        </div>
+      </nav>
+      <div className="f-corps cg-corps">
+        <p className="cg-date">Dernière mise à jour : 29 juillet 2026</p>
 
-        <Titre>1. Ce qu&apos;est LSNO Amicale</Titre>
+        <Titre n={1}>Ce qu&apos;est LSNO Amicale</Titre>
         <p>
           Une plateforme associative, gratuite et à but non lucratif, réservée à la communauté
           du Lycée Scientifique National de Ouagadougou — celles et ceux qui y sont passés comme
@@ -32,7 +44,7 @@ export default function Conditions() {
           communauté de se retrouver et aux cadets de trouver le bon interlocuteur.
         </p>
 
-        <Titre>2. Qui peut s&apos;inscrire</Titre>
+        <Titre n={2}>Qui peut s&apos;inscrire</Titre>
         <p>
           Toute personne qui est ou a été élève du LSNO, de la première promotion à celle en
           cours. Pour les élèves encore au lycée, l&apos;inscription est ouverte <b>à partir de la
@@ -42,7 +54,7 @@ export default function Conditions() {
           ou par une personne extérieure au lycée sera refusé ou supprimé.
         </p>
 
-        <Titre>3. Les données que nous collectons</Titre>
+        <Titre n={3}>Les données que nous collectons</Titre>
         <p>
           Uniquement ce que tu saisis toi-même : identité (prénom, nom, promotion), email de
           connexion, et — si tu choisis de les remplir — photo, situation, ville et pays, domaine,
@@ -100,7 +112,7 @@ export default function Conditions() {
           elle ne s&apos;applique qu&apos;à ces trois pages, jamais au reste du site.
         </p>
 
-        <Titre>4. Qui voit tes informations</Titre>
+        <Titre n={4}>Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b>{" "}Ton profil n&apos;est
           visible que des membres validés du réseau. Seule exception, voulue : quand un membre
@@ -113,7 +125,7 @@ export default function Conditions() {
           que des chiffres anonymes (nombre d&apos;anciens, de pays…).
         </p>
 
-        <Titre>5. Tes droits sur tes données</Titre>
+        <Titre n={5}>Tes droits sur tes données</Titre>
         <p>
           Tu peux à tout moment, depuis « Mon profil » : <b>consulter et rectifier</b>{" "}chaque
           information, <b>changer la visibilité</b>{" "}de chaque contact, <b>activer ou couper les
@@ -126,7 +138,7 @@ export default function Conditions() {
           données : lsno.alumni@gmail.com.
         </p>
 
-        <Titre>6. Les règles de bonne conduite</Titre>
+        <Titre n={6}>Les règles de bonne conduite</Titre>
         <p>
           Le réseau repose sur la confiance entre anciens. En l&apos;utilisant, tu t&apos;engages à :
           renseigner des informations exactes ; utiliser les contacts des membres uniquement dans
@@ -136,7 +148,7 @@ export default function Conditions() {
           compte qui enfreint ces règles.
         </p>
 
-        <Titre>7. Responsabilités</Titre>
+        <Titre n={7}>Responsabilités</Titre>
         <p>
           Les informations des profils (parcours, conseils, histoires, offres) sont publiées par
           leurs auteurs, sous leur responsabilité. La plateforme est fournie bénévolement, sans
@@ -144,14 +156,14 @@ export default function Conditions() {
           il sera examiné rapidement.
         </p>
 
-        <Titre>8. Hébergement</Titre>
+        <Titre n={8}>Hébergement</Titre>
         <p>
           Le site est hébergé par Vercel et les données stockées chez Supabase, deux services
           professionnels appliquant les standards de sécurité actuels.
           Le code du site est public ; tes données, elles, ne le sont jamais.
         </p>
 
-        <Titre>9. Évolution de ces conditions</Titre>
+        <Titre n={9}>Évolution de ces conditions</Titre>
         <p>
           Si ces conditions évoluent de manière notable, les membres en seront informés par email
           ou sur le site. La version en vigueur est toujours celle de cette page.

@@ -778,6 +778,40 @@
 /* ligne de preuve sous la feuille : les chiffres du réseau */
 .f-preuve { min-height: 24px; text-align: center; font-family: var(--font-titres), serif; font-size: 15.5px; color: var(--texte-2); padding: 22px 24px 34px; }
 .f-preuve b { font-weight: 500; color: var(--bleu-texte); font-variant-numeric: tabular-nums; }
+/* ---------- À PROPOS ---------- */
+.ap-manifeste { font-size: 15px; line-height: 1.7; color: var(--texte-2); }
+.ap-manifeste b { color: var(--texte); }
+.ap-photos { padding: 30px 22px 6px; }
+.ap-photos .a-titre { margin-bottom: 4px; }
+.ap-photos .a-titre em { color: var(--bleu-texte); font-style: italic; }
+.ap-installer { padding: 16px 22px 8px; }
+.n-cloture.apropos { text-align: left; padding-top: 30px; }
+.n-cloture.apropos::before { background-image: url("/img/lsno_hero.jpg"); background-position: center 40%; opacity: .22; }
+.n-cloture.apropos .lbl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #F3E3CF; margin-bottom: 12px; }
+.n-cloture.apropos p { font-size: 13px; line-height: 1.65; color: rgba(239,232,219,.82); margin: 0 0 10px; max-width: none; }
+.n-cloture.apropos .ap-liens { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; font-size: 13px; }
+.n-cloture.apropos .ap-liens a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.n-cloture.apropos .ap-liens span { color: rgba(239,232,219,.5); }
+
+/* ---------- CONDITIONS : document sur feuille, sommaire collant ---------- */
+.cg-sommaire { margin: -30px 0 0; padding-top: 8px; position: sticky; top: 0; }
+.cg-sommaire .puce { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.cg-sommaire .puce b { font-family: var(--font-titres), serif; font-weight: 500; color: var(--bleu-texte); }
+/* la feuille suit le sommaire (et non la tête) : on la pose à la main */
+.f-tete + .cg-sommaire { margin: -30px 0 0; position: sticky; z-index: 20; }
+.cg-corps {
+  margin: 14px 16px 0; position: relative; border-radius: 22px; padding: 22px 20px 44px;
+  font-size: 14px; line-height: 1.7; color: var(--texte-2);
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 18px 40px -22px rgba(31,34,48,.5);
+}
+:root[data-theme="sombre"] .cg-corps { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 40px -22px rgba(0,0,0,.8); }
+.cg-corps b { color: var(--texte); }
+.cg-date { font-size: 12px; color: var(--brume); }
+.cg-titre { display: flex; align-items: baseline; gap: 12px; font-size: 18px; margin: 30px 0 10px; padding-top: 14px; border-top: 1px solid var(--ligne); scroll-margin-top: 90px; color: var(--texte); }
+.cg-titre span { font-family: var(--font-titres), serif; font-weight: 400; font-size: 26px; color: var(--bleu-texte); font-variant-numeric: tabular-nums; }
+.cg-corps .tagline { margin-top: 24px; }
+
 /* demande envoyée : la photo de la promotion choisie */
 .f-tete.tete-promo-choisie::before { background-image: var(--photo); background-position: center 30%; }
 /* marque le début d'une grande partie du formulaire (Mon profil) : un simple

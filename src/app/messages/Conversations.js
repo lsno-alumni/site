@@ -10,7 +10,7 @@ import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteFiche } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
-import { mesConversations, nomConversation, JOURS_CONSERVATION } from "@/lib/messages";
+import { mesConversations, nomConversation, ecouterTousMessages, JOURS_CONSERVATION } from "@/lib/messages";
 
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
@@ -44,6 +44,9 @@ export default function Conversations({ moi }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
   useEffect(() => { if (chemin === "/messages") charger(); }, [chemin]);
   useEffect(() => { if (liste !== null) memoire.ecrire("messages.liste", liste); }, [liste]);
+  // temps réel : un message qui arrive (ou que j'envoie ailleurs) remet la liste à jour
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => ecouterTousMessages(() => charger()), []);
 
   const rafraichir = async () => { await charger(); routeur.refresh(); };
 

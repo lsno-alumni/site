@@ -131,6 +131,16 @@ export function ecouterMessages(conversationId, { surInsertion, surSuppression }
   return () => { supabase.removeChannel(canal); };
 }
 
+// tous les nouveaux messages qui me concernent (la RLS ne laisse passer que
+// ceux de mes conversations) : pour la liste et la pastille de l'onglet
+export function ecouterTousMessages(surInsertion) {
+  const supabase = creerClientNavigateur();
+  const canal = supabase.channel("messages-tous-" + Math.random().toString(36).slice(2, 8))
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (p) => surInsertion?.(p.new))
+    .subscribe();
+  return () => { supabase.removeChannel(canal); };
+}
+
 // heure courte pour les bulles ; date pour les séparateurs de jour
 export function heure(d) {
   return new Date(d).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });

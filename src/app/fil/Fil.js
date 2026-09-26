@@ -13,7 +13,7 @@ import { SqueletteOffre } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { joursRestants, nomType } from "@/lib/offres";
 import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
-import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication } from "@/lib/fil";
+import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
 // (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
@@ -54,7 +54,8 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
           <Avatar profil={{ prenom: p.auteur.prenom, nom: p.auteur.nom, photo: p.auteur.photo_url }} className="pub-avatar" />
           <span>
             <b>{p.auteur.prenom} {p.auteur.nom}</b>
-            <small>Promo {p.auteur.promo} · {depuis(p.cree_le)}{p.masquee ? " · masquée" : ""}</small>
+            <small>Promo {p.auteur.promo} · {depuis(p.cree_le)}{p.masquee ? " · masquée" : ""}
+              {p.visibilite && p.visibilite !== "tous" && <span className="pub-visi">{VISIBILITES.find((v) => v.cle === p.visibilite)?.court}</span>}</small>
           </span>
         </Link>
         <span className="pub-menu">

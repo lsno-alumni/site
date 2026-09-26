@@ -259,7 +259,7 @@ export async function utilisateurCourant() {
   if (!jeton?.claims) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, double_auth_active, promotions(numero)")
+    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, domaine, domaine_precision, whatsapp_visi, email_visi, linkedin_visi, double_auth_active, promotions(numero)")
     .eq("id", jeton.claims.sub)
     .maybeSingle();
   if (!data) return null;
@@ -336,7 +336,7 @@ export async function lirePublication(id) {
   const supabase = await creerClientServeur();
   const { data: p } = await supabase
     .from("publications")
-    .select("id, texte, media_chemin, media_type, media_expire_le, masquee, cree_le, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
+    .select("id, texte, media_chemin, media_type, media_expire_le, visibilite, masquee, cree_le, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
     .eq("id", id).maybeSingle();
   if (!p) return null;
   const [{ data: cpt }, { data: commentaires }] = await Promise.all([

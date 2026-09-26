@@ -982,12 +982,15 @@
 /* pièces jointes des offres */
 /* ---------- OFFRES (25/09) : étiquette, tampon d'échéance, feuille ---------- */
 .fiche.offre { position: relative; }
-.o-corps-carte {
-  display: block; padding: 15px 92px 12px 16px; color: inherit; cursor: pointer;
-  /* même tête translucide que les fiches de l'annuaire, avec plus de flou */
+.o-corps-carte { display: block; padding: 15px 92px 12px 16px; color: inherit; cursor: pointer; }
+/* la tête ET la description forment le haut translucide (comme la fiche de
+   l'annuaire : tout ce qui précède le pied), avec un flou marqué */
+.o-corps-carte, .o-suite-carte {
   background: rgba(var(--fond-rgb), .22); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
-:root[data-theme="sombre"] .o-corps-carte { background: rgba(var(--texte-rgb), .07); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+:root[data-theme="sombre"] .o-corps-carte, :root[data-theme="sombre"] .o-suite-carte {
+  background: rgba(var(--texte-rgb), .07); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
 .fiche.offre:has(.o-corps-carte > .o-type:first-child) .o-corps-carte { padding-right: 16px; }   /* sans tampon, toute la largeur */
 .o-type { display: inline-block; font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 600; margin-bottom: 7px; }
 .o-corps-carte .o-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.2; display: block; }

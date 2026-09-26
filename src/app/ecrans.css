@@ -456,7 +456,9 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 24px 50px -26px rgba(31,59,99,.8);
 }
 :root[data-theme="sombre"] .a-temoin.c-ouverture { background-color: #16253F; }
-.a-temoin.c-ouverture::before { color: rgba(255,255,255,.12); }
+/* en sombre, le bleu à 9 % se perdait sur la carte papier : un cran plus présent */
+:root[data-theme="sombre"] .a-temoin::before { color: rgba(var(--accent-rgb), .3); }
+.a-temoin.c-ouverture::before, :root[data-theme="sombre"] .a-temoin.c-ouverture::before { color: rgba(255,255,255,.14); }
 .a-temoin.c-ouverture .lire-suite, .a-temoin.c-ouverture .qui span:not(.avatar-init) { color: rgba(255,255,255,.7); }
 .a-temoin.c-ouverture .qui b { color: #fff; }
 .a-temoin.c-ouverture .avatar-init { background: rgba(255,255,255,.14); color: #fff; }

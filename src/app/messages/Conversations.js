@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, PenLine, Users, Search, Pin, BellOff } from "lucide-react";
+import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteFiche } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
-import { mesConversations, nomConversation, ecouterTousMessages, ecouterFrappes, chercherMessages, libellePiece, JOURS_CONSERVATION } from "@/lib/messages";
+import { mesConversations, nomConversation, ecouterTousMessages, ecouterFrappes, chercherMessages, libellePiece, reglerConversation, marquerLu, retirerMembre, JOURS_CONSERVATION } from "@/lib/messages";
 
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
@@ -84,6 +84,32 @@ export default function Conversations({ moi }) {
 
   const rafraichir = async () => { await charger(); routeur.refresh(); };
 
+  // appui long (ou clic droit) sur une conversation : ses actions, sans l'ouvrir
+  const [menuConv, setMenuConv] = useState(null);
+  const [toast, setToast] = useState("");
+  const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
+  const geste = useRef(null);
+  const debutGeste = (c) => (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    geste.current = { x: e.clientX, y: e.clientY, long: false, minuteur: setTimeout(() => { if (geste.current) { geste.current.long = true; setMenuConv(c); } }, 450) };
+  };
+  const bougeGeste = (e) => { const g = geste.current; if (g && (Math.abs(e.clientX - g.x) > 10 || Math.abs(e.clientY - g.y) > 10)) { clearTimeout(g.minuteur); geste.current = null; } };
+  const finGeste = () => { const g = geste.current; if (!g) return; clearTimeout(g.minuteur); if (g.long) { const bloque = (ev) => { ev.preventDefault(); ev.stopPropagation(); }; document.addEventListener("click", bloque, { capture: true, once: true }); setTimeout(() => document.removeEventListener("click", bloque, { capture: true }), 400); } geste.current = null; };
+  const agirConv = async (action) => {
+    const c = menuConv; setMenuConv(null);
+    if (!c) return;
+    try {
+      if (action === "ouvrir") routeur.push(`/messages/${c.id}`);
+      if (action === "epingle") { await reglerConversation(c.id, { epingle: !c.epingle }); await charger(); signale(c.epingle ? "Désépinglée" : "Épinglée en haut"); }
+      if (action === "sourdine") { await reglerConversation(c.id, { muet: !c.muet }); await charger(); signale(c.muet ? "Notifications rétablies" : "Conversation en sourdine"); }
+      if (action === "lu") { await marquerLu(c.id); await charger(); signale("Marquée comme lue"); }
+      if (action === "quitter") {
+        if (!confirm(c.type === "groupe" ? `Quitter le groupe « ${nomConversation(c)} » ?` : `Supprimer la conversation avec ${nomConversation(c)} ? Elle disparaît de ta liste ; l'autre garde la sienne.`)) return;
+        await retirerMembre(c.id, moi.id); await charger(); signale(c.type === "groupe" ? "Groupe quitté" : "Conversation supprimée");
+      }
+    } catch (e) { signale("Action impossible : " + (e.message ?? "")); }
+  };
+
   return (
     <GlisserRafraichir onRafraichir={rafraichir}>
     <>
@@ -123,7 +149,9 @@ export default function Conversations({ moi }) {
           const contenu = d ? (d.texte?.trim() ? d.texte : libellePiece(d)) : "";
           const apercu = d ? `${d.auteur === moi.id ? "Toi" : d.prenom} : ${contenu}` : "Nouvelle conversation";
           return (
-            <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}`}>
+            <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}`} draggable={false}
+              onPointerDown={debutGeste(c)} onPointerMove={bougeGeste} onPointerUp={finGeste} onPointerCancel={finGeste}
+              onContextMenu={(e) => { e.preventDefault(); setMenuConv(c); }}>
               <Vignette c={c} />
               <span className="msg-ligne-corps">
                 <span className="msg-ligne-haut">
@@ -145,6 +173,25 @@ export default function Conversations({ moi }) {
       </div>
 
       <Link href="/messages/nouveau" className="fil-fab" aria-label="Nouvelle conversation"><PenLine size={20} strokeWidth={2} aria-hidden /></Link>
+
+      {menuConv && (
+        <div className="fg-scrim msg-voile" role="presentation" onClick={() => setMenuConv(null)}>
+          <div className="msg-panneau" onClick={(e) => e.stopPropagation()}>
+            <div className="msg-panneau-tete">
+              <b>{nomConversation(menuConv)}</b>
+              <button type="button" className="cp-fermer" onClick={() => setMenuConv(null)} aria-label="Fermer"><X size={18} aria-hidden /></button>
+            </div>
+            <div className="msg-actions-conv">
+              <button type="button" onClick={() => agirConv("ouvrir")}><MessageCircle size={16} aria-hidden /> Ouvrir</button>
+              {menuConv.non_lus > 0 && <button type="button" onClick={() => agirConv("lu")}><CheckCheck size={16} aria-hidden /> Marquer comme lue</button>}
+              <button type="button" onClick={() => agirConv("epingle")}>{menuConv.epingle ? <><PinOff size={16} aria-hidden /> Désépingler</> : <><Pin size={16} aria-hidden /> Épingler en haut</>}</button>
+              <button type="button" onClick={() => agirConv("sourdine")}>{menuConv.muet ? <><Bell size={16} aria-hidden /> Rétablir les notifications</> : <><BellOff size={16} aria-hidden /> Mettre en sourdine</>}</button>
+              <button type="button" className="danger" onClick={() => agirConv("quitter")}>{menuConv.type === "groupe" ? <><LogOut size={16} aria-hidden /> Quitter le groupe</> : <><Trash2 size={16} aria-hidden /> Supprimer la conversation</>}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
       <RestaurerDefilement />
     </>
     </GlisserRafraichir>

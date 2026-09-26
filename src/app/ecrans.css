@@ -1795,7 +1795,9 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .pub-menu-liste button:hover, .com-menu-liste button:hover { background: rgba(var(--texte-rgb), .06); }
 .pub-menu-liste button.danger { color: var(--rouge); }
 .com-menu > button { background: none; border: 0; padding: 0 2px; color: var(--brume); cursor: pointer; display: inline-flex; }
-.com-menu-liste { top: calc(100% + 8px); min-width: 130px; }
+/* le menu d'un commentaire s'ouvre vers le HAUT : en bas de liste il passerait
+   sous la saisie posée au bas de l'écran */
+.com-menu-liste { top: auto; bottom: calc(100% + 6px); left: 0; right: auto; min-width: 130px; }
 .com-menu-liste button { font-size: 12.5px; padding: 8px 10px; }
 
 .pub-masquee { opacity: .55; }

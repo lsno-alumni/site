@@ -342,6 +342,15 @@
    au-delà de l'écran (contenu coupé à droite, page décentrée) */
 .n-liste > *, .sec-admin > *, .sec-admin .carte-sombre > * { min-width: 0; }
 .sec-admin .a-titre { margin-top: 10px; }
+/* ---------- ESPACE ADMIN (26/09) ---------- */
+.n-tete.ad-tete { padding-top: 34px; padding-bottom: 78px; }   /* deux classes : .n-tete, plus bas dans le fichier, écrasait sinon ce padding */   /* place pour le sommaire qui chevauche, sans cacher « Tout est à jour » */
+.ad-tete .tagline { color: #F3E3CF; text-shadow: 0 1px 6px rgba(0,0,0,.45); }
+.ad-sommaire { margin: -30px 16px 0; border-radius: 22px 22px 0 0; position: sticky; top: 0; z-index: 20; }
+.ad-sommaire .puce { text-decoration: none; }
+.ad-stats { margin: 12px 0 8px; }
+/* chaque section est un chapitre : titre puis filet, comme les conseils */
+.sec-admin > .a-titre, .ad-chapitre, .sec-admin .a-titre { padding-bottom: 10px; border-bottom: 1px solid var(--ligne); }
+details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 
 /* avatar de la gestion admin (taille et coins explicites hors .fiche) */
 .gm-avatar {

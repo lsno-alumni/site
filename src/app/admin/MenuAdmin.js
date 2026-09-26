@@ -1,54 +1,54 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Menu, X, Hourglass, ShieldCheck, UserCog, Megaphone, Download, Activity, ScrollText } from "lucide-react";
+import { useEffect, useState } from "react";
 
-// Accès rapide aux sections de l'espace admin — la page s'allonge avec le réseau.
+// Sommaire de l'espace admin : une rangée de pastilles collée sous la tête,
+// comme les filtres de l'annuaire ou le sommaire des Conditions (elle
+// remplace le bouton ☰ flottant, qui se posait sur le contenu au défilement).
+// La pastille de la section en cours de lecture s'allume.
 const SECTIONS = [
-  { id: "sec-demandes", nom: "Demandes d'inscription", Ico: Hourglass },
-  { id: "sec-roles", nom: "Rôles", Ico: ShieldCheck },
-  { id: "sec-gerer", nom: "Gérer un membre", Ico: UserCog },
-  { id: "sec-annonce", nom: "Annonce aux membres", Ico: Megaphone },
-  { id: "sec-journal", nom: "Journal des actions", Ico: ScrollText },
-  { id: "sec-sauvegarde", nom: "Sauvegarde", Ico: Download },
-  { id: "sec-etat", nom: "État du système", Ico: Activity },
+  { id: "sec-demandes", nom: "Demandes" },
+  { id: "sec-reseau", nom: "Le réseau" },
+  { id: "sec-roles", nom: "Rôles" },
+  { id: "sec-gerer", nom: "Gérer un membre" },
+  { id: "sec-annonce", nom: "Annonce" },
+  { id: "sec-journal", nom: "Journal" },
+  { id: "sec-sauvegarde", nom: "Sauvegarde" },
+  { id: "sec-etat", nom: "État du système" },
 ];
 
 export default function MenuAdmin() {
-  const [ouvert, setOuvert] = useState(false);
-  const zone = useRef(null);
+  const [enVue, setEnVue] = useState(null);
 
   useEffect(() => {
-    if (!ouvert) return;
-    const fermer = (e) => { if (!zone.current?.contains(e.target)) setOuvert(false); };
-    document.addEventListener("click", fermer);
-    return () => document.removeEventListener("click", fermer);
-  }, [ouvert]);
+    const cibles = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean);
+    if (!cibles.length) return;
+    const visibles = new Map();
+    const obs = new IntersectionObserver((entrees) => {
+      for (const e of entrees) visibles.set(e.target.id, e.isIntersecting);
+      const courant = SECTIONS.find((s) => visibles.get(s.id));
+      setEnVue(courant?.id ?? null);
+    }, { rootMargin: "-90px 0px -60% 0px" });
+    cibles.forEach((c) => obs.observe(c));
+    return () => obs.disconnect();
+  }, []);
 
-  const aller = (id) => {
-    setOuvert(false);
+  useEffect(() => {
+    document.querySelector(".ad-sommaire .puce.en-vue")?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+  }, [enVue]);
+
+  const aller = (e, id) => {
+    e.preventDefault();
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div ref={zone} style={{
-      // fixé : le menu reste accessible en cours de défilement ; calé sur la
-      // colonne de 480px de l'app, sous la ligne « Espace admin »
-      position: "fixed", top: 58, right: "max(22px, calc((100vw - 480px) / 2 + 22px))", zIndex: 60,
-    }}>
-      <button className="a-menu" aria-label="Sections de la page" aria-expanded={ouvert}
-        onClick={() => setOuvert(!ouvert)}>
-        {ouvert ? <X size={17} aria-hidden /> : <Menu size={17} aria-hidden />}
-      </button>
-      {ouvert && (
-        <nav className="menu-panneau" style={{ top: 46, right: 0 }}>
-          {SECTIONS.map(({ id, nom, Ico }) => (
-            <a key={id} href={`#${id}`} onClick={(e) => { e.preventDefault(); aller(id); }}>
-              <Ico size={16} strokeWidth={1.8} aria-hidden /> {nom}
-            </a>
-          ))}
-        </nav>
-      )}
-    </div>
+    <nav className="n-panneau ad-sommaire" aria-label="Sections de l'espace admin">
+      <div className="n-filtres">
+        {SECTIONS.map(({ id, nom }) => (
+          <a key={id} href={`#${id}`} className={`puce${enVue === id ? " en-vue" : ""}`} onClick={(e) => aller(e, id)}>{nom}</a>
+        ))}
+      </div>
+    </nav>
   );
 }

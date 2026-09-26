@@ -908,7 +908,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .mp-chapitre { padding: 22px 0 10px; border-bottom: 1px solid var(--ligne); scroll-margin-top: 70px; }
 .f-corps > .mp-chapitre:first-child { padding-top: 6px; }
 .n-cloture.compte { text-align: left; padding-top: 30px; }
-.n-cloture.compte::before { background-image: url("/img/lsno_campus.jpg"); background-position: center 60%; opacity: .18; }
+.n-cloture.compte::before { display: none; }   /* pas de photo ici : la pierre seule */
 .n-cloture.compte .lbl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #F3E3CF; margin-bottom: 14px; }
 .n-cloture.compte p { max-width: none; margin: 0 0 14px; }
 .mp-compte { display: grid; gap: 10px; }
@@ -934,7 +934,8 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 /* panneau bleu nuit, règle des années puis une carte translucide par étape (validé le 24/09) */
 .frise {
   position: relative; isolation: isolate; overflow: hidden; border-radius: 22px; padding: 22px 18px 24px; color: #fff;
-  background: radial-gradient(130% 110% at 100% 0%, var(--monde-2), var(--monde) 62%, #16294A 100%);
+  /* légèrement translucide : le grain du sol se devine à travers le bleu nuit */
+  background: radial-gradient(130% 110% at 100% 0%, rgba(43, 78, 128, .88), rgba(31, 59, 99, .88) 62%, rgba(22, 41, 74, .9) 100%);
   box-shadow: 0 24px 50px -26px rgba(31, 59, 99, .8), inset 0 1px 0 rgba(255, 255, 255, .12);
 }
 .frise::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url("/fonds/kraft-sombre.jpg") 0 0 / 420px auto; opacity: .35; mix-blend-mode: screen; }

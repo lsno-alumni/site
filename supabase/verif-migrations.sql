@@ -121,6 +121,11 @@ with attendu(num, laisse, present) as (
     and to_regclass('public.commentaires') is not null and to_regclass('public.signalements') is not null
     and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'fil_publications')
     and exists (select 1 from cron.job where jobname = 'purge-videos-expirees')
+  union all select 53, 'Messages : conversations, membres, messages, purge à 30 jours, temps réel',
+    to_regclass('public.conversations') is not null and to_regclass('public.conversation_membres') is not null
+    and to_regclass('public.messages') is not null
+    and to_regprocedure('mes_conversations()') is not null
+    and exists (select 1 from cron.job where jobname = 'purge-messages')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

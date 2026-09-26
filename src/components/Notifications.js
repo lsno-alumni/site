@@ -36,6 +36,7 @@ const FAMILLES = [
   { cle: "push_mes_demandes", nom: "Mes demandes", detail: "Mise en relation, validation de mon compte, mon rôle" },
   { cle: "push_reseau", nom: "Le réseau", detail: "Arrivées de nouveaux membres (portée réglable ci-dessous)" },
   { cle: "push_offres", nom: "Offres", detail: "Nouvelles opportunités partagées" },
+  { cle: "push_messages", nom: "Messages", detail: "Nouveaux messages dans tes conversations et groupes (au plus un par conversation toutes les 10 min)" },
   { cle: "push_annonces", nom: "Annonces", detail: "Messages adressés à tout le réseau" },
 ];
 
@@ -93,6 +94,7 @@ export default function Notifications({ profil }) {
       push_reseau: profil?.push_reseau ?? true,
       push_offres: profil?.push_offres ?? true,
       push_annonces: profil?.push_annonces ?? true,
+      push_messages: profil?.push_messages ?? true,
       push_reseau_portee: profil?.push_reseau_portee ?? "promo_domaine",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

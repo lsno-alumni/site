@@ -6,6 +6,7 @@ import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-r
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
+import { nonLus } from "@/lib/messages";
 
 // 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
 // « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
@@ -31,6 +32,7 @@ let roleCache = null;
 // contrôle de session, puis mémorisé au niveau module pour que les pages
 // publiques suivantes ne la fassent même pas apparaître un instant.
 let connecteCache = null;   // null = pas encore su, true/false ensuite
+let nonLusCache = 0;        // messages non lus (pastille de l'onglet Messages)
 const CLASSE_SANS = "sans-tabbar";
 
 // Cache/glisse au défilement, comme sur les réseaux sociaux : on descend dans
@@ -118,6 +120,15 @@ export default function TabBar({ actif }) {
   const routeur = useRouter();
   const [role, setRole] = useState(roleCache);
   const [connecte, setConnecte] = useState(connecteCache ?? (roleCache ? true : null));
+  // pastille des messages non lus : lue à chaque page (la barre remonte à
+  // chaque navigation), gardée au niveau module pour ne pas clignoter
+  const [nonLu, setNonLu] = useState(nonLusCache);
+  useEffect(() => {
+    if (connecte === false) return;
+    let vivant = true;
+    nonLus().then((n) => { if (vivant) { nonLusCache = n; setNonLu(n); } }).catch(() => {});
+    return () => { vivant = false; };
+  }, [connecte, actif]);
   const cachee = useCacherAuDefilement();
 
   // la page libère la place réservée à la barre quand il n'y en a pas
@@ -186,6 +197,7 @@ export default function TabBar({ actif }) {
           className={`tab${actif === o.nom ? " on" : ""}`}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
+          {o.nom === "Messages" && nonLu > 0 && <span className="tab-pastille" aria-label={`${nonLu} non lus`}>{nonLu > 99 ? "99+" : nonLu}</span>}
         </Link>
       ))}
     </nav>

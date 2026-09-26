@@ -6,7 +6,7 @@ import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-r
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
-import { nonLus } from "@/lib/messages";
+import { nonLus, ecouterTousMessages } from "@/lib/messages";
 
 // 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
 // « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
@@ -126,8 +126,11 @@ export default function TabBar({ actif }) {
   useEffect(() => {
     if (connecte === false) return;
     let vivant = true;
-    nonLus().then((n) => { if (vivant) { nonLusCache = n; setNonLu(n); } }).catch(() => {});
-    return () => { vivant = false; };
+    const lire = () => nonLus().then((n) => { if (vivant) { nonLusCache = n; setNonLu(n); } }).catch(() => {});
+    lire();
+    // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit
+    const stop = ecouterTousMessages(() => lire());
+    return () => { vivant = false; stop(); };
   }, [connecte, actif]);
   const cachee = useCacherAuDefilement();
 

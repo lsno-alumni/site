@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { ExternalLink, FileText, Image as ImageIcon } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -6,6 +9,9 @@ import { DOMAINES, nomPays } from "@/lib/donnees";
 import { nomType, echeanceLongue, urlFichier, ilYA } from "@/lib/offres";
 import PartagerOffre from "./PartagerOffre";
 import SuiteOffres from "./SuiteOffres";
+import Bravo from "@/components/Bravo";
+import Commentaires from "@/components/Commentaires";
+import { MessageCircle } from "lucide-react";
 
 // Le contenu visuel d'une offre, PARTAGÉ entre la vraie page (/offres/[id])
 // et la feuille glissante ouverte depuis la liste (@modal). Même découpe que
@@ -43,9 +49,10 @@ export function TeteOffre({ o }) {
   );
 }
 
-export function SuiteOffre({ o, moiId, suite }) {
+export function SuiteOffre({ o, moiId, suite, moi = null, interactions = null, moderateur = false }) {
   const p = o.posteur;
   const mienne = moiId && p?.id === moiId;
+  const [nbCom, setNbCom] = useState(interactions?.commentaires ?? 0);
   return (
     <>
       <p className="o-desc">{o.description}</p>
@@ -81,6 +88,18 @@ export function SuiteOffre({ o, moiId, suite }) {
             </span>
             <span className="visi">{mienne ? "mon profil" : "contacter ↗"}</span>
           </Link>
+        </section>
+      )}
+
+      {moi && interactions && (
+        <section className="o-reactions">
+          <div className="pub-pied o-reactions-pied">
+            <Bravo type="offre" id={o.id} nombre={interactions.bravos} actif={interactions.jai_bravo} />
+            <span className="pub-action" style={{ cursor: "default" }}>
+              <MessageCircle size={16} strokeWidth={1.9} aria-hidden /> {nbCom} commentaire{nbCom > 1 ? "s" : ""}
+            </span>
+          </div>
+          <Commentaires type="offre" id={o.id} moi={moi} initial={interactions.liste} moderateur={moderateur} inline onNombre={setNbCom} />
         </section>
       )}
 

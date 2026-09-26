@@ -330,6 +330,16 @@ export async function donneesAccueilMembre(moi) {
 }
 
 // ---------- Le Fil (migration 52) ----------
+// bravos + commentaires d'une offre (ou d'un conseil), pour la feuille et la page
+export async function lireInteractions(type, id) {
+  const supabase = await creerClientServeur();
+  const [{ data: cpt }, { data: liste }] = await Promise.all([
+    supabase.rpc("bravos_de", { p_type: type, p_id: String(id) }),
+    type === "conseil" ? Promise.resolve({ data: [] }) : supabase.rpc("commentaires_de", { p_type: type, p_id: String(id) }),
+  ]);
+  return { bravos: cpt?.bravos ?? 0, jai_bravo: cpt?.jai_bravo ?? false, commentaires: cpt?.commentaires ?? 0, liste: liste ?? [] };
+}
+
 // Une publication en pleine page ou en feuille : auteur, compteurs, « j'ai
 // bravo » (bravos_de s'appuie sur auth.uid(), donc sur la session du lecteur).
 export async function lirePublication(id) {

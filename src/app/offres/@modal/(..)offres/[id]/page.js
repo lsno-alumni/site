@@ -1,4 +1,4 @@
-import { lireOffre, utilisateurCourant, suiteOffre } from "@/lib/api";
+import { lireOffre, utilisateurCourant, suiteOffre, lireInteractions } from "@/lib/api";
 import { joursRestants } from "@/lib/offres";
 import FeuilleOffreModal from "./FeuilleOffreModal";
 
@@ -13,6 +13,8 @@ export default async function ModalOffre({ params }) {
   // cas limite (session perdue pendant la navigation) : pas de feuille,
   // la vraie page gère déjà cet état
   if (!o) return null;
-  const suite = await suiteOffre(id, o.domaine);
-  return <FeuilleOffreModal o={o} moiId={moi?.id ?? null} jours={joursRestants(o.date_limite)} suite={suite} />;
+  const [suite, interactions] = await Promise.all([suiteOffre(id, o.domaine), moi ? lireInteractions("offre", id) : null]);
+  return <FeuilleOffreModal o={o} moiId={moi?.id ?? null} jours={joursRestants(o.date_limite)} suite={suite} interactions={interactions}
+    moi={moi ? { id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role } : null}
+    moderateur={moi?.role === "admin" || moi?.role === "delegue"} />;
 }

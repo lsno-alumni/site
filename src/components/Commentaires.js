@@ -14,7 +14,7 @@ import useClicDehors from "@/lib/useClicDehors";
 // `initial` (facultatif) évite le chargement quand le serveur les a déjà lus.
 // `fixe` : dans une feuille glissante, la saisie est posée au bas de l'ÉCRAN
 // (portail) plutôt qu'au bas de la feuille, qui peut dépasser sous l'écran.
-export default function Commentaires({ type, id, moi, initial = null, onNombre, moderateur = false, fixe = false }) {
+export default function Commentaires({ type, id, moi, initial = null, onNombre, moderateur = false, fixe = false, inline = false }) {
   const [liste, setListe] = useState(initial ?? []);
   const [charge, setCharge] = useState(initial !== null);
   const [texte, setTexte] = useState("");
@@ -69,7 +69,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
   const visibles = liste.filter((c) => !c.masque || moderateur || c.auteur.id === moi.id);
 
   const saisie = (
-    <form className={`com-saisie${fixe ? " com-saisie-fixe" : ""}`} onSubmit={envoyer}>
+    <form className={`com-saisie${fixe ? " com-saisie-fixe" : ""}${inline ? " com-saisie-inline" : ""}`} onSubmit={envoyer}>
       {(reponseA || edition) && (
         <div className="com-saisie-vers">
           {edition

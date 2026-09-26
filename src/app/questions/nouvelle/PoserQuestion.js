@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, EyeOff, Eye } from "lucide-react";
+import { X, EyeOff, Eye, Paperclip, FileText } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import * as memoire from "@/lib/memoire";
 import { THEMES_CONSEIL, DOMAINES } from "@/lib/donnees";
-import { poserQuestion } from "@/lib/questions";
+import { poserQuestion, televerserPieceQuestion, PIECE_QUESTION_JOURS } from "@/lib/questions";
+import { tailleLisible } from "@/lib/messages";
 
 const TITRE_MAX = 140;
 const DETAILS_MAX = 2000;
@@ -23,6 +24,14 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
   const [anonyme, setAnonyme] = useState(false);
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState("");
+  const [piece, setPiece] = useState(null);   // { fichier, url }
+  const fichierRef = useRef(null);
+  const choisirPiece = (e) => {
+    const f = e.target.files?.[0]; e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/") && f.type !== "application/pdf") { setSouci("Photo ou PDF seulement."); return; }
+    setSouci(""); setPiece({ fichier: f, url: f.type.startsWith("image/") ? URL.createObjectURL(f) : null });
+  };
   const pret = titre.trim().length >= 5 && !envoi;
 
   const envoyer = async (e) => {
@@ -30,7 +39,8 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
     if (!pret) return;
     setEnvoi(true); setSouci("");
     try {
-      const id = await poserQuestion({ titre, details, theme, domaine, anonyme });
+      const jointe = piece ? await televerserPieceQuestion(piece.fichier) : null;
+      const id = await poserQuestion({ titre, details, theme, domaine, anonyme, piece: jointe });
       memoire.ecrire("questions.liste", null); memoire.ecrire("fil.items", null);
       routeur.replace(`/questions/${id}`);
     } catch (err) { setSouci("Impossible d'envoyer : " + (err?.message ?? "")); setEnvoi(false); }
@@ -75,6 +85,17 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
             {DOMAINES.map((d) => <option key={d.cle} value={d.cle}>{d.nom}</option>)}
           </select>
         </label>
+        {piece && (
+          <div className="msg-piece-apercu">
+            {piece.url ? <img src={piece.url} alt="" /> : <span className="msg-piece-pdf statique"><FileText size={20} strokeWidth={1.7} aria-hidden /><span><b>{piece.fichier.name}</b><small>PDF · {tailleLisible(piece.fichier.size)}</small></span></span>}
+            <span className="msg-piece-note">gardée {PIECE_QUESTION_JOURS} jours</span>
+            <button type="button" className="cp-photo-retirer" onClick={() => { if (piece.url) URL.revokeObjectURL(piece.url); setPiece(null); }} aria-label="Retirer la pièce jointe"><X size={14} aria-hidden /></button>
+          </div>
+        )}
+        <div>
+          <button type="button" className="cp-outil" onClick={() => fichierRef.current?.click()}><Paperclip size={16} strokeWidth={1.9} aria-hidden /> {piece ? "Changer la pièce jointe" : "Joindre une photo ou un PDF"}</button>
+          <input ref={fichierRef} type="file" accept="image/*,application/pdf" hidden onChange={choisirPiece} />
+        </div>
         <p className="msg-aide" style={{ padding: 0 }}>Les anciens qui ont accepté de répondre aux cadets sur ce thème sont prévenus.</p>
         {souci && <p className="cp-souci" style={{ margin: 0 }} role="alert">{souci}</p>}
       </div>

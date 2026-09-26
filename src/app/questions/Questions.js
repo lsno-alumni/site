@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { HelpCircle, MessageCircle, CheckCircle2, EyeOff, PenLine } from "lucide-react";
+import { HelpCircle, MessageCircle, CheckCircle2, EyeOff, PenLine, Search, Lock, Paperclip } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import RetourDynamique from "@/components/RetourDynamique";
@@ -25,6 +25,8 @@ export function CarteQuestion({ q }) {
         {q.theme && <span className="qa-theme">{q.theme}</span>}
         {q.resolue && <span className="qa-resolue"><CheckCircle2 size={12} aria-hidden /> Résolue</span>}
         {q.masquee && <span className="qa-resolue" style={{ color: "var(--rouge)" }}>masquée</span>}
+        {q.fermee && <span className="qa-resolue" style={{ color: "var(--brume)" }}><Lock size={11} aria-hidden /> fermée</span>}
+        {q.fichier_type && <span className="qa-resolue" style={{ color: "var(--brume)" }}><Paperclip size={11} aria-hidden /></span>}
       </span>
       <b className="qa-titre">{q.titre}</b>
       {q.details && <p className="qa-extrait">{q.details}</p>}
@@ -41,15 +43,16 @@ export function CarteQuestion({ q }) {
 export default function Questions() {
   const routeur = useRouter();
   const chemin = usePathname();
-  const [filtre, setFiltre] = useState(() => memoire.lire("questions.filtre") ?? "toutes");
+  const [filtre, setFiltre] = useState(() => (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("filtre")) || memoire.lire("questions.filtre") || "toutes");
+  const [q, setQ] = useState("");
   const [theme, setTheme] = useState(() => memoire.lire("questions.theme") ?? null);
   const [liste, setListe] = useState(() => memoire.lire("questions.liste") ?? null);
   const [fin, setFin] = useState(false);
   const [encore, setEncore] = useState(false);
   const [souci, setSouci] = useState("");
 
-  const charger = async (f = filtre, t = theme) => {
-    try { const l = await listeQuestions({ filtre: f, theme: t }); setListe(l); setFin(l.length < 20); setSouci(""); }
+  const charger = async (f = filtre, t = theme, mots = q) => {
+    try { const l = await listeQuestions({ filtre: f, theme: t, q: mots }); setListe(l); setFin(l.length < 20); setSouci(""); }
     catch (e) { setSouci("Les questions ne répondent pas : " + (e.message ?? "")); if (liste === null) setListe([]); }
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
@@ -57,6 +60,13 @@ export default function Questions() {
   useEffect(() => { if (liste !== null) memoire.ecrire("questions.liste", liste); memoire.ecrire("questions.filtre", filtre); memoire.ecrire("questions.theme", theme); }, [liste, filtre, theme]);
 
   const choisir = (f, t) => { setFiltre(f); setTheme(t); setListe(null); charger(f, t); };
+  // recherche : 300 ms après la dernière frappe
+  useEffect(() => {
+    if (liste === null && !q) return;
+    const minuteur = setTimeout(() => charger(filtre, theme, q), 300);
+    return () => clearTimeout(minuteur);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
   const suite = async () => {
     if (encore || fin || !liste?.length) return;
     setEncore(true);
@@ -74,6 +84,10 @@ export default function Questions() {
         <p className="cpt">Tu hésites, tu ne sais pas : demande. Quelqu&apos;un est passé par là.</p>
       </header>
 
+      <div className="msg-recherche msg-recherche-liste">
+        <Search size={16} strokeWidth={1.9} aria-hidden />
+        <input className="saisie" placeholder="Rechercher une question…" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
       <div className="n-panneau qa-filtres">
         <div className="n-filtres">
           {FILTRES_QUESTIONS.map((f) => (

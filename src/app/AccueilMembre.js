@@ -79,6 +79,23 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {offres.length > 0 && (
         <Reveal>
+        {donnees.questions?.length > 0 && (
+          <section className="a-section">
+            <h2 className="a-titre" style={{ marginBottom: 6 }}>Ils attendent une réponse</h2>
+            <p className="am-sous-titre">Des cadets posent leurs questions aux anciens. Tu es passé par là ?</p>
+            <div className="am-offres">
+              {donnees.questions.map((q) => (
+                <Link key={q.id} href={`/questions/${q.id}`} className="am-offre am-question">
+                  <span className="qa-theme">{q.theme ?? "Question"}</span>
+                  <span className="am-offre-titre">{q.titre}</span>
+                  <span className="am-question-repondre">Répondre <ArrowRight size={12} aria-hidden /></span>
+                </Link>
+              ))}
+            </div>
+            <Link href="/questions?filtre=sans_reponse" className="am-tout">Toutes les questions <ArrowRight size={13} aria-hidden /></Link>
+          </section>
+        )}
+
         <section className="a-section">
           <h2 className="a-titre" style={{ marginBottom: 12 }}>Dernières opportunités</h2>
           <div className="am-offres">

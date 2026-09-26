@@ -4,14 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, EyeOff, MoreHorizontal, Send, Award, Pencil, Trash2, Flag, EyeOff as Masquer, Eye, Share2 } from "lucide-react";
+import { CheckCircle2, EyeOff, MoreHorizontal, Send, Award, Pencil, Trash2, Flag, EyeOff as Masquer, Eye, Share2, FileText, Lock, MessageSquare } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Bravo from "@/components/Bravo";
 import useClicDehors from "@/lib/useClicDehors";
 import * as memoire from "@/lib/memoire";
 import { depuis, signaler } from "@/lib/fil";
 import { useMentions, SuggestionsMention, TexteMentions } from "@/lib/mentions";
-import { lireQuestion, repondre, modifierReponse, supprimerReponse, retenirReponse, modifierQuestion, supprimerQuestion, modererQuestion } from "@/lib/questions";
+import { lireQuestion, listeQuestions, repondre, modifierReponse, supprimerReponse, retenirReponse, modifierQuestion, supprimerQuestion, modererQuestion, urlPieceQuestion, PIECE_QUESTION_JOURS } from "@/lib/questions";
+import { ouvrirDuo, tailleLisible } from "@/lib/messages";
+import { CarteQuestion } from "@/app/questions/Questions";
 import { THEMES_CONSEIL } from "@/lib/donnees";
 
 // Une question ouverte (page /questions/[id] ET feuille depuis la liste).
@@ -45,6 +47,14 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
   const [envoi, setEnvoi] = useState(false);
   const [menu, setMenu] = useState(null);   // "q" ou id de réponse
   const [editionQ, setEditionQ] = useState(null);   // { titre, details, theme } pendant la modification de la question
+  // questions liées : résolues, même thème
+  const [liees, setLiees] = useState([]);
+  useEffect(() => {
+    if (!initial.theme) return;
+    listeQuestions({ filtre: "resolues", theme: initial.theme, limite: 4 })
+      .then((l) => setLiees(l.filter((x) => x.id !== initial.id).slice(0, 3))).catch(() => {});
+  }, [initial.id, initial.theme]);
+  const [monteQ, setMonteQ] = useState(false);
   const [toast, setToast] = useState("");
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
@@ -53,7 +63,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
   // sous l'écran à mi-hauteur — même remède que les commentaires du Fil
   const [monte, setMonte] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setMonte(true); }, []);
+  useEffect(() => { setMonte(true); setMonteQ(true); }, []);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu !== null, (e) => !!e.target.closest?.(".qa-menu"), () => setMenu(null));
   // la tête (titre, badge « Résolue ») vit chez le parent : on la tient au courant
@@ -90,6 +100,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
       }
       if (action === "modifier") { setEdition(cible); setTexte(cible.texte); champ.current?.focus(); }
       if (action === "modifierQ") setEditionQ({ titre: q.titre, details: q.details ?? "", theme: q.theme ?? "" });
+      if (action === "prive") { const cid = await ouvrirDuo(q.auteur.id); routeur.push(`/messages/${cid}?citer=${encodeURIComponent(q.titre)}`); }
       if (action === "partager") {
         const url = `${window.location.origin}/questions/${q.id}`;
         if (navigator.share) await navigator.share({ title: q.titre, url }); else { await navigator.clipboard.writeText(url); signale("Lien copié"); }
@@ -120,6 +131,12 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
           </div>
         </form>
       ) : q.details && <p className="qa-details"><TexteMentions texte={q.details} mentions={[]} /></p>}
+      {q.fichier_expiree && <p className="msg-piece-expiree" style={{ padding: "10px 22px 0" }}>Pièce jointe expirée, gardée {PIECE_QUESTION_JOURS} jours.</p>}
+      {q.fichier_chemin && !q.fichier_expiree && (
+        q.fichier_type === "photo"
+          ? <a href={urlPieceQuestion(q.fichier_chemin)} target="_blank" rel="noopener noreferrer" className="qa-piece-photo"><img src={urlPieceQuestion(q.fichier_chemin)} alt="" loading="lazy" /></a>
+          : <a href={urlPieceQuestion(q.fichier_chemin)} target="_blank" rel="noopener noreferrer" className="msg-piece-pdf qa-piece-pdf"><FileText size={22} strokeWidth={1.7} aria-hidden /><span><b>{q.fichier_nom ?? "document.pdf"}</b><small>PDF · {tailleLisible(q.fichier_taille)}</small></span></a>
+      )}
       <div className="pub-pied pu-actions qa-actions">
         <Bravo type="question" id={q.id} nombre={q.bravos} actif={q.jai_bravo} />
         <span className="pub-action" style={{ cursor: "default" }}>{reponses.length} réponse{reponses.length > 1 ? "s" : ""}</span>
@@ -130,6 +147,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
               <button type="button" onClick={() => agir("q", "partager")}><Share2 size={14} aria-hidden /> Partager</button>
               {q.est_moi && <button type="button" onClick={() => agir("q", "modifierQ")}><Pencil size={14} aria-hidden /> Modifier la question</button>}
               {q.est_moi && <button type="button" onClick={basculerResolue}><CheckCircle2 size={14} aria-hidden /> {q.resolue ? "Rouvrir la question" : "Marquer comme résolue"}</button>}
+              {!q.est_moi && q.auteur?.id && !q.auteur?.anonyme && <button type="button" onClick={() => agir("q", "prive")}><MessageSquare size={14} aria-hidden /> Répondre en privé</button>}
               {!q.est_moi && <button type="button" onClick={() => agir("q", "signaler")}><Flag size={14} aria-hidden /> Signaler</button>}
               {moderateur && <button type="button" onClick={() => agir("q", "masquer")}>{q.masquee ? <><Eye size={14} aria-hidden /> Rétablir</> : <><Masquer size={14} aria-hidden /> Masquer</>}</button>}
               {(q.est_moi || moi.role === "admin") && <button type="button" className="danger" onClick={() => agir("q", "supprimer")}><Trash2 size={14} aria-hidden /> Supprimer</button>}
@@ -137,6 +155,13 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
           )}
         </span>
       </div>
+
+      {liees.length > 0 && (
+        <section className="qa-liees">
+          <h4>Sur le même thème, déjà résolues</h4>
+          {liees.map((x) => <CarteQuestion key={x.id} q={x} />)}
+        </section>
+      )}
 
       <section className={`qa-reponses${enFeuille ? " qa-reponses-fixe" : ""}`}>
         {reponses.length === 0 && <p className="pu-vide">Personne n&apos;a encore répondu. {q.est_moi ? "Les anciens concernés sont prévenus." : "Tu es passé par là ? Réponds."}</p>}
@@ -178,7 +203,12 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
         })}
       </section>
 
-      {(() => { const saisie = (
+      {q.fermee ? (
+        <div className={`com-saisie qa-fermee${enFeuille ? " com-saisie-fixe" : ""}`}>
+          <Lock size={14} aria-hidden /> Question résolue depuis plus de 30 jours, fermée aux réponses.
+          {q.est_moi && <button type="button" className="btn btn-nu" style={{ padding: "7px 11px", fontSize: 12 }} onClick={basculerResolue}>Rouvrir</button>}
+        </div>
+      ) : (() => { const saisie = (
       <form className={`com-saisie${enFeuille ? " com-saisie-fixe" : ""}`} onSubmit={envoyer}>
         {edition && (
           <div className="com-saisie-vers"><Pencil size={12} aria-hidden /> Modification de ta réponse
@@ -194,6 +224,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
           <button type="submit" className="com-envoyer" disabled={!texte.trim() || envoi} aria-label={edition ? "Enregistrer" : "Répondre"}>{edition ? <Pencil size={16} aria-hidden /> : <Send size={17} aria-hidden />}</button>
         </div>
       </form>); return enFeuille && monte ? createPortal(saisie, document.body) : saisie; })()}
+      {q.fermee && enFeuille && monteQ && null}
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
     </>
   );

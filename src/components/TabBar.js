@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { sautRecent } from "@/components/SuiviNavigation";
 
 // 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
 // délégués et admins (les membres n'y ont pas accès — la page affiche
@@ -74,6 +75,9 @@ function useCacherAuDefilement() {
       const y = window.scrollY;
       const delta = y - dernierY;
       dernierY = y;
+      // saut programmé (restauration de la position d'un onglet) : ce n'est pas
+      // un geste vers le bas, la barre reste en place
+      if (sautRecent()) return;
 
       if (y < SEUIL_HAUT) { setCachee(false); cumulBas = 0; cumulHaut = 0; return; }
 

@@ -12,6 +12,7 @@ import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
 import RetourDynamique from "@/components/RetourDynamique";
 import Sommaire from "@/components/Sommaire";
+import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import Notifications from "@/components/Notifications";
 import DoubleAuth from "@/components/DoubleAuth";
 import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
@@ -475,6 +476,7 @@ export default function MonProfil() {
       </div>
 
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
+      <RestaurerDefilement />
       <TabBar actif="Mon profil" />
     </main>
     </GlisserRafraichir>

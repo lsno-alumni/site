@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Camera, Clapperboard, Globe2, Users, Briefcase, Clock } from "lucide-react";
 import { VISIBILITES } from "@/lib/fil";
@@ -21,6 +21,13 @@ export default function NouveauMoment({ moi, onFermer, onPublie }) {
   const [envoi, setEnvoi] = useState(false);
   const fichierPhoto = useRef(null);
   const fichierVideo = useRef(null);
+  useEffect(() => {
+    const touche = (e) => { if (e.key === "Escape") onFermer(); };
+    document.addEventListener("keydown", touche);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", touche); document.body.style.overflow = overflow; };
+  }, [onFermer]);
 
   const choisirPhoto = (e) => {
     const f = e.target.files?.[0]; e.target.value = "";

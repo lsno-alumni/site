@@ -2346,3 +2346,31 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .nm-publier { width: 100%; padding: 14px; font-size: 15.5px; }
 
 .tab-point { position: absolute; top: 2px; left: calc(50% + 8px); width: 8px; height: 8px; border-radius: 50%; background: var(--bleu-clair); box-shadow: 0 0 0 2px var(--fond); }
+
+/* grand écran : le lecteur et la création gardent la largeur d'un téléphone,
+   centrés, le reste de l'écran assombri (l'ombre géante fait le voile) */
+@media (min-width: 640px) {
+  .mo-lecteur { left: 50%; right: auto; width: 460px; transform: translateX(-50%); box-shadow: 0 0 0 100vmax rgba(4, 10, 22, .88); border-radius: 18px; overflow: hidden; top: 16px; bottom: 16px; }
+  .mo-fleche.gauche { left: 8px; } .mo-fleche.droite { right: 8px; }
+}
+/* Mes moments */
+.mm-panneau { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+.mm-nouveau { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; background: transparent; color: var(--texte); font: inherit; text-align: left; cursor: pointer; border-radius: 12px; }
+.mm-nouveau:hover { background: rgba(var(--texte-rgb), .05); }
+.mm-nouveau-rond { width: 44px; height: 44px; border-radius: 50%; background: var(--bleu-clair); color: var(--sur-accent); display: grid; place-items: center; flex-shrink: 0; }
+.mm-nouveau span:not(.mm-nouveau-rond) { display: flex; flex-direction: column; }
+.mm-nouveau b { font-size: 14.5px; }
+.mm-nouveau small { font-size: 12px; color: var(--brume); }
+.mm-ligne { display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--ligne); }
+.mm-ligne.off { opacity: .4; }
+.mm-voir { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 10px; border: 0; background: transparent; color: var(--texte); font: inherit; text-align: left; cursor: pointer; border-radius: 12px; }
+.mm-voir:hover { background: rgba(var(--texte-rgb), .05); }
+.mm-vignette { position: relative; width: 52px; height: 68px; border-radius: 10px; overflow: hidden; background: #000; flex-shrink: 0; display: grid; place-items: center; }
+.mm-vignette img, .mm-vignette video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mm-lire { position: absolute; color: #fff; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.mm-texte { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mm-texte b { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mm-texte small { font-size: 12px; color: var(--brume); }
+.mm-compteurs { display: inline-flex; align-items: center; gap: 4px; color: var(--texte-2) !important; }
+.mm-suppr { width: 40px; height: 40px; border-radius: 50%; border: 0; background: transparent; color: var(--brume); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; margin-right: 4px; }
+.mm-suppr:hover { color: var(--rouge); background: rgba(var(--texte-rgb), .05); }

@@ -6,6 +6,7 @@ import * as memoire from "@/lib/memoire";
 import { chargerRail } from "@/lib/moments";
 import LecteurMoments from "@/app/fil/LecteurMoments";
 import NouveauMoment from "@/app/fil/NouveauMoment";
+import MesMoments from "@/app/fil/MesMoments";
 
 // Le rail des moments en haut du Fil : mon rond d'abord (avec le « + »),
 // puis les personnes qui ont du nouveau (anneau bleu), puis les autres
@@ -15,6 +16,7 @@ export default function RailMoments({ moi, moderateur }) {
   const [rail, setRail] = useState(() => memoire.lire("fil.rail") ?? null);
   const [lecture, setLecture] = useState(null);    // { ia, im }
   const [creation, setCreation] = useState(false);
+  const [suivi, setSuivi] = useState(false);       // panneau « Mes moments »
 
   const charger = async () => {
     try { const r = await chargerRail(); setRail(r); memoire.ecrire("fil.rail", r); } catch { /* le rail reste tel quel */ }
@@ -52,7 +54,7 @@ export default function RailMoments({ moi, moderateur }) {
       <div className="rail" role="list" aria-label="Moments">
         <div className="rail-item" role="listitem">
           <button type="button" className={`rail-cercle moi${mienne ? (mienne.tout_vu ? " vu" : " nouveau") : ""}`}
-            onClick={() => (mienne ? setLecture({ ia: iaMoi, im: 0 }) : setCreation(true))} aria-label={mienne ? "Voir tes moments" : "Publier un moment"}>
+            onClick={() => (mienne ? setSuivi(true) : setCreation(true))} aria-label={mienne ? "Mes moments" : "Publier un moment"}>
             {moi.photo ? <img src={moi.photo} alt="" /> : <span className="rail-init">{initiales}</span>}
             <span className="rail-plus" role="button" tabIndex={0} aria-label="Publier un moment"
               onClick={(e) => { e.stopPropagation(); setCreation(true); }}
@@ -80,6 +82,11 @@ export default function RailMoments({ moi, moderateur }) {
       {lecture && rail && (
         <LecteurMoments auteurs={rail} departAuteur={lecture.ia} departMoment={lecture.im} moi={moi} moderateur={moderateur}
           onFermer={() => { setLecture(null); charger(); }} onChange={charger} />
+      )}
+      {suivi && (
+        <MesMoments entree={mienne} onFermer={() => setSuivi(false)} onChange={charger}
+          onVoir={(im) => { setSuivi(false); setLecture({ ia: iaMoi, im }); }}
+          onNouveau={() => { setSuivi(false); setCreation(true); }} />
       )}
       {creation && (
         <NouveauMoment moi={moi} onFermer={() => setCreation(false)}

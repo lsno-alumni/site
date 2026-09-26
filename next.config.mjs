@@ -55,7 +55,7 @@ const csp = [
   "font-src 'self' data:",
   "worker-src 'self'",                                // service worker des notifications
   "manifest-src 'self'",
-  "media-src 'self'",
+  `media-src 'self' blob: ${supabase}`,              // vidéos du fil, vocaux et vidéos des messages, aperçu avant envoi (blob:)
   // Note : en testant une build de production EN LOCAL (http://localhost), cette
   // directive fait échouer les préchargements de Next, réécrits en https. C'est
   // un artefact du test local uniquement — en production tout est déjà en https.
@@ -69,7 +69,8 @@ const enTetes = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // aucune de ces capacités n'est utilisée : la photo passe par un champ fichier
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
+  // microphone=(self) : les messages vocaux (MediaRecorder) — le site seul, jamais un cadre tiers
+  { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=(), usb=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 

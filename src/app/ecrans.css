@@ -2059,3 +2059,6 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .pub-menu-envoyer { background: none; border: 0; text-align: left; padding: 10px 12px; border-radius: 8px; font: inherit; font-size: 13.5px; color: var(--texte); cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .pub-menu-envoyer:hover { background: rgba(var(--texte-rgb), .06); }
 .pu-actions .pub-action:empty::after { content: none; }
+
+/* le menu d'une bulle de gauche s'ouvre vers la droite (sinon il sort de l'écran) */
+.msg-rang:not(.mien) .msg-bulle-liste { left: 0; right: auto; }

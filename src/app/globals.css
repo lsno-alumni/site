@@ -1,47 +1,84 @@
 /* ============================================================
-   LSNO ALUMNI — styles globaux
-   Palette : encre / craie / or (design v3 validé en maquette)
+   LSNO AMICALE — styles globaux
+   Direction « Latérite » (validée en maquette le 24/09) : deux thèmes complets,
+   un seul accent (notre bleu), des fonds variés par section.
+
+   Les variables nomment un RÔLE, pas une couleur : --fond est le sol de la page
+   (papier en clair, nuit en sombre), --texte l'encre qui s'écrit dessus, --carte
+   une surface posée sur le sol. Les *-rgb servent aux rgba(var(--x-rgb), a).
+   --voile-rgb est l'exception : le voile posé sur une PHOTO reste sombre et chaud
+   dans les deux thèmes, pour que le texte blanc y reste lisible.
+   Le thème est choisi par data-theme sur <html> (script du layout, avant le
+   premier rendu) : « clair » ou « sombre », résolu depuis le réglage de
+   l'utilisateur ou l'heure locale (src/lib/theme.js).
    ============================================================ */
 :root {
-  --encre: #0A1B33;
-  --encre-2: #102544;
-  --carte: #132B4E;
-  --craie: #F5F1E8;
-  --craie-2: #E4DCCB;
-  --or: #E8B33C;
-  --or-clair: #F5CD6E;
-  /* remplacement progressif de l'or par ce bleu (donné par l'utilisateur) à
-     travers le site — --or/--or-clair restent définis pour ce qui n'a pas
-     encore été basculé, mais l'accent principal, c'est --bleu désormais */
-  --bleu: #1E3A62;
-  --bleu-clair: #3B6FD1;
-  /* --bleu-clair reste tel quel pour les fonds pleins (boutons, badges) ;
-     pour du TEXTE, un cran plus lumineux — plus facile à lire, jugé trop
-     sombre en --bleu-clair sur les petits libellés/liens. */
-  --bleu-texte: #6FA8F5;
-  --brume: #93A5C0;
-  --ligne: rgba(147, 165, 192, .16);
-  --vert-ok: #63C784;
-  --rouge: #D98181;
+  color-scheme: light;
+  --fond: #F6F0E4; --fond-rgb: 246, 240, 228;
+  --fond-2: #ECE3D2;
+  --fond-profil: #EFE7D7;   /* sol du profil consulté : même papier, un ton plus kraft que l'annuaire */
+  --carte: #FFFCF6;
+  --sable: #E4D6BC;
+  --texte: #1F2230; --texte-rgb: 31, 34, 48;
+  --texte-2: #3E4454;
+  --brume: #7C8190; --brume-rgb: 124, 129, 144;
+  --ligne: rgba(31, 34, 48, .12);
+  /* l'accent : notre bleu. --bleu = bordures et détails, --bleu-clair = fonds
+     pleins (boutons, badges), --bleu-texte = texte, --bleu-doux = fond pâle */
+  --bleu: #1E3A62; --bleu-clair: #1E3A62; --bleu-texte: #1E3A62; --bleu-doux: #DCE4F0;
+  --accent-rgb: 30, 58, 98;
+  --halo-rgb: 59, 111, 209;      /* le halo des boutons reste bleu vif, même quand l'accent est bleu nuit */
+  --sur-accent: #F6F0E4;
+  /* la bande « Le réseau dans le monde », seule seconde couleur du site */
+  --monde: #1F3B63; --monde-2: #2B4E80;
+  --pierre: #2B2620;                    /* pied de page sombre et chaud */
+  --voile-rgb: 25, 22, 20;
+  --or: #E8B33C; --or-clair: #F5CD6E;   /* poussière d'or du héros, reflet des boutons */
+  --vert-ok: #4F7A4B;
+  --rouge: #B33A3A;
+  --ombre: 0 18px 40px -22px rgba(31, 34, 48, .38);
+  --kraft: url("/fonds/kraft-clair.jpg"); --kraft-melange: multiply;
+}
+:root[data-theme="sombre"] {
+  color-scheme: dark;
+  --fond: #0F1219; --fond-rgb: 15, 18, 25;
+  --fond-2: #151A26;
+  --fond-profil: #131826;
+  --carte: #1D2231;
+  --sable: #232939;
+  --texte: #EFE8DB; --texte-rgb: 239, 232, 219;
+  --texte-2: #C9C2B4;
+  --brume: #8B90A0; --brume-rgb: 139, 144, 160;
+  --ligne: rgba(239, 232, 219, .13);
+  --bleu: #2B4E80; --bleu-clair: #3B6FD1; --bleu-texte: #6FA8F5; --bleu-doux: #1F2C45;
+  --accent-rgb: 59, 111, 209;
+  --halo-rgb: 59, 111, 209;
+  --sur-accent: #F6F0E4;
+  --monde: #1B2F4F; --monde-2: #23406B;
+  --pierre: #0E1017;
+  --vert-ok: #9CBF94;
+  --rouge: #E08A8A;
+  --ombre: 0 18px 40px -22px rgba(0, 0, 0, .75);
+  --kraft: url("/fonds/kraft-sombre.jpg"); --kraft-melange: screen;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 /* supprime l'étirement élastique Android qui découvre les bords des dégradés
    (appliqué à html ET body : selon le navigateur, c'est l'un ou l'autre qui compte) */
-html { scroll-behavior: smooth; background: var(--encre); overscroll-behavior-y: none; }
+html { scroll-behavior: smooth; background: var(--fond); overscroll-behavior-y: none; }
 body { overscroll-behavior-y: none; }
 body {
-  background: var(--encre);
-  color: var(--craie);
+  background: var(--fond);
+  color: var(--texte);
   font-family: var(--font-ui), sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-::selection { background: var(--bleu-clair); color: var(--craie); }
+::selection { background: var(--bleu-clair); color: var(--sur-accent); }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
-h1, h2, h3, .serif { font-family: var(--font-titres), serif; font-weight: 600; }
-h1 em, h2 em, h3 em { font-style: italic; color: var(--bleu-texte); }
+h1, h2, h3, .serif { font-family: var(--font-titres), serif; font-weight: 500; letter-spacing: -.01em; text-wrap: balance; }
+h1 em, h2 em, h3 em { font-style: italic; font-weight: 400; color: var(--bleu-texte); }
 /* color: inherit — sans ça, un <button> servant de conteneur (résultat de
    recherche admin…) prend le noir par défaut du navigateur au lieu de la craie */
 button { font-family: inherit; color: inherit; }
@@ -70,31 +107,50 @@ details[open] > summary .chevron { transform: rotate(180deg); }
      ici il faut au contraire ATTIRER l'œil (bouton principal), donc le bleu
      clair — et du texte clair, --encre (pensé pour l'or, nettement plus
      lumineux) n'a plus assez de contraste sur un fond bleu. */
-  background: var(--bleu-clair); color: var(--craie); font-weight: 700;
-  box-shadow: 0 12px 30px -10px rgba(59, 111, 209, .5);
+  background: var(--bleu-clair); color: var(--sur-accent); font-weight: 700;
+  box-shadow: 0 12px 30px -10px rgba(var(--halo-rgb), .6);
 }
-.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(59, 111, 209, .65); transform: translateY(-1px); }
+.btn-or:hover { box-shadow: 0 16px 36px -8px rgba(var(--halo-rgb), .75); transform: translateY(-1px); }
 .btn-nu {
-  background: rgba(245, 241, 232, .08); color: var(--craie);
-  border: 1px solid rgba(245, 241, 232, .22); backdrop-filter: blur(6px);
+  background: rgba(var(--texte-rgb), .06); color: var(--texte);
+  border: 1.5px solid rgba(var(--texte-rgb), .28);
+}
+/* posé sur une photo (héros, en-têtes) : toujours blanc, quel que soit le thème */
+.a-hero .btn-nu, .f-tete .btn-nu, .n-tete .btn-nu, .am-tete .btn-nu {
+  background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.6); backdrop-filter: blur(6px);
 }
 .btn-bloc { width: 100%; padding: 16px; }
 
 /* ---------- éléments partagés ---------- */
 .tagline { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); }
-.page { max-width: 480px; margin: 0 auto; min-height: 100dvh; position: relative; }
+.page {
+  max-width: 480px; margin: 0 auto; min-height: 100dvh; position: relative;
+  background-color: var(--fond);
+  background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+}
 .page-large { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+/* pages sans barre de navigation : le sceau (blason + devise) est poussé tout
+   en bas quand la page est courte, suit le contenu quand elle est longue */
+.page-sceau { display: flex; flex-direction: column; }
+.page-sceau > *:not(.sceau) { flex-shrink: 0; }
+.sceau {
+  margin-top: auto; padding: 36px 24px calc(28px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; opacity: .55;
+}
+.sceau img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(var(--texte-rgb), .25); }
+.sceau span { font-family: var(--font-titres), serif; font-size: 14px; color: var(--texte); margin-top: 4px; }
+.sceau small { font-size: 9.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--texte-2); }
 
 .carte-sombre {
   background: var(--carte); border: 1px solid var(--ligne); border-radius: 20px;
 }
 .meta {
   font-size: 11.5px; padding: 7px 12px; border-radius: 100px;
-  background: var(--carte); border: 1px solid var(--ligne); color: var(--craie-2);
+  background: var(--carte); border: 1px solid var(--ligne); color: var(--texte-2);
   display: inline-flex; align-items: center; gap: 5px;
 }
-.meta.doree { background: rgba(59, 111, 209, .12); border-color: rgba(59, 111, 209, .35); color: var(--bleu-texte); }
-.meta.verte { color: #9FD8B4; border-color: rgba(99, 199, 132, .35); }
+.meta.doree { background: rgba(var(--accent-rgb), .12); border-color: rgba(var(--accent-rgb), .35); color: var(--bleu-texte); }
+.meta.verte { color: var(--vert-ok); border-color: rgba(99, 199, 132, .45); }
 
 .champ label {
   font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
@@ -103,10 +159,10 @@ details[open] > summary .chevron { transform: rotate(180deg); }
 .saisie {
   width: 100%; background: var(--carte); border: 1px solid var(--ligne);
   border-radius: 16px; padding: 15px 16px; font-size: 14.5px;
-  color: var(--craie); font-family: inherit; outline: none;
+  color: var(--texte); font-family: inherit; outline: none;
   transition: border-color .25s, box-shadow .25s;
 }
-.saisie:focus { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(59, 111, 209, .15); }
+.saisie:focus { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(var(--accent-rgb), .15); }
 .saisie::placeholder { color: var(--brume); }
 select.saisie { appearance: none; cursor: pointer; }
 
@@ -120,13 +176,13 @@ select.saisie { appearance: none; cursor: pointer; }
 .avatar-init {
   background: radial-gradient(circle at 30% 25%, #4E85E0 0%, #2E5590 45%, #1E3A62 100%);
   box-shadow: inset 0 2px 3px rgba(255,255,255,.22), inset 0 -4px 8px rgba(0,0,0,.3);
-  display: grid; place-items: center; font-weight: 800; color: var(--craie);
+  display: grid; place-items: center; font-weight: 800; color: var(--sur-accent);
 }
 
 .drapo {
   width: 16px; height: 12px; border-radius: 2.5px; object-fit: cover;
   display: inline-block; vertical-align: -1px;
-  box-shadow: 0 0 0 1px rgba(245, 241, 232, .15);
+  box-shadow: 0 0 0 1px rgba(var(--texte-rgb), .15);
 }
 
 /* barre d'onglets (app connectée) */
@@ -138,8 +194,8 @@ select.saisie { appearance: none; cursor: pointer; }
   /* fond quasi opaque SANS backdrop-filter : le flou en direct du contenu
      défilant corrompait le rendu GPU (bandes de neige) sur les Mali
      (Redmi/Tecno/Infinix) — annuaire, défilement rapide */
-  background: linear-gradient(180deg, rgba(5, 13, 27, .93), rgba(5, 13, 27, .99));
-  border-top: 1px solid rgba(245, 241, 232, .1);
+  background: linear-gradient(180deg, rgba(var(--fond-rgb), .93), rgba(var(--fond-rgb), .99));
+  border-top: 1px solid rgba(var(--texte-rgb), .1);
   /* se range en bas au défilement descendant, revient au défilement montant
      (TabBar.js) — un seul transform qui bouge, jamais de flou/opacité en
      direct : c'est un calque flou en mouvement qui avait corrompu le rendu
@@ -174,6 +230,7 @@ select.saisie { appearance: none; cursor: pointer; }
   transition: padding-bottom .6s cubic-bezier(.4, 0, .2, 1);
 }
 :root.tb-cachee .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+:root.sans-tabbar .avec-tabbar { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }   /* visiteur : pas de barre */
 
 /* toast */
 .toast {
@@ -182,7 +239,7 @@ select.saisie { appearance: none; cursor: pointer; }
      colonne étroite de dix lignes. */
   position: fixed; left: 16px; right: 16px; bottom: 96px;
   margin: 0 auto; width: fit-content; transform: translateY(20px);
-  background: var(--craie); color: var(--encre);
+  background: var(--texte); color: var(--fond);
   font-size: 13px; font-weight: 600; padding: 12px 18px;
   /* 22 px et non 100 : le navigateur plafonne le rayon à la moitié de la hauteur,
      donc une pilule sur une ligne, un rectangle arrondi sur plusieurs — au lieu
@@ -208,14 +265,14 @@ select.saisie { appearance: none; cursor: pointer; }
 .chemin { position: relative; padding-left: 24px; }
 .chemin::before {
   content: ""; position: absolute; left: 6px; top: 8px; bottom: 16px; width: 1.5px;
-  background: linear-gradient(180deg, var(--bleu) 0%, rgba(59, 111, 209, .12) 100%);
+  background: linear-gradient(180deg, var(--bleu) 0%, rgba(var(--accent-rgb), .12) 100%);
 }
 .pas { position: relative; padding-bottom: 22px; }
 .pas::before {
   content: ""; position: absolute; left: -22.5px; top: 5px; width: 9px; height: 9px;
-  border-radius: 50%; background: var(--encre); border: 2px solid var(--bleu);
+  border-radius: 50%; background: var(--fond); border: 2px solid var(--bleu);
 }
-.pas.actuel::before { background: var(--bleu-clair); box-shadow: 0 0 0 5px rgba(59, 111, 209, .18); }
+.pas.actuel::before { background: var(--bleu-clair); box-shadow: 0 0 0 5px rgba(var(--accent-rgb), .18); }
 .pas .annees { font-size: 11px; color: var(--bleu-texte); letter-spacing: .12em; }
 .pas b { display: block; font-size: 14.5px; margin-top: 3px; }
 .pas span { font-size: 12.5px; color: var(--brume); display: block; margin-top: 2px; line-height: 1.5; }
@@ -224,22 +281,22 @@ select.saisie { appearance: none; cursor: pointer; }
 .splash {
   min-height: 100dvh; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 18px;
-  background: var(--encre);
+  background: var(--fond);
 }
 .splash-blason {
   width: 76px; height: 76px; border-radius: 50%; object-fit: cover; background: #fff;
-  border: 2px solid rgba(59, 111, 209, .55);
+  border: 2px solid rgba(var(--accent-rgb), .55);
   animation: splash-respire 2.2s ease-in-out infinite;
 }
 @keyframes splash-respire {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 111, 209, .35); transform: scale(1); }
-  50% { box-shadow: 0 0 0 16px rgba(59, 111, 209, 0); transform: scale(1.04); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), .35); transform: scale(1); }
+  50% { box-shadow: 0 0 0 16px rgba(var(--accent-rgb), 0); transform: scale(1.04); }
 }
 .splash-nom { font-family: var(--font-titres), serif; font-size: 22px; font-weight: 600; }
 .splash-nom em { font-style: italic; color: var(--bleu-texte); }
 .splash-trait {
   width: 120px; height: 3px; border-radius: 100px; overflow: hidden; position: relative;
-  background: rgba(147, 165, 192, .18);
+  background: rgba(var(--brume-rgb), .18);
 }
 .splash-trait::after {
   content: ""; position: absolute; inset: 0; width: 45%; border-radius: 100px;
@@ -251,3 +308,17 @@ select.saisie { appearance: none; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- sélecteur d'apparence (menu public, Mon profil) ---------- */
+.choix-theme {
+  display: inline-flex; gap: 2px; padding: 3px; border-radius: 100px;
+  background: var(--fond-2); border: 1px solid var(--ligne);
+}
+.choix-theme button {
+  display: inline-flex; align-items: center; gap: 5px; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 500; color: var(--brume); padding: 7px 12px; border-radius: 100px;
+  transition: background .2s, color .2s;
+}
+.choix-theme button.on { background: var(--bleu-clair); color: var(--sur-accent); font-weight: 700; }
+.choix-theme.compact { width: 100%; }
+.choix-theme.compact button { flex: 1; justify-content: center; }

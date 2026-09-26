@@ -51,7 +51,21 @@ export default function Parcours({ profilId, signale }) {
     charger();
   };
 
+  // règle des années : du plus ancien au plus récent, l'étape en cours marquée
+  const bornes = [...etapes].sort((a, b) => (a.annee_debut ?? 0) - (b.annee_debut ?? 0));
+
   return (
+    <div className="frise">
+      {bornes.length > 0 && (
+        <div className="regle" aria-hidden>
+          {bornes.map((e) => (
+            <div key={e.id}>
+              <b className={e.annee_fin ? "" : "now"}>{e.annee_debut ?? "—"}</b>
+              <small>{e.annee_fin ? `→ ${e.annee_fin}` : "→ aujourd'hui"}</small>
+            </div>
+          ))}
+        </div>
+      )}
     <div className="e-etapes">
       {etapes.map((e) => (
         <div key={e.id} className="e-etape">
@@ -65,7 +79,7 @@ export default function Parcours({ profilId, signale }) {
           <div style={{ display: "flex", gap: 4 }}>
             <button className="e-crayon" aria-label={`Modifier ${e.titre}`}
               onClick={() => setEdition({ ...e, annee_debut: e.annee_debut ?? "", annee_fin: e.annee_fin ?? "" })}>✎</button>
-            <button className="e-crayon" style={{ color: "var(--rouge)" }} aria-label={`Supprimer ${e.titre}`}
+            <button className="e-crayon suppr" aria-label={`Supprimer ${e.titre}`}
               onClick={() => supprimer(e.id)}>✕</button>
           </div>
         </div>
@@ -97,6 +111,7 @@ export default function Parcours({ profilId, signale }) {
       ) : (
         <button className="e-ajout" onClick={() => setEdition({ ...VIERGE })}>+ Ajouter une étape</button>
       )}
+    </div>
     </div>
   );
 }

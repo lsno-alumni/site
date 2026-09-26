@@ -22,6 +22,12 @@ const VALIDATION = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 // Écrit UNIQUEMENT dans le useEffect (côté client) → jamais côté serveur
 // (pas de fuite entre utilisateurs, pas de décalage d'hydratation).
 let roleCache = null;
+// Un visiteur NON connecté (À propos, Conditions… en public) n'a pas de barre :
+// les onglets mènent tous à des pages réservées. Connu après le premier
+// contrôle de session, puis mémorisé au niveau module pour que les pages
+// publiques suivantes ne la fassent même pas apparaître un instant.
+let connecteCache = null;   // null = pas encore su, true/false ensuite
+const CLASSE_SANS = "sans-tabbar";
 
 // Cache/glisse au défilement, comme sur les réseaux sociaux : on descend dans
 // la page → elle se range en bas ; on remonte, même légèrement → elle revient.
@@ -103,10 +109,17 @@ function useCacherAuDefilement() {
 
 export default function TabBar({ actif }) {
   const [role, setRole] = useState(roleCache);
+  const [connecte, setConnecte] = useState(connecteCache ?? (roleCache ? true : null));
   const cachee = useCacherAuDefilement();
 
+  // la page libère la place réservée à la barre quand il n'y en a pas
   useEffect(() => {
-    if (role) return; // rôle déjà connu (cache module) : rien à faire
+    document.documentElement.classList.toggle(CLASSE_SANS, connecte === false);
+    return () => document.documentElement.classList.remove(CLASSE_SANS);
+  }, [connecte]);
+
+  useEffect(() => {
+    if (role) { connecteCache = true; return; } // rôle déjà connu (cache module) : connecté, rien à refaire
     let vivant = true;
     // secours immédiat depuis la session (rechargement dur) avant le réseau ;
     // sessionStorage n'existe pas côté serveur, d'où l'effet plutôt qu'un
@@ -116,6 +129,9 @@ export default function TabBar({ actif }) {
     (async () => {
       const supabase = creerClientNavigateur();
       const { data: { user } } = await supabase.auth.getUser();
+      if (!vivant) return;
+      connecteCache = Boolean(user);
+      setConnecte(Boolean(user));
       if (!user) return;
       const { data } = await supabase
         .from("profiles").select("role").eq("id", user.id).maybeSingle();
@@ -131,6 +147,7 @@ export default function TabBar({ actif }) {
 
   const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;
 
+  if (connecte === false) return null;
   return (
     <nav className={`tabbar${cachee ? " tabbar-cachee" : ""}`} aria-label="Navigation principale">
       {onglets.map((o) => (

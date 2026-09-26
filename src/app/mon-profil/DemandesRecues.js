@@ -62,7 +62,7 @@ export default function DemandesRecues({ signale }) {
               </div>
             </div>
             {d.message && (
-              <p style={{ fontSize: 13, fontStyle: "italic", color: "var(--craie-2)", lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, fontStyle: "italic", color: "var(--texte-2)", lineHeight: 1.5 }}>
                 « {d.message} »
               </p>
             )}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Hourglass, ArrowRight } from "lucide-react";
+import ChoixTheme from "@/components/ChoixTheme";
 import TabBar from "@/components/TabBar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import InviteNotifications from "@/components/InviteNotifications";
@@ -11,6 +12,7 @@ import TexteReplie from "@/components/TexteReplie";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
+import Eventail from "@/components/Eventail";
 import { DOMAINES, nomDomaine, tauxCompletion } from "@/lib/donnees";
 
 const TYPES_OFFRE = {
@@ -37,8 +39,11 @@ export default function AccueilMembre({ moi, donnees }) {
   return (
     <main className="page avec-tabbar">
       <header className="am-tete">
-        <div className="a-marque" style={{ marginBottom: 26 }}>
-          <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
+        <div className="am-haut">
+          <div className="a-marque">
+            <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
+          </div>
+          <ChoixTheme />
         </div>
         <h1><Salutation prenom={moi.prenom} /></h1>
         <p className="am-sous">Que peut le réseau pour toi aujourd&apos;hui ?</p>
@@ -64,16 +69,8 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Tu peux consulter leurs profils.</p>
-          <div className="am-nouveaux">
-            {nouveaux.map((m) => (
-              <Link key={m.id} href={`/profil/${m.id}`} className="am-nouveau">
-                <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="am-nouveau-photo" />
-                <b>{m.prenom}</b>
-                <span className="am-nouveau-detail">P{m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
-              </Link>
-            ))}
-          </div>
+          <p className="a-sous">Touche une carte pour voir le profil.</p>
+          <Eventail membres={nouveaux} />
         </section>
         </Reveal>
       )}
@@ -106,7 +103,7 @@ export default function AccueilMembre({ moi, donnees }) {
               <span>Promotion {conseil.promotions?.numero} · voir son parcours</span>
             </div>
           </Link>
-          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--encre)", opacity: .75 }}>
+          <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--bleu-texte)" }}>
             Tous les conseils par thème <ArrowRight size={13} aria-hidden />
           </Link>
         </section>
@@ -135,7 +132,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {parPays && Object.keys(parPays).length > 0 && (
         <Reveal>
-        <section className="a-section" style={{ paddingBottom: 30 }}>
+        <section className="a-section am-monde" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau dans le monde</h2>
           <p className="a-sous">Touche un pays pour voir qui y est.</p>
           <NuagePays parPays={parPays} />
@@ -153,7 +150,7 @@ export default function AccueilMembre({ moi, donnees }) {
               const pct = Math.round((n / domainesTries[0][1]) * 100);
               return (
                 <Link key={cle} href={`/annuaire?domaine=${cle}`} className="am-anneau-bloc">
-                  <span className="am-anneau" style={{ background: `conic-gradient(#3B6FD1 ${pct * 3.6}deg, rgba(147,165,192,.18) ${pct * 3.6}deg)` }}>
+                  <span className="am-anneau" style={{ background: `conic-gradient(var(--bleu-clair) ${pct * 3.6}deg, var(--ligne) ${pct * 3.6}deg)` }}>
                     <span className="am-anneau-int"><IconeDomaine domaine={cle} taille={18} /></span>
                   </span>
                   <b>{n}</b>
@@ -168,7 +165,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {promos.length > 0 && (
         <Reveal>
-        <section className="a-section" style={{ paddingBottom: 30 }}>
+        <section className="a-section am-pierre" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
           <Roue3D memo="membre-promos"
             sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."

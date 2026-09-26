@@ -55,10 +55,9 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     // normal de la couverture/photo une fois qu'on y revient en scrollant)
     f.style.borderRadius = e === "plein" ? "0" : "";
     f.style.overflowY = e === "plein" ? "auto" : "hidden";
-    // --encre-2 (un cran plus clair) marque « ceci flotte au-dessus de la
-    // page » en aperçu ; en plein écran ce n'est plus une feuille mais LA
-    // page — même --encre que la vraie /profil/[id]
-    f.style.background = e === "plein" ? "var(--encre)" : "";
+    // le sol de la feuille (kraft, --fond-profil) est le même que celui de la
+    // vraie /profil/[id] (.page-profil) : rien à changer en plein écran —
+    // un aplat posé ici effaçait le grain dès l'ouverture complète
     // sinon un doigt qui touche la couverture en plein écran ne ferait RIEN
     // (ni glissement — désactivé plus haut —, ni défilement natif, avalé
     // par ce touch-action resté à "none")

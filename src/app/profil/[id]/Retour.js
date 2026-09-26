@@ -7,15 +7,15 @@ import { peutRevenir } from "@/components/SuiviNavigation";
 // position, offres, accueil…) ; annuaire en secours si arrivée directe.
 // (détection fiable : voir SuiviNavigation.js — document.referrer ne marche pas
 // avec la navigation côté client de Next)
-export default function Retour() {
+export default function Retour({ secours = "/annuaire" }) {
   const routeur = useRouter();
   const retour = () => {
     if (peutRevenir()) routeur.back();
-    else routeur.push("/annuaire");
+    else routeur.push(secours);
   };
   return (
     <button className="p-retour" onClick={retour} aria-label="Retour"
-      style={{ border: "1px solid rgba(245,241,232,.18)", color: "var(--craie)", cursor: "pointer" }}>
+      style={{ cursor: "pointer" }}>
       ←
     </button>
   );

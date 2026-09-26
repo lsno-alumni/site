@@ -5,6 +5,7 @@ import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { PAYS, nomDomaine } from "@/lib/donnees";
 import DemandeContact from "./DemandeContact";
 import Histoire from "./Histoire";
+import Voisins from "./Voisins";
 
 // Le contenu visuel d'un profil, PARTAGÉ entre la vraie page (/profil/[id])
 // et la feuille glissante ouverte depuis l'annuaire (@modal). Coupé en deux :
@@ -20,6 +21,19 @@ function lienWhatsApp(v) {
 function lienLinkedIn(v) {
   if (v.startsWith("http")) return v;
   return `https://www.linkedin.com/in/${v.replace(/^@/, "")}`;
+}
+
+// Couverture du profil : la PROPRE photo du membre, agrandie et floutée sous
+// un voile bleu nuit — chaque profil a ainsi sa couleur, au lieu de la même
+// photo de bibliothèque pour tout le monde. Sans photo : bande bleu nuit sur
+// grain kraft. Reçoit les enfants (bouton retour / fermer) à poser dessus.
+export function CouvertureProfil({ p, children }) {
+  return (
+    <div className={`p-cover${p.photo ? " avec-photo" : ""}`}
+      style={p.photo ? { "--photo": `url("${p.photo}")` } : undefined}>
+      {children}
+    </div>
+  );
 }
 
 export function TeteProfil({ p }) {
@@ -53,7 +67,7 @@ export function TeteProfil({ p }) {
   );
 }
 
-export function SuiteProfil({ p, contacts, demande, id }) {
+export function SuiteProfil({ p, contacts, demande, id, voisins }) {
   // des contacts « sur demande » existent-ils chez ce membre ?
   const aSurDemande = ["whatsapp", "email", "linkedin"]
     .some((c) => contacts?.visi?.[c] === "demande");
@@ -96,23 +110,30 @@ export function SuiteProfil({ p, contacts, demande, id }) {
         />
       </div>
 
-      <section className="p-bloc">
-        <h4>Parcours</h4>
-        <div className="chemin">
-          {p.parcours.map((e, i) => (
-            <div key={i} className={`pas${e.actuel ? " actuel" : ""}`}>
-              <div className="annees">{e.annees}</div>
-              <b>
-                {e.titre.startsWith("LSNO") && (
-                  <img src="/img/logo.jpg" alt="" className="mini-blason" />
-                )}
-                {e.titre}
-              </b>
-              <span>{e.detail}</span>
+      {p.parcours.length > 0 && (
+        <section className="p-bloc">
+          <h4>Parcours</h4>
+          {/* le panneau bleu nuit de « Mon profil », avec le fil de l'ancien
+              système : la ligne se trace, les points s'allument, l'évolution
+              se lit du présent vers le lycée */}
+          <div className="frise">
+            <div className="chemin">
+              {p.parcours.map((e, i) => (
+                <div key={i} className={`pas${e.actuel ? " actuel" : ""}`}>
+                  <div className="annees">{e.annees}</div>
+                  <b>
+                    {e.titre.startsWith("LSNO") && (
+                      <img src="/img/logo.jpg" alt="" className="mini-blason" />
+                    )}
+                    {e.titre}
+                  </b>
+                  {e.detail && <span>{e.detail}</span>}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {p.conseil && (
         <section className="p-conseil">
@@ -145,15 +166,17 @@ export function SuiteProfil({ p, contacts, demande, id }) {
           )}
         </section>
       )}
+
+      <Voisins voisins={voisins} promotion={p.promotion} />
     </>
   );
 }
 
-export default function ContenuProfil({ p, contacts, demande, id }) {
+export default function ContenuProfil({ p, contacts, demande, id, voisins }) {
   return (
     <>
       <TeteProfil p={p} />
-      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} />
+      <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
     </>
   );
 }

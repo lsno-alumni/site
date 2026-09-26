@@ -57,7 +57,7 @@ export default function Annonce({ signale }) {
       </p>
 
       {suivi && !suivi.terminee && (
-        <div className="carte-sombre" style={{ padding: "12px 14px", fontSize: 12.5, color: "var(--craie-2)" }}>
+        <div className="carte-sombre" style={{ padding: "12px 14px", fontSize: 12.5, color: "var(--texte-2)" }}>
           <Megaphone size={13} aria-hidden style={{ verticalAlign: "-2px", color: "var(--bleu-texte)" }} />{" "}
           En cours : « {suivi.sujet} » — <b>{suivi.envoyes}/{suivi.total}</b>{" "}envoyés
           {suivi.envoyes < suivi.total && " · la suite part demain à 11h"}

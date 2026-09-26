@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, ExternalLink, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
@@ -11,23 +11,8 @@ import { SqueletteOffre } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, nomPays } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
-
-const TYPES = [
-  { cle: "stage", nom: "Stage" },
-  { cle: "emploi", nom: "Emploi" },
-  { cle: "bourse", nom: "Bourse" },
-  { cle: "cooptation", nom: "Cooptation" },
-  { cle: "concours", nom: "Concours" },
-  { cle: "autre", nom: "Autre" },
-];
-const nomType = (cle) => TYPES.find((t) => t.cle === cle)?.nom ?? cle;
-
-function ilYA(date) {
-  const j = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
-  if (j <= 0) return "aujourd'hui";
-  if (j === 1) return "hier";
-  return `il y a ${j} j`;
-}
+import TamponDate from "@/components/TamponDate";
+import { TYPES, nomType, joursRestants, ilYA } from "@/lib/offres";
 
 const VIERGE = { type: "stage", titre: "", description: "", domaine: "info", pays: "", ville: "", date_limite: "", lien: "" };
 const MAX_FICHIERS = 5;
@@ -51,7 +36,6 @@ export default function Offres() {
   const [q, setQ] = useState("");
   const [formulaire, setFormulaire] = useState(false);
   const [edition, setEdition] = useState(null); // id de l'offre en cours de modification
-  const [depliees, setDepliees] = useState({}); // id -> description dépliée
   const [form, setForm] = useState(VIERGE);
   const [fichiers, setFichiers] = useState([]);              // nouveaux File à téléverser
   const [fichiersExistants, setFichiersExistants] = useState([]); // {id, chemin, nom, type} (édition)
@@ -352,6 +336,7 @@ export default function Offres() {
         </div>
       )}
 
+      <div className="n-panneau">
       <div className="n-filtres">
         <button className={`puce${type === "tous" ? " active" : ""}`} onClick={() => setType("tous")}>Toutes</button>
         {TYPES.map((t) => (
@@ -360,7 +345,7 @@ export default function Offres() {
           </button>
         ))}
       </div>
-      <div className="n-filtres" style={{ position: "static", paddingTop: 0 }}>
+      <div className="n-filtres">
         <select className="puce" value={domaine} onChange={(e) => setDomaine(e.target.value)} aria-label="Filtrer par domaine">
           <option value="">Domaine — tous</option>
           {DOMAINES.map((d) => <option key={d.cle} value={d.cle}>{d.nom}</option>)}
@@ -371,6 +356,7 @@ export default function Offres() {
           Échéance proche d&apos;abord
         </button>
       </div>
+      </div>
 
       <div className="n-liste">
         {offres === null && [0, 1, 2].map((i) => <SqueletteOffre key={i} />)}
@@ -379,52 +365,25 @@ export default function Offres() {
           const mienne = moi?.id === o.posteur?.id;
           const admin = moi?.role === "admin";
           return (
-            <article key={o.id} id={`o-${o.id}`} className="fiche demande" style={{ cursor: "default" }}>
-              <div style={{ padding: "15px 16px 12px" }}>
-                <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 9 }}>
-                  <span className="meta doree">{nomType(o.type)}</span>
-                  <span className="meta">{DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0]}</span>
-                  {(o.ville || o.pays) && (
-                    <span className="meta">{[o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", ")}</span>
-                  )}
-                  {o.date_limite && (
-                    <span className="meta" style={{ color: "var(--bleu-texte)" }}>
-                      avant le {new Date(o.date_limite).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                    </span>
-                  )}
-                </div>
-                <b style={{ fontSize: 15, lineHeight: 1.3, display: "block" }}><Surligne texte={o.titre} terme={q} /></b>
-                <p className={`offre-desc${depliees[o.id] ? " ouverte" : ""}`}>
-                  <Surligne texte={o.description} terme={q} />
-                </p>
-                {o.description.length > 120 && (
-                  <button
-                    className="offre-lire-plus"
-                    onClick={() => setDepliees((d) => ({ ...d, [o.id]: !d[o.id] }))}
-                  >
-                    {depliees[o.id] ? "Réduire" : "Lire plus"}
-                  </button>
-                )}
-                {o.lien && (
-                  <a href={lienAbsolu(o.lien)} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: 12.5, color: "var(--bleu-texte)", textDecoration: "underline", textUnderlineOffset: 3, display: "inline-flex", alignItems: "center", gap: 4, marginTop: 8 }}>
-                    Voir l&apos;annonce <ExternalLink size={12} aria-hidden />
-                  </a>
-                )}
-                {o.fichiers?.length > 0 && (
-                  <div className="o-fichiers">
-                    {o.fichiers.map((f) => (
-                      <a key={f.id} className="o-fichier" href={urlPublique(f.chemin)}
-                        target="_blank" rel="noopener noreferrer" download={f.nom}>
-                        {f.type === "application/pdf"
-                          ? <FileText size={14} aria-hidden />
-                          : <ImageIcon size={14} aria-hidden />}
-                        <span className="o-fichier-nom">{f.nom}</span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <article key={o.id} id={`o-${o.id}`} className="fiche demande offre" style={{ cursor: "default" }}>
+              {/* la tête de carte ouvre l'offre (feuille glissante depuis la liste) */}
+              <Link href={`/offres/${o.id}`} className="o-corps-carte" aria-label={`Ouvrir l'offre : ${o.titre}`}>
+                <TamponDate date={o.date_limite} jours={joursRestants(o.date_limite)} />
+                <span className="o-type">{nomType(o.type)}</span>
+                <b className="o-titre"><Surligne texte={o.titre} terme={q} /></b>
+                <span className="o-meta">
+                  {[
+                    DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0],
+                    [o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", "),
+                    o.fichiers?.length > 0 && `${o.fichiers.length} pièce${o.fichiers.length > 1 ? "s" : ""} jointe${o.fichiers.length > 1 ? "s" : ""}`,
+                  ].filter(Boolean).join(" · ")}
+                </span>
+              </Link>
+              {/* deux lignes de description, rien de plus : tout se lit dans la
+                  feuille, un tap sur la tête de carte l'ouvre */}
+              <Link href={`/offres/${o.id}`} className="o-suite-carte" tabIndex={-1} aria-hidden>
+                <p className="offre-desc"><Surligne texte={o.description} terme={q} /></p>
+              </Link>
               <div className="pied" style={{ gap: 9 }}>
                 <Link href={`/profil/${o.posteur?.id}`} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
                   <Avatar profil={{ prenom: o.posteur?.prenom ?? "?", nom: o.posteur?.nom ?? "", photo: o.posteur?.photo_url }}
@@ -476,6 +435,16 @@ export default function Offres() {
           </div>
         )}
       </div>
+
+      {offres !== null && visibles.length > 0 && moi?.statut_compte === "valide" && !formulaire && (
+        <section className="n-cloture offres">
+          <h2 className="a-titre">Tu as une opportunité à partager ?</h2>
+          <p>Un stage dans ta boîte, une bourse repérée, une cooptation : trois lignes suffisent, les cadets feront le reste.</p>
+          <button type="button" className="btn btn-nu" onClick={() => { setFormulaire(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+            <Plus size={15} aria-hidden /> Proposer une offre
+          </button>
+        </section>
+      )}
 
       <RestaurerDefilement />
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>

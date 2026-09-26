@@ -111,18 +111,18 @@ export async function basculerBravo(type, id) {
   return data;
 }
 
-export async function envoyerCommentaire(type, id, texte, reponseA = null) {
+export async function envoyerCommentaire(type, id, texte, reponseA = null, mentions = []) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const { error } = await supabase.from("commentaires").insert({
-    cible_type: type, cible_id: String(id), auteur: user.id, texte: texte.trim(), reponse_a: reponseA,
+    cible_type: type, cible_id: String(id), auteur: user.id, texte: texte.trim(), reponse_a: reponseA, mentions,
   });
   if (error) throw error;
 }
 
-export async function modifierCommentaire(id, texte) {
+export async function modifierCommentaire(id, texte, mentions = []) {
   const supabase = creerClientNavigateur();
-  const { error } = await supabase.from("commentaires").update({ texte: texte.trim() }).eq("id", id);
+  const { error } = await supabase.from("commentaires").update({ texte: texte.trim(), mentions }).eq("id", id);
   if (error) throw error;
 }
 
@@ -165,7 +165,7 @@ export function compresserImage(fichier) {
   });
 }
 
-export async function publier({ texte, media, visibilite = "tous" }) {
+export async function publier({ texte, media, visibilite = "tous", mentions = [] }) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   let media_chemin = null, media_type = null;
@@ -181,7 +181,7 @@ export async function publier({ texte, media, visibilite = "tous" }) {
     media_type = estVideo ? "video" : "photo";
   }
   const { data, error } = await supabase.from("publications")
-    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type, visibilite })
+    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type, visibilite, mentions })
     .select("id").single();
   if (error) {
     if (media_chemin) await supabase.storage.from(BUCKET_MEDIAS).remove([media_chemin]);

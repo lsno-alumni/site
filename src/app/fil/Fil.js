@@ -15,6 +15,7 @@ import { joursRestants, nomType } from "@/lib/offres";
 import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
 import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
 import useClicDehors from "@/lib/useClicDehors";
+import { TexteMentions } from "@/lib/mentions";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
 // (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
@@ -74,7 +75,7 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
         </span>
       </header>
       <Link href={`/publication/${p.id}`} className="pub-ouvrir">
-        {p.texte && <p className="pub-texte">{p.texte}</p>}
+        {p.texte && <p className="pub-texte"><TexteMentions texte={p.texte} mentions={p.mentions} lien={false} /></p>}
         {p.media_type === "photo" && p.media_chemin && <img className="pub-photo" src={urlMedia(p.media_chemin)} alt="" loading="lazy" />}
         {p.media_type === "video" && p.media_chemin && (
           <span className="pub-video"><video src={urlMedia(p.media_chemin)} preload="metadata" playsInline muted /><span className="pub-video-lire"><Play size={22} aria-hidden /></span></span>

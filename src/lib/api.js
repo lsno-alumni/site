@@ -346,17 +346,19 @@ export async function lirePublication(id) {
   const supabase = await creerClientServeur();
   const { data: p } = await supabase
     .from("publications")
-    .select("id, texte, media_chemin, media_type, media_expire_le, visibilite, masquee, cree_le, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
+    .select("id, texte, media_chemin, media_type, media_expire_le, visibilite, masquee, cree_le, mentions, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
     .eq("id", id).maybeSingle();
   if (!p) return null;
-  const [{ data: cpt }, { data: commentaires }] = await Promise.all([
+  const [{ data: cpt }, { data: commentaires }, { data: mentionnes }] = await Promise.all([
     supabase.rpc("bravos_de", { p_type: "publication", p_id: String(p.id) }),
     supabase.rpc("commentaires_de", { p_type: "publication", p_id: String(p.id) }),
+    p.mentions?.length ? supabase.from("profiles").select("id, prenom, nom").in("id", p.mentions) : Promise.resolve({ data: [] }),
   ]);
   return {
     publication: {
       ...p,
       auteur: { id: p.auteur.id, prenom: p.auteur.prenom, nom: p.auteur.nom, photo_url: p.auteur.photo_url, promo: p.auteur.promotions?.numero },
+      mentions: mentionnes ?? [],
       bravos: cpt?.bravos ?? 0, jai_bravo: cpt?.jai_bravo ?? false, commentaires: cpt?.commentaires ?? 0,
     },
     commentaires: commentaires ?? [],

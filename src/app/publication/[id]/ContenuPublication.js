@@ -7,6 +7,7 @@ import Avatar from "@/components/Avatar";
 import Bravo from "@/components/Bravo";
 import Commentaires from "@/components/Commentaires";
 import { depuis, urlMedia, VISIBILITES } from "@/lib/fil";
+import { TexteMentions } from "@/lib/mentions";
 
 // Une publication ouverte (page /publication/[id] ET feuille glissante depuis
 // le Fil). TetePublication (auteur + texte, zone glissable, purement visuelle)
@@ -23,7 +24,7 @@ export function TetePublication({ p }) {
             {p.visibilite && p.visibilite !== "tous" && <span className="pub-visi">{VISIBILITES.find((v) => v.cle === p.visibilite)?.court}</span>}</small>
         </span>
       </Link>
-      {p.texte && <p className="pu-texte">{p.texte}</p>}
+      {p.texte && <p className="pu-texte"><TexteMentions texte={p.texte} mentions={p.mentions} /></p>}
     </div>
   );
 }

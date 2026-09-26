@@ -244,7 +244,6 @@
   font-size: 12.5px; color: var(--bleu-texte); text-decoration: underline; text-underline-offset: 3px;
 }
 .am-conseil-photo { width: 42px !important; height: 42px !important; border-radius: 50%; object-fit: cover; font-size: 13px; display: grid; place-items: center; }
-.a-temoin .avatar-init { background: var(--bleu-doux); color: var(--bleu-texte); box-shadow: none; }
 
 /* réseau par promotion — médaillons, pas de barres. Grille à colonnes
    ÉGALES (pas flex-wrap : chaque carte se dimensionnait alors selon son

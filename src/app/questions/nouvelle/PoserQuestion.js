@@ -42,7 +42,10 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
       const jointe = piece ? await televerserPieceQuestion(piece.fichier) : null;
       const id = await poserQuestion({ titre, details, theme, domaine, anonyme, piece: jointe });
       memoire.ecrire("questions.liste", null); memoire.ecrire("fil.items", null);
-      routeur.replace(`/questions/${id}`);
+      // en feuille : la question remplace le formulaire dans la feuille ; en
+      // pleine page : chargement complet, sinon la feuille s'ouvrirait
+      // par-dessus le formulaire resté derrière
+      if (enFeuille) routeur.replace(`/questions/${id}`); else window.location.assign(`/questions/${id}`);
     } catch (err) { setSouci("Impossible d'envoyer : " + (err?.message ?? "")); setEnvoi(false); }
   };
 

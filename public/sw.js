@@ -19,8 +19,14 @@ self.addEventListener("install", (e) => {
 // requête telle quelle, et si le réseau échoue, on répond la page hors ligne.
 // Les autres requêtes (données, images, scripts) ne sont pas touchées.
 self.addEventListener("fetch", (e) => {
-  if (e.request.mode !== "navigate") return;
-  e.respondWith(fetch(e.request).catch(() => caches.match(PAGE_HORS_LIGNE)));
+  if (e.request.mode === "navigate") {
+    e.respondWith(fetch(e.request).catch(() => caches.match(PAGE_HORS_LIGNE)));
+    return;
+  }
+  // le blason de la page hors ligne : réseau d'abord, cache seulement s'il échoue
+  if (new URL(e.request.url).pathname === "/img/logo.jpg") {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+  }
 });
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 

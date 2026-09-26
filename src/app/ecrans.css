@@ -2020,3 +2020,42 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-piece-pdf b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
 .msg-piece-pdf small { font-size: 11.5px; opacity: .75; }
 .msg-piece-pdf.statique { background: none; padding: 0; flex: 1; }
+
+/* ---- messagerie enrichie ---- */
+.msg-frappe { color: var(--bleu-texte); font-style: italic; }
+.msg-citation { border-left: 3px solid rgba(var(--accent-rgb), .6); padding: 4px 10px; margin: 0 0 8px; border-radius: 6px; background: rgba(var(--texte-rgb), .06); font-size: 12.5px; display: flex; flex-direction: column; }
+.msg-citation b { font-size: 12px; color: var(--bleu-texte); }
+.msg-citation span, .msg-citation small { color: var(--texte-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-bulle.mienne .msg-citation { background: rgba(255,255,255,.14); border-left-color: rgba(255,255,255,.7); }
+.msg-bulle.mienne .msg-citation b, .msg-bulle.mienne .msg-citation span, .msg-bulle.mienne .msg-citation small { color: rgba(246,240,228,.9); }
+.msg-bulle time em { font-style: italic; opacity: .8; }
+.msg-vu { display: flex; align-items: center; gap: 4px; justify-content: flex-end; font-size: 11px; color: var(--brume); margin: 3px 4px 0; }
+.msg-reactions { display: flex; gap: 4px; margin: -6px 0 2px 8px; position: relative; z-index: 1; }
+.msg-reactions.mien { justify-content: flex-end; margin: -6px 8px 2px 0; }
+.msg-reaction { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); font-size: 13px; cursor: pointer; }
+.msg-reaction small { font-size: 11px; color: var(--texte-2); }
+.msg-reaction.on { border-color: var(--bleu-clair); box-shadow: inset 0 0 0 1px var(--bleu-clair); }
+.msg-emojis { display: flex; gap: 2px; padding: 4px 4px 8px; border-bottom: 1px solid var(--ligne); margin-bottom: 4px; }
+.msg-emojis button { font-size: 20px; padding: 4px 6px; border-radius: 10px; background: none; border: 0; cursor: pointer; line-height: 1; }
+.msg-emojis button.on { background: rgba(var(--accent-rgb), .15); }
+.msg-bulle-liste { min-width: 230px; }
+.msg-saisie-contexte { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--texte-2); padding: 4px 6px; }
+.msg-saisie-contexte span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-saisie-contexte button { background: none; border: 0; color: var(--brume); cursor: pointer; display: inline-flex; }
+.msg-enregistre { flex: 1; display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 20px; border: 1px solid var(--rouge); color: var(--rouge); font-size: 14px; font-variant-numeric: tabular-nums; }
+.msg-enregistre-point { width: 10px; height: 10px; border-radius: 50%; background: var(--rouge); animation: clignote 1s ease-in-out infinite; }
+@keyframes clignote { 50% { opacity: .2; } }
+.msg-stop { background: var(--rouge); }
+.msg-piece-audio { display: block; width: min(260px, 100%); height: 40px; margin: 2px 0 6px; }
+.msg-piece-apercu .msg-piece-audio { flex: 1; margin: 0; }
+.msg-piece-attente.courte { width: 160px; height: 40px; }
+.msg-piece-expiree { font-size: 13px; font-style: italic; opacity: .75; margin-bottom: 4px; }
+.msg-piece-lien b { max-width: 220px; }
+.msg-bulle.mienne .msg-piece-lien { color: #fff; }
+.msg-ico { display: inline-block; vertical-align: -1px; margin-right: 4px; color: var(--brume); }
+.msg-recherche-liste { padding: 14px 16px 0; }
+.msg-resultats .msg-ligne { padding: 10px 14px; }
+.msg-apercu-long { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pub-menu-envoyer { background: none; border: 0; text-align: left; padding: 10px 12px; border-radius: 8px; font: inherit; font-size: 13.5px; color: var(--texte); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.pub-menu-envoyer:hover { background: rgba(var(--texte-rgb), .06); }
+.pu-actions .pub-action:empty::after { content: none; }

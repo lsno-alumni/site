@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, PenLine, Users } from "lucide-react";
+import { MessageCircle, PenLine, Users, Search, Pin, BellOff } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteFiche } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
-import { mesConversations, nomConversation, ecouterTousMessages, JOURS_CONSERVATION } from "@/lib/messages";
+import { mesConversations, nomConversation, ecouterTousMessages, chercherMessages, libellePiece, JOURS_CONSERVATION } from "@/lib/messages";
 
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
@@ -35,6 +35,15 @@ export default function Conversations({ moi }) {
   const chemin = usePathname();
   const [liste, setListe] = useState(() => memoire.lire("messages.liste") ?? null);
   const [souci, setSouci] = useState("");
+  const [q, setQ] = useState("");
+  const [resultats, setResultats] = useState(null);   // null = pas de recherche en cours
+  useEffect(() => {
+    const t = q.trim();
+    if (t.length < 2) return;
+    const minuteur = setTimeout(() => chercherMessages(t).then(setResultats).catch(() => setResultats([])), 300);
+    return () => clearTimeout(minuteur);
+  }, [q]);
+  const recherche = q.trim().length >= 2 ? resultats : null;   // null = liste normale
 
   const charger = async () => {
     try { setListe(await mesConversations()); setSouci(""); }
@@ -58,7 +67,24 @@ export default function Conversations({ moi }) {
         <p className="cpt">Entre membres, à deux ou en groupe. Les messages s&apos;effacent après {JOURS_CONSERVATION} jours.</p>
       </header>
 
-      <div className="msg-liste">
+      <div className="msg-recherche msg-recherche-liste">
+        <Search size={16} strokeWidth={1.9} aria-hidden />
+        <input className="saisie" placeholder="Rechercher dans les messages…" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      {recherche !== null && (
+        <div className="msg-liste msg-resultats">
+          {recherche.length === 0 && <p className="pu-vide">Rien ne correspond.</p>}
+          {recherche.map((r) => (
+            <Link key={r.id} href={`/messages/${r.conversation_id}`} className="msg-ligne">
+              <span className="msg-ligne-corps">
+                <span className="msg-ligne-haut"><b>{r.conversation}</b><small>{depuis(r.cree_le)}</small></span>
+                <span className="msg-apercu msg-apercu-long">{r.prenom} : {r.texte}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+      <div className="msg-liste" hidden={recherche !== null}>
         {liste === null && [0, 1, 2].map((i) => <SqueletteFiche key={i} />)}
         {liste?.length === 0 && (
           <div className="vide" style={{ paddingTop: 40 }}>
@@ -69,14 +95,14 @@ export default function Conversations({ moi }) {
         )}
         {liste?.map((c) => {
           const d = c.dernier;
-          const contenu = d ? (d.texte?.trim() ? d.texte : d.fichier_type === "photo" ? "Photo" : d.fichier_type === "video" ? "Vidéo" : `Fichier : ${d.fichier_nom ?? "document"}`) : "";
+          const contenu = d ? (d.texte?.trim() ? d.texte : libellePiece(d)) : "";
           const apercu = d ? `${d.auteur === moi.id ? "Toi" : d.prenom} : ${contenu}` : "Nouvelle conversation";
           return (
             <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}`}>
               <Vignette c={c} />
               <span className="msg-ligne-corps">
                 <span className="msg-ligne-haut">
-                  <b>{nomConversation(c)}</b>
+                  <b>{c.epingle && <Pin size={12} aria-label="Épinglée" className="msg-ico" />}{c.muet && <BellOff size={12} aria-label="En sourdine" className="msg-ico" />}{nomConversation(c)}</b>
                   <small>{d ? depuis(d.cree_le) : ""}</small>
                 </span>
                 <span className="msg-ligne-bas">

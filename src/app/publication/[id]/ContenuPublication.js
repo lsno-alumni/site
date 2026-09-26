@@ -8,6 +8,7 @@ import Bravo from "@/components/Bravo";
 import Commentaires from "@/components/Commentaires";
 import { depuis, urlMedia, VISIBILITES } from "@/lib/fil";
 import { TexteMentions } from "@/lib/mentions";
+import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 
 // Une publication ouverte (page /publication/[id] ET feuille glissante depuis
 // le Fil). TetePublication (auteur + texte, zone glissable, purement visuelle)
@@ -50,6 +51,7 @@ export function SuitePublication({ p, commentaires, moi, moderateur, enFeuille =
         <span className="pub-action" style={{ cursor: "default" }}>
           <MessageCircle size={16} strokeWidth={1.9} aria-hidden /> {nb} commentaire{nb > 1 ? "s" : ""}
         </span>
+        <EnvoyerEnMessage chemin={`/publication/${p.id}`} titre={`Publication de ${p.auteur.prenom} ${p.auteur.nom}`} className="pub-action" libelle="" />
         <button type="button" className="pub-action" aria-label="Partager" onClick={partager}><Share2 size={16} strokeWidth={1.9} aria-hidden /></button>
       </div>
       <Commentaires type="publication" id={p.id} moi={moi} initial={commentaires} onNombre={setNb} moderateur={moderateur} fixe={enFeuille} />

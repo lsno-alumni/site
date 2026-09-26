@@ -10,6 +10,7 @@ import { nomType, echeanceLongue, urlFichier, ilYA } from "@/lib/offres";
 import PartagerOffre from "./PartagerOffre";
 import SuiteOffres from "./SuiteOffres";
 import Bravo from "@/components/Bravo";
+import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 import Commentaires from "@/components/Commentaires";
 import { MessageCircle } from "lucide-react";
 
@@ -64,6 +65,7 @@ export function SuiteOffre({ o, moiId, suite, moi = null, interactions = null, m
           </a>
         )}
         <PartagerOffre o={o} />
+        {moi && <EnvoyerEnMessage chemin={`/offres/${o.id}`} titre={o.titre} style={{ padding: "11px 16px", fontSize: 13.5 }} />}
       </div>
 
       {o.fichiers?.length > 0 && (

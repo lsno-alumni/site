@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { X, Check, Search, Users } from "lucide-react";
 import Avatar from "@/components/Avatar";
-import { membresJoignables, ouvrirDuo, creerGroupe } from "@/lib/messages";
+import { membresJoignables, ouvrirDuo, creerGroupe, envoyerLien } from "@/lib/messages";
 
 // Le carnet : on coche une personne (conversation à deux) ou plusieurs (un
 // groupe à nommer). La recherche filtre sur le prénom, le nom, la promo.
 export default function NouvelleConversation() {
   const routeur = useRouter();
+  const params = useSearchParams();
+  const lien = params.get("lien");            // « Envoyer en message » vers une nouvelle conversation
+  const titreLien = params.get("titre");
   const [membres, setMembres] = useState(null);
   const [q, setQ] = useState("");
   const [choisis, setChoisis] = useState([]);   // ids
@@ -34,6 +37,7 @@ export default function NouvelleConversation() {
     setEnvoi(true); setSouci("");
     try {
       const id = groupe ? await creerGroupe(nom, choisis) : await ouvrirDuo(choisis[0]);
+      if (lien) await envoyerLien(id, lien, titreLien);
       routeur.replace(`/messages/${id}`);
     } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setEnvoi(false); }
   };
@@ -68,6 +72,7 @@ export default function NouvelleConversation() {
         <Search size={16} strokeWidth={1.9} aria-hidden />
         <input className="saisie" placeholder="Rechercher un membre…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
       </div>
+      {lien && <p className="msg-aide" style={{ color: "var(--bleu-texte)" }}>Sera envoyé : {titreLien || lien}</p>}
       <p className="msg-aide">{groupe ? "Plusieurs personnes : ce sera un groupe." : "Une personne : conversation à deux. Coche-en plusieurs pour un groupe."}</p>
       {souci && <p className="cp-souci" role="alert">{souci}</p>}
 

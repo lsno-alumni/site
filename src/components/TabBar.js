@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
+import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 
-// 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
-// délégués et admins (les membres n'y ont pas accès — la page affiche
-// « espace réservé » de toute façon).
+// 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
+// « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
+// À propos est passé dans le menu ☰, la bande « Mon compte » et le sceau ;
+// Validation (délégués/admins) se rejoint par l'alerte en haut de l'accueil
+// et par « Espace admin » dans la bande « Mon compte » de Mon profil.
 const ONGLETS = [
+  { href: "/fil", Icone: Newspaper, nom: "Fil" },
   { href: "/annuaire", Icone: Users, nom: "Annuaire" },
   { href: "/offres", Icone: Megaphone, nom: "Offres" },
-  { href: "/a-propos", Icone: Info, nom: "À propos" },
+  { href: "/messages", Icone: MessageCircle, nom: "Messages" },
   { href: "/mon-profil", Icone: CircleUser, nom: "Mon profil" },
 ];
-const VALIDATION = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 
 // Cache au niveau MODULE : survit aux navigations client (contrairement à
 // l'état React qui se réinitialise à chaque remontage de la TabBar) → dès la
@@ -151,7 +153,7 @@ export default function TabBar({ actif }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;
+  const onglets = ONGLETS;
 
   // Un onglet est un ÉTAT, pas une page (comme dans une appli) :
   //  - un tap sur l'onglet déjà actif remonte en haut ;

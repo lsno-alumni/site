@@ -899,6 +899,37 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .e-cerc b { width: 42px; height: 42px; border-radius: 50%; background: var(--carte); display: grid; place-items: center; font-size: 12px; color: var(--bleu-texte); font-variant-numeric: tabular-nums; }
 .e-completion .txt b { font-size: 14px; display: block; }
 .e-completion .txt span { font-size: 12px; color: var(--brume); }
+.e-completion .txt span a { color: var(--bleu-texte); text-decoration: underline; text-underline-offset: 2px; }
+.e-completion .txt { min-width: 0; }
+.mp-voir { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 12px; color: var(--bleu-texte); font-weight: 600; }
+/* ---------- MON PROFIL (26/09) : chapitres, sommaire, barre d'enregistrement ---------- */
+.mp-sommaire { margin: 12px 16px 0; border-radius: 22px 22px 0 0; position: sticky; top: 0; z-index: 20; }
+.mp-sommaire .puce { text-decoration: none; }
+.mp-chapitre { padding: 22px 0 10px; border-bottom: 1px solid var(--ligne); scroll-margin-top: 70px; }
+.f-corps > .mp-chapitre:first-child { padding-top: 6px; }
+.n-cloture.compte { text-align: left; padding-top: 30px; }
+.n-cloture.compte::before { background-image: url("/img/lsno_campus.jpg"); background-position: center 60%; opacity: .18; }
+.n-cloture.compte .lbl { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #F3E3CF; margin-bottom: 14px; }
+.n-cloture.compte p { max-width: none; margin: 0 0 14px; }
+.mp-compte { display: grid; gap: 10px; }
+.n-cloture.compte .btn-nu { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.4); justify-content: center; }
+.n-cloture.compte .e-danger { display: block; margin: 18px auto 0; color: #F2A9A0; }
+/* la barre d'enregistrement : au-dessus de la navigation, glisse quand une
+   modification attend ; suit la barre de navigation quand celle-ci se range */
+.mp-barre {
+  position: fixed; left: 0; right: 0; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 45;
+  max-width: 440px; margin: 0 auto; padding: 10px 10px 10px 18px; border-radius: 100px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--monde); color: #fff; font-size: 13px;
+  box-shadow: 0 18px 40px -16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14);
+  transform: translateY(140%); opacity: 0; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s, bottom .6s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+.mp-barre.la { transform: none; opacity: 1; pointer-events: auto; }
+.mp-barre .btn { padding: 10px 18px; font-size: 13px; }
+:root.tb-cachee .mp-barre, :root.sans-tabbar .mp-barre { bottom: calc(14px + env(safe-area-inset-bottom)); }
+@media (min-width: 480px) { .mp-barre { left: 20px; right: 20px; } }
+:root[data-theme="sombre"] .mp-barre { background: #16253F; }
 .e-etapes { display: grid; gap: 10px; }
 /* panneau bleu nuit, règle des années puis une carte translucide par étape (validé le 24/09) */
 .frise {

@@ -10,13 +10,14 @@ import ChoixTheme from "@/components/ChoixTheme";
 import Parcours from "./Parcours";
 import DemandesRecues from "./DemandesRecues";
 import RetourDynamique from "@/components/RetourDynamique";
+import Sommaire from "@/components/Sommaire";
 import Notifications from "@/components/Notifications";
 import DoubleAuth from "@/components/DoubleAuth";
 import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { Mail, Handshake, ChevronDown } from "lucide-react";
+import { Mail, Handshake, ChevronDown, Eye } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
-import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion } from "@/lib/donnees";
+import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion, manquesCompletion } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
 
 const VISIBILITES = [
@@ -24,6 +25,20 @@ const VISIBILITES = [
   { cle: "demande", nom: "Demande" },
   { cle: "masque", nom: "Masqué" },
 ];
+
+// chapitres de la page (sommaire collant)
+const CHAPITRES = [
+  { id: "ch-identite", nom: "Mon identité" },
+  { id: "ch-transmets", nom: "Ce que je transmets" },
+  { id: "ch-contacts", nom: "Mes contacts" },
+  { id: "ch-compte", nom: "Mon compte" },
+];
+
+// les champs que le bouton Enregistrer envoie (les push_* et la photo
+// s'enregistrent d'eux-mêmes) : c'est sur eux qu'on détecte une modification
+const EMPREINTE_HORS = ["id", "promotions", "statut_compte", "photo_url", "refuse_le", "role",
+  "push_mes_demandes", "push_reseau", "push_offres", "push_annonces", "push_reseau_portee"];
+const empreinte = (p) => JSON.stringify(Object.fromEntries(Object.entries(p ?? {}).filter(([k]) => !EMPREINTE_HORS.includes(k))));
 
 const CONTACTS = [
   { cle: "whatsapp_visi", valeur: "whatsapp", Ico: IconeWhatsApp, nom: "WhatsApp", exemple: "WhatsApp : +226 70 00 00 00" },
@@ -37,6 +52,16 @@ export default function MonProfil() {
   const [profil, setProfil] = useState(null);
   const [toast, setToast] = useState("");
   const [sujetLibre, setSujetLibre] = useState("");
+  const [enregistre, setEnregistre] = useState(null);   // empreinte du dernier état enregistré
+  const modifie = profil !== null && enregistre !== null && empreinte(profil) !== enregistre;
+
+  // quitter la page avec des modifications non enregistrées : le navigateur demande confirmation
+  useEffect(() => {
+    if (!modifie) return;
+    const garde = (e) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", garde);
+    return () => window.removeEventListener("beforeunload", garde);
+  }, [modifie]);
 
   const charger = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -48,12 +73,14 @@ export default function MonProfil() {
       .maybeSingle();
     // les valeurs de contact ne sont lisibles que via cette fonction
     const { data: contacts } = await supabase.rpc("mes_contacts");
-    setProfil({
+    const charge = {
       ...data,
       whatsapp: contacts?.whatsapp ?? "",
       email_contact: contacts?.email ?? "",
       linkedin: contacts?.linkedin ?? "",
-    });
+    };
+    setEnregistre(empreinte(charge));
+    setProfil(charge);
   };
   useEffect(() => { charger(); }, []); // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
@@ -98,6 +125,7 @@ export default function MonProfil() {
     // un ancien ne garde pas la situation « élève » : défaut sensé = étudiant
     if (!estEleve && champs.situation === "eleve") champs.situation = "etudiant";
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);
+    if (!error) setEnregistre(empreinte(profil));
     setToast(error ? "Échec de l'enregistrement : " + error.message : "Profil enregistré ✓");
     setTimeout(() => setToast(""), 3000);
   };
@@ -144,6 +172,7 @@ export default function MonProfil() {
   const aMigrer = !estEleve && profil.domaine === "eleve"
     && profil.situation === "eleve" && !profil.statut_titre;
   const completion = tauxCompletion(profil);
+  const manques = manquesCompletion(profil);
 
   return (
     <GlisserRafraichir onRafraichir={charger}>
@@ -166,9 +195,17 @@ export default function MonProfil() {
         </div>
         <div className="txt">
           <b>{profil.prenom} {profil.nom} · Promo {profil.promotions?.numero}</b>
-          <span>{completion === 100 ? "Profil complet, bravo !" : "Complète ton profil ci-dessous."}</span>
+          <span>
+            {completion === 100 ? "Profil complet, bravo !" : <>Il te manque {manques.map((m, i) => (
+              <span key={m.ancre}>{i > 0 && (i === manques.length - 1 ? " et " : ", ")}<a href={`#${m.ancre}`} onClick={(e) => { e.preventDefault(); document.getElementById(m.ancre)?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>{m.nom}</a></span>
+            ))}.</>}
+          </span>
+          {profil.statut_compte === "valide" && (
+            <Link href={`/profil/${profil.id}`} className="mp-voir"><Eye size={13} aria-hidden /> Voir mon profil comme les autres le voient</Link>
+          )}
         </div>
       </div>
+      <Sommaire sections={CHAPITRES} aria="Chapitres de mon profil" className="mp-sommaire" />
 
       <div className="f-corps">
         <DemandesRecues signale={(m) => { setToast(m); setTimeout(() => setToast(""), 3500); }} />
@@ -180,7 +217,8 @@ export default function MonProfil() {
           </div>
         )}
 
-        <div className="champ">
+        <h2 className="a-titre mp-chapitre" id="ch-identite">Mon identité</h2>
+        <div className="champ" id="mp-photo">
           <label>Ma photo</label>
           <Photo profil={profil}
             onPhoto={(url) => setProfil({ ...profil, photo_url: url })}
@@ -252,8 +290,9 @@ export default function MonProfil() {
           </div>
         </div>
 
+        <h2 className="a-titre mp-chapitre" id="ch-transmets">Ce que je transmets</h2>
         {!estEleve && (
-        <div className="champ grande-partie">
+        <div className="champ">
           <label htmlFor="conseil">Mon conseil aux cadets</label>
           <textarea id="conseil" className="saisie" rows={3}
             value={profil.conseil ?? ""} onChange={majChamp("conseil")} />
@@ -287,7 +326,7 @@ export default function MonProfil() {
 
         )}
 
-        <div className={`champ${estEleve ? " grande-partie" : ""}`}>
+        <div className="champ">
           <label htmlFor="histoire">Mon histoire (optionnel)</label>
           <textarea id="histoire" className="saisie" rows={6} maxLength={2000}
             placeholder="Raconte ton chemin depuis le LSNO : les choix, les doutes, les déclics… Ce qui pourrait inspirer un cadet ou un jeune ancien."
@@ -354,9 +393,10 @@ export default function MonProfil() {
         </div>
         </>)}
 
-        <details className="grande-partie">
+        <h2 className="a-titre mp-chapitre" id="ch-contacts">Mes contacts</h2>
+        <details>
           <summary style={{ cursor: "pointer", display: "flex", alignItems: "center", fontSize: 11.5, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--brume)" }}>
-            Mes contacts — et qui peut les voir
+            Mes contacts, et qui peut les voir
             <ChevronDown size={16} className="chevron" aria-hidden style={{ marginLeft: "auto" }} />
           </summary>
           <div style={{ marginTop: 9 }}>
@@ -392,12 +432,11 @@ export default function MonProfil() {
           </div>
         </details>
 
-        <div className="grande-partie">
-          <Notifications profil={profil} />
-        </div>
+        <h2 className="a-titre mp-chapitre" id="ch-compte">Mon compte</h2>
+        <Notifications profil={profil} />
         <DoubleAuth profil={profil} />
 
-        <div className="grande-partie" style={{ display: "grid", gap: 18 }}>
+        <div style={{ display: "grid", gap: 18 }}>
           <div className="champ">
             <label>Apparence</label>
             <ChoixTheme compact />
@@ -406,14 +445,25 @@ export default function MonProfil() {
             </p>
           </div>
           <button className="btn btn-or btn-bloc" onClick={enregistrer}>Enregistrer</button>
-          <Link href="/mot-de-passe/nouveau" className="btn btn-nu btn-bloc">
-            Changer mon mot de passe
-          </Link>
-          <button className="btn btn-nu btn-bloc" onClick={deconnecter}>Se déconnecter</button>
-          <button className="e-danger" onClick={supprimerCompte}>
-            Supprimer mon compte et mes données
-          </button>
         </div>
+      </div>
+
+      {/* le compte, à part du profil : bande pierre, comme les mentions d'À propos */}
+      <section className="n-cloture compte">
+        <p className="lbl">Mon compte</p>
+        <div className="mp-compte">
+          <Link href="/mot-de-passe/nouveau" className="btn btn-nu">Changer mon mot de passe</Link>
+          <button className="btn btn-nu" onClick={deconnecter}>Se déconnecter</button>
+        </div>
+        <button className="e-danger" onClick={supprimerCompte}>
+          Supprimer mon compte et mes données
+        </button>
+      </section>
+
+      {/* barre qui suit : des modifications attendent d'être enregistrées */}
+      <div className={`mp-barre${modifie ? " la" : ""}`} role="status" aria-hidden={!modifie}>
+        <span>Modifications non enregistrées</span>
+        <button className="btn btn-or" onClick={enregistrer} tabIndex={modifie ? 0 : -1}>Enregistrer</button>
       </div>
 
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>

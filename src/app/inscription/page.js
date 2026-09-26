@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import Captcha, { captchaActif } from "@/components/Captcha";
+import PreuveReseau from "@/components/PreuveReseau";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
 import { DOMAINES, PROMOTIONS, nomDomaine } from "@/lib/donnees";
 
@@ -101,9 +102,10 @@ export default function Inscription() {
 
   return (
     <main className="page">
-      <header className="f-tete" style={{ paddingTop: 20 }}>
+      <header className={`f-tete${envoye && [1, 2, 3].includes(form.promotion) ? " tete-promo-choisie" : ""}`}
+        style={{ paddingTop: 20, "--photo": `url("/img/lsno_promo${form.promotion}.jpg")` }}>
         <Link href="/" className="retour">← Retour</Link>
-        <h1>Bienvenue<br />parmi <em>les tiens.</em></h1>
+        <h1>{envoye ? <>Bienvenue<br />en <em>promo {form.promotion}.</em></> : <>Bienvenue<br />parmi <em>les tiens.</em></>}</h1>
         <p>
           {etape === 1 && "Étape 1 sur 3 — ton identité."}
           {etape === 2 && "Étape 2 sur 3 — ta promotion. Un délégué de ta promo validera ton compte."}
@@ -151,7 +153,7 @@ export default function Inscription() {
                 valeur={form.motDePasse} onChange={maj("motDePasse")} autoComplete="new-password" />
               <p style={{ fontSize: 12, lineHeight: 1.6, marginTop: -8 }}>
                 {reglesMdp.map((r, i) => (
-                  <span key={r.txt} style={{ color: r.ok ? "#9FD8B4" : "var(--brume)" }}>
+                  <span key={r.txt} style={{ color: r.ok ? "var(--vert-ok)" : "var(--brume)" }}>
                     {r.ok ? "✓" : "·"} {r.txt}{i < reglesMdp.length - 1 ? "   " : ""}
                   </span>
                 ))}
@@ -278,6 +280,7 @@ export default function Inscription() {
           )}
         </div>
       )}
+      <PreuveReseau avant={envoye ? "Tu rejoins " : "Tu vas rejoindre "} />
     </main>
   );
 }

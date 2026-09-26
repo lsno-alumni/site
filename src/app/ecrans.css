@@ -775,6 +775,11 @@
 /* la note (« Un délégué confirmera… ») et la coche restent lisibles sur la feuille */
 .f-corps .f-note, .succes .f-note { background: var(--fond); }
 .succes .f-note { margin-left: 0 !important; margin-right: 0 !important; }
+/* ligne de preuve sous la feuille : les chiffres du réseau */
+.f-preuve { min-height: 24px; text-align: center; font-family: var(--font-titres), serif; font-size: 15.5px; color: var(--texte-2); padding: 22px 24px 34px; }
+.f-preuve b { font-weight: 500; color: var(--bleu-texte); font-variant-numeric: tabular-nums; }
+/* demande envoyée : la photo de la promotion choisie */
+.f-tete.tete-promo-choisie::before { background-image: var(--photo); background-position: center 30%; }
 /* marque le début d'une grande partie du formulaire (Mon profil) : un simple
    gap:18 uniforme ne distinguait pas une nouvelle section d'un champ suivant
    dans la même section — le trait + l'espace en plus rendent la coupure visible */

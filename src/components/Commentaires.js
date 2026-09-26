@@ -7,6 +7,7 @@ import { Send, CornerDownRight, MoreHorizontal, Pencil } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { commentairesDe, envoyerCommentaire, modifierCommentaire, supprimerCommentaire, depuis, signaler, moderer } from "@/lib/fil";
 import * as memoire from "@/lib/memoire";
+import useClicDehors from "@/lib/useClicDehors";
 
 // Les commentaires d'une cible (publication ou offre) et la saisie collée en
 // bas. Réponse à un commentaire = même liste, indentée sous son parent.
@@ -24,6 +25,8 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
   const [toast, setToast] = useState("");
   const [monte, setMonte] = useState(false);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
+  // dedans = le menu OUVERT (celui qui porte la liste), pas celui d'un autre commentaire
+  useClicDehors(menu !== null, (e) => !!e.target.closest?.(".com-menu")?.querySelector(".com-menu-liste"), () => setMenu(null));
 
   const recharger = async () => {
     try { const l = await commentairesDe(type, id); setListe(l); onNombre?.(l.filter((c) => !c.masque).length); }

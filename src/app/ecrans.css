@@ -2174,3 +2174,53 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-actions-conv button.danger { color: var(--rouge); }
 
 .msg-transfere { display: flex; align-items: center; gap: 4px; font-size: 11px; font-style: italic; opacity: .7; margin-bottom: 3px; }
+
+/* ---------- QUESTIONS AUX ANCIENS (brique 3) ---------- */
+.tete-questions::before { background-image: url("/img/lsno_jardin.jpg"); background-position: center 30%; }
+.n-tete.tete-questions { padding-bottom: 60px; }
+.qa-filtres { display: grid; gap: 6px; }
+.qa-themes .puce { font-size: 11.5px; padding: 7px 12px; }
+.qa-liste { padding: 12px 16px 90px; display: grid; gap: 12px; }
+.qa-carte {
+  display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; color: var(--texte); border-radius: 18px;
+  background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+  border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 12px 28px -20px rgba(31,34,48,.45);
+}
+:root[data-theme="sombre"] .qa-carte { box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
+.qa-carte.resolue { border-color: rgba(159,216,180,.5); }
+.qa-carte-haut { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-height: 18px; }
+.qa-theme { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--bleu-texte); }
+.qa-resolue { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #4E9A6B; font-weight: 600; }
+.qa-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 18px; line-height: 1.3; }
+.qa-extrait { font-size: 13.5px; color: var(--texte-2); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.qa-carte-bas { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--brume); }
+.qa-qui { display: inline-flex; align-items: center; gap: 6px; color: var(--texte-2); font-weight: 600; }
+.qa-qui .com-avatar { width: 24px !important; height: 24px !important; font-size: 10px; }
+.qa-anonyme { display: inline-flex; align-items: center; gap: 4px; color: var(--texte-2); font-style: italic; }
+.qa-nb { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--bleu-texte); font-weight: 600; }
+.qa-nb.zero { color: var(--brume); font-weight: 500; }
+.qa-tete { padding: 18px 22px 0; display: grid; gap: 8px; }
+.qa-titre-page { font-family: var(--font-titres), serif; font-weight: 500; font-size: 24px; line-height: 1.25; }
+.qa-details { font-size: 15.5px; line-height: 1.6; padding: 14px 22px 0; white-space: pre-line; }
+.qa-actions { margin-top: 12px; }
+.qa-menu { position: relative; display: inline-flex; margin-left: auto; }
+.qa-reponses { padding: 14px 16px 8px; display: grid; gap: 12px; }
+.qa-reponse { padding: 12px 14px; border-radius: 16px; border: 1px solid var(--ligne); background: rgba(var(--texte-rgb), .035); display: grid; gap: 8px; }
+.qa-reponse.retenue { border-color: rgba(159,216,180,.7); background: rgba(159,216,180,.10); }
+.qa-retenue { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #4E9A6B; font-weight: 700; }
+.qa-reponse-texte { font-size: 14.5px; line-height: 1.55; white-space: pre-line; }
+.qa-reponse-pied { display: flex; align-items: center; gap: 4px; margin: 0 -6px -4px; }
+.qa-reponse-pied .pub-action.on { color: #4E9A6B; }
+.qa-form { display: grid; gap: 12px; padding: 16px 20px 30px; }
+.qa-form-titre { font-size: 17px; font-family: var(--font-titres), serif; }
+.qa-form .cp-compte { margin: -8px 4px 0 0; text-align: right; }
+.qa-form .champ > span { display: block; font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--brume); margin-bottom: 6px; }
+.fil-questions {
+  display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; padding: 12px 14px; border-radius: 16px; color: var(--texte);
+  background: var(--bleu); color: var(--sur-accent);
+}
+.fil-questions > span { display: flex; flex-direction: column; }
+.fil-questions b { font-size: 14px; }
+.fil-questions small { font-size: 12px; opacity: .8; }
+.qa-dans-fil { display: grid; gap: 6px; }
+.qa-dans-fil .pub-etiquette { margin: 0 4px -2px; }

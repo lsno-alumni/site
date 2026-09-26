@@ -125,6 +125,7 @@ export default function Conseils({ conseils, moiId }) {
         <section className="n-cloture conseils">
           <h2 className="a-titre">Toi aussi, laisse un conseil</h2>
           <p>Une phrase, un regret, une astuce : ce que tu aurais aimé qu&apos;on te dise en terminale. Les cadets le liront ici, signé de ton nom.</p>
+          <Link href="/questions" className="btn btn-nu" style={{ marginRight: 8 }}>Poser une question aux anciens</Link>
           <Link href="/mon-profil#conseil" className="btn btn-nu">
             <PenLine size={15} aria-hidden /> {moiId && conseils.some((c) => c.id === moiId) ? "Relire mon conseil" : "Écrire mon conseil"}
           </Link>

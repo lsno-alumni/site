@@ -17,6 +17,8 @@ import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, 
 import useClicDehors from "@/lib/useClicDehors";
 import { TexteMentions } from "@/lib/mentions";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
+import { CarteQuestion } from "@/app/questions/Questions";
+import { HelpCircle } from "lucide-react";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
 // (texte, photo ou vidéo) se mêlent à des cartes AUTOMATIQUES — arrivées,
@@ -29,6 +31,7 @@ const FILTRES = [
   { cle: "arrivee", nom: "Arrivées" },
   { cle: "offre", nom: "Offres" },
   { cle: "conseil", nom: "Conseils" },
+  { cle: "question", nom: "Questions" },
 ];
 
 function Publication({ p, moi, moderateur, onChange, signale }) {
@@ -192,6 +195,11 @@ export default function Fil({ moi, moderateur }) {
         <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
       </Link>
 
+      <Link href="/questions" className="fil-questions">
+        <HelpCircle size={18} strokeWidth={1.9} aria-hidden />
+        <span><b>Questions aux anciens</b><small>Pose ta question, ou réponds à celles des cadets</small></span>
+      </Link>
+
       <div className="n-panneau fil-filtres">
         <div className="n-filtres">
           {FILTRES.map((f) => (
@@ -207,6 +215,7 @@ export default function Fil({ moi, moderateur }) {
           if (x.type === "arrivee") return <Arrivee key={x.id} m={x.m} />;
           if (x.type === "offre") return <Offre key={x.id} o={x.o} />;
           if (x.type === "conseil") return <Conseil key={x.id} c={x.c} />;
+          if (x.type === "question") return <div key={x.id} className="qa-dans-fil"><small className="pub-etiquette">Question aux anciens</small><CarteQuestion q={x.q} /></div>;
           return null;
         })}
         {items !== null && visibles.length === 0 && (

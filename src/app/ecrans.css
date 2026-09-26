@@ -2062,3 +2062,50 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 
 /* le menu d'une bulle de gauche s'ouvre vers la droite (sinon il sort de l'écran) */
 .msg-rang:not(.mien) .msg-bulle-liste { left: 0; right: auto; }
+
+/* ---- messagerie : retours du 26/09 (7 points) ---- */
+/* 1. lecteur vocal aux couleurs de la bulle */
+.lecteur-audio { display: flex; align-items: center; gap: 10px; width: min(250px, 100%); padding: 4px 0 6px; }
+.lecteur-audio audio { display: none; }
+.lecteur-audio-bouton { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--bleu); color: var(--sur-accent); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.lecteur-audio.mien .lecteur-audio-bouton { background: rgba(255,255,255,.22); color: #fff; }
+.lecteur-audio-piste { position: relative; flex: 1; height: 4px; border-radius: 4px; background: rgba(var(--texte-rgb), .18); cursor: pointer; }
+.lecteur-audio.mien .lecteur-audio-piste { background: rgba(255,255,255,.3); }
+.lecteur-audio-fait { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--bleu-clair); }
+.lecteur-audio.mien .lecteur-audio-fait { background: #fff; }
+.lecteur-audio-curseur { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--bleu-clair); transform: translate(-50%, -50%); }
+.lecteur-audio.mien .lecteur-audio-curseur { background: #fff; }
+.lecteur-audio-temps { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--texte-2); flex-shrink: 0; min-width: 34px; text-align: right; }
+.lecteur-audio.mien .lecteur-audio-temps { color: rgba(246,240,228,.85); }
+.msg-piece-apercu .lecteur-audio { flex: 1; width: auto; }
+
+/* 2. glisser vers la droite = répondre */
+.msg-rang { position: relative; touch-action: pan-y; }
+.msg-glisse-reponse { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(var(--texte-rgb), .08); color: var(--texte-2); pointer-events: none; }
+.msg-glisse-reponse.pret { background: var(--bleu-clair); color: var(--sur-accent); }
+.msg-rang.mien .msg-glisse-reponse { left: auto; right: calc(100% - 36px); }
+.msg-bulle-menu { will-change: transform; }
+
+/* 3. arrivées pendant qu'on lit plus haut */
+.msg-nouveaux {
+  position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 6;
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 100px; border: 0;
+  background: var(--bleu-clair); color: var(--sur-accent); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); animation: vis-fondu .2s ease both;
+}
+
+/* 4. plus d'emoji */
+.msg-emojis-plus { font-size: 14px !important; border: 1px solid var(--ligne) !important; border-radius: 50% !important; width: 30px; height: 30px; display: grid; place-items: center; padding: 0 !important; color: var(--texte-2); }
+.msg-emojis-plus.on { background: rgba(var(--accent-rgb), .15); }
+.msg-emojis-grille { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 4px 4px 8px; border-bottom: 1px solid var(--ligne); margin-bottom: 4px; max-height: 160px; overflow-y: auto; }
+.msg-emojis-grille button { font-size: 20px; padding: 5px 0; border-radius: 10px; background: none; border: 0; cursor: pointer; line-height: 1; }
+.msg-emojis-grille button.on { background: rgba(var(--accent-rgb), .15); }
+
+/* 5. coches par message */
+.msg-bulle time { display: flex; justify-content: flex-end; align-items: center; gap: 4px; }
+.msg-coches { color: rgba(246,240,228,.6); }
+.msg-coches.lu { color: #9FD6FF; }
+
+/* 7. l'appui long est à nous : ni sélection, ni menu d'image ou de lien du navigateur */
+.msg-bulle, .msg-bulle * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.msg-bulle img, .msg-bulle a { -webkit-user-drag: none; }

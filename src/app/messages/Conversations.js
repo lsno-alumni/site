@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MessageCircle, PenLine, Users, Search, Pin, BellOff } from "lucide-react";
@@ -10,7 +10,7 @@ import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteFiche } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
-import { mesConversations, nomConversation, ecouterTousMessages, chercherMessages, libellePiece, JOURS_CONSERVATION } from "@/lib/messages";
+import { mesConversations, nomConversation, ecouterTousMessages, ecouterFrappes, chercherMessages, libellePiece, JOURS_CONSERVATION } from "@/lib/messages";
 
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
@@ -44,6 +44,22 @@ export default function Conversations({ moi }) {
     return () => clearTimeout(minuteur);
   }, [q]);
   const recherche = q.trim().length >= 2 ? resultats : null;   // null = liste normale
+  // « Ana écrit… » sur la ligne d'une conversation, même sans l'ouvrir
+  const [frappes, setFrappes] = useState({});   // conversationId → prenom
+  const minuteurs = useRef({});
+  useEffect(() => {
+    const ids = (liste ?? []).map((c) => c.id);
+    if (!ids.length) return;
+    const stop = ecouterFrappes(ids, (cid, p) => {
+      if (!p || p.membre === moi.id) return;
+      setFrappes((f) => ({ ...f, [cid]: p.prenom ?? "Quelqu'un" }));
+      clearTimeout(minuteurs.current[cid]);
+      minuteurs.current[cid] = setTimeout(() => setFrappes((f) => { const n = { ...f }; delete n[cid]; return n; }), 3500);
+    });
+    const m = minuteurs.current;
+    return () => { stop(); Object.values(m).forEach(clearTimeout); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liste?.map((c) => c.id).join(",")]);
 
   const charger = async () => {
     try { setListe(await mesConversations()); setSouci(""); }
@@ -106,7 +122,7 @@ export default function Conversations({ moi }) {
                   <small>{d ? depuis(d.cree_le) : ""}</small>
                 </span>
                 <span className="msg-ligne-bas">
-                  <span className="msg-apercu">{apercu}</span>
+                  <span className={`msg-apercu${frappes[c.id] ? " msg-frappe" : ""}`}>{frappes[c.id] ? `${frappes[c.id]} écrit…` : apercu}</span>
                   {c.non_lus > 0 && <span className="msg-pastille">{c.non_lus > 99 ? "99+" : c.non_lus}</span>}
                 </span>
                 {c.type === "groupe" && <small className="msg-ligne-meta">{c.nb_membres} membres</small>}

@@ -462,6 +462,19 @@
 .a-temoin.c-ouverture .lire-suite, .a-temoin.c-ouverture .qui span:not(.avatar-init) { color: rgba(255,255,255,.7); }
 .a-temoin.c-ouverture .qui b { color: #fff; }
 .a-temoin.c-ouverture .avatar-init { background: rgba(255,255,255,.14); color: #fff; }
+/* pastille du chapitre en cours de lecture (sans être le filtre choisi) */
+.puce.en-vue { border-color: var(--bleu-clair); color: var(--bleu-texte); }
+/* auteur + partage de la voix sur une même ligne */
+.qui-ligne { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+.qui-ligne .qui { margin-top: 0; flex: 1; min-width: 0; }
+.voix-partage {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 100px;
+  background: none; border: 1px solid var(--ligne); color: var(--texte-2); font-size: 12px; cursor: pointer; transition: border-color .2s, color .2s;
+}
+.voix-partage:hover { border-color: rgba(var(--accent-rgb), .5); color: var(--bleu-texte); }
+.a-temoin.c-ouverture .voix-partage { border-color: rgba(255,255,255,.3); color: rgba(255,255,255,.85); }
+.voix-partage .tourne { animation: tourne 1s linear infinite; }
+@keyframes tourne { to { transform: rotate(360deg); } }
 .n-cloture.conseils::before { background-image: url("/img/lsno_jardin.jpg"); background-position: center 50%; }
 
 .pied-public {

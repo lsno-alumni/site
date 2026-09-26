@@ -5,6 +5,7 @@ import { lireProfil, lireContacts, statutDemande, apercuProfil, profilsVoisins }
 import ContenuProfil, { CouvertureProfil } from "./ContenuProfil";
 import Retour from "./Retour";
 import Sceau from "@/components/Sceau";
+import RafraichirPage from "@/components/RafraichirPage";
 
 // Aperçu de partage : titre/description personnalisés (vitrine choisie),
 // jamais indexé par les moteurs.
@@ -55,10 +56,12 @@ export default async function PageProfil({ params }) {
   const voisins = await profilsVoisins(id, p.promotion, p.domaine);
   return (
     <main className="page page-profil avec-tabbar">
-      <CouvertureProfil p={p}>
-        <Retour />
-      </CouvertureProfil>
-      <ContenuProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
+      <RafraichirPage>
+        <CouvertureProfil p={p}>
+          <Retour />
+        </CouvertureProfil>
+        <ContenuProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
+      </RafraichirPage>
       <TabBar actif="Annuaire" />
     </main>
   );

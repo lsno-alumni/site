@@ -6,6 +6,7 @@ import { utilisateurCourant, apercuOffre, lireOffre, suiteOffre } from "@/lib/ap
 import { nomType, joursRestants } from "@/lib/offres";
 import { CouvertureOffre, TeteOffre, SuiteOffre } from "./ContenuOffre";
 import Sceau from "@/components/Sceau";
+import RafraichirPage from "@/components/RafraichirPage";
 
 // Lien de partage d'une offre : aperçu personnalisé pour les robots, la page
 // complète de l'offre pour les membres validés (même habillage que la feuille
@@ -36,11 +37,13 @@ export default async function PageOffre({ params }) {
     const suite = await suiteOffre(id, o.domaine);
     return (
       <main className="page page-profil avec-tabbar">
-        <CouvertureOffre o={o} jours={joursRestants(o.date_limite)}>
-          <Retour secours="/offres" />
-        </CouvertureOffre>
-        <TeteOffre o={o} />
-        <SuiteOffre o={o} moiId={moi.id} suite={suite} />
+        <RafraichirPage>
+          <CouvertureOffre o={o} jours={joursRestants(o.date_limite)}>
+            <Retour secours="/offres" />
+          </CouvertureOffre>
+          <TeteOffre o={o} />
+          <SuiteOffre o={o} moiId={moi.id} suite={suite} />
+        </RafraichirPage>
         <TabBar actif="Offres" />
       </main>
     );

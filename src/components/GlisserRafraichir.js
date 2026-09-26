@@ -22,19 +22,19 @@ import { Loader2, ArrowDown, Check } from "lucide-react";
 // touch-action bascule dynamiquement selon la position de défilement —
 // c'est ce qui permet de couvrir toute la zone sans rien casser.
 //
-// ⚠ DÉSACTIVÉ SUR iOS (Safari ET Chrome iOS, qui partagent le même moteur
-// WebKit imposé par Apple) : le rebond élastique natif du haut de page y
-// est géré au niveau système, avant que notre JS (même preventDefault()
-// appelé au tout premier pixel) ne puisse réagir — essayé et confirmé
-// inefficace le 13/09. Seule solution qui marcherait : rendre la page
-// elle-même non-défilante et déplacer tout le défilement réel dans un
-// conteneur dédié (impact large : barre du bas, en-têtes collants, retour
-// de position, feuille glissante de profil) — écarté par l'utilisateur
-// (« laissons tomber »). Ne pas retenter de réparer ce geste sur iOS sans
-// qu'il ne le redemande explicitement ; Android n'est pas concerné.
+// iOS (Safari et Chrome iOS, même moteur WebKit) : le geste avait été
+// DÉSACTIVÉ le 13/09 — le rebond élastique natif du haut de page prenait la
+// main avant nous. La tentative d'alors annulait le geste depuis les
+// événements POINTEUR (`pointermove.preventDefault()`), qui, d'après la
+// spécification, ne peuvent PAS empêcher un défilement : seul un
+// `touchmove` non passif annulé peut le faire, et c'est ainsi que procèdent
+// les bibliothèques de glisser-rafraîchir qui marchent sur iPhone. Réactivé
+// le 26/09 à la demande de l'utilisateur, avec cette annulation tactile
+// explicite — À VALIDER SUR UN VRAI iPHONE (rien ne l'émule ici). Si le
+// rebond gagne encore, rétablir l'exclusion (`estIOS()` ci-dessous).
 const SEUIL = 70; // px de tirage pour déclencher au lâcher
 
-function estIOS() {
+export function estIOS() {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
   if (/iPad|iPhone|iPod/.test(ua)) return true;
@@ -62,7 +62,7 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
   useEffect(() => {
     const zone = zoneRef.current;
     const icone = iconeRef.current;
-    if (!zone || estIOS()) return;
+    if (!zone) return;
     let y0 = 0, tient = false, decide = false, tirage = 0;
 
     // « pan-down » = le navigateur reste libre de faire défiler vers le bas
@@ -134,14 +134,25 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
       }
     };
 
+    // iOS : c'est CET annulateur qui empêche le rebond élastique natif — un
+    // touchmove non passif, annulé dès que le doigt tire vers le bas en haut
+    // de page. Inoffensif ailleurs (touch-action fait déjà le travail).
+    const toucheBouge = (e) => {
+      if (!tient || !e.cancelable || window.scrollY > 0) return;
+      const dy = (e.touches[0]?.clientY ?? y0) - y0;
+      if (dy > 0) e.preventDefault();
+    };
+
     zone.addEventListener("pointerdown", debut);
     document.addEventListener("pointermove", bouge, { passive: false });
+    document.addEventListener("touchmove", toucheBouge, { passive: false });
     document.addEventListener("pointerup", fin);
     document.addEventListener("pointercancel", fin);
     return () => {
       window.removeEventListener("scroll", majTouchAction);
       zone.removeEventListener("pointerdown", debut);
       document.removeEventListener("pointermove", bouge);
+      document.removeEventListener("touchmove", toucheBouge);
       document.removeEventListener("pointerup", fin);
       document.removeEventListener("pointercancel", fin);
     };

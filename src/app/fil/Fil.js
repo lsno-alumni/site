@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Camera, MessageCircle, Share2, MoreHorizontal, PenLine, ArrowRight, Play } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Bravo from "@/components/Bravo";
@@ -138,6 +138,7 @@ function Conseil({ c }) {
 
 export default function Fil({ moi, moderateur }) {
   const routeur = useRouter();
+  const chemin = usePathname();
   const [filtre, setFiltre] = useState("tout");
   const [items, setItems] = useState(() => memoire.lire("fil.items") ?? null);
   const [fin, setFin] = useState(false);
@@ -152,9 +153,11 @@ export default function Fil({ moi, moderateur }) {
       setItems(r.items); setFin(r.fin); setDernierePub(r.dernierePub);
     } catch (e) { signale("Le fil ne répond pas : " + (e.message ?? "")); }
   };
+  // au montage, et au retour du composer (qui vide la mémoire du fil pour
+  // dire « il y a du neuf » : le Fil reste monté sous la feuille)
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-  useEffect(() => { charger(); }, []);
-  useEffect(() => { memoire.ecrire("fil.items", items); }, [items]);
+  useEffect(() => { if (chemin === "/fil" && (items === null || memoire.lire("fil.items") === null)) charger(); }, [chemin]);
+  useEffect(() => { if (items !== null) memoire.ecrire("fil.items", items); }, [items]);
 
   const suite = async () => {
     if (encore || fin || !dernierePub) return;

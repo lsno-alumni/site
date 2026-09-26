@@ -151,6 +151,8 @@ with attendu(num, laisse, present) as (
     exists (select 1 from information_schema.columns where table_name = 'publications' and column_name = 'photos')
   union all select 63, 'mode essai des notifications (push_mode_essai, push_essai_comptes)',
     exists (select 1 from reglages where cle = 'push_mode_essai') and to_regclass('push_essai_comptes') is not null
+  union all select 64, 'moments (tables moments et moment_vues, rail_moments, purge horaire)',
+    to_regclass('moments') is not null and exists (select 1 from cron.job where jobname = 'purge-moments')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

@@ -596,6 +596,9 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
   touch-action: pan-x pan-down;
 }
 .n-filtres::-webkit-scrollbar { display: none; }
+/* rangée de filtres posée DANS une section (Rôles admin) : ni collante ni
+   sur fond opaque — les puces sont directement sur le sol kraft */
+.n-filtres.libre { position: static; background: none; box-shadow: none; padding: 10px 0; flex-wrap: wrap; }
 .puce {
   font-size: 12.5px; padding: 9px 15px; border-radius: 100px; border: 1px solid var(--ligne);
   color: var(--texte-2); white-space: nowrap; background: transparent; cursor: pointer; transition: all .25s;

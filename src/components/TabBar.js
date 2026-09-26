@@ -7,6 +7,7 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 import { nonLus, ecouterTousMessages } from "@/lib/messages";
+import { momentsNonVus } from "@/lib/moments";
 
 // 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
 // « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
@@ -33,6 +34,7 @@ let roleCache = null;
 // publiques suivantes ne la fassent même pas apparaître un instant.
 let connecteCache = null;   // null = pas encore su, true/false ensuite
 let nonLusCache = 0;        // messages non lus (pastille de l'onglet Messages)
+let momentsCache = 0;       // moments non vus (point sur l'onglet Fil)
 const CLASSE_SANS = "sans-tabbar";
 
 // Cache/glisse au défilement, comme sur les réseaux sociaux : on descend dans
@@ -123,9 +125,13 @@ export default function TabBar({ actif }) {
   // pastille des messages non lus : lue à chaque page (la barre remonte à
   // chaque navigation), gardée au niveau module pour ne pas clignoter
   const [nonLu, setNonLu] = useState(nonLusCache);
+  const [moments, setMoments] = useState(momentsCache);
   useEffect(() => {
     if (connecte === false) return;
     let vivant = true;
+    const lireMoments = () => momentsNonVus().then((n) => { if (vivant) { momentsCache = n; setMoments(n); } }).catch(() => {});
+    lireMoments();
+    window.addEventListener("lsno:moments", lireMoments);
     const lire = () => nonLus().then((n) => {
       if (!vivant) return;
       nonLusCache = n; setNonLu(n);
@@ -135,7 +141,7 @@ export default function TabBar({ actif }) {
     lire();
     // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit
     const stop = ecouterTousMessages(() => lire());
-    return () => { vivant = false; stop(); };
+    return () => { vivant = false; stop(); window.removeEventListener("lsno:moments", lireMoments); };
   }, [connecte, actif]);
   const cachee = useCacherAuDefilement();
 
@@ -208,6 +214,7 @@ export default function TabBar({ actif }) {
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
           {o.nom === "Messages" && nonLu > 0 && <span className="tab-pastille" aria-label={`${nonLu} non lus`}>{nonLu > 99 ? "99+" : nonLu}</span>}
+          {o.nom === "Fil" && moments > 0 && actif !== "Fil" && <span className="tab-point" aria-label={`${moments} moment${moments > 1 ? "s" : ""} à voir`} />}
         </Link>
       ))}
     </nav>

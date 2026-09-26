@@ -19,6 +19,7 @@ import useClicDehors from "@/lib/useClicDehors";
 import { TexteMentions } from "@/lib/mentions";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 import { CarteQuestion } from "@/app/questions/Questions";
+import RailMoments from "@/app/fil/RailMoments";
 import { HelpCircle } from "lucide-react";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
@@ -195,6 +196,8 @@ export default function Fil({ moi, moderateur }) {
         <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
         <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
       </Link>
+
+      <RailMoments moi={moi} moderateur={moderateur} />
 
       <Link href="/questions" className="fil-questions">
         <HelpCircle size={18} strokeWidth={1.9} aria-hidden />

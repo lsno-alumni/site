@@ -29,8 +29,8 @@ export function CarteQuestion({ q }) {
       <b className="qa-titre">{q.titre}</b>
       {q.details && <p className="qa-extrait">{q.details}</p>}
       <span className="qa-carte-bas">
-        {a.anonyme ? <span className="qa-anonyme"><EyeOff size={13} aria-hidden /> Anonyme</span>
-          : <span className="qa-qui"><Avatar profil={{ prenom: a.prenom ?? "?", nom: a.nom ?? "", photo: a.photo_url }} className="com-avatar" />{a.prenom} {a.nom}{a.promo ? ` · P${a.promo}` : ""}</span>}
+        {a.anonyme && !a.id ? <span className="qa-anonyme"><EyeOff size={13} aria-hidden /> Anonyme</span>
+          : <span className="qa-qui"><Avatar profil={{ prenom: a.prenom ?? "?", nom: a.nom ?? "", photo: a.photo_url }} className="com-avatar" />{a.prenom} {a.nom}{a.promo ? ` · P${a.promo}` : ""}{a.anonyme ? <em className="qa-anonyme" style={{ marginLeft: 4 }}><EyeOff size={12} aria-hidden /> anonyme</em> : null}</span>}
         <small>{depuis(q.cree_le)}</small>
         <span className={`qa-nb${q.nb_reponses === 0 ? " zero" : ""}`}><MessageCircle size={13} aria-hidden /> {q.nb_reponses === 0 ? "Aucune réponse" : `${q.nb_reponses} réponse${q.nb_reponses > 1 ? "s" : ""}`}</span>
       </span>

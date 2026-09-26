@@ -14,7 +14,7 @@ const DETAILS_MAX = 2000;
 // Poser une question : un titre court (la question elle-même), des détails,
 // un thème, un domaine facultatif, et le choix d'apparaître ou de rester
 // anonyme (les modérateurs voient toujours qui a posé la question).
-export default function PoserQuestion({ moi }) {
+export default function PoserQuestion({ moi, enFeuille = false }) {
   const routeur = useRouter();
   const [titre, setTitre] = useState("");
   const [details, setDetails] = useState("");
@@ -37,7 +37,7 @@ export default function PoserQuestion({ moi }) {
   };
 
   return (
-    <form className="cp" onSubmit={envoyer}>
+    <form className={`cp${enFeuille ? " cp-feuille" : ""}`} onSubmit={envoyer}>
       <header className="cp-tete">
         <button type="button" className="cp-fermer" onClick={() => routeur.back()} aria-label="Annuler"><X size={20} aria-hidden /></button>
         <span className="cp-titre">Poser une question</span>

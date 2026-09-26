@@ -34,6 +34,16 @@ export default function Conditions() {
       </nav>
       <div className="f-corps cg-corps">
         <p className="cg-date">Dernière mise à jour : 29 juillet 2026</p>
+        <div className="cg-bref">
+          <p className="lbl">L&apos;essentiel</p>
+          <ul>
+            <li><b>Tu donnes</b> ce que tu saisis toi-même, rien d&apos;autre.</li>
+            <li><b>Seuls les membres validés</b> voient ton profil. Jamais le public, jamais les moteurs de recherche.</li>
+            <li><b>Tes contacts</b> ne sont visibles qu&apos;à qui tu le décides.</li>
+            <li><b>Tu peux tout supprimer</b> à tout moment, depuis Mon profil, immédiatement et définitivement.</li>
+            <li><b>Jamais</b> de traceur publicitaire, jamais de revente, jamais de démarchage.</li>
+          </ul>
+        </div>
 
         <Titre n={1}>Ce qu&apos;est LSNO Amicale</Titre>
         <p>

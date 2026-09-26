@@ -781,6 +781,24 @@
 /* ---------- À PROPOS ---------- */
 .ap-manifeste { font-size: 15px; line-height: 1.7; color: var(--texte-2); }
 .ap-manifeste b { color: var(--texte); }
+.ap-stats { margin: 26px 18px 0; }
+.ap-stats .a-stat span { letter-spacing: .1em; font-size: 9.5px; }   /* quatre colonnes : les libellés se serrent */
+.ap-section { padding: 34px 22px 6px; }
+.ap-section .a-titre em, .ap-photos .a-titre em { color: var(--bleu-texte); font-style: italic; }
+/* comment ça marche : trois pas, gros numéros en Fraunces, fil vertical */
+.ap-pas { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 0; position: relative; }
+.ap-pas::before { content: ""; position: absolute; left: 21px; top: 26px; bottom: 26px; width: 1.5px; background: linear-gradient(180deg, var(--bleu) 0%, rgba(var(--accent-rgb), .12) 100%); }
+.ap-pas li { display: flex; gap: 16px; align-items: flex-start; padding: 0 0 22px; position: relative; }
+.ap-pas .num { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-titres), serif; font-size: 22px; color: var(--sur-accent); background: var(--bleu); box-shadow: 0 0 0 4px var(--fond); position: relative; }
+.ap-pas b { font-family: var(--font-titres), serif; font-weight: 500; font-size: 17px; display: block; margin-top: 8px; }
+.ap-pas p { font-size: 13.5px; line-height: 1.6; color: var(--texte-2); margin-top: 4px; }
+.ap-delegues .voisins { padding-left: 0; padding-right: 0; margin: 0 -22px; padding-left: 22px; }
+.ap-delegues .a-sous { margin-bottom: 12px; }
+.cv3d-legende { text-align: center; font-family: var(--font-titres), serif; font-style: italic; font-size: 14.5px; color: var(--texte-2); margin: 6px 0 2px; }
+/* bloc d'installation replié : le titre sert de poignée */
+.bloc-install summary { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.bloc-install summary h3 { flex: 1; margin: 0; }
+.bloc-install[open] summary { margin-bottom: 4px; }
 .ap-photos { padding: 30px 22px 6px; }
 .ap-photos .a-titre { margin-bottom: 4px; }
 .ap-photos .a-titre em { color: var(--bleu-texte); font-style: italic; }
@@ -808,6 +826,14 @@
 :root[data-theme="sombre"] .cg-corps { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 18px 40px -22px rgba(0,0,0,.8); }
 .cg-corps b { color: var(--texte); }
 .cg-date { font-size: 12px; color: var(--brume); }
+/* l'essentiel en cinq lignes, avant le texte intégral */
+.cg-bref { margin: 16px 0 6px; padding: 16px 18px; border-radius: 16px; background-color: var(--monde); background-image: url("/fonds/kraft-sombre.jpg"); background-size: 420px auto; background-blend-mode: screen; color: #fff; }
+:root[data-theme="sombre"] .cg-bref { background-color: #16253F; }
+.cg-bref .lbl { font-size: 10.5px; letter-spacing: .3em; text-transform: uppercase; color: #F3E3CF; margin-bottom: 10px; }
+.cg-bref ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cg-bref li { font-size: 13.5px; line-height: 1.5; color: rgba(255,255,255,.85); padding-left: 16px; position: relative; }
+.cg-bref li::before { content: ""; position: absolute; left: 0; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: #F3E3CF; }
+.cg-bref li b { color: #fff; }
 .cg-titre { display: flex; align-items: baseline; gap: 12px; font-size: 18px; margin: 30px 0 10px; padding-top: 14px; border-top: 1px solid var(--ligne); scroll-margin-top: 90px; color: var(--texte); }
 .cg-titre span { font-family: var(--font-titres), serif; font-weight: 400; font-size: 26px; color: var(--bleu-texte); font-variant-numeric: tabular-nums; }
 .cg-corps .tagline { margin-top: 24px; }

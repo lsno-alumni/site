@@ -17,7 +17,7 @@ const PHOTOS = [
   { src: "/img/lsno_hero.jpg", alt: "Sur le chemin des cours" },
 ];
 
-export default function Carrousel3D() {
+export default function Carrousel3D({ legendes = false }) {
   const [actif, setActif] = useState(0);
   const interaction = useRef(false);
   const drag = useRef(null);
@@ -88,6 +88,7 @@ export default function Carrousel3D() {
           );
         })}
       </div>
+      {legendes && <p className="cv3d-legende" aria-live="polite">{PHOTOS[actif].alt}</p>}
       <div className="cv3d-points" role="tablist" aria-label="Photos du lycée">
         {PHOTOS.map((_, i) => (
           <button

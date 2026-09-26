@@ -153,6 +153,20 @@ export async function listeConseils() {
   return data ?? [];
 }
 
+// Les délégués (page À propos) : membres validés portant le rôle, par promotion
+export async function listeDelegues() {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, prenom, nom, photo_url, domaine, domaine_precision, promotions!inner(numero)")
+    .eq("statut_compte", "valide").eq("role", "delegue");
+  if (error) {
+    console.error("listeDelegues:", error.message);
+    return [];
+  }
+  return (data ?? []).sort((x, y) => (x.promotions.numero - y.promotions.numero) || x.prenom.localeCompare(y.prenom, "fr"));
+}
+
 export async function apercuProfil(id) {
   // Vitrine publique volontaire (nom, photo, promo, une ligne) pour les
   // aperçus de partage — fonctionne SANS session (fonction dédiée en base).

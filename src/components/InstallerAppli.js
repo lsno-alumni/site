@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, X, Check } from "lucide-react";
+import { Download, X, Check, ChevronDown } from "lucide-react";
 import {
   dejaInstallee, inviteDisponible, lancerInstallation, plateforme, MODES,
   modeInvitationInstall, CLE_INSTALL_ECARTEE,
@@ -76,7 +76,7 @@ export function InviteInstallation() {
 // B) Bloc permanent (page À propos) — toujours trouvable, même après avoir
 //    écarté le bandeau. C'est le lien à envoyer à quelqu'un qui ne sait pas faire.
 // ============================================================
-export function BlocInstallation() {
+export function BlocInstallation({ replie = false }) {
   const [prete, setPrete] = useState(false);      // le navigateur propose un bouton
   const [installee, setInstallee] = useState(false);
   const [mode, setMode] = useState(null);
@@ -100,8 +100,11 @@ export function BlocInstallation() {
   const autres = Object.entries(MODES).filter(([k]) => k !== mode);
 
   return (
-    <section id="installer" className="bloc-install">
-      <h3>Installer l&apos;appli sur ton téléphone</h3>
+    <details id="installer" className="bloc-install" open={!replie}>
+      <summary>
+        <h3>Installer l&apos;appli sur ton téléphone</h3>
+        <ChevronDown size={18} className="chevron" aria-hidden />
+      </summary>
       {installee || fait ? (
         <p className="ok"><Check size={14} strokeWidth={2.2} aria-hidden /> C&apos;est déjà installé sur cet appareil.</p>
       ) : (
@@ -133,6 +136,6 @@ export function BlocInstallation() {
           <Etapes mode={m} />
         </div>
       ))}
-    </section>
+    </details>
   );
 }

@@ -52,6 +52,12 @@ $$;
 create or replace function auth.jwt() returns jsonb
 language sql stable as $$ select '{}'::jsonb $$;
 
+-- comme dans Supabase : les rôles applicatifs peuvent appeler auth.uid()/auth.jwt()
+-- (sinon un essai « set role authenticated » serait refusé sur le schéma auth)
+grant usage on schema auth to anon, authenticated, service_role;
+grant execute on function auth.uid() to anon, authenticated, service_role;
+grant execute on function auth.jwt() to anon, authenticated, service_role;
+
 -- ---------- le Vault ----------
 create schema if not exists vault;
 create table vault.secrets (

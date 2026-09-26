@@ -10,6 +10,14 @@ export const VIDEO_MO = 20;
 export const VIDEO_JOURS = 14;
 const PHOTO_MAX = 1280;   // px, grand côté
 
+// Qui voit une publication. La base filtre (politique publications_lecture) ;
+// ici seulement les libellés.
+export const VISIBILITES = [
+  { cle: "tous",    nom: "Tout le réseau", court: null,      aide: "visible par tous les membres" },
+  { cle: "promo",   nom: "Ma promo",       court: "Promo",   aide: "visible par ta promo seulement" },
+  { cle: "domaine", nom: "Mon domaine",    court: "Domaine", aide: "visible par les membres de ton domaine" },
+];
+
 export function urlMedia(chemin) {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_MEDIAS}/${chemin}`;
 }
@@ -145,7 +153,7 @@ export function compresserImage(fichier) {
   });
 }
 
-export async function publier({ texte, media }) {
+export async function publier({ texte, media, visibilite = "tous" }) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   let media_chemin = null, media_type = null;
@@ -161,7 +169,7 @@ export async function publier({ texte, media }) {
     media_type = estVideo ? "video" : "photo";
   }
   const { data, error } = await supabase.from("publications")
-    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type })
+    .insert({ auteur: user.id, texte: texte.trim(), media_chemin, media_type, visibilite })
     .select("id").single();
   if (error) {
     if (media_chemin) await supabase.storage.from(BUCKET_MEDIAS).remove([media_chemin]);

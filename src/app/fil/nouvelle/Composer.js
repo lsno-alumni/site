@@ -2,10 +2,12 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Camera, Clapperboard, Trash2 } from "lucide-react";
+import { X, Camera, Clapperboard, Trash2, Globe2, Users, Briefcase, ChevronDown } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import * as memoire from "@/lib/memoire";
-import { publier as publierEnBase, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS } from "@/lib/fil";
+import { publier as publierEnBase, VISIBILITES, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS } from "@/lib/fil";
+
+const ICONES_VISI = { tous: Globe2, promo: Users, domaine: Briefcase };
 
 const MAX = 1000;
 // Vidéos : acceptées avec des bornes strictes, parce que le stockage et le
@@ -23,6 +25,8 @@ export default function Composer({ moi, enFeuille = false }) {
   const [media, setMedia] = useState(null);   // { type: "photo"|"video", url, duree }
   const [souci, setSouci] = useState("");
   const [envoi, setEnvoi] = useState(false);
+  const [visibilite, setVisibilite] = useState("tous");
+  const [choixVisi, setChoixVisi] = useState(false);
   const fichierPhoto = useRef(null);
   const fichierVideo = useRef(null);
 
@@ -55,7 +59,7 @@ export default function Composer({ moi, enFeuille = false }) {
     if ((!texte.trim() && !media) || envoi) return;
     setEnvoi(true); setSouci("");
     try {
-      await publierEnBase({ texte, media });
+      await publierEnBase({ texte, media, visibilite });
       memoire.ecrire("fil.items", null);   // le Fil se rechargera avec la nouvelle publication en tête
       routeur.push("/fil");
       routeur.refresh();
@@ -65,6 +69,11 @@ export default function Composer({ moi, enFeuille = false }) {
     }
   };
   const pret = (texte.trim().length > 0 || media) && !envoi;
+  const IconeVisi = ICONES_VISI[visibilite];
+  // le libellé nomme le cercle réel : « Promo 3 », « Informatique »
+  const nomCercle = (cle) => cle === "promo" && moi.promo ? `Promo ${moi.promo}`
+    : cle === "domaine" && moi.domaine ? moi.domaine
+    : VISIBILITES.find((v) => v.cle === cle).nom;
 
   return (
     <form className={`cp${enFeuille ? " cp-feuille" : ""}`} onSubmit={publier}>
@@ -78,9 +87,26 @@ export default function Composer({ moi, enFeuille = false }) {
         <Avatar profil={moi} className="pub-avatar" />
         <span>
           <b>{moi.prenom} {moi.nom}</b>
-          <small>Promo {moi.promo ?? "—"} · visible par tous les membres</small>
+          <button type="button" className="cp-visi" onClick={() => setChoixVisi(!choixVisi)} aria-expanded={choixVisi}>
+            <IconeVisi size={13} strokeWidth={2} aria-hidden /> {nomCercle(visibilite)} <ChevronDown size={13} aria-hidden />
+          </button>
         </span>
       </div>
+      {choixVisi && (
+        <div className="cp-visi-liste" role="radiogroup" aria-label="Qui peut voir cette publication">
+          {VISIBILITES.map((v) => {
+            const I = ICONES_VISI[v.cle];
+            return (
+              <button key={v.cle} type="button" role="radio" aria-checked={visibilite === v.cle}
+                className={`cp-visi-choix${visibilite === v.cle ? " on" : ""}`}
+                onClick={() => { setVisibilite(v.cle); setChoixVisi(false); }}>
+                <I size={18} strokeWidth={1.9} aria-hidden />
+                <span><b>{nomCercle(v.cle)}</b><small>{v.aide}</small></span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <textarea className="cp-texte" placeholder="Une réussite, une question aux anciens, une photo de retrouvailles…"
         value={texte} onChange={(e) => setTexte(e.target.value.slice(0, MAX))} rows={enFeuille ? 5 : 6} autoFocus />

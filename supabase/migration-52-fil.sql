@@ -37,6 +37,8 @@ create table if not exists publications (
   media_chemin    text,
   media_type      text check (media_type in ('photo', 'video', 'video_expiree')),
   media_expire_le timestamptz,               -- vidéos seulement : cree_le + 14 jours
+  -- qui la voit : tout le réseau, la promo de l'auteur, ou son domaine
+  visibilite      text not null default 'tous' check (visibilite in ('tous', 'promo', 'domaine')),
   masquee         boolean not null default false,   -- modération
   masquee_par     uuid references profiles(id),
   cree_le         timestamptz not null default now(),
@@ -50,10 +52,28 @@ grant select, insert, update, delete on publications to authenticated;
 grant usage, select on sequence publications_id_seq to authenticated;
 alter table publications enable row level security;
 
+-- le lecteur est-il dans le cercle choisi par l'auteur ? (definer : la lecture
+-- du profil de l'auteur ne dépend pas des politiques de la table profiles)
+create or replace function dans_le_cercle(p_auteur uuid, p_visibilite text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select p_visibilite = 'tous'
+      or p_auteur = auth.uid()
+      or est_moderateur()
+      or exists (
+        select 1 from profiles a, profiles moi
+        where a.id = p_auteur and moi.id = auth.uid()
+          and ((p_visibilite = 'promo'   and a.promotion_id = moi.promotion_id)
+            or (p_visibilite = 'domaine' and a.domaine = moi.domaine)))
+$$;
+revoke all on function dans_le_cercle(uuid, text) from public, anon;
+grant execute on function dans_le_cercle(uuid, text) to authenticated;
+
 drop policy if exists publications_lecture on publications;
 create policy publications_lecture on publications
   for select to authenticated
-  using (mon_statut() = 'valide' and (not masquee or auteur = auth.uid() or est_moderateur()));
+  using (mon_statut() = 'valide'
+         and (not masquee or auteur = auth.uid() or est_moderateur())
+         and dans_le_cercle(auteur, visibilite));
 
 drop policy if exists publications_insertion on publications;
 create policy publications_insertion on publications
@@ -113,7 +133,10 @@ create policy reactions_lecture on reactions
   for select to authenticated using (mon_statut() = 'valide');
 drop policy if exists reactions_insertion on reactions;
 create policy reactions_insertion on reactions
-  for insert to authenticated with check (mon_statut() = 'valide' and membre = auth.uid());
+  for insert to authenticated
+  with check (mon_statut() = 'valide' and membre = auth.uid()
+              and (cible_type <> 'publication'
+                   or exists (select 1 from publications where id::text = cible_id)));
 drop policy if exists reactions_suppression on reactions;
 create policy reactions_suppression on reactions
   for delete to authenticated using (membre = auth.uid());
@@ -163,7 +186,9 @@ create policy commentaires_lecture on commentaires
 drop policy if exists commentaires_insertion on commentaires;
 create policy commentaires_insertion on commentaires
   for insert to authenticated
-  with check (mon_statut() = 'valide' and auteur = auth.uid());
+  with check (mon_statut() = 'valide' and auteur = auth.uid()
+              and (cible_type <> 'publication'
+                   or exists (select 1 from publications where id::text = cible_id)));
 drop policy if exists commentaires_modification on commentaires;
 create policy commentaires_modification on commentaires
   for update to authenticated using (auteur = auth.uid()) with check (auteur = auth.uid());
@@ -265,6 +290,7 @@ returns json language sql stable security invoker set search_path = public as $$
     'media_chemin', p.media_chemin,
     'media_type', p.media_type,
     'media_expire_le', p.media_expire_le,
+    'visibilite', p.visibilite,
     'masquee', p.masquee,
     'cree_le', p.cree_le,
     'auteur', json_build_object('id', a.id, 'prenom', a.prenom, 'nom', a.nom, 'photo_url', a.photo_url,

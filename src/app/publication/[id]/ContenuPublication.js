@@ -6,7 +6,7 @@ import { MessageCircle, Share2 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Bravo from "@/components/Bravo";
 import Commentaires from "@/components/Commentaires";
-import { depuis, urlMedia } from "@/lib/fil";
+import { depuis, urlMedia, VISIBILITES } from "@/lib/fil";
 
 // Une publication ouverte (page /publication/[id] ET feuille glissante depuis
 // le Fil). TetePublication (auteur + texte, zone glissable, purement visuelle)
@@ -19,7 +19,8 @@ export function TetePublication({ p }) {
         <Avatar profil={{ prenom: p.auteur.prenom, nom: p.auteur.nom, photo: p.auteur.photo_url }} className="pub-avatar" />
         <span>
           <b>{p.auteur.prenom} {p.auteur.nom}</b>
-          <small>Promo {p.auteur.promo} · {depuis(p.cree_le)}</small>
+          <small>Promo {p.auteur.promo} · {depuis(p.cree_le)}
+            {p.visibilite && p.visibilite !== "tous" && <span className="pub-visi">{VISIBILITES.find((v) => v.cle === p.visibilite)?.court}</span>}</small>
         </span>
       </Link>
       {p.texte && <p className="pu-texte">{p.texte}</p>}

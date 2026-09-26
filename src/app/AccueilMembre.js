@@ -3,6 +3,7 @@ import { Hourglass, ArrowRight } from "lucide-react";
 import ChoixTheme from "@/components/ChoixTheme";
 import TabBar from "@/components/TabBar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
+import RafraichirPage from "@/components/RafraichirPage";
 import InviteNotifications from "@/components/InviteNotifications";
 import { InviteInstallation } from "@/components/InstallerAppli";
 import Avatar from "@/components/Avatar";
@@ -38,6 +39,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
   return (
     <main className="page avec-tabbar">
+    <RafraichirPage>
       <header className="am-tete">
         <div className="am-haut">
           <div className="a-marque">
@@ -187,6 +189,7 @@ export default function AccueilMembre({ moi, donnees }) {
       )}
 
       <RestaurerDefilement />
+    </RafraichirPage>
       <TabBar />
     </main>
   );

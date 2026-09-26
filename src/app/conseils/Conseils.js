@@ -6,6 +6,7 @@ import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import TexteReplie from "@/components/TexteReplie";
 import PartagerVoix from "./PartagerVoix";
+import RafraichirPage from "@/components/RafraichirPage";
 import { PenLine } from "lucide-react";
 import { THEMES_CONSEIL, nomDomaine } from "@/lib/donnees";
 
@@ -58,6 +59,7 @@ export default function Conseils({ conseils, moiId }) {
   }, [enVue]);
 
   return (
+    <RafraichirPage>
     <>
       <div className="n-panneau">
       <div className="n-filtres" ref={rangee}>
@@ -114,5 +116,6 @@ export default function Conseils({ conseils, moiId }) {
       )}
       <RestaurerDefilement />
     </>
+    </RafraichirPage>
   );
 }

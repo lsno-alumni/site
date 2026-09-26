@@ -12,6 +12,7 @@ import * as memoire from "@/lib/memoire";
 import { depuis, signaler } from "@/lib/fil";
 import { useMentions, SuggestionsMention, TexteMentions } from "@/lib/mentions";
 import { lireQuestion, repondre, modifierReponse, supprimerReponse, retenirReponse, modifierQuestion, supprimerQuestion, modererQuestion } from "@/lib/questions";
+import { THEMES_CONSEIL } from "@/lib/donnees";
 
 // Une question ouverte (page /questions/[id] ET feuille depuis la liste).
 // TeteQuestion (thème, titre, auteur : glissable) puis SuiteQuestion
@@ -43,6 +44,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
   const [edition, setEdition] = useState(null);
   const [envoi, setEnvoi] = useState(false);
   const [menu, setMenu] = useState(null);   // "q" ou id de réponse
+  const [editionQ, setEditionQ] = useState(null);   // { titre, details, theme } pendant la modification de la question
   const [toast, setToast] = useState("");
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
@@ -87,6 +89,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
         if (!confirm("Supprimer ta réponse ?")) return; await supprimerReponse(cible.id); await recharger();
       }
       if (action === "modifier") { setEdition(cible); setTexte(cible.texte); champ.current?.focus(); }
+      if (action === "modifierQ") setEditionQ({ titre: q.titre, details: q.details ?? "", theme: q.theme ?? "" });
       if (action === "partager") {
         const url = `${window.location.origin}/questions/${q.id}`;
         if (navigator.share) await navigator.share({ title: q.titre, url }); else { await navigator.clipboard.writeText(url); signale("Lien copié"); }
@@ -98,7 +101,25 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
 
   return (
     <>
-      {q.details && <p className="qa-details"><TexteMentions texte={q.details} mentions={[]} /></p>}
+      {editionQ ? (
+        <form className="qa-form qa-form-edition" onSubmit={async (e) => {
+          e.preventDefault();
+          if (editionQ.titre.trim().length < 5) { signale("Le titre est trop court."); return; }
+          try { await modifierQuestion(q.id, { titre: editionQ.titre.trim(), details: editionQ.details.trim(), theme: editionQ.theme || null }); setEditionQ(null); await recharger(); }
+          catch (err) { signale("Impossible d'enregistrer : " + (err.message ?? "")); }
+        }}>
+          <input className="saisie qa-form-titre" value={editionQ.titre} maxLength={140} onChange={(e) => setEditionQ({ ...editionQ, titre: e.target.value })} autoFocus />
+          <textarea className="saisie" rows={5} value={editionQ.details} maxLength={2000} onChange={(e) => setEditionQ({ ...editionQ, details: e.target.value })} placeholder="Les détails qui aident à répondre…" />
+          <select className="saisie" value={editionQ.theme} onChange={(e) => setEditionQ({ ...editionQ, theme: e.target.value })}>
+            <option value="">Sans thème</option>
+            {THEMES_CONSEIL.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button type="submit" className="btn btn-or" style={{ flex: 1 }}>Enregistrer</button>
+            <button type="button" className="btn btn-nu" onClick={() => setEditionQ(null)}>Annuler</button>
+          </div>
+        </form>
+      ) : q.details && <p className="qa-details"><TexteMentions texte={q.details} mentions={[]} /></p>}
       <div className="pub-pied pu-actions qa-actions">
         <Bravo type="question" id={q.id} nombre={q.bravos} actif={q.jai_bravo} />
         <span className="pub-action" style={{ cursor: "default" }}>{reponses.length} réponse{reponses.length > 1 ? "s" : ""}</span>
@@ -107,6 +128,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
           {menu === "q" && (
             <span className="pub-menu-liste">
               <button type="button" onClick={() => agir("q", "partager")}><Share2 size={14} aria-hidden /> Partager</button>
+              {q.est_moi && <button type="button" onClick={() => agir("q", "modifierQ")}><Pencil size={14} aria-hidden /> Modifier la question</button>}
               {q.est_moi && <button type="button" onClick={basculerResolue}><CheckCircle2 size={14} aria-hidden /> {q.resolue ? "Rouvrir la question" : "Marquer comme résolue"}</button>}
               {!q.est_moi && <button type="button" onClick={() => agir("q", "signaler")}><Flag size={14} aria-hidden /> Signaler</button>}
               {moderateur && <button type="button" onClick={() => agir("q", "masquer")}>{q.masquee ? <><Eye size={14} aria-hidden /> Rétablir</> : <><Masquer size={14} aria-hidden /> Masquer</>}</button>}

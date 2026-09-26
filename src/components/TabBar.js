@@ -182,7 +182,9 @@ export default function TabBar({ actif }) {
   const auTap = (e, o) => {
     if (actif === o.nom) {
       e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // déjà en haut : on recharge (même geste que tirer vers le bas) ; sinon on remonte
+      if (window.scrollY <= 40) { window.dispatchEvent(new CustomEvent("lsno:rafraichir")); routeur.refresh(); }
+      else window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     const adresse = derniereAdresse(o.href);

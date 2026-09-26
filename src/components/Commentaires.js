@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Send, CornerDownRight, MoreHorizontal, Pencil } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { commentairesDe, envoyerCommentaire, modifierCommentaire, supprimerCommentaire, depuis, signaler, moderer } from "@/lib/fil";
 import * as memoire from "@/lib/memoire";
+import { useMentions, SuggestionsMention, TexteMentions } from "@/lib/mentions";
 import useClicDehors from "@/lib/useClicDehors";
 
 // Les commentaires d'une cible (publication ou offre) et la saisie collée en
@@ -24,6 +25,8 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
   const [menu, setMenu] = useState(null);         // id du commentaire dont le menu ⋯ est ouvert
   const [toast, setToast] = useState("");
   const [monte, setMonte] = useState(false);
+  const champ = useRef(null);
+  const mentions = useMentions(texte, setTexte, champ);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   // dedans = le menu OUVERT (celui qui porte la liste), pas celui d'un autre commentaire
   useClicDehors(menu !== null, (e) => !!e.target.closest?.(".com-menu")?.querySelector(".com-menu-liste"), () => setMenu(null));
@@ -38,15 +41,15 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
   useEffect(() => { setMonte(true); if (initial === null) recharger(); }, []);
 
   const focus = () => document.getElementById("com-saisie")?.focus();
-  const annuler = () => { setReponseA(null); setEdition(null); setTexte(""); };
+  const annuler = () => { setReponseA(null); setEdition(null); setTexte(""); mentions.vider(); };
 
   const envoyer = async (e) => {
     e.preventDefault();
     if (!texte.trim() || envoi) return;
     setEnvoi(true);
     try {
-      if (edition) await modifierCommentaire(edition.id, texte);
-      else await envoyerCommentaire(type, id, texte, reponseA?.id ?? null);
+      if (edition) await modifierCommentaire(edition.id, texte, mentions.idsPour(texte));
+      else await envoyerCommentaire(type, id, texte, reponseA?.id ?? null, mentions.idsPour(texte));
       annuler();
       await recharger();
     } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
@@ -56,7 +59,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
   const agir = async (c, action) => {
     setMenu(null);
     try {
-      if (action === "modifier") { setReponseA(null); setEdition(c); setTexte(c.texte); focus(); }
+      if (action === "modifier") { setReponseA(null); setEdition(c); setTexte(c.texte); mentions.reprendre(c.mentions); focus(); }
       if (action === "supprimer") {
         if (!confirm("Supprimer ce commentaire ?")) return;
         await supprimerCommentaire(c.id); await recharger(); signale("Commentaire supprimé");
@@ -78,10 +81,11 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
           <button type="button" onClick={annuler} aria-label="Annuler">×</button>
         </div>
       )}
+      <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-haut" />
       <div className="com-saisie-ligne">
         <Avatar profil={moi} className="com-avatar" />
-        <input id="com-saisie" className="saisie" placeholder={reponseA ? `Répondre à ${reponseA.auteur.prenom}…` : "Écrire un commentaire…"}
-          value={texte} onChange={(e) => setTexte(e.target.value)} maxLength={600} />
+        <input id="com-saisie" ref={champ} className="saisie" placeholder={reponseA ? `Répondre à ${reponseA.auteur.prenom}…` : "Écrire un commentaire…"}
+          value={texte} onChange={mentions.surChangement} maxLength={600} />
         <button type="submit" className="com-envoyer" disabled={!texte.trim() || envoi} aria-label={edition ? "Enregistrer" : "Envoyer"}>
           {edition ? <Pencil size={16} aria-hidden /> : <Send size={17} aria-hidden />}
         </button>
@@ -107,7 +111,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
                   <b>{c.auteur.prenom} {c.auteur.nom}</b>
                   {parent && <small className="com-vers"><CornerDownRight size={11} aria-hidden /> en réponse à {parent.auteur.prenom}</small>}
                   {c.masque && <small className="com-vers">masqué par la modération</small>}
-                  <p>{c.texte}</p>
+                  <p><TexteMentions texte={c.texte} mentions={c.mentions} /></p>
                 </div>
                 <div className="com-meta">
                   <span>{depuis(c.cree_le)}</span>

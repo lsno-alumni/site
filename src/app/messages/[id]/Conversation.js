@@ -8,6 +8,7 @@ import Avatar from "@/components/Avatar";
 import useClicDehors from "@/lib/useClicDehors";
 import { peutRevenir } from "@/components/SuiviNavigation";
 import * as memoire from "@/lib/memoire";
+import { useMentions, SuggestionsMention, TexteMentions, carnet } from "@/lib/mentions";
 import {
   lireConversation, chargerMessages, envoyerMessage, supprimerMessage, marquerLu, ecouterMessages,
   renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables,
@@ -36,6 +37,10 @@ export default function Conversation({ id, moi }) {
   const [menuMsg, setMenuMsg] = useState(null);
   const bas = useRef(null);
   const zone = useRef(null);
+  const champ = useRef(null);
+  const mentions = useMentions(texte, setTexte, champ);
+  const [annuaire, setAnnuaire] = useState({});   // id → {prenom, nom}, pour les mentions hors conversation
+  useEffect(() => { carnet().then((l) => setAnnuaire(Object.fromEntries(l.map((m) => [m.id, m])))).catch(() => {}); }, []);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu, (e) => !!e.target.closest?.(".msg-menu"), () => setMenu(false));
   useClicDehors(menuMsg !== null, (e) => !!e.target.closest?.(".msg-bulle-menu"), () => setMenuMsg(null));
@@ -86,9 +91,9 @@ export default function Conversation({ id, moi }) {
     if (!texte.trim() || envoi) return;
     setEnvoi(true);
     try {
-      const m = await envoyerMessage(id, texte);
+      const m = await envoyerMessage(id, texte, mentions.idsPour(texte));
       setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
-      setTexte(""); memoire.ecrire("messages.liste", null);
+      setTexte(""); mentions.vider(); memoire.ecrire("messages.liste", null);
       requestAnimationFrame(() => descendre(true));
     } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
     setEnvoi(false);
@@ -193,7 +198,7 @@ export default function Conversation({ id, moi }) {
                     onContextMenu={(e) => { if (mien || moi.role === "admin") { e.preventDefault(); setMenuMsg(m.id); } }}
                     onDoubleClick={() => { if (mien || moi.role === "admin") setMenuMsg(m.id); }}>
                     {!mien && conv?.type === "groupe" && !suite && <b className="msg-auteur">{a ? a.prenom : "Membre"}</b>}
-                    <p>{m.texte}</p>
+                    <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>
                     <time>{heure(m.cree_le)}</time>
                   </div>
                   {menuMsg === m.id && (
@@ -210,8 +215,9 @@ export default function Conversation({ id, moi }) {
       </div>
 
       <form className="msg-saisie" onSubmit={envoyer}>
-        <textarea className="saisie" placeholder="Écrire un message…" rows={1} value={texte} maxLength={MESSAGE_MAX}
-          onChange={(e) => setTexte(e.target.value)}
+        <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-haut" />
+        <textarea ref={champ} className="saisie" placeholder="Écrire un message…" rows={1} value={texte} maxLength={MESSAGE_MAX}
+          onChange={mentions.surChangement}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(e); } }} />
         <button type="submit" className="com-envoyer" disabled={!texte.trim() || envoi} aria-label="Envoyer"><Send size={17} aria-hidden /></button>
       </form>

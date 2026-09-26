@@ -6,6 +6,7 @@ import { X, Camera, Clapperboard, Trash2, Globe2, Users, Briefcase, ChevronDown 
 import Avatar from "@/components/Avatar";
 import * as memoire from "@/lib/memoire";
 import { publier as publierEnBase, VISIBILITES, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS } from "@/lib/fil";
+import { useMentions, SuggestionsMention } from "@/lib/mentions";
 
 const ICONES_VISI = { tous: Globe2, promo: Users, domaine: Briefcase };
 
@@ -29,6 +30,8 @@ export default function Composer({ moi, enFeuille = false }) {
   const [choixVisi, setChoixVisi] = useState(false);
   const fichierPhoto = useRef(null);
   const fichierVideo = useRef(null);
+  const champ = useRef(null);
+  const mentions = useMentions(texte, (v) => setTexte(v.slice(0, MAX)), champ);
 
   const choisirPhoto = (e) => {
     const f = e.target.files?.[0];
@@ -59,7 +62,7 @@ export default function Composer({ moi, enFeuille = false }) {
     if ((!texte.trim() && !media) || envoi) return;
     setEnvoi(true); setSouci("");
     try {
-      await publierEnBase({ texte, media, visibilite });
+      await publierEnBase({ texte, media, visibilite, mentions: mentions.idsPour(texte) });
       memoire.ecrire("fil.items", null);   // le Fil se rechargera avec la nouvelle publication en tête
       // en feuille, seul un retour arrière referme la feuille (une navigation
       // vers /fil laisserait le créneau parallèle sur son dernier état)
@@ -110,8 +113,9 @@ export default function Composer({ moi, enFeuille = false }) {
         </div>
       )}
 
-      <textarea className="cp-texte" placeholder="Une réussite, une question aux anciens, une photo de retrouvailles…"
-        value={texte} onChange={(e) => setTexte(e.target.value.slice(0, MAX))} rows={enFeuille ? 5 : 6} autoFocus />
+      <textarea ref={champ} className="cp-texte" placeholder="Une réussite, une question aux anciens, une photo de retrouvailles… (@ pour mentionner quelqu\u2019un)"
+        value={texte} onChange={mentions.surChangement} rows={enFeuille ? 5 : 6} autoFocus />
+      <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-composer" />
 
       {media && (
         <div className="cp-photo">

@@ -63,7 +63,7 @@ export async function lireConversation(id) {
 
 export async function chargerMessages(conversationId, { limite = 50, avant = null } = {}) {
   const supabase = creerClientNavigateur();
-  let req = supabase.from("messages").select("id, auteur, texte, cree_le")
+  let req = supabase.from("messages").select("id, auteur, texte, cree_le, mentions")
     .eq("conversation_id", conversationId).order("cree_le", { ascending: false }).limit(limite);
   if (avant) req = req.lt("cree_le", avant);
   const { data, error } = await req;
@@ -71,12 +71,12 @@ export async function chargerMessages(conversationId, { limite = 50, avant = nul
   return (data ?? []).reverse();   // du plus ancien au plus récent
 }
 
-export async function envoyerMessage(conversationId, texte) {
+export async function envoyerMessage(conversationId, texte, mentions = []) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase.from("messages")
-    .insert({ conversation_id: conversationId, auteur: user.id, texte: texte.trim() })
-    .select("id, auteur, texte, cree_le").single();
+    .insert({ conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions })
+    .select("id, auteur, texte, cree_le, mentions").single();
   if (error) throw error;
   return data;
 }

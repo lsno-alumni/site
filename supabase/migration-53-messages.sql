@@ -18,6 +18,8 @@
 --     - ma publication ou mon commentaire masqué par la modération → moi
 --   (le commentaire sur MA publication et la réponse à MON commentaire
 --    existaient déjà : migration 52)
+--   MENTIONS « @Prénom Nom » (section 6d) dans les publications, les
+--   commentaires et les messages : lien vers le profil + notification.
 --   Rejouable. Se termine par ses GRANT explicites (CONTRIBUTING § Pièges).
 -- ============================================================
 
@@ -297,7 +299,8 @@ begin
 
   select array_agg(membre) into v_cibles
     from conversation_membres
-   where conversation_id = new.conversation_id and membre <> new.auteur;
+   where conversation_id = new.conversation_id and membre <> new.auteur
+     and not (membre = any(coalesce(new.mentions, '{}')));   -- les mentionnés reçoivent la mention
   if v_cibles is not null then
     perform envoyer_push_liste(v_cibles, v_titre,
       case when v_conv.type = 'groupe' then v_qui || ' : ' else '' end || left(new.texte, 100),
@@ -398,7 +401,8 @@ begin
   select prenom into v_nom_proprio from profiles where id = v_proprio;
   select array_agg(distinct auteur) into cibles from commentaires
    where cible_type = new.cible_type and cible_id = new.cible_id and not masque
-     and auteur <> new.auteur and auteur is distinct from v_proprio and auteur is distinct from v_repond;
+     and auteur <> new.auteur and auteur is distinct from v_proprio and auteur is distinct from v_repond
+     and not (auteur = any(coalesce(new.mentions, '{}')));
   if cibles is not null then
     perform envoyer_push_liste(cibles,
       v_qui || ' a aussi commenté ' || case when new.cible_type = 'publication' then 'la publication' else 'l''offre' end
@@ -444,6 +448,109 @@ begin new.texte := btrim(new.texte); return new; end $$;
 drop trigger if exists messages_avant_insert on messages;
 create trigger messages_avant_insert before insert on messages
   for each row execute function messages_avant_insert();
+
+
+-- ------------------------------------------------------------
+-- 6d. MENTIONS « @Prénom Nom » — dans une publication, un commentaire, un
+--     message. Le texte garde « @Prénom Nom » tel quel ; la colonne
+--     `mentions` (uuid[]) dit QUI, ce qui rend le lien vers le profil et la
+--     notification fiables même en cas d'homonymes. La personne mentionnée
+--     reçoit « Ana t'a mentionné dans … » (famille « mes_demandes »), sauf
+--     si elle est déjà prévenue autrement pour ce même contenu.
+-- ------------------------------------------------------------
+alter table publications add column if not exists mentions uuid[] not null default '{}';
+alter table commentaires add column if not exists mentions uuid[] not null default '{}';
+alter table messages     add column if not exists mentions uuid[] not null default '{}';
+
+-- les lectures du fil et des commentaires portent les personnes mentionnées
+-- (id, prénom, nom) — mêmes fonctions que la migration 52, enrichies
+create or replace function fil_publications(p_limite integer default 20, p_avant timestamptz default null)
+returns json language sql stable security invoker set search_path = public as $$
+  select coalesce(json_agg(json_build_object(
+    'id', p.id,
+    'texte', p.texte,
+    'media_chemin', p.media_chemin,
+    'media_type', p.media_type,
+    'media_expire_le', p.media_expire_le,
+    'visibilite', p.visibilite,
+    'masquee', p.masquee,
+    'cree_le', p.cree_le,
+    'auteur', json_build_object('id', a.id, 'prenom', a.prenom, 'nom', a.nom, 'photo_url', a.photo_url,
+                                'promo', (select numero from promotions where id = a.promotion_id)),
+    'mentions', (select coalesce(json_agg(json_build_object('id', m.id, 'prenom', m.prenom, 'nom', m.nom)), '[]'::json)
+                   from profiles m where m.id = any(p.mentions)),
+    'bravos', (select count(*) from reactions r where r.cible_type = 'publication' and r.cible_id = p.id::text),
+    'commentaires', (select count(*) from commentaires c where c.cible_type = 'publication' and c.cible_id = p.id::text and not c.masque),
+    'jai_bravo', exists (select 1 from reactions r where r.cible_type = 'publication' and r.cible_id = p.id::text and r.membre = auth.uid())
+  ) order by p.cree_le desc), '[]'::json)
+  from (
+    select * from publications
+    where (p_avant is null or cree_le < p_avant)
+    order by cree_le desc
+    limit least(coalesce(p_limite, 20), 50)
+  ) p
+  join profiles a on a.id = p.auteur
+$$;
+
+create or replace function commentaires_de(p_type text, p_id text) returns json
+language sql stable security invoker set search_path = public as $$
+  select coalesce(json_agg(json_build_object(
+    'id', c.id, 'texte', c.texte, 'reponse_a', c.reponse_a, 'masque', c.masque, 'cree_le', c.cree_le,
+    'auteur', json_build_object('id', a.id, 'prenom', a.prenom, 'nom', a.nom, 'photo_url', a.photo_url,
+                                'promo', (select numero from promotions where id = a.promotion_id)),
+    'mentions', (select coalesce(json_agg(json_build_object('id', m.id, 'prenom', m.prenom, 'nom', m.nom)), '[]'::json)
+                   from profiles m where m.id = any(c.mentions))
+  ) order by c.cree_le), '[]'::json)
+  from commentaires c join profiles a on a.id = c.auteur
+  where c.cible_type = p_type and c.cible_id = p_id
+$$;
+
+-- la notification (une fonction pour les trois tables)
+create or replace function push_mentions() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_qui text; v_promo int; v_domaine text; v_url text; v_ou text; cibles uuid[];
+begin
+  if new.mentions is null or array_length(new.mentions, 1) is null then return new; end if;
+  select prenom || ' ' || nom, promotion_id, domaine into v_qui, v_promo, v_domaine from profiles where id = new.auteur;
+  if tg_table_name = 'publications' then
+    v_url := '/publication/' || new.id; v_ou := 'dans une publication';
+    -- seulement ceux qui ont le droit de la voir (cercle de visibilité)
+    select array_agg(p.id) into cibles from profiles p
+     where p.id = any(new.mentions) and p.id <> new.auteur and p.statut_compte = 'valide'
+       and (new.visibilite = 'tous'
+            or (new.visibilite = 'promo'   and p.promotion_id = v_promo)
+            or (new.visibilite = 'domaine' and p.domaine = v_domaine));
+  elsif tg_table_name = 'commentaires' then
+    v_url := case when new.cible_type = 'publication' then '/publication/' else '/offres/' end || new.cible_id;
+    v_ou := 'dans un commentaire';
+    -- l'auteur de la cible et la personne à qui l'on répond sont déjà prévenus
+    select array_agg(p.id) into cibles from profiles p
+     where p.id = any(new.mentions) and p.id <> new.auteur and p.statut_compte = 'valide'
+       and p.id is distinct from (case when new.cible_type = 'publication'
+                                       then (select auteur from publications where id = new.cible_id::bigint)
+                                       else (select posteur from offres where id = new.cible_id::bigint) end)
+       and p.id is distinct from (select auteur from commentaires where id = new.reponse_a);
+  else
+    v_url := '/messages/' || new.conversation_id; v_ou := 'dans une conversation';
+    -- seulement les membres de la conversation
+    select array_agg(m.membre) into cibles from conversation_membres m
+     where m.conversation_id = new.conversation_id and m.membre = any(new.mentions) and m.membre <> new.auteur;
+  end if;
+  if cibles is not null then
+    perform envoyer_push_liste(cibles, v_qui || ' t''a mentionné ' || v_ou, left(new.texte, 100),
+      v_url, 'mes_demandes', 'mention-' || tg_table_name || '-' || new.id);
+  end if;
+  return new;
+end $$;
+drop trigger if exists publications_push_mentions on publications;
+create trigger publications_push_mentions after insert on publications
+  for each row execute function push_mentions();
+drop trigger if exists commentaires_push_mentions on commentaires;
+create trigger commentaires_push_mentions after insert on commentaires
+  for each row execute function push_mentions();
+drop trigger if exists messages_push_mentions on messages;
+create trigger messages_push_mentions after insert on messages
+  for each row execute function push_mentions();
 
 -- ------------------------------------------------------------
 -- 7. Purge : les messages de plus de 30 jours disparaissent (pas les

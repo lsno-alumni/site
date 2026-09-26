@@ -5,8 +5,12 @@
 --   les conversations et les groupes restent. Un groupe se supprime à la
 --   main (son créateur ou un admin). Temps réel via Supabase Realtime sur
 --   la table messages (la RLS filtre ce que chacun reçoit). Notification
---   push aux autres membres, au plus une par conversation toutes les 10 min,
---   famille « messages » (nouvel interrupteur dans Mon profil).
+--   push aux autres membres À CHAQUE message (sur l'appareil, les messages
+--   d'une même conversation remplacent la notification précédente au lieu
+--   de s'empiler ; rien n'est affiché si la conversation est ouverte à
+--   l'écran) et quand on est ajouté à un groupe — famille « messages »
+--   (nouvel interrupteur dans Mon profil). Bonus Fil : un bravo sur ta
+--   publication te prévient (famille « mes_demandes »).
 --   Rejouable. Se termine par ses GRANT explicites (CONTRIBUTING § Pièges).
 -- ============================================================
 
@@ -35,7 +39,6 @@ create table if not exists conversation_membres (
   membre          uuid   not null references profiles(id) on delete cascade,
   rejoint_le      timestamptz not null default now(),
   lu_le           timestamptz not null default now(),   -- dernière lecture : sert au compteur de non lus
-  notifie_le      timestamptz,                          -- dernière push envoyée pour cette conversation
   primary key (conversation_id, membre)
 );
 create index if not exists conversation_membres_membre_idx on conversation_membres (membre);
@@ -215,9 +218,58 @@ revoke all on function marquer_lu(bigint) from public, anon;
 grant execute on function marquer_lu(bigint) to authenticated;
 
 -- ------------------------------------------------------------
--- 6. À chaque message : horodatage de la conversation + push mesurée
---    (aux autres membres, au plus une par conversation toutes les 10 min ;
---     l'auteur d'un message est réputé avoir lu jusqu'ici)
+-- 6a. Envoi push avec « groupe » : sur l'appareil, deux notifications du
+--     même groupe se REMPLACENT (une seule vignette par conversation, mise à
+--     jour au dernier message) au lieu de s'empiler. Variante à 6 paramètres
+--     de envoyer_push_liste (migration 33) ; la version à 5 lui délègue.
+-- ------------------------------------------------------------
+create or replace function envoyer_push_liste(
+  p_profils uuid[], p_titre text, p_corps text, p_url text, p_famille text, p_groupe text
+) returns void language plpgsql security definer set search_path = public as $$
+declare
+  cle    text;
+  cibles uuid[];
+  lot    uuid[];
+  n      int;
+begin
+  if p_profils is null or array_length(p_profils, 1) is null then return; end if;
+  select decrypted_secret into cle from vault.decrypted_secrets where name = 'push_secret';
+  if cle is null then return; end if;
+  if p_famille is null then
+    select array_agg(distinct profil) into cibles from push_abonnements where profil = any(p_profils);
+  else
+    execute format($f$
+      select array_agg(distinct a.profil)
+        from push_abonnements a join profiles p on p.id = a.profil
+       where a.profil = any($1) and coalesce(p.push_%I, true)
+    $f$, p_famille) into cibles using p_profils;
+  end if;
+  while cibles is not null and array_length(cibles, 1) > 0 loop
+    n := least(50, array_length(cibles, 1));
+    lot := cibles[1:n];
+    cibles := cibles[n + 1 : array_length(cibles, 1)];
+    perform net.http_post(
+      url     := 'https://lsno-alumni.vercel.app/api/push',
+      headers := jsonb_build_object('Content-Type', 'application/json', 'x-cle-push', cle),
+      body    := jsonb_build_object('profils', to_jsonb(lot), 'titre', p_titre, 'corps', p_corps,
+                                    'url', coalesce(p_url, '/'), 'famille', p_famille, 'groupe', p_groupe));
+  end loop;
+exception when others then
+  null;  -- une notification ne doit jamais faire échouer l'action d'origine
+end $$;
+revoke all on function envoyer_push_liste(uuid[], text, text, text, text, text) from public, anon, authenticated;
+
+create or replace function envoyer_push_liste(
+  p_profils uuid[], p_titre text, p_corps text, p_url text default '/', p_famille text default null
+) returns void language plpgsql security definer set search_path = public as $$
+begin
+  perform envoyer_push_liste(p_profils, p_titre, p_corps, p_url, p_famille, null::text);
+end $$;
+revoke all on function envoyer_push_liste(uuid[], text, text, text, text) from public, anon, authenticated;
+
+-- ------------------------------------------------------------
+-- 6b. À chaque message : horodatage de la conversation, l'auteur est réputé
+--     avoir lu jusqu'ici, et push aux AUTRES membres (groupe « conv-<id> »)
 -- ------------------------------------------------------------
 create or replace function apres_message() returns trigger
 language plpgsql security definer set search_path = public as $$
@@ -237,20 +289,54 @@ begin
 
   select array_agg(membre) into v_cibles
     from conversation_membres
-   where conversation_id = new.conversation_id and membre <> new.auteur
-     and (notifie_le is null or notifie_le < now() - interval '10 minutes');
+   where conversation_id = new.conversation_id and membre <> new.auteur;
   if v_cibles is not null then
-    update conversation_membres set notifie_le = now()
-     where conversation_id = new.conversation_id and membre = any(v_cibles);
     perform envoyer_push_liste(v_cibles, v_titre,
       case when v_conv.type = 'groupe' then v_qui || ' : ' else '' end || left(new.texte, 100),
-      '/messages/' || new.conversation_id, 'messages');
+      '/messages/' || new.conversation_id, 'messages', 'conv-' || new.conversation_id);
   end if;
   return new;
 end $$;
 drop trigger if exists messages_apres_insert on messages;
 create trigger messages_apres_insert after insert on messages
   for each row execute function apres_message();
+
+-- ajouté à un groupe par quelqu'un d'autre → « Ana t'a ajouté au groupe … »
+create or replace function apres_ajout_membre() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_conv conversations%rowtype; v_qui text;
+begin
+  select * into v_conv from conversations where id = new.conversation_id;
+  if v_conv.type = 'groupe' and auth.uid() is not null and new.membre <> auth.uid() then
+    select prenom || ' ' || nom into v_qui from profiles where id = auth.uid();
+    perform envoyer_push_liste(array[new.membre], coalesce(v_conv.nom, 'Nouveau groupe'),
+      coalesce(v_qui, 'Un membre') || ' t''a ajouté au groupe',
+      '/messages/' || new.conversation_id, 'messages', 'conv-' || new.conversation_id);
+  end if;
+  return new;
+end $$;
+drop trigger if exists membres_apres_insert on conversation_membres;
+create trigger membres_apres_insert after insert on conversation_membres
+  for each row execute function apres_ajout_membre();
+
+-- bonus Fil : un bravo sur MA publication me prévient (les bravos successifs
+-- sur la même publication remplacent la vignette précédente)
+create or replace function push_bravo() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_auteur uuid; v_qui text; v_texte text;
+begin
+  if new.cible_type <> 'publication' then return new; end if;
+  select auteur, texte into v_auteur, v_texte from publications where id = new.cible_id::bigint;
+  if v_auteur is null or v_auteur = new.membre then return new; end if;
+  select prenom || ' ' || nom into v_qui from profiles where id = new.membre;
+  perform envoyer_push_liste(array[v_auteur], v_qui || ' a applaudi ta publication',
+    coalesce(nullif(left(v_texte, 100), ''), 'Ta photo ou ta vidéo'),
+    '/publication/' || new.cible_id, 'mes_demandes', 'bravo-' || new.cible_id);
+  return new;
+end $$;
+drop trigger if exists reactions_push on reactions;
+create trigger reactions_push after insert on reactions
+  for each row execute function push_bravo();
 
 -- le texte est nettoyé à l'entrée
 create or replace function messages_avant_insert() returns trigger

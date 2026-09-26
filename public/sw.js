@@ -63,12 +63,23 @@ async function afficher(d) {
   const famille = d.famille;
   const resume = RESUMES[famille];
 
-  // familles non regroupées (mes demandes, annonces) : une notification = une alerte
+  // familles non regroupées (mes demandes, annonces, messages) : une
+  // notification = une alerte. Avec un « groupe » (conversation, publication),
+  // la nouvelle REMPLACE la précédente du même groupe et fait revibrer.
   if (!resume) {
+    // messages : rien à afficher si la conversation est déjà ouverte et
+    // visible à l'écran — la bulle arrive en temps réel, une notification
+    // par-dessus ferait doublon
+    if (famille === "messages" && d.url) {
+      const fenetres = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const ouverte = fenetres.some((f) => f.visibilityState === "visible" && new URL(f.url).pathname === d.url);
+      if (ouverte) return;
+    }
     return self.registration.showNotification(d.titre || "LSNO Amicale", {
       ...commun,
       body: d.corps || "",
       tag: d.groupe || undefined,
+      renotify: Boolean(d.groupe),
       data: { url: d.url || "/" },
     });
   }

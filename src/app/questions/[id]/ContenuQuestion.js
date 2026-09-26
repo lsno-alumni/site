@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, EyeOff, MoreHorizontal, Send, Award, Pencil, Trash2, Flag, EyeOff as Masquer, Eye, Share2 } from "lucide-react";
@@ -45,6 +46,12 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
   const [toast, setToast] = useState("");
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
+  // en feuille, la saisie est posée au bas de l'ÉCRAN (portail) : dans la
+  // feuille elle-même, « fixed » se rapporte à la feuille, qui peut dépasser
+  // sous l'écran à mi-hauteur — même remède que les commentaires du Fil
+  const [monte, setMonte] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMonte(true); }, []);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
   useClicDehors(menu !== null, (e) => !!e.target.closest?.(".qa-menu"), () => setMenu(null));
   // la tête (titre, badge « Résolue ») vit chez le parent : on la tient au courant
@@ -109,7 +116,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
         </span>
       </div>
 
-      <section className="qa-reponses">
+      <section className={`qa-reponses${enFeuille ? " qa-reponses-fixe" : ""}`}>
         {reponses.length === 0 && <p className="pu-vide">Personne n&apos;a encore répondu. {q.est_moi ? "Les anciens concernés sont prévenus." : "Tu es passé par là ? Réponds."}</p>}
         {reponses.map((r) => {
           const mienne = r.auteur.id === moi.id;
@@ -149,6 +156,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
         })}
       </section>
 
+      {(() => { const saisie = (
       <form className={`com-saisie${enFeuille ? " com-saisie-fixe" : ""}`} onSubmit={envoyer}>
         {edition && (
           <div className="com-saisie-vers"><Pencil size={12} aria-hidden /> Modification de ta réponse
@@ -163,7 +171,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(e); } }} />
           <button type="submit" className="com-envoyer" disabled={!texte.trim() || envoi} aria-label={edition ? "Enregistrer" : "Répondre"}>{edition ? <Pencil size={16} aria-hidden /> : <Send size={17} aria-hidden />}</button>
         </div>
-      </form>
+      </form>); return enFeuille && monte ? createPortal(saisie, document.body) : saisie; })()}
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
     </>
   );

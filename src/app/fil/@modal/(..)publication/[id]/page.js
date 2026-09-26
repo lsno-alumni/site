@@ -11,5 +11,5 @@ export default async function ModalPublication({ params }) {
   if (!r) return null;
   return <FeuillePublicationModal p={r.publication} commentaires={r.commentaires}
     moderateur={moi.role === "admin" || moi.role === "delegue"}
-    moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url }} />;
+    moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role }} />;
 }

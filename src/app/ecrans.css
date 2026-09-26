@@ -1843,3 +1843,11 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
   display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 100px; font-size: 10px;
   letter-spacing: .08em; text-transform: uppercase; background: rgba(var(--texte-rgb), .07); color: var(--texte-2); vertical-align: 1px;
 }
+
+/* ---- Commentaires en feuille : la saisie est posée au bas de l'ÉCRAN ---- */
+.com-saisie-fixe {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 160; margin: 0 auto; max-width: 480px;
+  box-shadow: 0 -8px 24px -12px rgba(0,0,0,.35);
+}
+.pu-commentaires-fixe { padding-bottom: 96px; }
+.com-edition .com-bulle { border-color: var(--bleu-clair); box-shadow: inset 0 0 0 1px var(--bleu-clair); }

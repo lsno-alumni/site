@@ -28,7 +28,7 @@ export function TetePublication({ p }) {
   );
 }
 
-export function SuitePublication({ p, commentaires, moi, moderateur }) {
+export function SuitePublication({ p, commentaires, moi, moderateur, enFeuille = false }) {
   const [nb, setNb] = useState(commentaires?.filter((c) => !c.masque).length ?? p.commentaires ?? 0);
   const partager = async () => {
     const url = `${window.location.origin}/publication/${p.id}`;
@@ -51,7 +51,7 @@ export function SuitePublication({ p, commentaires, moi, moderateur }) {
         </span>
         <button type="button" className="pub-action" aria-label="Partager" onClick={partager}><Share2 size={16} strokeWidth={1.9} aria-hidden /></button>
       </div>
-      <Commentaires type="publication" id={p.id} moi={moi} initial={commentaires} onNombre={setNb} moderateur={moderateur} />
+      <Commentaires type="publication" id={p.id} moi={moi} initial={commentaires} onNombre={setNb} moderateur={moderateur} fixe={enFeuille} />
     </>
   );
 }

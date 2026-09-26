@@ -16,7 +16,7 @@ import { peutRevenir } from "@/components/SuiviNavigation";
 import * as memoire from "@/lib/memoire";
 import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres } from "@/lib/mentions";
 import {
-  lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages,
+  lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages, ecouterConversation,
   ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
   renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
   televerserPiece, urlsPieces, tailleLisible, libellePiece,
@@ -309,6 +309,18 @@ export default function Conversation({ id, moi }) {
         });
       }),
     ];
+    stops.push(ecouterConversation(id, {
+      // renommage, photo, description, message épinglé : on relit la conversation
+      surMaj: async () => { const c = await lireConversation(id); if (!vivant || !c) return; setConv(c); setMessages((l) => { chargerEpingle(c, l); return l; }); },
+      // groupe supprimé pendant qu'on y est
+      surSuppression: () => { if (!vivant) return; memoire.ecrire("messages.liste", null); alert("Cette conversation a été supprimée."); routeur.replace("/messages"); },
+      // membre ajouté ou parti ; moi retiré → dehors
+      surMembres: async (type, ligne) => {
+        if (!vivant) return;
+        if (type === "DELETE" && ligne?.membre === moi.id) { memoire.ecrire("messages.liste", null); alert("Tu as été retiré·e de ce groupe."); routeur.replace("/messages"); return; }
+        const c = await lireConversation(id); if (c) setConv(c);
+      },
+    }));
     const f = canalFrappe(id, (p) => {
       if (!p || p.membre === moi.id) return;
       setFrappe({ prenom: p.prenom ?? "Quelqu'un" });
@@ -458,6 +470,7 @@ export default function Conversation({ id, moi }) {
           if (!confirm(`Bloquer ${autre.prenom} ? Plus de conversation possible entre vous.`)) return;
           await bloquer(autre.id); setBlocages((b) => [...b, autre.id]); signale(`${autre.prenom} bloqué·e`);
         }
+        const m = await chargerMessages(id); setMessages(m); signer(m);
       }
       if (action === "quitter") {
         if (!confirm("Quitter ce groupe ?")) return;
@@ -636,6 +649,7 @@ export default function Conversation({ id, moi }) {
                 enfants={<>
                   <div className={`msg-bulle${mien ? " mienne" : ""}`}>
                     {!mien && conv?.type === "groupe" && !suite && <b className="msg-auteur">{a ? a.prenom : "Membre"}</b>}
+                    {m.transfere && <small className="msg-transfere"><Forward size={11} aria-hidden /> Transféré</small>}
                     {m.reponse_a && <Citation c={parIdMsg[m.reponse_a]} nom={parIdMsg[m.reponse_a] ? nomDe(parIdMsg[m.reponse_a].auteur) : ""} />}
                     <Piece m={m} url={urls[m.fichier_chemin]} mienne={mien} />
                     {m.sondage_id && <Sondage sondage={sondages[m.sondage_id]} votes={votes[m.sondage_id] ?? []} moiId={moi.id} nomDe={nomDe}

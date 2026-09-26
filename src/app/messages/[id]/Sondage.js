@@ -23,7 +23,7 @@ export default function Sondage({ sondage, votes, moiId, nomDe, onMaj }) {
     setAttente(false);
   };
   return (
-    <div className="sondage" onPointerDown={(e) => e.stopPropagation()}>
+    <div className="sondage">
       <b className="sondage-question">{sondage.question}</b>
       <small className="sondage-aide">{sondage.multiple ? "Plusieurs réponses possibles" : "Une seule réponse"} · {total} vote{total > 1 ? "s" : ""}</small>
       <div className="sondage-choix">

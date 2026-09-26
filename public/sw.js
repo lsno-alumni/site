@@ -72,6 +72,17 @@ async function afficher(d) {
   // notification = une alerte. Avec un « groupe » (conversation, publication),
   // la nouvelle REMPLACE la précédente du même groupe et fait revibrer.
   if (!resume) {
+    // message supprimé : on referme ce qui est affiché pour cette conversation
+    if (d.fermer && d.groupe) {
+      const ouvertes = await self.registration.getNotifications({ tag: d.groupe });
+      ouvertes.forEach((n) => n.close());
+      return;
+    }
+    // message modifié : remplacée sans bruit, et seulement si elle est encore affichée
+    if (d.silencieux && d.groupe) {
+      const ouvertes = await self.registration.getNotifications({ tag: d.groupe });
+      if (!ouvertes.length) return;
+    }
     // messages : rien à afficher si la conversation est déjà ouverte et
     // visible à l'écran — la bulle arrive en temps réel, une notification
     // par-dessus ferait doublon
@@ -84,7 +95,8 @@ async function afficher(d) {
       ...commun,
       body: d.corps || "",
       tag: d.groupe || undefined,
-      renotify: Boolean(d.groupe),
+      renotify: Boolean(d.groupe) && !d.silencieux,
+      silent: Boolean(d.silencieux),
       data: { url: d.url || "/" },
     });
   }

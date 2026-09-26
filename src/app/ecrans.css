@@ -2158,3 +2158,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 
 .msg-piece-photos { display: flex; gap: 4px; flex-shrink: 0; }
 .msg-piece-photos img { width: 40px !important; height: 40px !important; border-radius: 8px !important; object-fit: cover; }
+
+.msg-brouillon b { color: var(--rouge); font-weight: 600; }
+.msg-brouillon { color: var(--texte-2); font-style: italic; }
+.msg-bulle-liste.vers-le-bas { bottom: auto; top: calc(100% + 6px); }

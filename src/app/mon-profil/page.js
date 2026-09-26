@@ -21,6 +21,7 @@ import { Mail, Handshake, ChevronDown, Eye } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion, manquesCompletion } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
+import Blocages from "@/components/Blocages";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -444,6 +445,7 @@ export default function MonProfil() {
         <h2 className="a-titre mp-chapitre" id="ch-compte">Mon compte</h2>
         <Notifications profil={profil} />
         <DoubleAuth profil={profil} />
+        <Blocages />
 
         <div style={{ display: "grid", gap: 18 }}>
           <div className="champ">

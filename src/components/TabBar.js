@@ -154,8 +154,11 @@ export default function TabBar({ actif }) {
   if (connecte === false) return null;
   return (
     <nav className={`tabbar${cachee ? " tabbar-cachee" : ""}`} aria-label="Navigation principale">
+      {/* scroll={false} : c'est RestaurerDefilement (SuiviNavigation.js) qui place la
+          page — à la position mémorisée de l'onglet, ou en haut — d'un coup, sans
+          le glissement vers le haut que Next ferait après coup */}
       {onglets.map((o) => (
-        <Link key={o.href} href={o.href} className={`tab${actif === o.nom ? " on" : ""}`}>
+        <Link key={o.href} href={o.href} scroll={false} className={`tab${actif === o.nom ? " on" : ""}`}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
         </Link>

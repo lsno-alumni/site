@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check } from "lucide-react";
+import { ArrowLeft, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check, Paperclip, FileText, Play } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import useClicDehors from "@/lib/useClicDehors";
 import { peutRevenir } from "@/components/SuiviNavigation";
@@ -12,7 +12,8 @@ import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres
 import {
   lireConversation, chargerMessages, envoyerMessage, supprimerMessage, marquerLu, ecouterMessages,
   renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables,
-  nomConversation, heure, jour, MESSAGE_MAX,
+  televerserPiece, urlsPieces, tailleLisible,
+  nomConversation, heure, jour, MESSAGE_MAX, PIECE_VIDEO_SECONDES, PIECE_VIDEO_MO, PIECE_PDF_MO,
 } from "@/lib/messages";
 
 // Le fil d'une conversation : bulles (les miennes à droite, en bleu ; les
@@ -39,6 +40,41 @@ export default function Conversation({ id, moi }) {
   const zone = useRef(null);
   const champ = useRef(null);
   const mentions = useMentions(texte, setTexte, champ);
+  const fichierRef = useRef(null);
+  const [piece, setPiece] = useState(null);      // { type, fichier, url (aperçu), duree }
+  const [urls, setUrls] = useState({});          // chemin → URL signée
+  const signer = async (liste) => {
+    const manquants = (liste ?? []).map((m) => m.fichier_chemin).filter((c) => c && !urls[c]);
+    if (!manquants.length) return;
+    const nouvelles = await urlsPieces(manquants);
+    setUrls((u) => ({ ...u, ...nouvelles }));
+  };
+  const choisirPiece = (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setSouci("");
+    if (f.type.startsWith("image/")) { setPiece({ type: "photo", fichier: f, url: URL.createObjectURL(f) }); return; }
+    if (f.type === "application/pdf") {
+      if (f.size > PIECE_PDF_MO * 1048576) { signale(`PDF trop lourd (${tailleLisible(f.size)}). ${PIECE_PDF_MO} Mo au maximum.`); return; }
+      setPiece({ type: "pdf", fichier: f }); return;
+    }
+    if (f.type.startsWith("video/")) {
+      if (f.size > PIECE_VIDEO_MO * 1048576) { signale(`Vidéo trop lourde (${tailleLisible(f.size)}). ${PIECE_VIDEO_MO} Mo au maximum.`); return; }
+      const url = URL.createObjectURL(f);
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.onloadedmetadata = () => {
+        if (v.duration > PIECE_VIDEO_SECONDES + 0.5) { signale(`Vidéo trop longue (${Math.round(v.duration)} s). ${PIECE_VIDEO_SECONDES} secondes au maximum.`); URL.revokeObjectURL(url); return; }
+        setPiece({ type: "video", fichier: f, url, duree: Math.round(v.duration) });
+      };
+      v.onerror = () => { signale("Cette vidéo ne peut pas être lue ici."); URL.revokeObjectURL(url); };
+      v.src = url;
+      return;
+    }
+    signale("Photo, vidéo ou PDF seulement.");
+  };
+  const retirerPiece = () => { if (piece?.url) URL.revokeObjectURL(piece.url); setPiece(null); };
   const [annuaire, setAnnuaire] = useState({});   // id → {prenom, nom}, pour les mentions hors conversation
   useEffect(() => { carnetMembres().then((l) => setAnnuaire(Object.fromEntries(l.map((m) => [m.id, m])))).catch(() => {}); }, []);
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
@@ -60,6 +96,7 @@ export default function Conversation({ id, moi }) {
         if (!vivant) return;
         if (!c) { setSouci("Cette conversation n'existe pas, ou tu n'en fais pas partie."); setMessages([]); return; }
         setConv(c); setMessages(m); setDebut(m.length < 50);
+        signer(m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
         requestAnimationFrame(() => descendre());
       } catch (e) { if (vivant) { setSouci(e.message ?? "Erreur"); setMessages([]); } }
@@ -67,6 +104,7 @@ export default function Conversation({ id, moi }) {
     const stop = ecouterMessages(id, {
       surInsertion: (m) => {
         setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
+        signer([m]);
         if (m.auteur !== moi.id) { marquerLu(id); memoire.ecrire("messages.liste", null); }
         requestAnimationFrame(() => descendre(true));
       },
@@ -81,6 +119,7 @@ export default function Conversation({ id, moi }) {
     const avant = messages[0].cree_le;
     const h = zone.current?.scrollHeight ?? 0;
     const anciens = await chargerMessages(id, { avant });
+    signer(anciens);
     setMessages((l) => [...anciens, ...l]);
     setDebut(anciens.length < 50);
     requestAnimationFrame(() => { if (zone.current) zone.current.scrollTop += zone.current.scrollHeight - h; });
@@ -88,12 +127,14 @@ export default function Conversation({ id, moi }) {
 
   const envoyer = async (e) => {
     e.preventDefault();
-    if (!texte.trim() || envoi) return;
+    if ((!texte.trim() && !piece) || envoi) return;
     setEnvoi(true);
     try {
-      const m = await envoyerMessage(id, texte, mentions.idsPour(texte));
+      const jointe = piece ? await televerserPiece(id, piece) : null;
+      const m = await envoyerMessage(id, texte, mentions.idsPour(texte), jointe);
       setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
-      setTexte(""); mentions.vider(); memoire.ecrire("messages.liste", null);
+      signer([m]);
+      setTexte(""); mentions.vider(); retirerPiece(); memoire.ecrire("messages.liste", null);
       requestAnimationFrame(() => descendre(true));
     } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
     setEnvoi(false);
@@ -198,7 +239,23 @@ export default function Conversation({ id, moi }) {
                     onContextMenu={(e) => { if (mien || moi.role === "admin") { e.preventDefault(); setMenuMsg(m.id); } }}
                     onDoubleClick={() => { if (mien || moi.role === "admin") setMenuMsg(m.id); }}>
                     {!mien && conv?.type === "groupe" && !suite && <b className="msg-auteur">{a ? a.prenom : "Membre"}</b>}
-                    <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>
+                    {m.fichier_chemin && (
+                      m.fichier_type === "photo" ? (
+                        urls[m.fichier_chemin]
+                          ? <a href={urls[m.fichier_chemin]} target="_blank" rel="noopener noreferrer" className="msg-piece-photo"><img src={urls[m.fichier_chemin]} alt="" loading="lazy" /></a>
+                          : <span className="msg-piece-attente" aria-hidden />
+                      ) : m.fichier_type === "video" ? (
+                        urls[m.fichier_chemin]
+                          ? <video className="msg-piece-video" src={urls[m.fichier_chemin]} controls playsInline preload="metadata" />
+                          : <span className="msg-piece-attente" aria-hidden><Play size={20} /></span>
+                      ) : (
+                        <a href={urls[m.fichier_chemin] ?? "#"} target="_blank" rel="noopener noreferrer" className="msg-piece-pdf">
+                          <FileText size={22} strokeWidth={1.7} aria-hidden />
+                          <span><b>{m.fichier_nom ?? "document.pdf"}</b><small>PDF · {tailleLisible(m.fichier_taille)}</small></span>
+                        </a>
+                      )
+                    )}
+                    {m.texte?.trim() && <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>}
                     <time>{heure(m.cree_le)}</time>
                   </div>
                   {menuMsg === m.id && (
@@ -216,10 +273,27 @@ export default function Conversation({ id, moi }) {
 
       <form className="msg-saisie" onSubmit={envoyer}>
         <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-haut" />
-        <textarea ref={champ} className="saisie" placeholder="Écrire un message…" rows={1} value={texte} maxLength={MESSAGE_MAX}
-          onChange={mentions.surChangement}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(e); } }} />
-        <button type="submit" className="com-envoyer" disabled={!texte.trim() || envoi} aria-label="Envoyer"><Send size={17} aria-hidden /></button>
+        {piece && (
+          <div className="msg-piece-apercu">
+            {piece.type === "photo" && <img src={piece.url} alt="" />}
+            {piece.type === "video" && <video src={piece.url} muted playsInline preload="metadata" />}
+            {piece.type === "pdf" && <span className="msg-piece-pdf statique"><FileText size={20} strokeWidth={1.7} aria-hidden /><span><b>{piece.fichier.name}</b><small>PDF · {tailleLisible(piece.fichier.size)}</small></span></span>}
+            <span className="msg-piece-note">{piece.type === "video" ? `${piece.duree} s` : piece.type === "photo" ? "réduite avant l'envoi" : ""}</span>
+            <button type="button" className="cp-photo-retirer" onClick={retirerPiece} aria-label="Retirer la pièce jointe"><X size={14} aria-hidden /></button>
+          </div>
+        )}
+        <div className="msg-saisie-ligne">
+          <button type="button" className="msg-joindre" onClick={() => fichierRef.current?.click()} aria-label="Joindre une photo, une vidéo ou un PDF" disabled={envoi}>
+            <Paperclip size={19} strokeWidth={1.9} aria-hidden />
+          </button>
+          <input ref={fichierRef} type="file" accept="image/*,video/*,application/pdf" hidden onChange={choisirPiece} />
+          <textarea ref={champ} className="saisie" placeholder={piece ? "Un mot avec la pièce jointe ? (facultatif)" : "Écrire un message…"} rows={1} value={texte} maxLength={MESSAGE_MAX}
+            onChange={mentions.surChangement}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(e); } }} />
+          <button type="submit" className="com-envoyer" disabled={(!texte.trim() && !piece) || envoi} aria-label="Envoyer">
+            {envoi ? <span className="msg-envoi-attente" aria-hidden /> : <Send size={17} aria-hidden />}
+          </button>
+        </div>
       </form>
 
       {panneau && (

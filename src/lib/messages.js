@@ -2,9 +2,15 @@
 // la RLS et les RPC de la migration 53 font foi). Temps réel par Supabase
 // Realtime sur la table messages.
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { compresserImage } from "@/lib/fil";
 
 export const MESSAGE_MAX = 2000;
 export const JOURS_CONSERVATION = 30;
+export const BUCKET_PIECES = "pieces";      // privé : lecture par URL signée
+export const PIECE_VIDEO_SECONDES = 30;
+export const PIECE_VIDEO_MO = 20;
+export const PIECE_PDF_MO = 10;
+const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, fichier_chemin, fichier_type, fichier_nom, fichier_taille";
 
 // libellé d'une conversation vu par moi : le nom du groupe, ou l'autre personne
 export function nomConversation(c) {
@@ -63,7 +69,7 @@ export async function lireConversation(id) {
 
 export async function chargerMessages(conversationId, { limite = 50, avant = null } = {}) {
   const supabase = creerClientNavigateur();
-  let req = supabase.from("messages").select("id, auteur, texte, cree_le, mentions")
+  let req = supabase.from("messages").select(CHAMPS_MESSAGE)
     .eq("conversation_id", conversationId).order("cree_le", { ascending: false }).limit(limite);
   if (avant) req = req.lt("cree_le", avant);
   const { data, error } = await req;
@@ -71,20 +77,54 @@ export async function chargerMessages(conversationId, { limite = 50, avant = nul
   return (data ?? []).reverse();   // du plus ancien au plus récent
 }
 
-export async function envoyerMessage(conversationId, texte, mentions = []) {
+export async function envoyerMessage(conversationId, texte, mentions = [], piece = null) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data, error } = await supabase.from("messages")
-    .insert({ conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions })
-    .select("id, auteur, texte, cree_le, mentions").single();
-  if (error) throw error;
+  const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions };
+  if (piece) Object.assign(ligne, { fichier_chemin: piece.chemin, fichier_type: piece.type, fichier_nom: piece.nom, fichier_taille: piece.taille });
+  const { data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_MESSAGE).single();
+  if (error) {
+    if (piece) await supabase.storage.from(BUCKET_PIECES).remove([piece.chemin]);
+    throw error;
+  }
   return data;
+}
+
+// la pièce part d'abord dans le bucket privé : « <conversation>/<moi>/<horodatage>.<ext> »
+export async function televerserPiece(conversationId, { type, fichier }) {
+  const supabase = creerClientNavigateur();
+  const { data: { user } } = await supabase.auth.getUser();
+  const corps = type === "photo" ? await compresserImage(fichier) : fichier;
+  const ext = type === "photo" ? "jpg" : type === "pdf" ? "pdf" : (fichier.name.split(".").pop() || "mp4").toLowerCase().slice(0, 5);
+  const chemin = `${conversationId}/${user.id}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET_PIECES).upload(chemin, corps, {
+    contentType: type === "photo" ? "image/jpeg" : type === "pdf" ? "application/pdf" : fichier.type,
+  });
+  if (error) throw error;
+  return { chemin, type, nom: type === "photo" ? "photo.jpg" : fichier.name.slice(0, 120), taille: corps.size ?? fichier.size };
+}
+
+// URL signées (1 h) pour afficher les pièces d'une conversation ; { chemin: url }
+export async function urlsPieces(chemins) {
+  const liste = [...new Set(chemins.filter(Boolean))];
+  if (!liste.length) return {};
+  const supabase = creerClientNavigateur();
+  const { data } = await supabase.storage.from(BUCKET_PIECES).createSignedUrls(liste, 3600);
+  const out = {};
+  for (const d of data ?? []) if (d.signedUrl && !d.error) out[d.path] = d.signedUrl;
+  return out;
 }
 
 export async function supprimerMessage(id) {
   const supabase = creerClientNavigateur();
+  // le fichier est retiré par la base (déclencheur après suppression)
   const { error } = await supabase.from("messages").delete().eq("id", id);
   if (error) throw error;
+}
+
+export function tailleLisible(o) {
+  if (!o) return "";
+  return o < 1024 * 1024 ? `${Math.max(1, Math.round(o / 1024))} Ko` : `${(o / 1048576).toFixed(1)} Mo`;
 }
 
 export async function marquerLu(conversationId) {

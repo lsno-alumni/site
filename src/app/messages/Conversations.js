@@ -69,7 +69,8 @@ export default function Conversations({ moi }) {
         )}
         {liste?.map((c) => {
           const d = c.dernier;
-          const apercu = d ? `${d.auteur === moi.id ? "Toi" : d.prenom} : ${d.texte}` : "Nouvelle conversation";
+          const contenu = d ? (d.texte?.trim() ? d.texte : d.fichier_type === "photo" ? "Photo" : d.fichier_type === "video" ? "Vidéo" : `Fichier : ${d.fichier_nom ?? "document"}`) : "";
+          const apercu = d ? `${d.auteur === moi.id ? "Toi" : d.prenom} : ${contenu}` : "Nouvelle conversation";
           return (
             <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}`}>
               <Vignette c={c} />

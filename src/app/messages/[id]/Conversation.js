@@ -214,15 +214,17 @@ export default function Conversation({ id, moi }) {
   }, []);
 
   // brouillon : gardé par conversation, restitué au retour, effacé à l'envoi
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    let initial = "";
     try {
       const b = localStorage.getItem(cleBrouillon(id));
       const citer = new URLSearchParams(window.location.search).get("citer");
-      if (citer) { setTexte(`« ${citer.slice(0, 200)} »\n`); window.history.replaceState(null, "", window.location.pathname); }
-      else if (b) setTexte(b);
+      if (citer) { initial = `« ${citer.slice(0, 200)} »
+`; window.history.replaceState(null, "", window.location.pathname); }
+      else if (b) initial = b;
     } catch { /* stockage indisponible */ }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (initial) setTexte(initial);
   }, [id]);
   useEffect(() => {
     if (edition) return;

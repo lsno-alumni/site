@@ -2172,3 +2172,5 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-actions-conv button { display: flex; align-items: center; gap: 12px; padding: 12px 12px; border-radius: 12px; background: none; border: 0; font: inherit; font-size: 14.5px; color: var(--texte); text-align: left; cursor: pointer; }
 .msg-actions-conv button:hover { background: rgba(var(--texte-rgb), .06); }
 .msg-actions-conv button.danger { color: var(--rouge); }
+
+.msg-transfere { display: flex; align-items: center; gap: 4px; font-size: 11px; font-style: italic; opacity: .7; margin-bottom: 3px; }

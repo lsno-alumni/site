@@ -17,7 +17,7 @@ export const EMOJIS_PLUS = ["🔥", "👏", "🎉", "💯", "😍", "🤣", "�
 export const MODIF_MINUTES = 5;
 // durée de vie des pièces (la base fait foi : messages_avant_insert)
 export const JOURS_PIECE = { photo: 30, pdf: 14, video: 7, audio: 7 };
-const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree, sondage_id";
+const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree, sondage_id, transfere";
 
 // libellé d'une conversation vu par moi : le nom du groupe, ou l'autre personne
 export function nomConversation(c) {
@@ -84,10 +84,10 @@ export async function chargerMessages(conversationId, { limite = 50, avant = nul
   return (data ?? []).reverse();   // du plus ancien au plus récent
 }
 
-export async function envoyerMessage(conversationId, texte, mentions = [], piece = null, reponseA = null, sondageId = null) {
+export async function envoyerMessage(conversationId, texte, mentions = [], piece = null, reponseA = null, sondageId = null, extra = {}) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
-  const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA, sondage_id: sondageId };
+  const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA, sondage_id: sondageId, ...extra };
   if (piece) Object.assign(ligne, { fichier_chemin: piece.chemin, fichier_type: piece.type, fichier_nom: piece.nom, fichier_taille: piece.taille });
   const { data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_MESSAGE).single();
   if (error) {
@@ -354,7 +354,30 @@ export async function transfererMessage(m, versConversationId) {
       piece = { chemin, type: m.fichier_type, nom: m.fichier_nom, taille: m.fichier_taille };
     }
   }
-  return envoyerMessage(versConversationId, m.texte ?? "", [], piece, null, m.sondage_id ?? null);
+  return envoyerMessage(versConversationId, m.texte ?? "", [], piece, null, m.sondage_id ?? null, { transfere: true });
+}
+
+// ---- la conversation elle-même (renommage, photo, description, message
+//      épinglé, suppression du groupe) et ses membres, en temps réel ----
+export function ecouterConversation(conversationId, { surMaj, surSuppression, surMembres }) {
+  const supabase = creerClientNavigateur();
+  const canal = supabase.channel(`conv-${conversationId}`)
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, (p) => surMaj?.(p.new))
+    .on("postgres_changes", { event: "DELETE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, () => surSuppression?.())
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres", filter: `conversation_id=eq.${conversationId}` },
+      (p) => { if (p.eventType !== "UPDATE") surMembres?.(p.eventType, p.new ?? p.old); })
+    .subscribe();
+  return () => { supabase.removeChannel(canal); };
+}
+
+// pour la LISTE : toute conversation qui change (nom, photo, ajout ou départ d'un membre, groupe supprimé)
+export function ecouterConversations(surChangement) {
+  const supabase = creerClientNavigateur();
+  const canal = supabase.channel("convs-" + Math.random().toString(36).slice(2, 8))
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, (p) => surChangement?.(p))
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres" }, (p) => surChangement?.(p))
+    .subscribe();
+  return () => { supabase.removeChannel(canal); };
 }
 
 export function tailleLisible(o) {

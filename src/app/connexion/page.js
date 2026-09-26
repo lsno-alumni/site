@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ChampMotDePasse from "@/components/ChampMotDePasse";
 import Captcha, { captchaActif } from "@/components/Captcha";
+import PreuveReseau from "@/components/PreuveReseau";
 
 // Purge les cookies de session résiduels/corrompus (vieilles sessions,
 // changement de mot de passe…) — sinon ils empêchent la nouvelle session
@@ -178,6 +179,7 @@ export default function Connexion() {
         </p>
       </form>
       )}
+      <PreuveReseau />
     </main>
   );
 }

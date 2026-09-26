@@ -13,7 +13,8 @@ import { SqueletteOffre } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { joursRestants, nomType } from "@/lib/offres";
 import { nomDomaine, nomPays, DOMAINES } from "@/lib/donnees";
-import { chargerFil, depuis, urlMedia, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
+import { chargerFil, depuis, urlMedia, photosDe, signaler, moderer, supprimerPublication, VISIBILITES } from "@/lib/fil";
+import Collage from "@/components/Collage";
 import useClicDehors from "@/lib/useClicDehors";
 import { TexteMentions } from "@/lib/mentions";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
@@ -81,12 +82,12 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
       </header>
       <Link href={`/publication/${p.id}`} className="pub-ouvrir">
         {p.texte && <p className="pub-texte"><TexteMentions texte={p.texte} mentions={p.mentions} lien={false} /></p>}
-        {p.media_type === "photo" && p.media_chemin && <img className="pub-photo" src={urlMedia(p.media_chemin)} alt="" loading="lazy" />}
         {p.media_type === "video" && p.media_chemin && (
           <span className="pub-video"><video src={urlMedia(p.media_chemin)} preload="metadata" playsInline muted /><span className="pub-video-lire"><Play size={22} aria-hidden /></span></span>
         )}
         {p.media_type === "video_expiree" && <p className="pub-expiree">Vidéo expirée (les vidéos restent 14 jours).</p>}
       </Link>
+      <Collage urls={photosDe(p)} />
       <footer className="pub-pied">
         <Bravo type="publication" id={p.id} nombre={p.bravos} actif={p.jai_bravo} />
         <Link href={`/publication/${p.id}`} className="pub-action">

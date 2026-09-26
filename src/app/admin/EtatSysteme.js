@@ -39,6 +39,7 @@ const STATUTS = { valide: "validé", en_attente: "en attente de validation", sus
 
 const CLE_EMAILS = "emails_inscription_admins";  // les EMAILS aux admins
 const CLE_PUSH   = "push_inscription_admins";    // les NOTIFICATIONS aux admins (migration 45)
+const CLE_ESSAI = "push_mode_essai";               // mode essai : notifications limitées aux admins + comptes de test (migration 63)
 
 // fichiers et octets par bucket (photos, ressources, medias, pieces) : le
 // palier gratuit s'arrête à 1 Go, on s'inquiète à partir de 700 Mo
@@ -73,6 +74,7 @@ export default function EtatSysteme() {
   const [etat, setEtat] = useState(null);
   const [emailsAdmins, setEmailsAdmins] = useState(null); // null = réglage absent
   const [pushAdmins, setPushAdmins] = useState(null);     // idem (migration 45)
+  const [modeEssai, setModeEssai] = useState(null);       // idem (migration 63)
   const [bascule, setBascule] = useState("");             // clé en cours de bascule
   const [testPush, setTestPush] = useState("");
   // liste de comptes dépliée : null = aucune ; sinon { quoi, donnees } avec
@@ -81,11 +83,12 @@ export default function EtatSysteme() {
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
-    supabase.from("reglages").select("cle, actif").in("cle", [CLE_EMAILS, CLE_PUSH])
+    supabase.from("reglages").select("cle, actif").in("cle", [CLE_EMAILS, CLE_PUSH, CLE_ESSAI])
       .then(({ data }) => {
         const lu = (cle) => (data ?? []).find((r) => r.cle === cle);
         setEmailsAdmins(lu(CLE_EMAILS) ? lu(CLE_EMAILS).actif : null);
         setPushAdmins(lu(CLE_PUSH) ? lu(CLE_PUSH).actif : null);
+        setModeEssai(lu(CLE_ESSAI) ? lu(CLE_ESSAI).actif : null);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -248,6 +251,25 @@ export default function EtatSysteme() {
               style={{ padding: "9px 15px", fontSize: 12.5 }}
               onClick={() => basculer(CLE_PUSH, pushAdmins, setPushAdmins)} disabled={Boolean(bascule)}>
               {bascule === CLE_PUSH ? "…" : pushAdmins ? "Mettre en pause" : "Réactiver"}
+            </button>
+          </div>
+        )}
+
+        {modeEssai !== null && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                        borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>
+            <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
+              <b>Mode essai des notifications</b>
+              <span style={{ display: "block", color: modeEssai ? "var(--rouge)" : "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
+                {modeEssai
+                  ? "Actif : seuls les administrateurs et les comptes de test reçoivent des notifications. Les autres membres ne sont pas dérangés — pense à l’éteindre après les essais."
+                  : "Éteint : tout le monde reçoit ses notifications. À activer le temps d’un essai sur la vraie base."}
+              </span>
+            </span>
+            <button className={`btn ${modeEssai ? "btn-or" : "btn-nu"}`}
+              style={{ padding: "9px 15px", fontSize: 12.5 }}
+              onClick={() => basculer(CLE_ESSAI, modeEssai, setModeEssai)} disabled={Boolean(bascule)}>
+              {bascule === CLE_ESSAI ? "…" : modeEssai ? "Éteindre" : "Activer"}
             </button>
           </div>
         )}

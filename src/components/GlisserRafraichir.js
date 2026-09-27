@@ -175,7 +175,7 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
         </span>
       </div>
       {children}
-      <div className={`toast${confirme ? " la" : ""}`} role="status">
+      <div className={`toast toast-actualise${confirme ? " la" : ""}`} role="status">
         <Check size={14} aria-hidden style={{ verticalAlign: -2, marginRight: 5 }} /> Actualisé
       </div>
     </div>

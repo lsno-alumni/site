@@ -237,8 +237,10 @@ select.saisie { appearance: none; cursor: pointer; }
   /* centré par des marges égales, PAS par left:50% : avec left:50% la place
      disponible n'est que la moitié de l'écran, et un message long devenait une
      colonne étroite de dix lignes. */
-  position: fixed; left: 16px; right: 16px; bottom: 96px;
-  margin: 0 auto; width: fit-content; transform: translateY(20px);
+  /* en HAUT de l'écran (sous la barre d'état), pas en bas : en bas, le clavier, la
+     barre de commentaire fixe ou le bouton flottant le cachaient souvent */
+  position: fixed; left: 16px; right: 16px; top: calc(12px + env(safe-area-inset-top));
+  margin: 0 auto; width: fit-content; transform: translateY(-16px);
   background: var(--texte); color: var(--fond);
   font-size: 13px; font-weight: 600; padding: 12px 18px;
   /* 22 px et non 100 : le navigateur plafonne le rayon à la moitié de la hauteur,
@@ -246,7 +248,7 @@ select.saisie { appearance: none; cursor: pointer; }
      d'un ovale. */
   border-radius: 22px;
   box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .7);
-  opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; z-index: 80;
+  opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s; z-index: 1500;   /* au-dessus des feuilles et du lecteur de moments */
   /* Les messages d'erreur techniques (contraintes SQL, adresses…) sont longs :
      avec « nowrap » ils sortaient de l'écran des deux côtés. On laisse revenir à
      la ligne, on borne la largeur, et on coupe même un mot sans espace au besoin.
@@ -322,3 +324,5 @@ select.saisie { appearance: none; cursor: pointer; }
 .choix-theme button.on { background: var(--bleu-clair); color: var(--sur-accent); font-weight: 700; }
 .choix-theme.compact { width: 100%; }
 .choix-theme.compact button { flex: 1; justify-content: center; }
+/* la confirmation « Actualisé » du tirage se range sous un éventuel autre message : les deux ne se superposent plus */
+.toast.toast-actualise { top: calc(78px + env(safe-area-inset-top)); }

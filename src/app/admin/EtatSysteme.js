@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import ComptesEssai from "./ComptesEssai";
 
@@ -283,7 +284,7 @@ export default function EtatSysteme() {
         <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
           onClick={async () => {
             const { error } = await supabase.rpc("admin_test_push");
-            setTestPush(error ? "Échec : " + error.message
+            setTestPush(error ? "Échec : " + texteErreur(error)
               : "Envoyée — si rien n'arrive, active les notifications dans Mon profil.");
           }}>
           M&apos;envoyer une notification de test

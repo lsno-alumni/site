@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import * as memoire from "@/lib/memoire";
 import TabBar from "@/components/TabBar";
@@ -90,7 +91,7 @@ export default function Validation() {
       .update({ statut_compte: valide ? "valide" : "suspendu" })
       .eq("id", d.id);
     if (error) {
-      setSnack({ erreur: "Action refusée : " + error.message });
+      setSnack({ erreur: "Action refusée : " + texteErreur(error) });
       clearTimeout(minuteur.current);
       minuteur.current = setTimeout(() => setSnack(null), 4200);
       return;
@@ -121,7 +122,7 @@ export default function Validation() {
   const changerRole = async (m, role) => {
     const { error } = await supabase.from("profiles").update({ role }).eq("id", m.id);
     if (error) {
-      setSnack({ erreur: "Refusé : " + error.message });
+      setSnack({ erreur: "Refusé : " + texteErreur(error) });
     } else {
       setMembres((l) => l.map((x) => (x.id === m.id ? { ...x, role } : x)));
       routeur.refresh();

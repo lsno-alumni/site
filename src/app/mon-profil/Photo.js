@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import dynamic from "next/dynamic";
 import { Camera } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -62,7 +63,7 @@ export default function Photo({ profil, onPhoto, signale }) {
       onPhoto(url);
       signale("Photo mise à jour ✓");
     } catch (err) {
-      signale("Échec de l'envoi : " + err.message);
+      signale("Échec de l'envoi : " + texteErreur(err));
     } finally {
       setEnCours(false);
     }
@@ -83,7 +84,7 @@ export default function Photo({ profil, onPhoto, signale }) {
       onPhoto(null);
       signale("Photo supprimée ✓");
     } catch (err) {
-      signale("Échec de la suppression : " + err.message);
+      signale("Échec de la suppression : " + texteErreur(err));
     } finally {
       setEnCours(false);
     }

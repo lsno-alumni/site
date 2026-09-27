@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -20,7 +21,7 @@ export default function Blocages() {
   useEffect(() => { charger(); }, []);
   const lever = async (m) => {
     try { await debloquer(m.id); setListe((l) => l.filter((x) => x.id !== m.id)); }
-    catch (e) { setSouci("Impossible : " + (e.message ?? "")); setTimeout(() => setSouci(""), 3000); }
+    catch (e) { setSouci("Impossible : " + texteErreur(e)); setTimeout(() => setSouci(""), 3000); }
   };
   return (
     <details>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import { X, MoreHorizontal, Eye, ChevronLeft, ChevronRight, Send } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -160,7 +161,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
         signale(`Envoyé à ${auteur.auteur.prenom} en message privé`);
       }
       if (action === "vues") { setPause(true); setVues("…"); setVues(await vuesDe(m.id)); }
-    } catch (e) { setEnvoi(false); signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { setEnvoi(false); signale("Action impossible : " + texteErreur(e)); }
   };
 
   if (!m) return null;

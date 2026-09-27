@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Send, CornerDownRight, MoreHorizontal, Pencil } from "lucide-react";
@@ -52,7 +53,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
       else await envoyerCommentaire(type, id, texte, reponseA?.id ?? null, mentions.idsPour(texte));
       annuler();
       await recharger();
-    } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
+    } catch (err) { signale("Envoi impossible : " + texteErreur(err)); }
     setEnvoi(false);
   };
 
@@ -66,7 +67,7 @@ export default function Commentaires({ type, id, moi, initial = null, onNombre, 
       }
       if (action === "signaler") { await signaler("commentaire", c.id, "Commentaire signalé depuis l'application"); signale("Merci, les modérateurs sont prévenus."); }
       if (action === "masquer") { await moderer("commentaire", c.id, !c.masque); await recharger(); }
-    } catch (err) { signale("Action impossible : " + (err.message ?? "")); }
+    } catch (err) { signale("Action impossible : " + texteErreur(err)); }
   };
 
   const visibles = liste.filter((c) => !c.masque || moderateur || c.auteur.id === moi.id);

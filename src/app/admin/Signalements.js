@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { moderer } from "@/lib/fil";
@@ -29,7 +30,7 @@ export default function Signalements() {
       .from("signalements")
       .select("id, cible_type, cible_id, motif, cree_le, auteur:profiles!signalements_auteur_fkey(prenom, nom)")
       .is("traite_le", null).order("cree_le", { ascending: false }).limit(50);
-    if (error) { setSouci(error.message); setLignes([]); return; }
+    if (error) { setSouci(texteErreur(error)); setLignes([]); return; }
     setLignes(data ?? []);
     // un aperçu du texte visé, pour juger sans quitter la page
     const coms = (data ?? []).filter((s) => s.cible_type === "commentaire").map((s) => Number(s.cible_id));
@@ -71,7 +72,7 @@ export default function Signalements() {
         .eq("cible_type", s.cible_type).eq("cible_id", s.cible_id);
       if (error) throw error;
       await charger();
-    } catch (e) { setSouci("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { setSouci("Action impossible : " + texteErreur(e)); }
   };
 
   const lien = (s) => s.cible_type === "publication" ? `/publication/${s.cible_id}` : s.cible_type === "offre" ? `/offres/${s.cible_id}` : s.cible_type === "question" ? `/questions/${s.cible_id}` : null;

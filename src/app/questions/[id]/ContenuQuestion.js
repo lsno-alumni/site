@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -82,18 +83,18 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
     try {
       if (edition) await modifierReponse(edition.id, texte); else await repondre(q.id, texte);
       setTexte(""); setEdition(null); mentions.vider(); await recharger();
-    } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
+    } catch (err) { signale("Envoi impossible : " + texteErreur(err)); }
     setEnvoi(false);
   };
   const retenir = async (r) => {
     setMenu(null);
     try { await retenirReponse(q.id, q.meilleure_reponse === r.id ? null : r.id); await recharger(); }
-    catch (e) { signale("Impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible : " + texteErreur(e)); }
   };
   const basculerResolue = async () => {
     setMenu(null);
     try { await modifierQuestion(q.id, { resolue: !q.resolue, ...(q.resolue ? { meilleure_reponse: null } : {}) }); await recharger(); }
-    catch (e) { signale("Impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible : " + texteErreur(e)); }
   };
   const agir = async (cible, action) => {
     setMenu(null);
@@ -111,7 +112,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
         const url = `${window.location.origin}/questions/${q.id}`;
         if (navigator.share) await navigator.share({ title: q.titre, url }); else { await navigator.clipboard.writeText(url); signale("Lien copié"); }
       }
-    } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + texteErreur(e)); }
   };
 
   const reponses = (q.reponses ?? []).filter((r) => !r.masquee || moderateur || r.auteur.id === moi.id);
@@ -123,7 +124,7 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
           e.preventDefault();
           if (editionQ.titre.trim().length < 5) { signale("Le titre est trop court."); return; }
           try { await modifierQuestion(q.id, { titre: editionQ.titre.trim(), details: editionQ.details.trim(), theme: editionQ.theme || null }); setEditionQ(null); await recharger(); }
-          catch (err) { signale("Impossible d'enregistrer : " + (err.message ?? "")); }
+          catch (err) { signale("Impossible d'enregistrer : " + texteErreur(err)); }
         }}>
           <input className="saisie qa-form-titre" value={editionQ.titre} maxLength={140} onChange={(e) => setEditionQ({ ...editionQ, titre: e.target.value })} autoFocus />
           <textarea className="saisie" rows={5} value={editionQ.details} maxLength={2000} onChange={(e) => setEditionQ({ ...editionQ, details: e.target.value })} placeholder="Les détails qui aident à répondre…" />

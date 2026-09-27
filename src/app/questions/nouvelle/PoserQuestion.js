@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, EyeOff, Eye, Paperclip, FileText } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -46,7 +47,7 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
       // pleine page : chargement complet, sinon la feuille s'ouvrirait
       // par-dessus le formulaire resté derrière
       if (enFeuille) routeur.replace(`/questions/${id}`); else window.location.assign(`/questions/${id}`);
-    } catch (err) { setSouci("Impossible d'envoyer : " + (err?.message ?? "")); setEnvoi(false); }
+    } catch (err) { setSouci("Impossible d'envoyer : " + texteErreur(err)); setEnvoi(false); }
   };
 
   return (

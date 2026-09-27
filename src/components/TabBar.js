@@ -151,6 +151,12 @@ export default function TabBar({ actif }) {
     const stop = ecouterTousMessages(() => lire());
     return () => { vivant = false; stop(); window.removeEventListener("lsno:moments", lireMoments); };
   }, [connecte, actif]);
+  // le réseau revient : toutes les listes se relisent (elles écoutent lsno:rafraichir)
+  useEffect(() => {
+    const retour = () => window.dispatchEvent(new CustomEvent("lsno:rafraichir"));
+    window.addEventListener("online", retour);
+    return () => window.removeEventListener("online", retour);
+  }, []);
   const cachee = useCacherAuDefilement();
 
   // la page libère la place réservée à la barre quand il n'y en a pas

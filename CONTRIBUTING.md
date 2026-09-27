@@ -8,8 +8,10 @@ et t'évite les pièges connus du projet.
 Le code est public, les contributions viennent en priorité des **ancien·nes du LSNO**.
 Avant de coder une nouvelle fonctionnalité, ouvre une *issue* GitHub (ou écris à
 lsno.alumni@gmail.com) pour en discuter — beaucoup d'idées ont déjà été étudiées,
-certaines volontairement écartées (messagerie interne, statistiques visuelles,
-notifications de « qui a vu mon profil »…).
+certaines volontairement écartées (statistiques visuelles, notifications de « qui a vu
+mon profil », commentaires sur les profils, réactions emoji sur les publications,
+récurrence des événements, co-admin de groupe…). La messagerie et le fil, longtemps
+écartés, existent depuis septembre 2026 (branche `social`, voir README).
 
 ## Installation
 
@@ -27,9 +29,12 @@ npm install
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://pdjbqdwurwgxzghehldr.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_HdNHgnLV2qssIAZiE-_aZg_3uRGwrbl
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAEDxH4Oeu-zLZbfi
 ```
 
-Ces deux valeurs sont **publiques par conception** : elles partent dans le navigateur de
+La troisième est la clé publique de la vérification anti-robot : quand le captcha est actif
+côté Supabase, elle est **indispensable** pour se connecter en local (sans elle, aucun jeton
+n'est joint et toute connexion est refusée). Ces trois valeurs sont **publiques par conception** : elles partent dans le navigateur de
 chaque visiteur du site, n'importe qui peut les y lire. Ce qui protège les données, c'est
 la Row Level Security **et** le fait que le rôle `anon` n'a aucun droit sur aucune table
 (vérifiable par `supabase/verif-sante.sql`), pas le secret de ces clés.
@@ -40,6 +45,9 @@ d'environnement Vercel.
 
 4. `npm run dev` → http://localhost:3000. Tu es branché sur la vraie base, avec les
    droits de **ton propre compte membre** — connecte-toi avec, tu verras ce qu'un membre voit.
+   ⚠ Après avoir ajouté un dossier de route (surtout `@modal/(..)xxx`) ou un `template.js`,
+   arrête le serveur, supprime `.next/dev` et relance : le serveur de développement ne
+   découvre pas toujours les nouvelles routes parallèles à chaud.
 
 ### Cas particulier : les notifications push
 
@@ -53,10 +61,15 @@ qu'en HTTPS (ou sur `localhost`, exception des navigateurs).
 
 ```
 src/app/            pages (App Router)          src/components/  composants partagés
-src/app/api/push/   envoi des notifications     src/lib/         domaines, pays, promos, Supabase
+src/app/api/push/   envoi des notifications     src/lib/         un module par brique + Supabase
 src/middleware.js   protection des routes       supabase/        tables, RLS, triggers, crons
-public/             images, icônes, sw.js
+public/             images, icônes, sw.js       outils/banc/     banc d'essai + scénarios SQL
 ```
+
+Le réseau social est découpé en briques, chacune avec sa migration, son module `src/lib/`,
+son dossier `src/app/` et son scénario de banc : fil (52, 62), messages (53→58, 68),
+questions (59→61, 71), moments (64, 65), événements (66, 67), temps réel (69), mode essai
+des notifications (63, 70), tour des nouveautés (72), message de bienvenue (73).
 
 Deux réflexes utiles :
 
@@ -71,13 +84,19 @@ Deux réflexes utiles :
 
 - **CSS pur** — pas de Tailwind, pas de framework CSS. Les styles vivent dans
   `src/app/globals.css` et `src/app/ecrans.css`, avec les variables de la palette
-  (encre, craie, or) définies en `:root`.
+  « Latérite » définies en `:root` (thème clair) et sous `[data-theme="sombre"]` : fonds
+  kraft/pierre/bleu nuit, **un seul accent bleu** (`--bleu`, `--bleu-clair`, `--bleu-texte`),
+  texte via `--texte`/`--texte-2`/`--brume`. Toujours écrire une couleur via une variable,
+  jamais en dur, sinon l'un des deux thèmes casse.
+- **Avant de créer une classe CSS, `grep` son nom** dans les CSS et les JSX. `.sceau` et
+  `.nouveau` existaient déjà quand on a voulu les réutiliser ; la collision a cassé en prod
+  la première fois, et fait disparaître les prénoms du rail de moments la seconde.
 - **Français partout** : interface, commentaires, noms de variables et de fonctions.
 - **Mobile d'abord** : vérifie chaque écran à **340 px** de large (outils dev → mode
   responsive). Le réseau vit sur des téléphones, parfois en 3G — pas de librairie lourde,
   pas d'image non compressée.
-- **Design sobre** : 3 couleurs, icônes Lucide (jamais d'emojis dans l'interface),
-  vraies photos du lycée.
+- **Design sobre** : un accent, icônes Lucide (jamais d'emojis dans l'interface, sauf les
+  réactions choisies par les membres), vraies photos du lycée et vraies matières.
 - **Pas de nouvelle dépendance** sans en discuter d'abord. Hors Next et React, le projet
   n'en compte que cinq : `@supabase/ssr`, `@supabase/supabase-js`, `lucide-react`,
   `react-easy-crop` et `web-push` (serveur). Si une librairie est indispensable et lourde,
@@ -90,8 +109,40 @@ Deux réflexes utiles :
 - **La confidentialité se joue dans la base** : si ta fonctionnalité touche aux données
   personnelles, la règle d'accès doit être une policy RLS ou une fonction SQL, pas un
   `if` côté client.
-- **Pas de mise en cache du contenu** : ni côté client, ni dans le service worker. La
-  fraîcheur des données prime (un membre validé doit apparaître immédiatement).
+- **Fraîcheur des données** : le service worker ne met rien en cache ; côté client, les
+  pages dynamiques sont gardées 30 s (`staleTimes` dans `next.config.mjs`) et la mémoire
+  d'onglet (`src/lib/memoire.js`) retrouve listes, filtres et position. La contrepartie :
+  **toute écriture** (validation, publication, réglage…) doit être suivie d'un
+  `router.refresh()` et, pour les listes en mémoire, d'une relecture — sinon l'écran montre
+  l'état d'avant pendant 30 s.
+- **Une feuille glissante pour tout ce qui s'ouvre par-dessus une liste** (`FeuilleGlissante`
+  + route interceptée `@modal/(..)xxx`) : profils, offres, événements, créations. La page
+  complète doit exister aussi (lien partagé, rechargement).
+- **Les erreurs parlent français** : jamais un message brut de Supabase ou du navigateur à
+  l'écran (« Failed to fetch »). Passer par `texteErreur()` / `avecReprise()`
+  (`src/lib/erreurs.js`), qui traduisent, proposent de réessayer et distinguent la panne
+  réseau. Les messages d'information s'affichent **en haut** de l'écran (toast), jamais en
+  bas où la barre d'onglets les cache.
+
+## Tester le réseau social sans faire de bruit
+
+Le site de développement est branché sur la **vraie base** : une publication de test est
+une vraie publication, et chaque écriture déclenche de **vraies notifications** chez les
+vrais membres. Règles apprises à nos dépens :
+
+1. **Activer le mode essai des notifications avant tout test qui écrit** (Validation →
+   Notifications → « Mode essai ») : seuls les admins et les comptes de test listés reçoivent
+   les push. Le couper en fin de session. Sans lui, un script de test a réveillé tout le réseau.
+2. **Deux niveaux de test** : d'abord une maquette (Playwright avec `page.route` qui simule les
+   RPC — rien n'est écrit), puis un test réel avec **deux comptes de test** dédiés, jamais
+   avec des membres réels ni en les ajoutant à des groupes.
+3. **Tout script réel nettoie ce qu'il a créé** — au début (les restes d'un essai raté) et à
+   la fin : publications, moments, événements, groupes, fichiers du bucket.
+4. **Vérifier chaque écran sans défilement horizontal** (`document.documentElement.scrollWidth
+   === window.innerWidth`) : un débordement de 27 px a suffi à pousser la barre d'onglets
+   hors de l'écran.
+5. **Le banc juge aussi le comportement** : `npm run banc -- outils/banc/essai-groupes.sql`
+   rejoue toute la base puis un scénario (RLS, RPC, purges). Ajouter un scénario par brique.
 
 ## Sécurité : ce que le middleware vérifie vraiment (03/08)
 
@@ -227,13 +278,29 @@ Deux réflexes utiles :
   trop tard le fait manquer.
 - Icône de notification Android : seule la **transparence** est utilisée — une image à fond
   plein apparaît en carré blanc (d'où `public/badge-notif.png`, une silhouette).
+- **Une feuille interceptée reste affichée** si l'on navigue ensuite vers une page qui n'a
+  pas de feuille associée (création d'un groupe → conversation, par exemple). Dans ce cas,
+  sortir par `window.location.assign(...)` après `noterNavigationComplete()`, pas par
+  `router.push`.
+- **Dans un dossier `[id]` intercepté, la route `nouveau`/`nouvelle` est capturée par
+  `[id]`** : la feuille de création vit donc dans la page `[id]` interceptée, qui teste
+  `id === "nouveau"`.
+- **`overflow-x: hidden` casse `position: sticky`** dans le conteneur d'une feuille
+  (`.fg-contenu`) : utiliser `overflow-x: clip`.
+- **`rail_moments` appelé par carte** (228 appels sur l'annuaire) : toute donnée partagée par
+  une liste de cartes se lit une fois, dans un cache de module (`useAuteursMoments`).
+- **Type de fichier des questions** : la base stocke `"photo"` / `"pdf"`, pas un type MIME.
+- **Les règles de lint React 19** (`set-state-in-effect`, `immutability`, refs en rendu,
+  `Date.now()` en rendu) sont bloquantes : `setTimeout`/`requestAnimationFrame` pour un état
+  posé après le rendu, `useState(() => Date.now())`, pas de composant défini dans le rendu.
 
 ## Le circuit d'une contribution
 
 1. Crée une branche sur ton fork : `git checkout -b ma-modif`.
 2. Code, teste en local (y compris à 340 px), `npm run build` doit passer sans erreur.
-3. Pousse et ouvre une **Pull Request** vers `main` du dépôt, en décrivant : le problème,
-   la solution, ce que tu as testé. Une capture d'écran mobile aide beaucoup.
+3. Pousse et ouvre une **Pull Request** vers `main` du dépôt (ou vers `social` tant que le
+   réseau social n'y est pas fusionné), en décrivant : le problème, la solution, ce que tu
+   as testé. Une capture d'écran mobile aide beaucoup. Chaque branche a son aperçu Vercel.
 4. Un mainteneur relit, discute si besoin, et merge. **Le merge sur `main` déploie
    automatiquement en production** — c'est pour ça que tout passe par relecture.
 5. S'il y a une migration SQL, un admin l'exécute au moment du merge. Précise dans la PR

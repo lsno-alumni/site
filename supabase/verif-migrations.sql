@@ -171,6 +171,8 @@ with attendu(num, laisse, present) as (
     exists (select 1 from pg_proc where proname = 'liste_questions' and prosrc like '%fichier_chemin%')
   union all select 72, 'tour des nouveautés (tour_version, decouvertes sur profiles)',
     exists (select 1 from information_schema.columns where table_name = 'profiles' and column_name = 'tour_version')
+  union all select 73, 'message de bienvenue qui parle du réseau entier (email + notification)',
+    exists (select 1 from pg_proc where proname = 'notifie_validation' and prosrc like '%Entrer dans le réseau%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

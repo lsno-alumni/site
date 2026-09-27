@@ -36,9 +36,15 @@ export default async function APropos() {
           sans que les conseils se perdent dans le flux des messages.
         </p>
         <p>
-          Chaque membre choisit ce qu&apos;il partage. Aucune information n&apos;est
-          visible en dehors des membres validés, et chaque inscription est
-          confirmée par un délégué de promotion.
+          Depuis septembre 2026, c&apos;est aussi un réseau social entre nous : un fil
+          d&apos;actualité, une messagerie, des questions aux anciens, des moments, des
+          événements et des groupes — pour que l&apos;entraide ne se limite pas à un
+          annuaire.
+        </p>
+        <p>
+          Chaque membre choisit ce qu&apos;il partage, et avec qui : tout le réseau, sa promo
+          ou son domaine. Aucune information n&apos;est visible en dehors des membres validés,
+          et chaque inscription est confirmée par un délégué de promotion.
         </p>
         <p className="tagline" style={{ marginTop: 4 }}>Travail · Excellence · Discipline</p>
       </div>
@@ -73,7 +79,7 @@ export default async function APropos() {
           </li>
           <li>
             <span className="num">3</span>
-            <div><b>Le réseau s&apos;ouvre</b><p>L&apos;annuaire, les conseils des aînés, les offres partagées. Tu complètes ton profil, et les cadets te trouvent.</p></div>
+            <div><b>Le réseau s&apos;ouvre</b><p>L&apos;annuaire, le fil, les messages, les questions aux anciens, les moments, les événements, les groupes, les offres et les conseils des aînés. Un petit tour te montre tout ça à ta première ouverture. Tu complètes ton profil, et les cadets te trouvent.</p></div>
           </li>
         </ol>
       </section>
@@ -127,10 +133,12 @@ export default async function APropos() {
           Scientifique National de Ouagadougou, indépendante de l&apos;administration du lycée.
         </p>
         <p>
-          Hébergement : Vercel · données stockées chez Supabase. Chaque membre choisit la
-          visibilité de ses informations, peut les rectifier à tout moment et supprimer
-          définitivement son compte et ses données depuis « Mon profil ». Le site n&apos;utilise
-          que des cookies de session, indispensables à la connexion, et aucun traceur publicitaire.
+          Hébergement : Vercel · données et fichiers stockés chez Supabase. Chaque membre choisit la
+          visibilité de ses informations et de ce qu&apos;il publie, peut les rectifier à tout moment et supprimer
+          définitivement son compte et ses données depuis « Mon profil ». Les contenus publiés restent
+          entre membres validés, peuvent être signalés et sont modérés par les délégués et les
+          administrateurs ; les messages s&apos;effacent après 30 jours, les moments après 24 h à 7 jours.
+          Le site n&apos;utilise que des cookies de session, indispensables à la connexion, et aucun traceur publicitaire.
         </p>
         <p className="ap-liens">
           <a href="mailto:lsno.alumni@gmail.com">lsno.alumni@gmail.com</a>

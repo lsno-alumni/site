@@ -167,6 +167,8 @@ with attendu(num, laisse, present) as (
     exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'publications')
   union all select 70, 'comptes de test des notifications gérés dans l''interface (admin_essai_*)',
     to_regprocedure('admin_essai_ajouter(uuid)') is not null
+  union all select 71, 'liste des questions avec la pièce jointe (vignette)',
+    exists (select 1 from pg_proc where proname = 'liste_questions' and prosrc like '%fichier_chemin%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

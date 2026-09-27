@@ -22,6 +22,7 @@ select 'B voit' as essai, lire_question(1)->'auteur'->>'prenom' as prenom, (list
 insert into reponses (question_id, auteur, texte) values (1, 'bbbbbbbb-0000-0000-0000-000000000002', 'La prépa, sans hésiter.');
 select 'recherche « prépa »' as essai, json_array_length(liste_questions('toutes', null, 20, null, 'prépa')) as n;
 select 'recherche « zzz »' as essai, json_array_length(liste_questions('toutes', null, 20, null, 'zzz')) as n;
+select 'la liste porte la pièce jointe (migration 71)' as essai, (liste_questions('toutes')->0)::jsonb ? 'fichier_chemin' as cle_presente;
 reset role;
 
 -- A retient la réponse → résolue

@@ -23,6 +23,7 @@ import { CarteQuestion } from "@/app/questions/Questions";
 import { CarteEvenement } from "@/app/evenements/Evenements";
 import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
+import AccesRapides from "@/components/AccesRapides";
 import useTempsReel from "@/lib/tempsReel";
 import { HelpCircle } from "lucide-react";
 
@@ -250,6 +251,7 @@ export default function Fil({ moi, moderateur }) {
     <GlisserRafraichir onRafraichir={rafraichir}>
     <>
       <header className="n-tete tete-fil">
+        <AccesRapides moderateur={moderateur} />
         <h1>Le <em>fil</em></h1>
         <p className="cpt">Ce qui se passe dans le réseau.</p>
       </header>

@@ -81,7 +81,17 @@ export async function marquerTourVu() {
   await supabase.from("profiles").update({ tour_version: TOUR_VERSION }).eq("id", user.id);
 }
 
+// Les pastilles s'effacent d'elles-mêmes : dès qu'on se sert de la fonction
+// (tap sur l'élément), sur « Compris », et de toute façon 30 jours après la
+// première fois qu'on les a vues (jeton « depuis:AAAA-MM-JJ » dans la liste).
+export const PASTILLES_JOURS = 30;
+export function pastillesExpirees(e) {
+  const jeton = e?.decouvertes?.find((d) => d.startsWith("depuis:"));
+  if (!jeton) return false;
+  return Date.now() - new Date(jeton.slice(7)).getTime() > PASTILLES_JOURS * 86400000;
+}
 export async function marquerDecouverte(cle) {
+  if (etat?.decouvertes?.includes(cle)) return;   // déjà su : rien à écrire
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;

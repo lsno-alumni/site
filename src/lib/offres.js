@@ -40,5 +40,8 @@ export function ilYA(date) {
   const j = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
   if (j <= 0) return "aujourd'hui";
   if (j === 1) return "hier";
-  return `il y a ${j} j`;
+  if (j < 7) return `il y a ${j} j`;
+  if (j < 30) { const s = Math.round(j / 7); return `il y a ${s} sem.`; }
+  // au-delà d'un mois, la date parle mieux qu'un compte de jours (« il y a 60 j »)
+  return `le ${new Date(date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", ...(j > 300 ? { year: "numeric" } : {}) })}`;
 }

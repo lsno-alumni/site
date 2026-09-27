@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, ArrowDown, Send, MoreHorizontal, Users, Trash2, LogOut, Pencil, UserPlus, X, Check, Paperclip, FileText, Play,
   Mic, Square, Reply, BellOff, Bell, Pin, PinOff, Link as LienIcone, CheckCheck, Plus, Minus,
-  Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera, Copy,
+  Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera, Copy, Search,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import { plat } from "@/components/Surligne";
 import LecteurAudio from "@/components/LecteurAudio";
 import Sondage from "./Sondage";
 import useClicDehors from "@/lib/useClicDehors";
@@ -145,6 +146,7 @@ export default function Conversation({ id, moi }) {
   const [description, setDescription] = useState("");
   const [carnet, setCarnet] = useState(null);
   const [ajout, setAjout] = useState([]);
+  const [rechercheAjout, setRechercheAjout] = useState("");   // filtre du carnet à l'ajout d'un membre
   const [souci, setSouci] = useState("");
   const [toast, setToast] = useState("");
   const [menuMsg, setMenuMsg] = useState(null);
@@ -461,7 +463,7 @@ export default function Conversation({ id, moi }) {
     try {
       if (action === "membres") setPanneau("membres");
       if (action === "infos") { setNom(conv.nom ?? ""); setDescription(conv.description ?? ""); setPhotoGroupe(null); setPanneau("infos"); }
-      if (action === "ajouter") { setPanneau("ajouter"); setAjout([]); if (!carnet) setCarnet(await membresJoignables()); }
+      if (action === "ajouter") { setPanneau("ajouter"); setAjout([]); setRechercheAjout(""); if (!carnet) setCarnet(await membresJoignables()); }
       if (action === "sourdine") { const muet = !moiMembre?.muet; await reglerConversation(id, { muet }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(muet ? "Conversation en sourdine" : "Notifications rétablies"); }
       if (action === "epingle") { const ep = !moiMembre?.epingle; await reglerConversation(id, { epingle: ep }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(ep ? "Épinglée en haut de la liste" : "Désépinglée"); }
       if (action === "bloquer" && autre) {
@@ -813,9 +815,13 @@ export default function Conversation({ id, moi }) {
             )}
             {panneau === "ajouter" && (
               <>
+                <div className="msg-recherche" style={{ margin: "0 4px 6px" }}>
+                  <Search size={16} strokeWidth={1.9} aria-hidden />
+                  <input className="saisie" placeholder="Rechercher un membre…" value={rechercheAjout} onChange={(e) => setRechercheAjout(e.target.value)} autoFocus />
+                </div>
                 <div className="msg-carnet court">
                   {carnet === null && <p className="pu-vide">Chargement…</p>}
-                  {carnet?.filter((m) => !parId[m.id]).map((m) => {
+                  {carnet?.filter((m) => !parId[m.id] && (!rechercheAjout.trim() || plat(`${m.prenom} ${m.nom}`).includes(plat(rechercheAjout.trim())))).map((m) => {
                     const on = ajout.includes(m.id);
                     return (
                       <button key={m.id} type="button" className={`msg-personne${on ? " on" : ""}`} aria-pressed={on}
@@ -827,6 +833,7 @@ export default function Conversation({ id, moi }) {
                     );
                   })}
                   {carnet && carnet.filter((m) => !parId[m.id]).length === 0 && <p className="pu-vide">Tout le monde est déjà là.</p>}
+                  {carnet && rechercheAjout.trim() && carnet.filter((m) => !parId[m.id] && plat(`${m.prenom} ${m.nom}`).includes(plat(rechercheAjout.trim()))).length === 0 && carnet.filter((m) => !parId[m.id]).length > 0 && <p className="pu-vide">Personne ne correspond.</p>}
                 </div>
                 <div className="msg-panneau-form">
                   <button type="button" className="btn btn-or" disabled={ajout.length === 0} onClick={validerAjout}>Ajouter {ajout.length > 0 ? `(${ajout.length})` : ""}</button>

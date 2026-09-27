@@ -7,6 +7,7 @@ import { chargerRail } from "@/lib/moments";
 import LecteurMoments from "@/app/fil/LecteurMoments";
 import NouveauMoment from "@/app/fil/NouveauMoment";
 import MesMoments from "@/app/fil/MesMoments";
+import useTempsReel from "@/lib/tempsReel";
 
 // Le rail des moments en haut du Fil : mon rond d'abord (avec le « + »),
 // puis les personnes qui ont du nouveau (anneau bleu), puis les autres
@@ -21,6 +22,7 @@ export default function RailMoments({ moi, moderateur }) {
   const charger = async () => {
     try { const r = await chargerRail(); setRail(r); memoire.ecrire("fil.rail", r); } catch { /* le rail reste tel quel */ }
   };
+  useTempsReel(["moments", "moment_reactions"], () => charger());
   useEffect(() => {
     const t = setTimeout(charger, 0);   // hors du rendu (règle react-hooks/set-state-in-effect)
     const sur = () => charger();

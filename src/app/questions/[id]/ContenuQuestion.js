@@ -15,6 +15,7 @@ import { lireQuestion, listeQuestions, repondre, modifierReponse, supprimerRepon
 import { ouvrirDuo, tailleLisible } from "@/lib/messages";
 import { CarteQuestion } from "@/app/questions/Questions";
 import { THEMES_CONSEIL } from "@/lib/donnees";
+import useTempsReel from "@/lib/tempsReel";
 
 // Une question ouverte (page /questions/[id] ET feuille depuis la liste).
 // TeteQuestion (thème, titre, auteur : glissable) puis SuiteQuestion
@@ -68,6 +69,11 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
   useClicDehors(menu !== null, (e) => !!e.target.closest?.(".qa-menu"), () => setMenu(null));
   // la tête (titre, badge « Résolue ») vit chez le parent : on la tient au courant
   const recharger = async () => { try { const n = await lireQuestion(q.id); if (n) { setQ(n); onMaj?.(n); } memoire.ecrire("questions.liste", null); memoire.ecrire("fil.items", null); } catch { /* on garde l'état */ } };
+  // une réponse arrive, la question change : la fiche se met à jour seule
+  useTempsReel([{ table: "reponses", filtre: `question_id=eq.${initial.id}` }, { table: "questions", filtre: `id=eq.${initial.id}` }, { table: "reactions", filtre: `cible_id=eq.${initial.id}` }], recharger);
+  // page rendue par le serveur puis rafraîchie (glisser-rafraîchir) : on adopte la nouvelle version
+  const [recu, setRecu] = useState(initial);
+  if (recu !== initial) { setRecu(initial); setQ(initial); }
 
   const envoyer = async (e) => {
     e.preventDefault();
@@ -232,6 +238,8 @@ export function SuiteQuestion({ q: initial, moi, moderateur, enFeuille = false, 
 
 export default function ContenuQuestion({ q: initial, moi, moderateur }) {
   const [q, setQ] = useState(initial);
+  const [recu, setRecu] = useState(initial);
+  if (recu !== initial) { setRecu(initial); setQ(initial); }
   return (
     <>
       <TeteQuestion q={q} />

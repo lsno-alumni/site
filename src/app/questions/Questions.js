@@ -13,6 +13,7 @@ import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
 import { THEMES_CONSEIL } from "@/lib/donnees";
 import { listeQuestions, FILTRES_QUESTIONS } from "@/lib/questions";
+import useTempsReel from "@/lib/tempsReel";
 
 // La liste des questions : filtres (toutes, sans réponse, ouvertes, résolues,
 // les miennes) et thèmes ; une carte par question, qui s'ouvre en feuille.
@@ -55,6 +56,7 @@ export default function Questions() {
     try { const l = await listeQuestions({ filtre: f, theme: t, q: mots }); setListe(l); setFin(l.length < 20); setSouci(""); }
     catch (e) { setSouci("Les questions ne répondent pas : " + (e.message ?? "")); if (liste === null) setListe([]); }
   };
+  useTempsReel(["questions", "reponses"], () => charger());
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
   useEffect(() => { if (chemin === "/questions" && (liste === null || memoire.lire("questions.liste") === null)) charger(); }, [chemin]);
   useEffect(() => { if (liste !== null) memoire.ecrire("questions.liste", liste); memoire.ecrire("questions.filtre", filtre); memoire.ecrire("questions.theme", theme); }, [liste, filtre, theme]);

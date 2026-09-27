@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 import { nonLus, ecouterTousMessages } from "@/lib/messages";
 import { momentsNonVus } from "@/lib/moments";
@@ -64,6 +64,14 @@ const CLASSE_CACHEE = "tb-cachee";
 
 function useCacherAuDefilement() {
   const [cachee, setCachee] = useState(false);
+  const chemin = usePathname();
+  // une feuille qui se ferme (ou toute navigation) ne déclenche aucun
+  // défilement : si la page est en haut, la barre doit être là — sinon elle
+  // restait cachée jusqu'au prochain geste vers le haut
+  useEffect(() => {
+    const t = setTimeout(() => { if (window.scrollY < SEUIL_HAUT) setCachee(false); }, 60);
+    return () => clearTimeout(t);
+  }, [chemin]);
 
   useEffect(() => {
     let dernierY = window.scrollY;

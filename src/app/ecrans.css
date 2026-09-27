@@ -2492,3 +2492,13 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .ev-form { overflow-x: hidden; }
 /* le menu de la fiche est en bas de page : il s’ouvre vers le HAUT, sinon la barre de commentaire le recouvre */
 .ev-actions .pub-menu-liste { top: auto; bottom: calc(100% + 6px); z-index: 40; }
+
+/* le menu ⋯ d'une carte du Fil n'est plus coupé par les coins arrondis de la carte */
+.pub.menu-ouvert { overflow: visible; position: relative; z-index: 30; }
+/* fondu d'entrée de chaque page (template.js) — la barre d'onglets ne clignote pas */
+.entree-page > main > *:not(.tabbar) { animation: entree-page .22s ease-out both; }
+@keyframes entree-page { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .entree-page > main > *:not(.tabbar) { animation: none; } }
+/* grille de la liste des conversations : une ligne ne peut plus être plus large que l’écran (min-content des textes nowrap) */
+.msg-liste { grid-template-columns: minmax(0, 1fr); }
+.msg-liste > * { min-width: 0; }

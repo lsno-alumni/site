@@ -810,7 +810,7 @@ export default function Conversation({ id, moi }) {
                 ))}
               </>
             )}
-            {panneau === "infos" && peutTraiter && demandes.length > 0 && (
+            {(panneau === "infos" || panneau === "membres") && peutTraiter && demandes.length > 0 && (
               <div className="gr-demandes">
                 <span className="gr-reglages-titre">{demandes.length} demande{demandes.length > 1 ? "s" : ""} en attente</span>
                 {demandes.map((d) => (

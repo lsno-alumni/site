@@ -30,7 +30,7 @@ export default function Groupes({ enFeuille = false }) {
       else {
         const r = await rejoindreGroupe(g.id);
         memoire.ecrire("conversations.liste", null);
-        if (r === "membre") { signale(`Tu es dans « ${g.nom} »`); routeur.push(`/messages/${g.id}`); }
+        if (r === "membre") { signale(`Tu es dans « ${g.nom} »`); if (enFeuille) window.location.assign(`/messages/${g.id}`); else routeur.push(`/messages/${g.id}`); }
         else { signale("Demande envoyée : le créateur du groupe la verra."); await charger(); }
       }
     } catch (e) { signale(e.message ?? "Impossible"); }

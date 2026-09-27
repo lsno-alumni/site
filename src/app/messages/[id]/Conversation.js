@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { plat } from "@/components/Surligne";
+import { VISIBILITES, depuis } from "@/lib/fil";
 import LecteurAudio from "@/components/LecteurAudio";
 import Sondage from "./Sondage";
 import useClicDehors from "@/lib/useClicDehors";
@@ -19,7 +20,7 @@ import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres
 import {
   lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages, ecouterConversation,
   ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
-  renommerGroupe, ajouterMembres, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
+  renommerGroupe, ajouterMembres, demandesGroupe, traiterDemandeGroupe, ACCES, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
   televerserPiece, urlsPieces, tailleLisible, libellePiece,
   mesBlocages, bloquer, debloquer, signalerMessage, majGroupe, televerserPhotoGroupe, epinglerMessage,
   creerSondage, lireSondages, ecouterVotes, transfererMessage, ouvrirDuo,
@@ -144,6 +145,9 @@ export default function Conversation({ id, moi }) {
   const [panneau, setPanneau] = useState(null);   // "membres" | "renommer" | "ajouter" | "infos" | "transfert" | "sondage"
   const [nom, setNom] = useState("");
   const [description, setDescription] = useState("");
+  const [acces, setAcces] = useState("prive");
+  const [visibilite, setVisibilite] = useState("tous");
+  const [demandes, setDemandes] = useState([]);      // demandes en attente (créateur, modérateurs)
   const [carnet, setCarnet] = useState(null);
   const [ajout, setAjout] = useState([]);
   const [rechercheAjout, setRechercheAjout] = useState("");   // filtre du carnet à l'ajout d'un membre
@@ -193,6 +197,23 @@ export default function Conversation({ id, moi }) {
   const moiMembre = useMemo(() => (conv?.membres ?? []).find((m) => m.membre === moi.id), [conv, moi.id]);
   const vue = conv ? { ...conv, membres: membres.filter((m) => m.id !== moi.id) } : null;
   const anime = conv?.type === "groupe" && conv?.cree_par === moi.id;
+  const moderateur = moi.role === "admin" || moi.role === "delegue";
+  // les demandes d'entrée : lues pour le créateur (et les modérateurs), à chaque chargement du groupe
+  const peutTraiter = conv?.type === "groupe" && conv?.acces === "demande" && (anime || moderateur);
+  useEffect(() => {
+    if (!peutTraiter) return;
+    let vivant = true;
+    demandesGroupe(id).then((l) => { if (vivant) setDemandes(l); }).catch(() => {});
+    return () => { vivant = false; };
+  }, [peutTraiter, id, conv?.acces]);
+  const traiter = async (membre, accepter) => {
+    try {
+      await traiterDemandeGroupe(id, membre, accepter);
+      setDemandes((l) => l.filter((d) => d.id !== membre));
+      if (accepter) setConv(await lireConversation(id));
+      signale(accepter ? "Bienvenue à la nouvelle personne !" : "Demande refusée");
+    } catch (e) { signale("Impossible : " + (e.message ?? "")); }
+  };
   const autre = vue?.type === "duo" ? vue.membres[0] : null;
   const bloqueParMoi = !!autre && blocages.includes(autre.id);
   const descendre = (doux = false) => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: doux ? "smooth" : "instant" });
@@ -462,7 +483,7 @@ export default function Conversation({ id, moi }) {
     setMenu(false); setSouci("");
     try {
       if (action === "membres") setPanneau("membres");
-      if (action === "infos") { setNom(conv.nom ?? ""); setDescription(conv.description ?? ""); setPhotoGroupe(null); setPanneau("infos"); }
+      if (action === "infos") { setNom(conv.nom ?? ""); setDescription(conv.description ?? ""); setAcces(conv.acces ?? "prive"); setVisibilite(conv.visibilite ?? "tous"); setPhotoGroupe(null); setPanneau("infos"); }
       if (action === "ajouter") { setPanneau("ajouter"); setAjout([]); setRechercheAjout(""); if (!carnet) setCarnet(await membresJoignables()); }
       if (action === "sourdine") { const muet = !moiMembre?.muet; await reglerConversation(id, { muet }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(muet ? "Conversation en sourdine" : "Notifications rétablies"); }
       if (action === "epingle") { const ep = !moiMembre?.epingle; await reglerConversation(id, { epingle: ep }); setConv(await lireConversation(id)); memoire.ecrire("messages.liste", null); signale(ep ? "Épinglée en haut de la liste" : "Désépinglée"); }
@@ -486,7 +507,7 @@ export default function Conversation({ id, moi }) {
   };
   const validerInfos = async () => {
     try {
-      const champs = { nom: nom.trim() || conv.nom, description: description.trim() || null };
+      const champs = { nom: nom.trim() || conv.nom, description: description.trim() || null, acces, visibilite };
       if (photoGroupe) champs.photo_url = await televerserPhotoGroupe(id, photoGroupe);
       await majGroupe(id, champs);
       if (champs.nom !== conv.nom) await renommerGroupe(id, champs.nom);
@@ -597,7 +618,7 @@ export default function Conversation({ id, moi }) {
           ) : (
             <button type="button" className="msg-tete-qui" onClick={() => agir("membres")}>
               {vue.photo_url ? <img src={vue.photo_url} alt="" className="msg-vignette" /> : <span className="msg-vignette groupe petite" aria-hidden><Users size={16} strokeWidth={1.9} /></span>}
-              <span><b>{nomConversation(vue)}</b><small className={frappe ? "msg-frappe" : ""}>{frappe ? `${frappe.prenom} écrit…` : `${membres.length} membres · voir`}</small></span>
+              <span><b>{nomConversation(vue)}</b><small className={frappe ? "msg-frappe" : ""}>{frappe ? `${frappe.prenom} écrit…` : `${membres.length} membres · voir`}{demandes.length > 0 && <span className="gr-pastille" aria-label={`${demandes.length} demande${demandes.length > 1 ? "s" : ""} en attente`}>{demandes.length}</span>}</small></span>
             </button>
           )
         )}
@@ -789,6 +810,21 @@ export default function Conversation({ id, moi }) {
                 ))}
               </>
             )}
+            {panneau === "infos" && peutTraiter && demandes.length > 0 && (
+              <div className="gr-demandes">
+                <span className="gr-reglages-titre">{demandes.length} demande{demandes.length > 1 ? "s" : ""} en attente</span>
+                {demandes.map((d) => (
+                  <div key={d.id} className="gr-demande">
+                    <Avatar profil={{ prenom: d.prenom, nom: d.nom, photo: d.photo_url }} className="pub-avatar" />
+                    <span><b>{d.prenom} {d.nom}</b><small>{d.promo ? `Promo ${d.promo} · ` : ""}{depuis(d.cree_le)}</small></span>
+                    <span className="gr-demande-actions">
+                      <button type="button" className="oui" onClick={() => traiter(d.id, true)} aria-label={`Accepter ${d.prenom}`}><Check size={16} strokeWidth={2.4} aria-hidden /></button>
+                      <button type="button" onClick={() => traiter(d.id, false)} aria-label={`Refuser ${d.prenom}`}><X size={16} aria-hidden /></button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             {panneau === "infos" && (
               <div className="groupe-infos">
                 <div className="groupe-infos-photo">
@@ -802,6 +838,25 @@ export default function Conversation({ id, moi }) {
                   <>
                     <input className="saisie" value={nom} maxLength={60} onChange={(e) => setNom(e.target.value)} placeholder="Nom du groupe" />
                     <textarea className="saisie" value={description} maxLength={300} onChange={(e) => setDescription(e.target.value)} placeholder="Description (facultative) : à quoi sert ce groupe, pour qui…" />
+                    <div className="gr-reglages">
+                      <span className="gr-reglages-titre">Qui peut rejoindre</span>
+                      <div className="n-filtres" role="radiogroup" aria-label="Qui peut rejoindre">
+                        {ACCES.map((a) => (
+                          <button key={a.cle} type="button" role="radio" aria-checked={acces === a.cle} className={`puce${acces === a.cle ? " active" : ""}`} onClick={() => setAcces(a.cle)}>{a.nom}</button>
+                        ))}
+                      </div>
+                      <small className="msg-aide" style={{ padding: 0 }}>{ACCES.find((a) => a.cle === acces)?.aide}</small>
+                      {acces !== "prive" && (
+                        <>
+                          <span className="gr-reglages-titre">Visible par</span>
+                          <div className="n-filtres" role="radiogroup" aria-label="Visible par">
+                            {VISIBILITES.map((v) => (
+                              <button key={v.cle} type="button" role="radio" aria-checked={visibilite === v.cle} className={`puce${visibilite === v.cle ? " active" : ""}`} onClick={() => setVisibilite(v.cle)}>{v.nom}</button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
                     <button type="button" className="btn btn-or" disabled={!nom.trim()} onClick={validerInfos}>Enregistrer</button>
                   </>
                 ) : (

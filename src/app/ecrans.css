@@ -2510,3 +2510,26 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 /* nouvelle conversation : tout le haut (titre, nom du groupe, membres choisis, recherche) reste fixe, seule la liste défile */
 .msg-nc-haut { position: sticky; top: 0; z-index: 6; background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); padding-bottom: 6px; }
 .msg-nc-haut .cp-tete { position: static; }
+
+/* ---------- groupes qu'on peut rejoindre ---------- */
+.gr-decouvrir { display: inline-flex; align-items: center; gap: 8px; margin: 4px 16px 90px; padding: 10px 16px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); font-size: 13.5px; text-decoration: none; }
+.gr-liste { display: grid; gap: 10px; padding: 8px 14px 40px; }
+.gr-carte { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px; border: 1px solid var(--ligne); background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); }
+.gr-corps { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.gr-corps > b { font-size: 15px; }
+.gr-haut { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.gr-acces { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--texte-2); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.gr-desc { font-size: 12.5px; color: var(--texte-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gr-meta { font-size: 12px; color: var(--brume); }
+.gr-bouton { padding: 9px 13px; font-size: 12.5px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; }
+.gr-reglages { display: grid; gap: 8px; margin-top: 4px; }
+.gr-reglages-titre { font-size: 12px; color: var(--brume); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-top: 6px; }
+.gr-demandes { display: grid; gap: 6px; padding: 8px 0 0; }
+.gr-demande { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--ligne); background: var(--carte); }
+.gr-demande > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.gr-demande b { font-size: 14px; }
+.gr-demande small { font-size: 12px; color: var(--brume); }
+.gr-demande-actions { display: flex; gap: 6px; }
+.gr-demande-actions button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); display: grid; place-items: center; cursor: pointer; }
+.gr-demande-actions button.oui { background: var(--bleu-clair); border-color: var(--bleu-clair); color: var(--sur-accent); }
+.gr-pastille { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px; background: var(--bleu-clair); color: var(--sur-accent); font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle; }

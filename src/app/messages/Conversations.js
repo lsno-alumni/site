@@ -175,6 +175,7 @@ export default function Conversations({ moi }) {
         {souci && <p className="vide">{souci}</p>}
       </div>
 
+      <Link href="/messages/groupes" className="gr-decouvrir"><Users size={16} strokeWidth={1.9} aria-hidden /> Découvrir des groupes</Link>
       <Link href="/messages/nouveau" className="fil-fab" aria-label="Nouvelle conversation"><PenLine size={20} strokeWidth={2} aria-hidden /></Link>
 
       {menuConv && (

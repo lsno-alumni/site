@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X } from "lucide-react";
+import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X, ChevronRight } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
@@ -125,6 +125,9 @@ export default function Conversations({ moi }) {
         <Search size={16} strokeWidth={1.9} aria-hidden />
         <input className="saisie" placeholder="Rechercher dans les messages…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
+      {recherche === null && (
+        <Link href="/messages/groupes" className="gr-decouvrir"><Users size={16} strokeWidth={1.9} aria-hidden /> <span>Découvrir des groupes</span><small>ouverts ou sur demande</small><ChevronRight size={16} aria-hidden /></Link>
+      )}
       {recherche !== null && (
         <div className="msg-liste msg-resultats">
           {recherche.length === 0 && <p className="pu-vide">Rien ne correspond.</p>}
@@ -175,7 +178,6 @@ export default function Conversations({ moi }) {
         {souci && <p className="vide">{souci}</p>}
       </div>
 
-      <Link href="/messages/groupes" className="gr-decouvrir"><Users size={16} strokeWidth={1.9} aria-hidden /> Découvrir des groupes</Link>
       <Link href="/messages/nouveau" className="fil-fab" aria-label="Nouvelle conversation"><PenLine size={20} strokeWidth={2} aria-hidden /></Link>
 
       {menuConv && (

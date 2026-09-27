@@ -2512,7 +2512,10 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-nc-haut .cp-tete { position: static; }
 
 /* ---------- groupes qu'on peut rejoindre ---------- */
-.gr-decouvrir { display: inline-flex; align-items: center; gap: 8px; margin: 4px 16px 90px; padding: 10px 16px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); font-size: 13.5px; text-decoration: none; }
+.gr-decouvrir { display: flex; align-items: center; gap: 10px; margin: 0 16px 10px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); font-size: 13.5px; text-decoration: none; }
+.gr-decouvrir > span { font-weight: 600; }
+.gr-decouvrir small { flex: 1; color: var(--brume); font-size: 12px; }
+.gr-decouvrir > svg:last-child { color: var(--brume); }
 .gr-liste { display: grid; gap: 10px; padding: 8px 14px 40px; }
 .gr-carte { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px; border: 1px solid var(--ligne); background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); }
 .gr-corps { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -2526,7 +2529,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .gr-reglages-titre { font-size: 12px; color: var(--brume); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-top: 6px; }
 .gr-demandes { display: grid; gap: 6px; padding: 8px 0 0; }
 .gr-demande { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; border: 1px solid var(--ligne); background: var(--carte); }
-.gr-demande > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.gr-demande-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .gr-demande b { font-size: 14px; }
 .gr-demande small { font-size: 12px; color: var(--brume); }
 .gr-demande-actions { display: flex; gap: 6px; }

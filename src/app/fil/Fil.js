@@ -22,6 +22,7 @@ import { CarteQuestion } from "@/app/questions/Questions";
 import { CarteEvenement } from "@/app/evenements/Evenements";
 import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
+import useTempsReel from "@/lib/tempsReel";
 import { HelpCircle } from "lucide-react";
 
 // Le Fil : ce qui se passe dans le réseau. Les publications des membres
@@ -188,6 +189,7 @@ export default function Fil({ moi, moderateur }) {
     if (items !== null && memoire.lire("fil.items") !== null) { const t = setTimeout(rafraichirDoucement, 0); return () => clearTimeout(t); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chemin]);
+  useTempsReel(["publications", "commentaires", "reactions", "questions", "reponses", "evenements", "evenement_reponses"], () => { if (window.location.pathname === "/fil") rafraichirDoucement(); });
   useEffect(() => {
     const visible = () => { if (document.visibilityState === "visible" && window.location.pathname === "/fil") rafraichirDoucement(); };
     document.addEventListener("visibilitychange", visible);

@@ -11,6 +11,7 @@ import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteOffre } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { listeEvenements, quand, dansCombien, ou, urlAffiche, estPasse } from "@/lib/evenements";
+import useTempsReel from "@/lib/tempsReel";
 
 // La liste des événements : « À venir » (du plus proche au plus lointain)
 // et « Passés ». Une carte par événement, qui s'ouvre en feuille.
@@ -57,6 +58,7 @@ export default function Evenements() {
     try { const l = await listeEvenements({ quand: q, limite: 50 }); setListe(l); memoire.ecrire(`evenements.${q}`, l); }
     catch (e) { setToast("La liste ne répond pas : " + (e.message ?? "")); setTimeout(() => setToast(""), 2600); }
   };
+  useTempsReel(["evenements", "evenement_reponses"], () => charger());
   useEffect(() => {
     memoire.ecrire("evenements.quand", quandListe);
     const t = setTimeout(() => { setListe(memoire.lire(`evenements.${quandListe}`) ?? null); charger(quandListe); }, 0);

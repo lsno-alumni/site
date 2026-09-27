@@ -10,6 +10,7 @@ import Collage from "@/components/Collage";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 import useClicDehors from "@/lib/useClicDehors";
 import { signaler, VISIBILITES } from "@/lib/fil";
+import useTempsReel from "@/lib/tempsReel";
 import { lireEvenement, repondre, annulerEvenement, supprimerEvenement, modererEvenement, creerDiscussion, ajouterPhoto, supprimerPhoto, quandLong, dansCombien, ou, urlAffiche, urlPhoto, estPasse, fichierIcs, lienGoogleAgenda, REPONSES } from "@/lib/evenements";
 
 // Un événement ouvert (page /evenements/[id] ET feuille depuis la liste ou le
@@ -51,6 +52,10 @@ export function SuiteEvenement({ e: initial, moi, moderateur, enFeuille = false,
   useClicDehors(menu, (ev) => menuRef.current?.contains(ev.target), () => setMenu(false));
   const signale = (t) => { setToast(t); setTimeout(() => setToast(""), 2600); };
   const recharger = async () => { try { const n = await lireEvenement(e.id); if (n) { setE(n); onMaj?.(n); } } catch { /* on garde l'état */ } };
+  // réponses, photos, changements : la fiche se met à jour seule
+  useTempsReel([{ table: "evenement_reponses", filtre: `evenement_id=eq.${initial.id}` }, { table: "evenements", filtre: `id=eq.${initial.id}` }, { table: "evenement_photos", filtre: `evenement_id=eq.${initial.id}` }], recharger);
+  const [recu, setRecu] = useState(initial);
+  if (recu !== initial) { setRecu(initial); setE(initial); }
   const o = e.organisateur ?? {};
   const passe = estPasse(e);
   const participe = e.est_moi || e.ma_reponse === "oui";
@@ -169,6 +174,8 @@ export function SuiteEvenement({ e: initial, moi, moderateur, enFeuille = false,
 
 export default function ContenuEvenement({ e: initial, moi, moderateur }) {
   const [e, setE] = useState(initial);
+  const [recu, setRecu] = useState(initial);
+  if (recu !== initial) { setRecu(initial); setE(initial); }
   return (
     <>
       <TeteEvenement e={e} />

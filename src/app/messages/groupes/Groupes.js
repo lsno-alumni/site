@@ -6,6 +6,8 @@ import { X, Search, Users, Award, Check, Clock, Lock, Globe2, Briefcase } from "
 import * as memoire from "@/lib/memoire";
 import { groupesVisibles, rejoindreGroupe, retirerDemandeGroupe, ACCES } from "@/lib/messages";
 import { VISIBILITES } from "@/lib/fil";
+import useTempsReel from "@/lib/tempsReel";
+import GlisserRafraichir from "@/components/GlisserRafraichir";
 
 // L'annuaire des groupes qu'on peut rejoindre : ouverts (un tap) ou sur
 // demande (le créateur accepte). Les groupes de l'amicale d'abord.
@@ -22,6 +24,7 @@ export default function Groupes({ enFeuille = false }) {
     catch (e) { signale("Impossible de lire les groupes : " + (e.message ?? "")); }
   };
   useEffect(() => { const t = setTimeout(() => charger(q), q ? 250 : 0); return () => clearTimeout(t); }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
+  useTempsReel(["conversations", "groupe_demandes"], () => charger());
 
   const agir = async (g) => {
     setOccupe(g.id);
@@ -37,7 +40,7 @@ export default function Groupes({ enFeuille = false }) {
     setOccupe(null);
   };
 
-  return (
+  const contenu = (
     <div className={`cp${enFeuille ? " cp-feuille" : ""}`}>
       <div className="msg-nc-haut">
         <header className="cp-tete">
@@ -80,4 +83,6 @@ export default function Groupes({ enFeuille = false }) {
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
     </div>
   );
+  // en pleine page : glisser-rafraîchir ; en feuille, la feuille a son propre défilement
+  return enFeuille ? contenu : <GlisserRafraichir onRafraichir={() => charger()}>{contenu}</GlisserRafraichir>;
 }

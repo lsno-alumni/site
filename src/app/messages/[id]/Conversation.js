@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { plat } from "@/components/Surligne";
+import useTempsReel from "@/lib/tempsReel";
 import { VISIBILITES, depuis } from "@/lib/fil";
 import LecteurAudio from "@/components/LecteurAudio";
 import Sondage from "./Sondage";
@@ -206,6 +207,7 @@ export default function Conversation({ id, moi }) {
     demandesGroupe(id).then((l) => { if (vivant) setDemandes(l); }).catch(() => {});
     return () => { vivant = false; };
   }, [peutTraiter, id, conv?.acces]);
+  useTempsReel([{ table: "groupe_demandes", filtre: `conversation_id=eq.${id}` }], () => { demandesGroupe(id).then(setDemandes).catch(() => {}); }, Boolean(peutTraiter));
   const traiter = async (membre, accepter) => {
     try {
       await traiterDemandeGroupe(id, membre, accepter);
@@ -796,6 +798,21 @@ export default function Conversation({ id, moi }) {
               <b>{panneau === "membres" ? `${membres.length} membres` : panneau === "infos" ? "Le groupe" : panneau === "ajouter" ? "Ajouter des membres" : panneau === "transfert" ? "Transférer à…" : "Nouveau sondage"}</b>
               <button type="button" className="cp-fermer" onClick={() => setPanneau(null)} aria-label="Fermer"><X size={18} aria-hidden /></button>
             </div>
+            {(panneau === "infos" || panneau === "membres") && peutTraiter && demandes.length > 0 && (
+              <div className="gr-demandes">
+                <span className="gr-reglages-titre">{demandes.length} demande{demandes.length > 1 ? "s" : ""} en attente</span>
+                {demandes.map((d) => (
+                  <div key={d.id} className="gr-demande">
+                    <Avatar profil={{ prenom: d.prenom, nom: d.nom, photo: d.photo_url }} className="pub-avatar" />
+                    <span className="gr-demande-texte"><b>{d.prenom} {d.nom}</b><small>{d.promo ? `Promo ${d.promo} · ` : ""}{depuis(d.cree_le)}</small></span>
+                    <span className="gr-demande-actions">
+                      <button type="button" className="oui" onClick={() => traiter(d.id, true)} aria-label={`Accepter ${d.prenom}`}><Check size={16} strokeWidth={2.4} aria-hidden /></button>
+                      <button type="button" onClick={() => traiter(d.id, false)} aria-label={`Refuser ${d.prenom}`}><X size={16} aria-hidden /></button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
             {panneau === "membres" && (
               <>
                 {vue?.description && <p className="msg-aide" style={{ padding: "0 10px 10px" }}>{vue.description}</p>}
@@ -809,21 +826,6 @@ export default function Conversation({ id, moi }) {
                   </div>
                 ))}
               </>
-            )}
-            {(panneau === "infos" || panneau === "membres") && peutTraiter && demandes.length > 0 && (
-              <div className="gr-demandes">
-                <span className="gr-reglages-titre">{demandes.length} demande{demandes.length > 1 ? "s" : ""} en attente</span>
-                {demandes.map((d) => (
-                  <div key={d.id} className="gr-demande">
-                    <Avatar profil={{ prenom: d.prenom, nom: d.nom, photo: d.photo_url }} className="pub-avatar" />
-                    <span><b>{d.prenom} {d.nom}</b><small>{d.promo ? `Promo ${d.promo} · ` : ""}{depuis(d.cree_le)}</small></span>
-                    <span className="gr-demande-actions">
-                      <button type="button" className="oui" onClick={() => traiter(d.id, true)} aria-label={`Accepter ${d.prenom}`}><Check size={16} strokeWidth={2.4} aria-hidden /></button>
-                      <button type="button" onClick={() => traiter(d.id, false)} aria-label={`Refuser ${d.prenom}`}><X size={16} aria-hidden /></button>
-                    </span>
-                  </div>
-                ))}
-              </div>
             )}
             {panneau === "infos" && (
               <div className="groupe-infos">

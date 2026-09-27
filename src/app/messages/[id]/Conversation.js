@@ -631,7 +631,7 @@ export default function Conversation({ id, moi }) {
                 <button type="button" onClick={() => agir("epingle")}>{moiMembre?.epingle ? <><PinOff size={15} aria-hidden /> Désépingler</> : <><Pin size={15} aria-hidden /> Épingler en haut</>}</button>
                 <button type="button" onClick={() => agir("sourdine")}>{moiMembre?.muet ? <><Bell size={15} aria-hidden /> Rétablir les notifications</> : <><BellOff size={15} aria-hidden /> Mettre en sourdine</>}</button>
                 {vue.type === "groupe" && <button type="button" onClick={() => agir("membres")}><Users size={15} aria-hidden /> Membres</button>}
-                {vue.type === "groupe" && <button type="button" onClick={() => agir("infos")}><Info size={15} aria-hidden /> {anime ? "Photo, nom, description" : "Infos du groupe"}</button>}
+                {vue.type === "groupe" && <button type="button" onClick={() => agir("infos")}><Info size={15} aria-hidden /> {anime ? "Réglages du groupe" : "Infos du groupe"}</button>}
                 {anime && <button type="button" onClick={() => agir("ajouter")}><UserPlus size={15} aria-hidden /> Ajouter des membres</button>}
                 {autre && <button type="button" className={bloqueParMoi ? "" : "danger"} onClick={() => agir("bloquer")}><Ban size={15} aria-hidden /> {bloqueParMoi ? `Débloquer ${autre.prenom}` : `Bloquer ${autre.prenom}`}</button>}
                 {vue.type === "groupe" && <button type="button" onClick={() => agir("quitter")}><LogOut size={15} aria-hidden /> Quitter le groupe</button>}

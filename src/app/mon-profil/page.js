@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as memoire from "@/lib/memoire";
@@ -135,7 +136,7 @@ export default function MonProfil() {
     if (!estEleve && champs.situation === "eleve") champs.situation = "etudiant";
     const { error } = await supabase.from("profiles").update(champs).eq("id", id);
     if (!error) { setEnregistre(empreinte(profil)); memoire.ecrire("profil.moi", profil); routeur.refresh(); }
-    setToast(error ? "Échec de l'enregistrement : " + error.message : "Profil enregistré ✓");
+    setToast(error ? "Échec de l'enregistrement : " + texteErreur(error) : "Profil enregistré ✓");
     setTimeout(() => setToast(""), 3000);
   };
 
@@ -156,7 +157,7 @@ export default function MonProfil() {
     // puis le compte auth (profil + parcours partent en cascade)
     const { error } = await supabase.rpc("supprimer_mon_compte");
     if (error) {
-      setToast("La suppression a échoué : " + error.message);
+      setToast("La suppression a échoué : " + texteErreur(error));
       setTimeout(() => setToast(""), 4000);
       return;
     }

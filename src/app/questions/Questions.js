@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { HelpCircle, MessageCircle, CheckCircle2, EyeOff, PenLine, Search, Lock, Paperclip } from "lucide-react";
@@ -53,8 +54,8 @@ export default function Questions() {
   const [souci, setSouci] = useState("");
 
   const charger = async (f = filtre, t = theme, mots = q) => {
-    try { const l = await listeQuestions({ filtre: f, theme: t, q: mots }); setListe(l); setFin(l.length < 20); setSouci(""); }
-    catch (e) { setSouci("Les questions ne répondent pas : " + (e.message ?? "")); if (liste === null) setListe([]); }
+    try { const l = await avecReprise(() => listeQuestions({ filtre: f, theme: t, q: mots })); setListe(l); setFin(l.length < 20); setSouci(""); }
+    catch (e) { setSouci("Les questions ne répondent pas : " + texteErreur(e)); if (liste === null) setListe([]); }
   };
   useTempsReel(["questions", "reponses"], () => charger());
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect

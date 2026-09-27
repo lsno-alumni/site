@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { avecReprise } from "@/lib/erreurs";
 import { Plus } from "lucide-react";
 import * as memoire from "@/lib/memoire";
 import { chargerRail } from "@/lib/moments";
@@ -20,7 +21,7 @@ export default function RailMoments({ moi, moderateur }) {
   const [suivi, setSuivi] = useState(false);       // panneau « Mes moments »
 
   const charger = async () => {
-    try { const r = await chargerRail(); setRail(r); memoire.ecrire("fil.rail", r); } catch { /* le rail reste tel quel */ }
+    try { const r = await avecReprise(() => chargerRail()); setRail(r); memoire.ecrire("fil.rail", r); } catch { /* le rail reste tel quel */ }
   };
   useTempsReel(["moments", "moment_reactions"], () => charger());
   useEffect(() => {

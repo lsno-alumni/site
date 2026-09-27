@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { Send, Check, Share2, MessageCircle } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
@@ -26,7 +27,7 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
     });
     setEnCours(false);
     if (error) {
-      setErreur("Envoi impossible : " + error.message);
+      setErreur("Envoi impossible : " + texteErreur(error));
       return;
     }
     setStatut("attente");
@@ -43,14 +44,14 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
       if (bloque) { await debloquer(cibleId); setBloque(false); setErreur("Membre débloqué"); }
       else { if (!confirm(`Bloquer ${prenom} ? Plus de conversation possible entre vous, ses messages disparaissent de ta vue.`)) return; await bloquer(cibleId); setBloque(true); setErreur("Membre bloqué"); }
       setTimeout(() => setErreur(""), 2500);
-    } catch (e) { setErreur("Impossible : " + (e.message ?? "")); setTimeout(() => setErreur(""), 3000); }
+    } catch (e) { setErreur("Impossible : " + texteErreur(e)); setTimeout(() => setErreur(""), 3000); }
   };
   const ecrire = async () => {
     try {
       const { ouvrirDuo } = await import("@/lib/messages");
       const cid = await ouvrirDuo(cibleId);
       window.location.assign(`/messages/${cid}`);
-    } catch (e) { setErreur("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setTimeout(() => setErreur(""), 3000); }
+    } catch (e) { setErreur("Impossible d'ouvrir la conversation : " + texteErreur(e)); setTimeout(() => setErreur(""), 3000); }
   };
   const partager = async () => {
     const url = window.location.href;

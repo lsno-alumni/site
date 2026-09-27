@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { MessageCircle, PenLine, Users, X } from "lucide-react";
@@ -21,7 +22,7 @@ export default function EnvoyerEnMessage({ chemin, titre, className = "btn btn-n
   const envoyer = async (c) => {
     setEnvoi(c.id);
     try { await envoyerLien(c.id, chemin, titre); setOuvert(false); setToast(`Envoyé à ${nomConversation(c)}`); setTimeout(() => setToast(""), 2600); }
-    catch (e) { setToast("Envoi impossible : " + (e.message ?? "")); setTimeout(() => setToast(""), 2600); }
+    catch (e) { setToast("Envoi impossible : " + texteErreur(e)); setTimeout(() => setToast(""), 2600); }
     setEnvoi(null);
   };
 

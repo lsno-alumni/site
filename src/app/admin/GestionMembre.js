@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { HistoriqueMembre } from "./Journal";
@@ -75,7 +76,7 @@ export default function GestionMembre({ moiId, signale }) {
       await fn();
       signale(succes);
     } catch (e) {
-      signale("Refusé : " + (e.message ?? e));
+      signale("Refusé : " + texteErreur(e));
     }
     setEnCours(false);
   };

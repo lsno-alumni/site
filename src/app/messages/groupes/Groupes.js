@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur, avecReprise } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, Search, Users, Award, Check, Clock, Lock, Globe2, Briefcase } from "lucide-react";
 import * as memoire from "@/lib/memoire";
@@ -20,8 +21,8 @@ export default function Groupes({ enFeuille = false }) {
   const [toast, setToast] = useState("");
   const signale = (t) => { setToast(t); setTimeout(() => setToast(""), 2600); };
   const charger = async (recherche = q) => {
-    try { const l = await groupesVisibles(recherche); setListe(l); if (!recherche) memoire.ecrire("groupes.liste", l); }
-    catch (e) { signale("Impossible de lire les groupes : " + (e.message ?? "")); }
+    try { const l = await avecReprise(() => groupesVisibles(recherche)); setListe(l); if (!recherche) memoire.ecrire("groupes.liste", l); }
+    catch (e) { signale("Impossible de lire les groupes : " + texteErreur(e)); }
   };
   useEffect(() => { const t = setTimeout(() => charger(q), q ? 250 : 0); return () => clearTimeout(t); }, [q]); // eslint-disable-line react-hooks/exhaustive-deps
   useTempsReel(["conversations", "groupe_demandes"], () => charger());
@@ -36,7 +37,7 @@ export default function Groupes({ enFeuille = false }) {
         if (r === "membre") { signale(`Tu es dans « ${g.nom} »`); if (enFeuille) window.location.assign(`/messages/${g.id}`); else routeur.push(`/messages/${g.id}`); }
         else { signale("Demande envoyée : le créateur du groupe la verra."); await charger(); }
       }
-    } catch (e) { signale(e.message ?? "Impossible"); }
+    } catch (e) { signaletexteErreur(e); }
     setOccupe(null);
   };
 

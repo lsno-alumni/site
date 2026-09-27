@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, MapPin, Video, Users, PenLine, Award, Ban } from "lucide-react";
@@ -55,8 +56,8 @@ export default function Evenements() {
   const [toast, setToast] = useState("");
 
   const charger = async (q = quandListe) => {
-    try { const l = await listeEvenements({ quand: q, limite: 50 }); setListe(l); memoire.ecrire(`evenements.${q}`, l); }
-    catch (e) { setToast("La liste ne répond pas : " + (e.message ?? "")); setTimeout(() => setToast(""), 2600); }
+    try { const l = await avecReprise(() => listeEvenements({ quand: q, limite: 50 })); setListe(l); memoire.ecrire(`evenements.${q}`, l); }
+    catch (e) { setToast("La liste ne répond pas : " + texteErreur(e)); setTimeout(() => setToast(""), 2600); }
   };
   useTempsReel(["evenements", "evenement_reponses"], () => charger());
   useEffect(() => {

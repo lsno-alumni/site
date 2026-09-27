@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -34,7 +35,7 @@ export default function DemandesRecues({ signale }) {
       .update({ statut: accepte ? "acceptee" : "refusee" })
       .eq("id", d.id);
     if (error) {
-      signale("Échec : " + error.message);
+      signale("Échec : " + texteErreur(error));
       return;
     }
     setDemandes((l) => l.filter((x) => x.id !== d.id));

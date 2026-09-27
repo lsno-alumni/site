@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { Search, X, UserPlus } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { creerClientNavigateur } from "@/lib/supabase/client";
@@ -17,7 +18,7 @@ export default function ComptesEssai({ actif }) {
   const [q, setQ] = useState("");
   const [occupe, setOccupe] = useState(null);
   const [souci, setSouci] = useState("");
-  const charger = () => supabase.rpc("admin_essai_comptes").then(({ data, error }) => { if (error) setSouci(error.message); else setListe(data ?? []); });
+  const charger = () => supabase.rpc("admin_essai_comptes").then(({ data, error }) => { if (error) setSouci(texteErreur(error)); else setListe(data ?? []); });
   useEffect(() => { const t = setTimeout(charger, 0); return () => clearTimeout(t); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (q.trim() && membres === null) carnet().then(setMembres).catch(() => setMembres([])); }, [q, membres]);
   const resultats = useMemo(() => {
@@ -29,13 +30,13 @@ export default function ComptesEssai({ actif }) {
   const ajouter = async (m) => {
     setOccupe(m.id); setSouci("");
     const { error } = await supabase.rpc("admin_essai_ajouter", { p_profil: m.id });
-    if (error) setSouci(error.message); else { setQ(""); await charger(); }
+    if (error) setSouci(texteErreur(error)); else { setQ(""); await charger(); }
     setOccupe(null);
   };
   const retirer = async (c) => {
     setOccupe(c.id); setSouci("");
     const { error } = await supabase.rpc("admin_essai_retirer", { p_profil: c.id });
-    if (error) setSouci(error.message); else await charger();
+    if (error) setSouci(texteErreur(error)); else await charger();
     setOccupe(null);
   };
   return (

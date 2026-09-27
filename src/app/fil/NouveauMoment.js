@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import { X, Camera, Clapperboard, Globe2, Users, Briefcase, Clock } from "lucide-react";
 import { VISIBILITES } from "@/lib/fil";
@@ -58,7 +59,7 @@ export default function NouveauMoment({ moi, onFermer, onPublie }) {
       await publierMoment({ fichier: media.fichier, type: media.type, legende, visibilite, duree, mentions: mentions.idsPour(legende) });
       URL.revokeObjectURL(media.url);
       onPublie?.();
-    } catch (e) { setSouci("Publication impossible : " + (e?.message ?? "réessaie dans un instant.")); setEnvoi(false); }
+    } catch (e) { setSouci("Publication impossible : " + texteErreur(e)); setEnvoi(false); }
   };
   const nomCercle = (cle) => cle === "promo" && moi.promo ? `Promo ${moi.promo}` : cle === "domaine" && moi.domaine ? moi.domaine : VISIBILITES.find((v) => v.cle === cle).nom;
 

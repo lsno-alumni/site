@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 const VIERGE = { titre: "", etablissement: "", ville: "", annee_debut: "", annee_fin: "" };
@@ -38,7 +39,7 @@ export default function Parcours({ profilId, signale }) {
       ? await supabase.from("parcours").update(valeurs).eq("id", edition.id)
       : await supabase.from("parcours").insert(valeurs);
     if (error) {
-      signale("Échec : " + error.message);
+      signale("Échec : " + texteErreur(error));
       return;
     }
     setEdition(null);

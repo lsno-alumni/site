@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, Image as ImageIcon, Trash2, Globe2, Users, Briefcase, MapPin, Video, Calendar } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -65,7 +66,7 @@ export default function FormulaireEvenement({ moi, initial = null, modifier = fa
       let id = initial?.id;
       if (modifier) await modifierEvenement(id, champs); else id = await creerEvenement(champs);
       if (enFeuille) routeur.replace(`/evenements/${id}`); else window.location.assign(`/evenements/${id}`);
-    } catch (err) { setSouci("Impossible d’enregistrer : " + (err?.message ?? "")); setEnvoi(false); }
+    } catch (err) { setSouci("Impossible d’enregistrer : " + texteErreur(err)); setEnvoi(false); }
   };
 
   return (

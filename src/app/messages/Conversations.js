@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X, ChevronRight } from "lucide-react";
@@ -71,8 +72,8 @@ export default function Conversations({ moi }) {
   }, [liste?.map((c) => c.id).join(",")]);
 
   const charger = async () => {
-    try { setListe(await mesConversations()); setSouci(""); }
-    catch (e) { setSouci("Les messages ne répondent pas : " + (e.message ?? "")); if (liste === null) setListe([]); }
+    try { setListe(await avecReprise(() => mesConversations())); setSouci(""); }
+    catch (e) { setSouci("Les messages ne répondent pas : " + texteErreur(e)); if (liste === null) setListe([]); }
   };
   // au montage et à chaque retour sur /messages (une conversation lue change les compteurs)
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
@@ -110,7 +111,7 @@ export default function Conversations({ moi }) {
         if (!confirm(c.type === "groupe" ? `Quitter le groupe « ${nomConversation(c)} » ?` : `Supprimer la conversation avec ${nomConversation(c)} ? Elle disparaît de ta liste ; l'autre garde la sienne.`)) return;
         await retirerMembre(c.id, moi.id); await charger(); signale(c.type === "groupe" ? "Groupe quitté" : "Conversation supprimée");
       }
-    } catch (e) { signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { signale("Action impossible : " + texteErreur(e)); }
   };
 
   return (

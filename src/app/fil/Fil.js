@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Camera, MessageCircle, Share2, MoreHorizontal, PenLine, ArrowRight, Play } from "lucide-react";
@@ -59,7 +60,7 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
         if (navigator.share) await navigator.share({ title: `${p.auteur.prenom} sur LSNO Amicale`, url });
         else { await navigator.clipboard.writeText(url); signale("Lien copié"); }
       }
-    } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + texteErreur(e)); }
   };
   return (
     <article className={`pub${p.masquee ? " pub-masquee" : ""}${menu ? " menu-ouvert" : ""}`}>
@@ -164,16 +165,16 @@ export default function Fil({ moi, moderateur }) {
 
   const charger = async () => {
     try {
-      const r = await chargerFil();
+      const r = await avecReprise(() => chargerFil());
       setItems(r.items); setFin(r.fin); setDernierePub(r.dernierePub);
-    } catch (e) { signale("Le fil ne répond pas : " + (e.message ?? "")); }
+    } catch (e) { signale("Le fil ne répond pas : " + texteErreur(e)); }
   };
   // rafraîchissement DISCRET : les cartes déjà là reçoivent leurs compteurs à
   // jour (bravos, commentaires, réponses) sans bouger ; les nouvelles cartes
   // ne s'ajoutent en tête que si on est en haut, pour ne pas décaler la lecture
   const rafraichirDoucement = async () => {
     try {
-      const r = await chargerFil();
+      const r = await avecReprise(() => chargerFil());
       setItems((anciens) => {
         if (!anciens) return r.items;
         const parId = new Map(r.items.map((x) => [x.id, x]));

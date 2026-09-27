@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Check, Search, Users } from "lucide-react";
 import Avatar from "@/components/Avatar";
@@ -24,7 +25,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
   const [souci, setSouci] = useState("");
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { membresJoignables().then(setMembres).catch((e) => { setSouci(e.message); setMembres([]); }); }, []);
+  useEffect(() => { membresJoignables().then(setMembres).catch((e) => { setSouci(texteErreur(e)); setMembres([]); }); }, []);
 
   const filtres = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -47,7 +48,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
       // en feuille : la conversation n'a pas de feuille associée, la feuille resterait
       // affichée par-dessus (créneau parallèle) → navigation complète
       if (enFeuille) window.location.assign(`/messages/${id}`); else routeur.replace(`/messages/${id}`);
-    } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setEnvoi(false); }
+    } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + texteErreur(e)); setEnvoi(false); }
   };
 
   return (

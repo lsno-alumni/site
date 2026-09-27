@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
 import { X, Plus, Eye, Trash2, Play, BookmarkPlus } from "lucide-react";
 import { depuis, VISIBILITES } from "@/lib/fil";
@@ -26,7 +27,7 @@ export default function MesMoments({ entree, onVoir, onNouveau, onFermer, onChan
   const garder = async (m) => {
     setGarde(m.id);
     try { await garderEnPublication(m); signale("Publié dans le Fil, pour de bon."); window.dispatchEvent(new CustomEvent("lsno:rafraichir")); }
-    catch (e) { signale("Impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible : " + texteErreur(e)); }
     setGarde(null);
   };
   const supprimer = async (m) => {

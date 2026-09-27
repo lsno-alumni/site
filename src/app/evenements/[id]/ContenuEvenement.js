@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CalendarDays, MapPin, Video, Users, MoreHorizontal, Share2, Award, Ban, Check, HelpCircle, CalendarPlus, ExternalLink, MessageCircle, Camera, Trash2, Copy, Pencil, MessagesSquare } from "lucide-react";
@@ -86,7 +87,7 @@ export function SuiteEvenement({ e: initial, moi, moderateur, enFeuille = false,
       if (action === "discussion") { setOccupe("discussion"); const cid = await creerDiscussion(e); routeur.push(`/messages/${cid}`); }
       if (action === "photo") { setOccupe("photo"); await ajouterPhoto(e.id, arg); await recharger(); signale("Photo ajoutée"); }
       if (action === "supprimer_photo") { if (!confirm("Retirer cette photo ?")) return; await supprimerPhoto(arg); await recharger(); }
-    } catch (err) { if (err?.name !== "AbortError") signale("Action impossible : " + (err.message ?? "")); }
+    } catch (err) { if (err?.name !== "AbortError") signale("Action impossible : " + texteErreur(err)); }
     setOccupe("");
   };
 

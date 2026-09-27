@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -214,7 +215,7 @@ export default function Conversation({ id, moi }) {
       setDemandes((l) => l.filter((d) => d.id !== membre));
       if (accepter) setConv(await lireConversation(id));
       signale(accepter ? "Bienvenue à la nouvelle personne !" : "Demande refusée");
-    } catch (e) { signale("Impossible : " + (e.message ?? "")); }
+    } catch (e) { signale("Impossible : " + texteErreur(e)); }
   };
   const autre = vue?.type === "duo" ? vue.membres[0] : null;
   const bloqueParMoi = !!autre && blocages.includes(autre.id);
@@ -299,7 +300,7 @@ export default function Conversation({ id, moi }) {
         signer(m); chargerReactions(m); chargerSondages(m); chargerEpingle(c, m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
         doitDescendre.current = "instant";
-      } catch (e) { if (vivant) { setSouci(e.message ?? "Erreur"); setMessages([]); } }
+      } catch (e) { if (vivant) { setSoucitexteErreur(e); setMessages([]); } }
     })();
     const stops = [
       ecouterMessages(id, {
@@ -475,7 +476,7 @@ export default function Conversation({ id, moi }) {
         doitDescendre.current = "smooth";
       }
       annulerSaisie(); memoire.ecrire("messages.liste", null);
-    } catch (err) { signale("Envoi impossible : " + (err.message ?? "")); }
+    } catch (err) { signale("Envoi impossible : " + texteErreur(err)); }
     setEnvoi(false);
   };
 
@@ -505,7 +506,7 @@ export default function Conversation({ id, moi }) {
         if (!confirm("Supprimer ce groupe pour tout le monde ? Les messages seront perdus.")) return;
         await supprimerGroupe(id); memoire.ecrire("messages.liste", null); routeur.replace("/messages");
       }
-    } catch (e) { signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { signale("Action impossible : " + texteErreur(e)); }
   };
   const validerInfos = async () => {
     try {
@@ -514,16 +515,16 @@ export default function Conversation({ id, moi }) {
       await majGroupe(id, champs);
       if (champs.nom !== conv.nom) await renommerGroupe(id, champs.nom);
       setConv(await lireConversation(id)); setPanneau(null); memoire.ecrire("messages.liste", null); signale("Groupe mis à jour");
-    } catch (e) { signale("Impossible d'enregistrer : " + (e.message ?? "")); }
+    } catch (e) { signale("Impossible d'enregistrer : " + texteErreur(e)); }
   };
   const validerAjout = async () => {
     try { await ajouterMembres(id, ajout); setConv(await lireConversation(id)); setPanneau(null); signale(`${ajout.length} membre${ajout.length > 1 ? "s" : ""} ajouté${ajout.length > 1 ? "s" : ""}`); }
-    catch (e) { signale("Impossible d'ajouter : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible d'ajouter : " + texteErreur(e)); }
   };
   const retirer = async (m) => {
     if (!confirm(`Retirer ${m.prenom} du groupe ?`)) return;
     try { await retirerMembre(id, m.id); setConv(await lireConversation(id)); }
-    catch (e) { signale("Impossible de retirer : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible de retirer : " + texteErreur(e)); }
   };
   const validerSondage = async () => {
     const choix = sondageForm.choix.map((c) => c.trim()).filter(Boolean);
@@ -534,7 +535,7 @@ export default function Conversation({ id, moi }) {
       chargerSondages([m]); setReactions((p) => ({ ...p, [m.id]: [] }));
       setPanneau(null); setSondageForm({ question: "", choix: ["", ""], multiple: false });
       doitDescendre.current = "smooth"; memoire.ecrire("messages.liste", null);
-    } catch (e) { signale("Sondage impossible : " + (e.message ?? "")); }
+    } catch (e) { signale("Sondage impossible : " + texteErreur(e)); }
   };
 
   // ---- actions sur une bulle ----
@@ -550,7 +551,7 @@ export default function Conversation({ id, moi }) {
     fermerMenuMsg();
     if (!confirm("Supprimer ce message ?")) return;
     try { await supprimerMessage(m.id); setMessages((l) => l.filter((x) => x.id !== m.id)); }
-    catch (e) { signale("Impossible de supprimer : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible de supprimer : " + texteErreur(e)); }
   };
   const repondre = (m) => { fermerMenuMsg(); setEdition(null); setReponseA(m); champ.current?.focus(); };
   const modifier = (m) => { fermerMenuMsg(); setReponseA(null); setEdition(m); setTexte(m.texte ?? ""); mentions.reprendre((m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)); champ.current?.focus(); };
@@ -570,13 +571,13 @@ export default function Conversation({ id, moi }) {
       await epinglerMessage(id, retirerEp ? null : m.id);
       setEpingle(retirerEp ? null : m); setConv((c) => ({ ...c, message_epingle: retirerEp ? null : m.id }));
       signale(retirerEp ? "Message désépinglé" : "Message épinglé en haut");
-    } catch (e) { signale("Impossible d'épingler : " + (e.message ?? "")); }
+    } catch (e) { signale("Impossible d'épingler : " + texteErreur(e)); }
   };
   const signalerMsg = async (m) => {
     fermerMenuMsg();
     if (!confirm("Signaler ce message aux modérateurs ?")) return;
     try { await signalerMessage(m, nomDe(m.auteur)); signale("Merci, les modérateurs sont prévenus."); }
-    catch (e) { signale("Signalement impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Signalement impossible : " + texteErreur(e)); }
   };
   const copier = async (m) => {
     fermerMenuMsg();
@@ -586,12 +587,12 @@ export default function Conversation({ id, moi }) {
   const transferer = async (m) => { fermerMenuMsg(); setATransferer(m); setPanneau("transfert"); if (!convs) setConvs(await mesConversations().catch(() => [])); };
   const validerTransfert = async (c) => {
     try { await transfererMessage(aTransferer, c.id); setPanneau(null); setATransferer(null); signale(`Transféré à ${nomConversation(c)}`); }
-    catch (e) { signale("Transfert impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Transfert impossible : " + texteErreur(e)); }
   };
   const repondreEnPrive = async (m) => {
     fermerMenuMsg();
     try { const cid = await ouvrirDuo(m.auteur); routeur.push(`/messages/${cid}?citer=${encodeURIComponent(m.texte?.trim() ? m.texte.slice(0, 200) : libellePiece(m))}`); }
-    catch (e) { signale("Impossible : " + (e.message ?? "")); }
+    catch (e) { signale("Impossible : " + texteErreur(e)); }
   };
   const allerA = (mid) => {
     const el = document.getElementById(`m-${mid}`);

@@ -2536,3 +2536,13 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .gr-demande-actions button { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); display: grid; place-items: center; cursor: pointer; }
 .gr-demande-actions button.oui { background: var(--bleu-clair); border-color: var(--bleu-clair); color: var(--sur-accent); }
 .gr-pastille { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px; background: var(--bleu-clair); color: var(--sur-accent); font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+
+/* admin : comptes de test des notifications */
+.ce-bloc { display: grid; gap: 8px; border-top: 1px solid var(--ligne); padding-top: 10px; }
+.ce-liste { display: flex; flex-wrap: wrap; gap: 6px; }
+.ce-puce { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 3px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); font-size: 13px; }
+.ce-puce .com-avatar { width: 24px !important; height: 24px !important; font-size: 10px; }
+.ce-puce small { color: var(--brume); }
+.ce-puce button { width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(var(--texte-rgb), .08); color: var(--texte-2); display: grid; place-items: center; cursor: pointer; }
+.ce-recherche { margin: 2px 0 0; }
+.ce-resultats { display: grid; gap: 2px; border: 1px solid var(--ligne); border-radius: 14px; padding: 4px; background: var(--carte); }

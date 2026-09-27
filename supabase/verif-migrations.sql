@@ -165,6 +165,8 @@ with attendu(num, laisse, present) as (
     and exists (select 1 from information_schema.columns where table_name = 'conversations' and column_name = 'acces')
   union all select 69, 'temps réel du réseau social (publications, questions, événements, moments, demandes)',
     exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'publications')
+  union all select 70, 'comptes de test des notifications gérés dans l''interface (admin_essai_*)',
+    to_regprocedure('admin_essai_ajouter(uuid)') is not null
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import ComptesEssai from "./ComptesEssai";
 
 // Tableau de bord lecture seule : les tâches automatiques tournent-elles ?
 const NOMS = {
@@ -273,6 +274,7 @@ export default function EtatSysteme() {
             </button>
           </div>
         )}
+        {modeEssai !== null && <ComptesEssai actif={modeEssai} />}
 
         <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5,
                        borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>

@@ -22,3 +22,23 @@ select 'mode actif, que C' as essai, push_cibles_essai(array['cccccccc-0000-0000
 
 update reglages set actif = false where cle = 'push_mode_essai';
 select 'mode éteint à nouveau' as essai, array_length(push_cibles_essai(array['cccccccc-0000-0000-0000-000000000003']::uuid[]), 1) as cibles;
+
+-- gestion depuis l'interface (migration 70) : A (admin) ajoute puis retire C
+select set_config('essai.uid', 'aaaaaaaa-0000-0000-0000-000000000001', false);
+set role authenticated;
+select admin_essai_ajouter('cccccccc-0000-0000-0000-000000000003');
+select 'admin ajoute C' as essai, json_array_length(admin_essai_comptes()) as comptes;
+select admin_essai_retirer('cccccccc-0000-0000-0000-000000000003');
+select 'admin retire C' as essai, json_array_length(admin_essai_comptes()) as comptes;
+reset role;
+select set_config('essai.uid', 'bbbbbbbb-0000-0000-0000-000000000002', false);
+set role authenticated;
+do $$ begin
+  begin
+    perform admin_essai_ajouter('cccccccc-0000-0000-0000-000000000003');
+    raise exception 'un membre ordinaire a pu ajouter un compte de test';
+  exception when others then
+    if sqlerrm like '%administrateurs%' then raise notice 'refusé comme attendu'; else raise; end if;
+  end;
+end $$;
+reset role;

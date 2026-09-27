@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { noterNavigationComplete } from "@/components/SuiviNavigation";
 import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, EyeOff, Eye, Paperclip, FileText } from "lucide-react";
@@ -46,7 +47,7 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
       // en feuille : la question remplace le formulaire dans la feuille ; en
       // pleine page : chargement complet, sinon la feuille s'ouvrirait
       // par-dessus le formulaire resté derrière
-      if (enFeuille) routeur.replace(`/questions/${id}`); else window.location.assign(`/questions/${id}`);
+      noterNavigationComplete(); if (enFeuille) routeur.replace(`/questions/${id}`); else window.location.assign(`/questions/${id}`);
     } catch (err) { setSouci("Impossible d'envoyer : " + texteErreur(err)); setEnvoi(false); }
   };
 

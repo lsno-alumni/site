@@ -46,10 +46,15 @@ export async function ouvrirDuo(autreId) {
   return data;
 }
 
-export async function creerGroupe(nom, membres) {
+export async function creerGroupe(nom, membres, reglages = null) {
   const supabase = creerClientNavigateur();
   const { data, error } = await supabase.rpc("creer_groupe", { p_nom: nom, p_membres: membres });
   if (error) throw error;
+  // accès et cercle (migration 68) : posés juste après, par le créateur
+  if (reglages && (reglages.acces !== "prive" || reglages.visibilite !== "tous")) {
+    const { error: e2 } = await supabase.from("conversations").update({ acces: reglages.acces ?? "prive", visibilite: reglages.visibilite ?? "tous" }).eq("id", data);
+    if (e2) throw e2;
+  }
   return data;
 }
 
@@ -68,7 +73,7 @@ export async function lireConversation(id) {
   const supabase = creerClientNavigateur();
   const { data, error } = await supabase
     .from("conversations")
-    .select("id, type, nom, photo_url, description, message_epingle, cree_par, membres:conversation_membres(membre, lu_le, muet, epingle, profil:profiles(id, prenom, nom, photo_url))")
+    .select("id, type, nom, photo_url, description, message_epingle, cree_par, acces, visibilite, officiel, membres:conversation_membres(membre, lu_le, muet, epingle, profil:profiles(id, prenom, nom, photo_url))")
     .eq("id", id).maybeSingle();
   if (error) throw error;
   return data;
@@ -282,6 +287,41 @@ export async function adminStockage() {
 }
 
 // ---- groupe : photo, description, message épinglé ----
+// ---- groupes qu'on peut rejoindre (migration 68) ----
+export const ACCES = [
+  { cle: "prive", nom: "Privé", aide: "on y entre sur invitation d’un membre" },
+  { cle: "demande", nom: "Sur demande", aide: "visible dans « Découvrir des groupes », tu acceptes qui entre" },
+  { cle: "ouvert", nom: "Ouvert", aide: "visible, on entre d’un tap" },
+];
+export async function groupesVisibles(q = "") {
+  const supabase = creerClientNavigateur();
+  const { data, error } = await supabase.rpc("groupes_visibles", { p_q: q || null });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function rejoindreGroupe(id) {
+  const supabase = creerClientNavigateur();
+  const { data, error } = await supabase.rpc("rejoindre_groupe", { p_id: id });
+  if (error) throw error;
+  return data;   // "membre" ou "demande"
+}
+export async function retirerDemandeGroupe(id) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.rpc("retirer_demande_groupe", { p_id: id });
+  if (error) throw error;
+}
+export async function demandesGroupe(id) {
+  const supabase = creerClientNavigateur();
+  const { data, error } = await supabase.rpc("demandes_groupe", { p_id: id });
+  if (error) throw error;
+  return data ?? [];
+}
+export async function traiterDemandeGroupe(id, membre, accepter) {
+  const supabase = creerClientNavigateur();
+  const { error } = await supabase.rpc("traiter_demande_groupe", { p_id: id, p_membre: membre, p_accepter: accepter });
+  if (error) throw error;
+}
+
 export async function majGroupe(id, champs) {
   const supabase = creerClientNavigateur();
   const { error } = await supabase.from("conversations").update(champs).eq("id", id);

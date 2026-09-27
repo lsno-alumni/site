@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Check, Search, Users } from "lucide-react";
 import Avatar from "@/components/Avatar";
-import { membresJoignables, ouvrirDuo, creerGroupe, envoyerLien } from "@/lib/messages";
+import { membresJoignables, ouvrirDuo, creerGroupe, envoyerLien, ACCES } from "@/lib/messages";
+import { VISIBILITES } from "@/lib/fil";
 
 // Le carnet : on coche une personne (conversation à deux) ou plusieurs (un
 // groupe à nommer). La recherche filtre sur le prénom, le nom, la promo.
@@ -17,6 +18,8 @@ export default function NouvelleConversation({ enFeuille = false }) {
   const [q, setQ] = useState("");
   const [choisis, setChoisis] = useState([]);   // ids
   const [nom, setNom] = useState("");
+  const [acces, setAcces] = useState("prive");        // migration 68 : privé / sur demande / ouvert
+  const [visibilite, setVisibilite] = useState("tous");
   const [envoi, setEnvoi] = useState(false);
   const [souci, setSouci] = useState("");
 
@@ -39,7 +42,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
     if (!pret) return;
     setEnvoi(true); setSouci("");
     try {
-      const id = groupe ? await creerGroupe(nom, choisis) : await ouvrirDuo(choisis[0]);
+      const id = groupe ? await creerGroupe(nom, choisis, { acces, visibilite }) : await ouvrirDuo(choisis[0]);
       if (lien) await envoyerLien(id, lien, titreLien);
       routeur.replace(`/messages/${id}`);
     } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setEnvoi(false); }
@@ -57,10 +60,27 @@ export default function NouvelleConversation({ enFeuille = false }) {
       </header>
 
       {groupe && (
-        <div className="msg-nom-groupe">
-          <Users size={18} strokeWidth={1.8} aria-hidden />
-          <input className="saisie" placeholder="Nom du groupe (ex. Promo 3 Rabat)" value={nom} maxLength={60} onChange={(e) => setNom(e.target.value)} />
-        </div>
+        <>
+          <div className="msg-nom-groupe">
+            <Users size={18} strokeWidth={1.8} aria-hidden />
+            <input className="saisie" placeholder="Nom du groupe (ex. Promo 3 Rabat)" value={nom} maxLength={60} onChange={(e) => setNom(e.target.value)} />
+          </div>
+          <div className="gr-reglages" style={{ padding: "0 20px" }}>
+            <div className="n-filtres" role="radiogroup" aria-label="Qui peut rejoindre">
+              {ACCES.map((a) => (
+                <button key={a.cle} type="button" role="radio" aria-checked={acces === a.cle} className={`puce${acces === a.cle ? " active" : ""}`} onClick={() => setAcces(a.cle)} title={a.aide}>{a.nom}</button>
+              ))}
+            </div>
+            <small className="msg-aide" style={{ padding: 0 }}>{ACCES.find((a) => a.cle === acces)?.aide}</small>
+            {acces !== "prive" && (
+              <div className="n-filtres" role="radiogroup" aria-label="Visible par">
+                {VISIBILITES.map((v) => (
+                  <button key={v.cle} type="button" role="radio" aria-checked={visibilite === v.cle} className={`puce${visibilite === v.cle ? " active" : ""}`} onClick={() => setVisibilite(v.cle)} title={v.aide}>{v.nom}</button>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {choisis.length > 0 && (

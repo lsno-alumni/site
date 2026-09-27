@@ -2565,3 +2565,14 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .p-actions { flex-wrap: wrap; }
 .p-actions > .btn-or, .p-actions > span.btn { flex: 1 1 100%; justify-content: center; white-space: nowrap; }
 .p-actions > button.btn-nu { flex: 1 1 0; justify-content: center; white-space: nowrap; }
+
+/* carte question : la photo jointe en vignette */
+.qa-carte.avec-vignette { position: relative; padding-right: 98px; }
+.qa-vignette { position: absolute; right: 12px; top: 12px; width: 74px; height: 74px; border-radius: 12px; object-fit: cover; border: 1px solid var(--ligne); }
+/* accès rapides en haut du Fil (À propos, Validation) et liens de l'accueil */
+.acces-rapides { position: absolute; top: 18px; right: 16px; display: flex; gap: 8px; z-index: 2; }
+.acces-rapide { position: relative; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.22); color: #fff; }
+.acces-rapide.urgent { background: var(--bleu-clair); border-color: var(--bleu-clair); }
+.acces-pastille { top: -6px; left: auto; right: -6px; }
+.am-liens { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.am-lien { display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 100px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: 12.5px; font-weight: 600; text-decoration: none; }

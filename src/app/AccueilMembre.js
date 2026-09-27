@@ -59,6 +59,10 @@ export default function AccueilMembre({ moi, donnees }) {
             <ArrowRight size={14} aria-hidden style={{ marginLeft: "auto" }} />
           </Link>
         )}
+        <div className="am-liens">
+          <Link href="/a-propos" className="am-lien">À propos du réseau</Link>
+          {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
+        </div>
         {completion < 100 && (
           <Link href="/mon-profil" className="am-rappel">
             Ton profil est à {completion} % — le compléter

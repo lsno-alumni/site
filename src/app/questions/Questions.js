@@ -13,7 +13,7 @@ import { SqueletteOffre } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
 import { THEMES_CONSEIL } from "@/lib/donnees";
-import { listeQuestions, FILTRES_QUESTIONS } from "@/lib/questions";
+import { listeQuestions, FILTRES_QUESTIONS, urlPieceQuestion } from "@/lib/questions";
 import useTempsReel from "@/lib/tempsReel";
 
 // La liste des questions : filtres (toutes, sans réponse, ouvertes, résolues,
@@ -21,14 +21,17 @@ import useTempsReel from "@/lib/tempsReel";
 
 export function CarteQuestion({ q }) {
   const a = q.auteur ?? {};
+  const photo = q.fichier_type?.startsWith("image/") && q.fichier_chemin && !q.fichier_expiree ? urlPieceQuestion(q.fichier_chemin) : null;
+  const pdf = q.fichier_type === "application/pdf" && !q.fichier_expiree;
   return (
-    <Link href={`/questions/${q.id}`} className={`qa-carte${q.resolue ? " resolue" : ""}${q.masquee ? " pub-masquee" : ""}`}>
+    <Link href={`/questions/${q.id}`} className={`qa-carte${q.resolue ? " resolue" : ""}${q.masquee ? " pub-masquee" : ""}${photo ? " avec-vignette" : ""}`}>
+      {photo && <img className="qa-vignette" src={photo} alt="" loading="lazy" />}
       <span className="qa-carte-haut">
         {q.theme && <span className="qa-theme">{q.theme}</span>}
         {q.resolue && <span className="qa-resolue"><CheckCircle2 size={12} aria-hidden /> Résolue</span>}
         {q.masquee && <span className="qa-resolue" style={{ color: "var(--rouge)" }}>masquée</span>}
         {q.fermee && <span className="qa-resolue" style={{ color: "var(--brume)" }}><Lock size={11} aria-hidden /> fermée</span>}
-        {q.fichier_type && <span className="qa-resolue" style={{ color: "var(--brume)" }}><Paperclip size={11} aria-hidden /></span>}
+        {pdf && <span className="qa-resolue" style={{ color: "var(--brume)" }}><Paperclip size={11} aria-hidden /> PDF</span>}
       </span>
       <b className="qa-titre">{q.titre}</b>
       {q.details && <p className="qa-extrait">{q.details}</p>}

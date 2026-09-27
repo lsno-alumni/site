@@ -21,6 +21,9 @@ export default function Sommaire({ sections, aria = "Sommaire", className = "" }
         const el = document.getElementById(s.id);
         if (el && el.getBoundingClientRect().top <= 130) courant = s.id;
       }
+      // en bas de page, les dernières sections ne passent jamais la ligne de
+      // lecture (la page ne défile plus) : la dernière s'allume quand même
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) courant = sections[sections.length - 1]?.id ?? courant;
       setEnVue(courant);
     };
     const auDefilement = () => { if (!planifie) { planifie = true; requestAnimationFrame(evaluer); } };

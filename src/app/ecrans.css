@@ -142,6 +142,9 @@
 .am-pierre .carteh3d.actif { border-color: rgba(255,255,255,.55); background: rgba(255,255,255,.14); }
 .am-pierre .carteh3d .promo3d, .am-pierre .am-promo b { color: #F3E3CF; }
 .am-pierre .am-promo span { color: rgba(255,255,255,.7); }
+/* en liste complète comme en roue : verre dépoli sur la pierre, lisible dans les deux thèmes (les cartes claires effaçaient le texte beige) */
+.am-pierre .am-promo { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); }
+.am-pierre .am-promo:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.55); }
 .am-pierre .points3d i { background: rgba(255,255,255,.3); }
 .am-pierre .points3d i.on { background: #fff; }
 .a-monde h4 { font-size: 24px; margin-top: 8px; color: #fff; }
@@ -189,8 +192,9 @@
 .am-sous { color: rgba(255,255,255,.85); font-size: 13.5px; margin-top: 6px; }
 .am-alerte {
   display: flex; align-items: center; gap: 8px; margin-top: 18px;
-  background: rgba(var(--accent-rgb), .14); border: 1px solid rgba(var(--accent-rgb), .4);
-  color: var(--bleu-texte); border-radius: 16px; padding: 13px 15px;
+  /* posé sur la photo d'en-tête, sombre dans les deux thèmes : blanc, pas le bleu du thème */
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.4); backdrop-filter: blur(6px);
+  color: #fff; border-radius: 16px; padding: 13px 15px;
   font-size: 13px; font-weight: 600;
 }
 .am-rappel {
@@ -2546,3 +2550,5 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .ce-puce button { width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(var(--texte-rgb), .08); color: var(--texte-2); display: grid; place-items: center; cursor: pointer; }
 .ce-recherche { margin: 2px 0 0; }
 .ce-resultats { display: grid; gap: 2px; border: 1px solid var(--ligne); border-radius: 14px; padding: 4px; background: var(--carte); }
+/* la pastille de section en cours du sommaire de Conditions : même relief que le sommaire de Mon profil / admin */
+.cg-sommaire .puce.en-vue b { color: inherit; }

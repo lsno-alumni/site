@@ -2334,7 +2334,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .mo-vue { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
 .mo-vue span { display: flex; flex-direction: column; line-height: 1.25; }
 .mo-vue small { font-size: 12px; color: var(--brume); }
-.mo-toast { z-index: 1400; }
+.mo-toast { z-index: 1500; }
 
 .nm-tete { justify-content: space-between; padding-top: calc(12px + env(safe-area-inset-top)); }
 .nm-titre { font-family: var(--font-titres), serif; font-weight: 500; font-size: 20px; padding-left: 8px; }

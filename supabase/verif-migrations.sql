@@ -169,6 +169,8 @@ with attendu(num, laisse, present) as (
     to_regprocedure('admin_essai_ajouter(uuid)') is not null
   union all select 71, 'liste des questions avec la pièce jointe (vignette)',
     exists (select 1 from pg_proc where proname = 'liste_questions' and prosrc like '%fichier_chemin%')
+  union all select 72, 'tour des nouveautés (tour_version, decouvertes sur profiles)',
+    exists (select 1 from information_schema.columns where table_name = 'profiles' and column_name = 'tour_version')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

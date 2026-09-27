@@ -42,3 +42,11 @@ do $$ begin
   end;
 end $$;
 reset role;
+
+-- tour des nouveautés (migration 72) : chacun marque le sien, pas celui d'un autre
+select set_config('essai.uid', 'bbbbbbbb-0000-0000-0000-000000000002', false);
+set role authenticated;
+update profiles set tour_version = 1, decouvertes = array['moments'] where id = 'bbbbbbbb-0000-0000-0000-000000000002';
+update profiles set tour_version = 9 where id = 'cccccccc-0000-0000-0000-000000000003';   -- pas sa ligne : aucune ligne touchée
+select 'tour' as essai, (select tour_version from profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002') as b, (select tour_version from profiles where id = 'cccccccc-0000-0000-0000-000000000003') as c;
+reset role;

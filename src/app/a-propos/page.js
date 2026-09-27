@@ -54,6 +54,13 @@ export default async function APropos() {
       </div>
 
       <section className="ap-section">
+        <Link href="/nouveautes" className="ap-nouveautes">
+          <span><b>Nouveautés du réseau</b><small>Fil, messages, questions, moments, événements, groupes : le tour et les gestes.</small></span>
+          <span className="ap-nouveautes-fleche">→</span>
+        </Link>
+      </section>
+
+      <section className="ap-section">
         <h2 className="a-titre">Comment <em>ça marche</em></h2>
         <ol className="ap-pas">
           <li>

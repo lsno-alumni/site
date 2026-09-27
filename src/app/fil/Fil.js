@@ -24,6 +24,7 @@ import { CarteEvenement } from "@/app/evenements/Evenements";
 import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
 import AccesRapides from "@/components/AccesRapides";
+import Nouveau from "@/components/Nouveau";
 import useTempsReel from "@/lib/tempsReel";
 import { HelpCircle } from "lucide-react";
 
@@ -256,22 +257,34 @@ export default function Fil({ moi, moderateur }) {
         <p className="cpt">Ce qui se passe dans le réseau.</p>
       </header>
 
-      <Link href="/fil/nouvelle" className="fil-compose">
-        <Avatar profil={moi} className="pub-avatar" />
-        <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
-        <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
-      </Link>
+      <div className="avec-nouveau">
+        <Link href="/fil/nouvelle" className="fil-compose">
+          <Avatar profil={moi} className="pub-avatar" />
+          <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
+          <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
+        </Link>
+        <Nouveau cle="publier" className="nouveau-compose" />
+      </div>
 
-      <RailMoments moi={moi} moderateur={moderateur} />
+      <div className="avec-nouveau">
+        <RailMoments moi={moi} moderateur={moderateur} />
+        <Nouveau cle="moments" className="nouveau-rail" />
+      </div>
 
-      <Link href="/questions" className="fil-questions">
-        <HelpCircle size={18} strokeWidth={1.9} aria-hidden />
-        <span><b>Questions aux anciens</b><small>Pose ta question, ou réponds à celles des cadets</small></span>
-      </Link>
-      <Link href="/evenements" className="fil-questions fil-evenements">
-        <CalendarDays size={18} strokeWidth={1.9} aria-hidden />
-        <span><b>Événements</b><small>Dîners de promo, visios, retrouvailles : organise ou réponds</small></span>
-      </Link>
+      <div className="avec-nouveau">
+        <Link href="/questions" className="fil-questions">
+          <HelpCircle size={18} strokeWidth={1.9} aria-hidden />
+          <span><b>Questions aux anciens</b><small>Pose ta question, ou réponds à celles des cadets</small></span>
+        </Link>
+        <Nouveau cle="questions" className="nouveau-bandeau" />
+      </div>
+      <div className="avec-nouveau">
+        <Link href="/evenements" className="fil-questions fil-evenements">
+          <CalendarDays size={18} strokeWidth={1.9} aria-hidden />
+          <span><b>Événements</b><small>Dîners de promo, visios, retrouvailles : organise ou réponds</small></span>
+        </Link>
+        <Nouveau cle="evenements" className="nouveau-bandeau" />
+      </div>
 
       <div className="n-panneau fil-filtres">
         <div className="n-filtres">

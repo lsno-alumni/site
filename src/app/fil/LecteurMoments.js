@@ -2,27 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
-import { X, MoreHorizontal, ThumbsUp, MessageCircle, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, MoreHorizontal, Eye, ChevronLeft, ChevronRight, Send } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import useClicDehors from "@/lib/useClicDehors";
 import { depuis, signaler, VISIBILITES } from "@/lib/fil";
-import { ouvrirDuo } from "@/lib/messages";
-import { marquerVu, bravoMoment, vuesDe, supprimerMoment, modererMoment, expireDans, SECONDES_PHOTO } from "@/lib/moments";
+import { TexteMentions } from "@/lib/mentions";
+import { ouvrirDuo, envoyerMessage } from "@/lib/messages";
+import { marquerVu, reagir, vuesDe, supprimerMoment, modererMoment, expireDans, resumeReactions, SECONDES_PHOTO, EMOJIS_MOMENT } from "@/lib/moments";
 
 // Le lecteur plein écran : les moments d'une personne s'enchaînent (photo
 // 5 s, vidéo jusqu'à sa fin), puis on passe à la personne suivante. Tap à
 // droite = suivant, à gauche = précédent, doigt maintenu = pause, glisser
 // vers le bas = fermer, glisser à gauche/droite = changer de personne.
+// En bas : réponse rapide (part en message privé, sans quitter) et
+// réactions rapides ; pour ses propres moments, les vues et les réactions.
 export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment = 0, moi, moderateur, onFermer, onChange }) {
-  const routeur = useRouter();
   const [ia, setIa] = useState(departAuteur);
   const [im, setIm] = useState(departMoment);
   const [avancement, setAvancement] = useState(0);   // 0..1 du moment en cours
   const [pause, setPause] = useState(false);
   const [menu, setMenu] = useState(false);
   const [vues, setVues] = useState(null);            // liste « qui a vu » (auteur)
-  const [bravo, setBravo] = useState(null);          // { n, actif } local
+  const [reaction, setReaction] = useState(null);    // mon emoji sur le moment en cours
+  const [reponse, setReponse] = useState("");
+  const [envoi, setEnvoi] = useState(false);
   const [toast, setToast] = useState("");
   const [masques, setMasques] = useState({});        // id → masqué (modération faite ici)
   const dejaVus = useRef(new Set());                 // moments marqués vus pendant cette lecture
@@ -56,13 +59,13 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
     setIa(k); setIm(0);
   };
 
-  // à chaque moment affiché : remise à zéro, marque « vu », état du bravo
+  // à chaque moment affiché : remise à zéro, marque « vu », ma réaction
   useEffect(() => {
     if (!m) { onFermer(); return; }
     debutPhoto.current = performance.now(); ecoule.current = 0;
     const r = requestAnimationFrame(() => {
-      setAvancement(0); setPause(false); setMenu(false); setVues(null);
-      setBravo({ n: m.bravos ?? 0, actif: Boolean(m.jai_bravo) });
+      setAvancement(0); setPause(false); setMenu(false); setVues(null); setReponse("");
+      setReaction(m.ma_reaction ?? null);
     });
     if (!mien && !m.vu && !dejaVus.current.has(m.id)) {
       dejaVus.current.add(m.id);
@@ -101,7 +104,10 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
 
   // Échap, et la page derrière ne défile plus
   useEffect(() => {
-    const touche = (e) => { if (e.key === "Escape") onFermer(); if (e.key === "ArrowRight") suivant(); if (e.key === "ArrowLeft") precedent(); };
+    const touche = (e) => {
+      if (e.target?.tagName === "INPUT") { if (e.key === "Escape") e.target.blur(); return; }
+      if (e.key === "Escape") onFermer(); if (e.key === "ArrowRight") suivant(); if (e.key === "ArrowLeft") precedent();
+    };
     document.addEventListener("keydown", touche);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -129,7 +135,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
     }
   };
 
-  const agir = async (action) => {
+  const agir = async (action, arg) => {
     setMenu(false);
     try {
       if (action === "supprimer") {
@@ -138,25 +144,29 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
       }
       if (action === "signaler") { await signaler("moment", m.id, "Moment signalé depuis l'application"); signale("Merci, les modérateurs sont prévenus."); }
       if (action === "masquer") { const v = !estMasque; await modererMoment(m.id, v); setMasques((x) => ({ ...x, [m.id]: v })); signale(v ? "Moment masqué" : "Moment rétabli"); onChange?.(); }
-      if (action === "repondre") {
-        const cid = await ouvrirDuo(auteur.auteur.id);
-        const citation = `À propos de ton moment${m.legende ? ` « ${m.legende} »` : ""}`;
-        onFermer();
-        routeur.push(`/messages/${cid}?citer=${encodeURIComponent(citation)}`);
-      }
-      if (action === "bravo") {
-        setBravo((b) => ({ n: b.n + (b.actif ? -1 : 1), actif: !b.actif }));
-        const n = await bravoMoment(m.id);
-        setBravo((b) => ({ ...b, n }));
+      if (action === "reaction") {
+        const nouvelle = await reagir(m.id, arg, reaction);
+        setReaction(nouvelle);
+        signale(nouvelle ? `Réaction ${nouvelle} envoyée` : "Réaction retirée");
         onChange?.();
       }
+      if (action === "repondre") {
+        const texte = reponse.trim();
+        if (!texte || envoi) return;
+        setEnvoi(true);
+        const cid = await ouvrirDuo(auteur.auteur.id);
+        await envoyerMessage(cid, texte, [], { chemin: `/fil?moment=${m.id}`, type: "lien", nom: `Moment de ${auteur.auteur.prenom}${m.legende ? ` · ${m.legende.slice(0, 60)}` : ""}`, taille: null });
+        setReponse(""); setEnvoi(false); setPause(false);
+        signale(`Envoyé à ${auteur.auteur.prenom} en message privé`);
+      }
       if (action === "vues") { setPause(true); setVues("…"); setVues(await vuesDe(m.id)); }
-    } catch (e) { signale("Action impossible : " + (e.message ?? "")); }
+    } catch (e) { setEnvoi(false); signale("Action impossible : " + (e.message ?? "")); }
   };
 
   if (!m) return null;
   const visi = VISIBILITES.find((v) => v.cle === m.visibilite);
   const estMasque = masques[m.id] ?? m.masque;
+  const resume = resumeReactions(m.reactions);
   return createPortal(
     <div className="mo-lecteur" role="dialog" aria-modal="true" aria-label={`Moment de ${auteur.auteur.prenom}`}>
       <div className="mo-barres" aria-hidden>
@@ -189,7 +199,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
           : <video ref={video} key={m.id} src={m.url} autoPlay playsInline preload="auto"
               onTimeUpdate={(e) => { const v = e.currentTarget; if (v.duration && isFinite(v.duration)) setAvancement(v.currentTime / v.duration); }}
               onEnded={suivant} />}
-        {m.legende && <p className="mo-legende">{m.legende}</p>}
+        {m.legende && <p className="mo-legende"><TexteMentions texte={m.legende} mentions={m.mentions ?? []} lien={false} /></p>}
         {pause && !menu && vues === null && <span className="mo-pause" aria-hidden>❚❚</span>}
       </div>
 
@@ -202,17 +212,26 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
 
       <footer className="mo-pied">
         {mien ? (
-          <button type="button" className="mo-action" onClick={() => agir("vues")}>
-            <Eye size={18} strokeWidth={1.9} aria-hidden /> {m.vues ?? 0} vue{(m.vues ?? 0) > 1 ? "s" : ""}
-          </button>
+          <div className="mo-pied-mien">
+            <button type="button" className="mo-action" onClick={() => agir("vues")}>
+              <Eye size={18} strokeWidth={1.9} aria-hidden /> {m.vues ?? 0} vue{(m.vues ?? 0) > 1 ? "s" : ""}
+            </button>
+            <span className="mo-resume">{resume || "Pas encore de réaction"}</span>
+          </div>
         ) : (
-          <button type="button" className="mo-action" onClick={() => agir("repondre")}>
-            <MessageCircle size={18} strokeWidth={1.9} aria-hidden /> Répondre
-          </button>
+          <>
+            <form className="mo-reponse" onSubmit={(e) => { e.preventDefault(); agir("repondre"); }}>
+              <input type="text" value={reponse} maxLength={500} placeholder={`Répondre à ${auteur.auteur.prenom}…`}
+                onChange={(e) => setReponse(e.target.value)} onFocus={() => setPause(true)} onBlur={() => { if (!reponse) setPause(false); }} />
+              <button type="submit" className="mo-envoyer" disabled={!reponse.trim() || envoi} aria-label="Envoyer en message privé"><Send size={18} aria-hidden /></button>
+            </form>
+            <div className="mo-emojis" role="group" aria-label="Réagir">
+              {EMOJIS_MOMENT.map((e) => (
+                <button key={e} type="button" className={reaction === e ? "on" : ""} onClick={() => agir("reaction", e)} aria-pressed={reaction === e} aria-label={`Réagir ${e}`}>{e}</button>
+              ))}
+            </div>
+          </>
         )}
-        <button type="button" className={`mo-action${bravo?.actif ? " on" : ""}`} onClick={() => agir("bravo")} aria-pressed={Boolean(bravo?.actif)}>
-          <ThumbsUp size={18} strokeWidth={1.9} aria-hidden /> Bravo{bravo?.n > 0 && <b>{bravo.n}</b>}
-        </button>
       </footer>
 
       {vues !== null && (
@@ -222,6 +241,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
               <b>Vu par {Array.isArray(vues) ? vues.length : "…"}</b>
               <button type="button" className="cp-fermer" onClick={() => { setVues(null); setPause(false); }} aria-label="Fermer"><X size={18} aria-hidden /></button>
             </div>
+            {resume && <p className="msg-aide" style={{ padding: "0 10px 8px" }}>Réactions : {resume}</p>}
             {Array.isArray(vues) && vues.length === 0 && <p className="msg-aide" style={{ padding: 10 }}>Personne pour l’instant.</p>}
             {Array.isArray(vues) && vues.map((v) => (
               <div key={v.id} className="mo-vue">
@@ -232,7 +252,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
           </div>
         </div>
       )}
-      {toast && <div className="toast mo-toast" role="status">{toast}</div>}
+      {toast && <div className="toast la mo-toast" role="status">{toast}</div>}
     </div>,
     document.body
   );

@@ -10,6 +10,7 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
+import ApercuMoments from "@/app/ApercuMoments";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
@@ -66,6 +67,8 @@ export default function AccueilMembre({ moi, donnees }) {
 
       <InviteNotifications profilId={moi.id} />
       <InviteInstallation />
+
+      <ApercuMoments moiId={moi.id} />
 
       {nouveaux.length > 0 && (
         <Reveal>

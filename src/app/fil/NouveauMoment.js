@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { X, Camera, Clapperboard, Globe2, Users, Briefcase, Clock } from "lucide-react";
 import { VISIBILITES } from "@/lib/fil";
 import { publierMoment, DUREES, DUREE_DEFAUT, LEGENDE_MAX, VIDEO_MO, VIDEO_SECONDES } from "@/lib/moments";
+import { useMentions, SuggestionsMention } from "@/lib/mentions";
 
 const ICONES_VISI = { tous: Globe2, promo: Users, domaine: Briefcase };
 
@@ -21,6 +22,8 @@ export default function NouveauMoment({ moi, onFermer, onPublie }) {
   const [envoi, setEnvoi] = useState(false);
   const fichierPhoto = useRef(null);
   const fichierVideo = useRef(null);
+  const champLegende = useRef(null);
+  const mentions = useMentions(legende, (v) => setLegende(v.slice(0, LEGENDE_MAX)), champLegende);
   useEffect(() => {
     const touche = (e) => { if (e.key === "Escape") onFermer(); };
     document.addEventListener("keydown", touche);
@@ -52,7 +55,7 @@ export default function NouveauMoment({ moi, onFermer, onPublie }) {
     if (!media || envoi) return;
     setEnvoi(true); setSouci("");
     try {
-      await publierMoment({ fichier: media.fichier, type: media.type, legende, visibilite, duree });
+      await publierMoment({ fichier: media.fichier, type: media.type, legende, visibilite, duree, mentions: mentions.idsPour(legende) });
       URL.revokeObjectURL(media.url);
       onPublie?.();
     } catch (e) { setSouci("Publication impossible : " + (e?.message ?? "réessaie dans un instant.")); setEnvoi(false); }
@@ -80,7 +83,10 @@ export default function NouveauMoment({ moi, onFermer, onPublie }) {
             <button type="button" className="nm-changer" onClick={() => { URL.revokeObjectURL(media.url); setMedia(null); }}>Changer</button>
           </div>
           <div className="nm-pied">
-            <input className="nm-legende" type="text" value={legende} maxLength={LEGENDE_MAX} placeholder="Une légende ? (facultatif)" onChange={(e) => setLegende(e.target.value)} />
+            <div className="nm-legende-bloc">
+              <SuggestionsMention suggestions={mentions.suggestions} choisir={mentions.choisir} className="mention-liste-moment" />
+              <input ref={champLegende} className="nm-legende" type="text" value={legende} maxLength={LEGENDE_MAX} placeholder="Une légende ? (@ pour mentionner quelqu’un)" onChange={mentions.surChangement} />
+            </div>
             <div className="nm-reglages">
               <div className="nm-groupe" role="radiogroup" aria-label="Qui peut voir ce moment">
                 {VISIBILITES.map((v) => { const I = ICONES_VISI[v.cle]; return (

@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import AnneauMoment from "@/components/AnneauMoment";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
@@ -177,7 +178,7 @@ export default function Annuaire({ membres }) {
           )}
           <Link href={`/profil/${m.id}`} className="fiche">
             <div className="haut">
-              <Avatar profil={m} className="init" />
+              <AnneauMoment membreId={m.id}><Avatar profil={m} className="init" /></AnneauMoment>
               <div>
                 <b><Surligne texte={`${m.prenom} ${m.nom}`} terme={q} /></b>
                 <div className="role"><Surligne texte={m.statut} terme={q} /></div>

@@ -156,6 +156,8 @@ with attendu(num, laisse, present) as (
   union all select 65, 'moments : réactions rapides et mentions (moment_reactions, colonne mentions)',
     to_regclass('moment_reactions') is not null
     and exists (select 1 from information_schema.columns where table_name = 'moments' and column_name = 'mentions')
+  union all select 66, 'événements (evenements, réponses, photos, rappel de la veille)',
+    to_regclass('evenements') is not null and exists (select 1 from cron.job where jobname = 'rappel-evenements')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

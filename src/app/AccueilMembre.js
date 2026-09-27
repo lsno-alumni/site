@@ -11,6 +11,7 @@ import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
 import ApercuMoments from "@/app/ApercuMoments";
+import ProchainsEvenements from "@/app/ProchainsEvenements";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
@@ -69,6 +70,7 @@ export default function AccueilMembre({ moi, donnees }) {
       <InviteInstallation />
 
       <ApercuMoments moiId={moi.id} />
+      <ProchainsEvenements />
 
       {nouveaux.length > 0 && (
         <Reveal>

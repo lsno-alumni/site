@@ -339,6 +339,13 @@ export async function lireQuestionServeur(id) {
   return data ?? null;
 }
 
+export async function lireEvenementServeur(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("lire_evenement", { p_id: Number(id) });
+  if (error) { console.error("lireEvenementServeur:", error.message); return null; }
+  return data ?? null;
+}
+
 // ---------- Le Fil (migration 52) ----------
 // bravos + commentaires d'une offre (ou d'un conseil), pour la feuille et la page
 export async function lireInteractions(type, id) {

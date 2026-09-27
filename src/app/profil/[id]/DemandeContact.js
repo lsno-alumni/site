@@ -68,17 +68,17 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
     <>
       <div className="p-actions">
         {aSurDemande && statut === null && !formulaire && (
-          <button className="btn btn-or" style={{ flex: 1 }} onClick={() => setFormulaire(true)}>
+          <button className="btn btn-or" onClick={() => setFormulaire(true)}>
             Demander le contact
           </button>
         )}
         {aSurDemande && statut === "acceptee" && (
-          <span className="btn btn-nu" style={{ flex: 1, cursor: "default", color: "#9FD8B4" }}>
+          <span className="btn btn-nu" style={{ cursor: "default", color: "#9FD8B4" }}>
             <Check size={15} aria-hidden /> Contact partagé
           </span>
         )}
         {aSurDemande && (statut === "attente" || statut === "refusee") && (
-          <span className="btn btn-nu" style={{ flex: 1, cursor: "default" }}>
+          <span className="btn btn-nu" style={{ cursor: "default" }}>
             <Check size={15} aria-hidden /> Demande envoyée
           </span>
         )}

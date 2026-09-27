@@ -121,6 +121,26 @@ function Arrivee({ m }) {
   );
 }
 
+// plusieurs nouveaux membres d'affilée : une seule carte, les personnes en
+// vignettes qui glissent — au lieu d'une pile verticale envahissante
+function Arrivees({ liste }) {
+  return (
+    <article className="pub pub-arrivee pub-arrivees">
+      <small className="pub-etiquette">{liste.length} nouveaux membres · {depuis(liste[0].valide_le)}</small>
+      <div className="pub-arrivees-rail" role="list" aria-label="Nouveaux membres">
+        {liste.map((m) => (
+          <Link key={m.id} href={`/profil/${m.id}`} className="pub-arrivee-mini" role="listitem">
+            <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="pub-avatar grand" />
+            <b>{m.prenom} {m.nom}</b>
+            <span className="pub-arrivee-meta">Promo {m.promotions?.numero} · {nomDomaine(m.domaine, m.domaine_precision, true)}</span>
+            <span className="btn btn-nu pub-arrivee-btn">Dire bonjour <ArrowRight size={13} aria-hidden /></span>
+          </Link>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function Offre({ o }) {
   const domaine = DOMAINES.find((d) => d.cle === o.domaine)?.nom.split(" &")[0];
   const lieu = [o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", ");
@@ -217,6 +237,14 @@ export default function Fil({ moi, moderateur }) {
   const rafraichir = async () => { await charger(); routeur.refresh(); };
 
   const visibles = (items ?? []).filter((x) => filtre === "tout" || x.type === filtre);
+  // les arrivées qui se suivent sont regroupées (à partir de deux)
+  const blocs = [];
+  for (const x of visibles) {
+    const dernier = blocs[blocs.length - 1];
+    if (x.type === "arrivee" && dernier?.type === "arrivees") dernier.items.push(x);
+    else if (x.type === "arrivee") blocs.push({ type: "arrivees", id: `g${x.id}`, items: [x] });
+    else blocs.push(x);
+  }
 
   return (
     <GlisserRafraichir onRafraichir={rafraichir}>
@@ -253,7 +281,8 @@ export default function Fil({ moi, moderateur }) {
 
       <div className="fil-liste">
         {items === null && [0, 1, 2].map((i) => <SqueletteOffre key={i} />)}
-        {visibles.map((x) => {
+        {blocs.map((x) => {
+          if (x.type === "arrivees") return x.items.length >= 2 ? <Arrivees key={x.id} liste={x.items.map((i) => i.m)} /> : <Arrivee key={x.id} m={x.items[0].m} />;
           if (x.type === "publication") return <Publication key={x.id} p={x.p} moi={moi} moderateur={moderateur} onChange={charger} signale={signale} />;
           if (x.type === "arrivee") return <Arrivee key={x.id} m={x.m} />;
           if (x.type === "offre") return <Offre key={x.id} o={x.o} />;

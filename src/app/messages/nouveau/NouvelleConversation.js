@@ -44,6 +44,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
 
   return (
     <div className={`cp${enFeuille ? " cp-feuille" : ""}`}>
+      <div className="msg-nc-haut">
       <header className="cp-tete">
         <button type="button" className="cp-fermer" onClick={() => routeur.back()} aria-label="Annuler"><X size={20} aria-hidden /></button>
         <span className="cp-titre">{groupe ? "Nouveau groupe" : "Nouvelle conversation"}</span>
@@ -73,6 +74,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
         <input className="saisie" placeholder="Rechercher un membre…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
       </div>
       {lien && <p className="msg-aide" style={{ color: "var(--bleu-texte)" }}>Sera envoyé : {titreLien || lien}</p>}
+      </div>
       <p className="msg-aide">{groupe ? "Plusieurs personnes : ce sera un groupe." : "Une personne : conversation à deux. Coche-en plusieurs pour un groupe."}</p>
       {souci && <p className="cp-souci" role="alert">{souci}</p>}
 

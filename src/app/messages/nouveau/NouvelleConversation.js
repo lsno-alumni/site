@@ -64,12 +64,14 @@ export default function NouvelleConversation({ enFeuille = false }) {
       )}
 
       {choisis.length > 0 && (
+        <div className="msg-choisis-ligne">
+        {choisis.length > 3 && <span className="msg-choisis-nb">{choisis.length}</span>}
         <div className="msg-choisis" ref={rangee} role="list" aria-label={`${choisis.length} membre${choisis.length > 1 ? "s" : ""} choisi${choisis.length > 1 ? "s" : ""}`}>
-          {choisis.length > 3 && <span className="msg-choisis-nb">{choisis.length}</span>}
           {choisis.map((id) => { const m = membres?.find((x) => x.id === id); return m ? (
             <button key={id} type="button" className="msg-choisi" onClick={() => basculer(id)}>
               <Avatar profil={{ prenom: m.prenom, nom: m.nom, photo: m.photo_url }} className="com-avatar" />{m.prenom} <X size={12} aria-hidden />
             </button>) : null; })}
+        </div>
         </div>
       )}
 

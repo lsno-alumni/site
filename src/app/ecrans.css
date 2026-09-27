@@ -1530,7 +1530,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
   opacity: 1; transition: opacity .22s ease, transform .22s ease;
 }
 .fg-icone.cachee { opacity: 0; transform: translate(-50%, -50%) rotate(-90deg) scale(.5); }
-.fg-contenu { overflow-x: hidden; padding-bottom: 30px; }
+.fg-contenu { overflow-x: clip; padding-bottom: 30px; }   /* clip et non hidden : hidden en faisait un conteneur de défilement et cassait le position: sticky des en-têtes (la feuille est le vrai défileur) */
 /* continuation de p-corps (boutons Demander le contact/Partager) sans
    répéter son margin-top négatif — celui-ci ne s'applique qu'une fois,
    juste sous la couverture */
@@ -2502,3 +2502,6 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 /* grille de la liste des conversations : une ligne ne peut plus être plus large que l’écran (min-content des textes nowrap) */
 .msg-liste { grid-template-columns: minmax(0, 1fr); }
 .msg-liste > * { min-width: 0; }
+/* nouvelle conversation : tout le haut (titre, nom du groupe, membres choisis, recherche) reste fixe, seule la liste défile */
+.msg-nc-haut { position: sticky; top: 0; z-index: 6; background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); padding-bottom: 6px; }
+.msg-nc-haut .cp-tete { position: static; }

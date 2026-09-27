@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Sommaire from "@/components/Sommaire";
 import RetourDynamique from "@/components/RetourDynamique";
 
 export const metadata = {
@@ -27,11 +28,7 @@ export default function Conditions() {
         <p>Ce que tu acceptes en rejoignant le réseau — et ce que nous faisons de tes données.</p>
       </header>
 
-      <nav className="n-panneau cg-sommaire" aria-label="Sommaire">
-        <div className="n-filtres">
-          {SECTIONS.map((t, i) => <a key={t} href={`#s${i + 1}`} className="puce"><b>{i + 1}</b> {t}</a>)}
-        </div>
-      </nav>
+      <Sommaire className="cg-sommaire" sections={SECTIONS.map((t, i) => ({ id: `s${i + 1}`, nom: <><b>{i + 1}</b> {t}</> }))} />
       <div className="f-corps cg-corps">
         <p className="cg-date">Dernière mise à jour : 29 juillet 2026</p>
         <div className="cg-bref">

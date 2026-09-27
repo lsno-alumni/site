@@ -179,6 +179,21 @@ export function photosDe(p) {
   return [];
 }
 
+// un envoi vers le bucket qui retente une fois si le réseau lâche (« Failed to fetch »)
+async function envoyerFichier(supabase, chemin, corps, options) {
+  let up = await supabase.storage.from(BUCKET_MEDIAS).upload(chemin, corps, options);
+  if (up.error && /fetch|network|réseau/i.test(up.error.message ?? "")) {
+    await new Promise((r) => setTimeout(r, 1200));
+    up = await supabase.storage.from(BUCKET_MEDIAS).upload(chemin, corps, { ...options, upsert: true });
+  }
+  return up;
+}
+export function messageEnvoi(err) {
+  const m = err?.message ?? "";
+  if (/fetch|network|réseau/i.test(m)) return "La connexion a lâché pendant l’envoi. Vérifie le réseau et réessaie : ton texte et tes photos sont toujours là.";
+  return m || "réessaie dans un instant.";
+}
+
 export async function publier({ texte, media, photos = [], visibilite = "tous", mentions = [] }) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
@@ -191,7 +206,7 @@ export async function publier({ texte, media, photos = [], visibilite = "tous", 
       for (let i = 0; i < Math.min(photos.length, PHOTOS_MAX); i++) {
         const corps = await compresserImage(photos[i]);
         const chemin = `${user.id}/${base}-${i}.jpg`;
-        const up = await supabase.storage.from(BUCKET_MEDIAS).upload(chemin, corps, { contentType: "image/jpeg" });
+        const up = await envoyerFichier(supabase, chemin, corps, { contentType: "image/jpeg" });
         if (up.error) throw up.error;
         chemins.push(chemin);
       }
@@ -204,7 +219,7 @@ export async function publier({ texte, media, photos = [], visibilite = "tous", 
     const corps = estVideo ? media.fichier : await compresserImage(media.fichier);
     const ext = estVideo ? (media.fichier.name.split(".").pop() || "mp4").toLowerCase().slice(0, 5) : "jpg";
     media_chemin = `${user.id}/${Date.now()}.${ext}`;
-    const up = await supabase.storage.from(BUCKET_MEDIAS).upload(media_chemin, corps, {
+    const up = await envoyerFichier(supabase, media_chemin, corps, {
       contentType: estVideo ? media.fichier.type : "image/jpeg",
     });
     if (up.error) throw up.error;

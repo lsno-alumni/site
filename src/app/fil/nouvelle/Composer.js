@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { X, Camera, Clapperboard, Trash2, Globe2, Users, Briefcase, ChevronDown } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import * as memoire from "@/lib/memoire";
-import { publier as publierEnBase, VISIBILITES, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS, PHOTOS_MAX } from "@/lib/fil";
+import { publier as publierEnBase, messageEnvoi, VISIBILITES, VIDEO_SECONDES, VIDEO_MO, VIDEO_JOURS, PHOTOS_MAX } from "@/lib/fil";
 import { useMentions, SuggestionsMention } from "@/lib/mentions";
 
 const ICONES_VISI = { tous: Globe2, promo: Users, domaine: Briefcase };
@@ -76,7 +76,7 @@ export default function Composer({ moi, enFeuille = false }) {
       if (enFeuille) routeur.back(); else routeur.push("/fil");
       routeur.refresh();
     } catch (err) {
-      setSouci("Publication impossible : " + (err?.message ?? "réessaie dans un instant."));
+      setSouci("Publication impossible : " + messageEnvoi(err));
       setEnvoi(false);
     }
   };

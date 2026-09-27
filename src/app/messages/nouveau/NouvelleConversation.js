@@ -44,7 +44,9 @@ export default function NouvelleConversation({ enFeuille = false }) {
     try {
       const id = groupe ? await creerGroupe(nom, choisis, { acces, visibilite }) : await ouvrirDuo(choisis[0]);
       if (lien) await envoyerLien(id, lien, titreLien);
-      routeur.replace(`/messages/${id}`);
+      // en feuille : la conversation n'a pas de feuille associée, la feuille resterait
+      // affichée par-dessus (créneau parallèle) → navigation complète
+      if (enFeuille) window.location.assign(`/messages/${id}`); else routeur.replace(`/messages/${id}`);
     } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + (e.message ?? "")); setEnvoi(false); }
   };
 

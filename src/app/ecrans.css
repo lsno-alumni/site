@@ -1889,10 +1889,11 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-nom-groupe .saisie, .msg-recherche .saisie { padding: 11px 14px; border-radius: 100px; font-size: 14px; }
 .msg-aide { font-size: 12px; color: var(--brume); padding: 8px 22px 0; }
 /* une seule rangée qui glisse : dix membres choisis ne remplissent plus l'écran ; le compte s'affiche à partir de quatre */
-.msg-choisis { display: flex; flex-wrap: nowrap; gap: 6px; padding: 12px 20px 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-padding: 0 20px; }
+.msg-choisis-ligne { display: flex; align-items: center; gap: 8px; padding: 12px 0 0 20px; }
+.msg-choisis { display: flex; flex-wrap: nowrap; gap: 6px; padding: 0 20px 0 0; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .msg-choisis::-webkit-scrollbar { display: none; }
 .msg-choisis > * { flex-shrink: 0; }
-.msg-choisis-nb { display: inline-grid; place-items: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 100px; background: var(--bleu-clair); color: var(--sur-accent); font-size: 12.5px; font-weight: 700; position: sticky; left: 0; z-index: 1; box-shadow: 0 0 0 4px var(--fond); }
+.msg-choisis-nb { display: inline-grid; place-items: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 100px; background: var(--bleu-clair); color: var(--sur-accent); font-size: 12.5px; font-weight: 700; flex-shrink: 0; }
 .msg-choisi { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; border-radius: 100px; border: 1px solid var(--bleu-clair); background: var(--carte); color: var(--texte); font: inherit; font-size: 13px; cursor: pointer; }
 .msg-choisi .com-avatar { width: 26px !important; height: 26px !important; font-size: 10px; }
 .msg-carnet { padding: 12px 14px 30px; display: grid; gap: 4px; }

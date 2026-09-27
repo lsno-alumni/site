@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { noterNavigationComplete } from "@/components/SuiviNavigation";
 import { texteErreur } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, Image as ImageIcon, Trash2, Globe2, Users, Briefcase, MapPin, Video, Calendar } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import ChoixPays from "@/components/ChoixPays";
 import { VISIBILITES } from "@/lib/fil";
+import { lienAbsolu } from "@/lib/offres";
 import { creerEvenement, modifierEvenement, televerserAffiche, TITRE_MAX, DESCRIPTION_MAX } from "@/lib/evenements";
 
 const ICONES_VISI = { tous: Globe2, promo: Users, domaine: Briefcase };
@@ -60,12 +62,12 @@ export default function FormulaireEvenement({ moi, initial = null, modifier = fa
       const champs = {
         titre: titre.trim(), description: description.trim(), debut: dDebut.toISOString(), fin: dFin ? dFin.toISOString() : null,
         lieu_type: lieuType, ville: lieuType === "en_ligne" ? "" : ville.trim(), pays: lieuType === "en_ligne" ? "" : (pays ?? ""),
-        adresse: lieuType === "en_ligne" ? "" : adresse.trim(), lien: lieuType === "en_ligne" ? lien.trim() : "",
+        adresse: lieuType === "en_ligne" ? "" : adresse.trim(), lien: lieuType === "en_ligne" ? (lienAbsolu(lien) ?? "") : "",
         affiche_chemin: chemin, visibilite,
       };
       let id = initial?.id;
       if (modifier) await modifierEvenement(id, champs); else id = await creerEvenement(champs);
-      if (enFeuille) routeur.replace(`/evenements/${id}`); else window.location.assign(`/evenements/${id}`);
+      noterNavigationComplete(); if (enFeuille) routeur.replace(`/evenements/${id}`); else window.location.assign(`/evenements/${id}`);
     } catch (err) { setSouci("Impossible d’enregistrer : " + texteErreur(err)); setEnvoi(false); }
   };
 
@@ -106,7 +108,7 @@ export default function FormulaireEvenement({ moi, initial = null, modifier = fa
             <input type="text" value={adresse} maxLength={200} placeholder="Adresse ou repère : Maquis Le Verdoyant, face à la BCEAO…" onChange={(e) => setAdresse(e.target.value)} />
           </>
         ) : (
-          <input type="url" value={lien} maxLength={300} placeholder="Lien de la visio (Meet, Zoom, Teams…)" onChange={(e) => setLien(e.target.value)} />
+          <input type="text" inputMode="url" autoCapitalize="off" autoCorrect="off" value={lien} maxLength={300} placeholder="Lien de la visio (Meet, Zoom, Teams…) — https:// facultatif" onChange={(e) => setLien(e.target.value)} />
         )}
 
         <textarea className="cp-texte ev-description" rows={5} value={description} maxLength={DESCRIPTION_MAX} placeholder="Le programme, ce qu’il faut apporter, la participation aux frais…" onChange={(e) => setDescription(e.target.value)} />

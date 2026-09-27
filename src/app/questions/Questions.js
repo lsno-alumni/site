@@ -21,8 +21,8 @@ import useTempsReel from "@/lib/tempsReel";
 
 export function CarteQuestion({ q }) {
   const a = q.auteur ?? {};
-  const photo = q.fichier_type?.startsWith("image/") && q.fichier_chemin && !q.fichier_expiree ? urlPieceQuestion(q.fichier_chemin) : null;
-  const pdf = q.fichier_type === "application/pdf" && !q.fichier_expiree;
+  const photo = (q.fichier_type === "photo" || q.fichier_type?.startsWith("image/")) && q.fichier_chemin && !q.fichier_expiree ? urlPieceQuestion(q.fichier_chemin) : null;
+  const pdf = (q.fichier_type === "pdf" || q.fichier_type === "application/pdf") && !q.fichier_expiree;
   return (
     <Link href={`/questions/${q.id}`} className={`qa-carte${q.resolue ? " resolue" : ""}${q.masquee ? " pub-masquee" : ""}${photo ? " avec-vignette" : ""}`}>
       {photo && <img className="qa-vignette" src={photo} alt="" loading="lazy" />}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { noterNavigationComplete } from "@/components/SuiviNavigation";
 import { texteErreur, avecReprise } from "@/lib/erreurs";
 import { useRouter } from "next/navigation";
 import { X, Search, Users, Award, Check, Clock, Lock, Globe2, Briefcase } from "lucide-react";
@@ -34,7 +35,7 @@ export default function Groupes({ enFeuille = false }) {
       else {
         const r = await rejoindreGroupe(g.id);
         memoire.ecrire("conversations.liste", null);
-        if (r === "membre") { signale(`Tu es dans « ${g.nom} »`); if (enFeuille) window.location.assign(`/messages/${g.id}`); else routeur.push(`/messages/${g.id}`); }
+        if (r === "membre") { signale(`Tu es dans « ${g.nom} »`); noterNavigationComplete(); if (enFeuille) window.location.assign(`/messages/${g.id}`); else routeur.push(`/messages/${g.id}`); }
         else { signale("Demande envoyée : le créateur du groupe la verra."); await charger(); }
       }
     } catch (e) { signaletexteErreur(e); }

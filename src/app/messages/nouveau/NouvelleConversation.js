@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { noterNavigationComplete } from "@/components/SuiviNavigation";
 import { texteErreur } from "@/lib/erreurs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Check, Search, Users } from "lucide-react";
@@ -47,7 +48,7 @@ export default function NouvelleConversation({ enFeuille = false }) {
       if (lien) await envoyerLien(id, lien, titreLien);
       // en feuille : la conversation n'a pas de feuille associée, la feuille resterait
       // affichée par-dessus (créneau parallèle) → navigation complète
-      if (enFeuille) window.location.assign(`/messages/${id}`); else routeur.replace(`/messages/${id}`);
+      noterNavigationComplete(); if (enFeuille) window.location.assign(`/messages/${id}`); else routeur.replace(`/messages/${id}`);
     } catch (e) { setSouci("Impossible d'ouvrir la conversation : " + texteErreur(e)); setEnvoi(false); }
   };
 

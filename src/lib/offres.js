@@ -45,3 +45,10 @@ export function ilYA(date) {
   // au-delà d'un mois, la date parle mieux qu'un compte de jours (« il y a 60 j »)
   return `le ${new Date(date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", ...(j > 300 ? { year: "numeric" } : {}) })}`;
 }
+
+// « meet.google.com/abc » → « https://meet.google.com/abc » ; vide → null
+export function lienAbsolu(v) {
+  const l = (v ?? "").trim();
+  if (!l) return null;
+  return /^https?:\/\//i.test(l) ? l : `https://${l}`;
+}

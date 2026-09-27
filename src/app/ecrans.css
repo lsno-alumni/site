@@ -2576,3 +2576,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .acces-pastille { top: -6px; left: auto; right: -6px; }
 .am-liens { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .am-lien { display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 100px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+/* roue des domaines, en roue comme en liste complète : le nom du domaine en encre, le détail en brume (la règle « .dom span » grisait aussi le conteneur du nom) */
+.dom .txt { color: var(--texte); }
+.dom .txt b { color: var(--texte); }
+.dom .txt > span { color: var(--brume); }

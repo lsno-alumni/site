@@ -62,3 +62,11 @@ insert into evenements (organisateur, titre, debut, visibilite) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'Afterwork de septembre', now() - interval '2 days', 'tous');
 select 'listes' as essai, json_array_length(liste_evenements('a_venir')) as a_venir, json_array_length(liste_evenements('passes')) as passes;
 reset role;
+
+-- suppression par l'organisateur : les lignes partent, les déclencheurs de
+-- fichiers (migration 67) passent sans erreur (réseau leurré au banc)
+select set_config('essai.uid', 'aaaaaaaa-0000-0000-0000-000000000001', false);
+set role authenticated;
+delete from evenements where id = 1;
+select 'suppression' as essai, count(*)::int as evenements, (select count(*)::int from evenement_photos) as photos from evenements;
+reset role;

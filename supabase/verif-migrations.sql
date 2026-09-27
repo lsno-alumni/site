@@ -158,6 +158,8 @@ with attendu(num, laisse, present) as (
     and exists (select 1 from information_schema.columns where table_name = 'moments' and column_name = 'mentions')
   union all select 66, 'événements (evenements, réponses, photos, rappel de la veille)',
     to_regclass('evenements') is not null and exists (select 1 from cron.job where jobname = 'rappel-evenements')
+  union all select 67, 'événements : fichiers effacés par déclencheur à la suppression (photos, affiche)',
+    exists (select 1 from pg_trigger where tgname = 'evenement_photos_apres_delete')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

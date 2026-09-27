@@ -24,7 +24,7 @@ import { CarteEvenement } from "@/app/evenements/Evenements";
 import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
 import AccesRapides from "@/components/AccesRapides";
-import Nouveau from "@/components/Nouveau";
+import Nouveau, { decouvrir } from "@/components/Nouveau";
 import useTempsReel from "@/lib/tempsReel";
 import { HelpCircle } from "lucide-react";
 
@@ -258,7 +258,7 @@ export default function Fil({ moi, moderateur }) {
       </header>
 
       <div className="avec-nouveau">
-        <Link href="/fil/nouvelle" className="fil-compose">
+        <Link href="/fil/nouvelle" className="fil-compose" onClick={decouvrir("publier")}>
           <Avatar profil={moi} className="pub-avatar" />
           <span className="fil-compose-texte">Quoi de neuf, {moi.prenom} ?</span>
           <span className="fil-compose-photo" aria-hidden><Camera size={18} strokeWidth={1.9} /></span>
@@ -267,19 +267,19 @@ export default function Fil({ moi, moderateur }) {
       </div>
 
       <div className="avec-nouveau">
-        <RailMoments moi={moi} moderateur={moderateur} />
+        <div onClickCapture={decouvrir("moments")}><RailMoments moi={moi} moderateur={moderateur} /></div>
         <Nouveau cle="moments" className="nouveau-rail" />
       </div>
 
       <div className="avec-nouveau">
-        <Link href="/questions" className="fil-questions">
+        <Link href="/questions" className="fil-questions" onClick={decouvrir("questions")}>
           <HelpCircle size={18} strokeWidth={1.9} aria-hidden />
           <span><b>Questions aux anciens</b><small>Pose ta question, ou réponds à celles des cadets</small></span>
         </Link>
         <Nouveau cle="questions" className="nouveau-bandeau" />
       </div>
       <div className="avec-nouveau">
-        <Link href="/evenements" className="fil-questions fil-evenements">
+        <Link href="/evenements" className="fil-questions fil-evenements" onClick={decouvrir("evenements")}>
           <CalendarDays size={18} strokeWidth={1.9} aria-hidden />
           <span><b>Événements</b><small>Dîners de promo, visios, retrouvailles : organise ou réponds</small></span>
         </Link>

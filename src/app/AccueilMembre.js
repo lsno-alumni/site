@@ -12,6 +12,7 @@ import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
 import ApercuMoments from "@/app/ApercuMoments";
 import ProchainsEvenements from "@/app/ProchainsEvenements";
+import LanceurTour from "@/components/LanceurTour";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
@@ -60,6 +61,7 @@ export default function AccueilMembre({ moi, donnees }) {
           </Link>
         )}
         <div className="am-liens">
+          <Link href="/nouveautes" className="am-lien">Nouveautés</Link>
           <Link href="/a-propos" className="am-lien">À propos du réseau</Link>
           {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
         </div>
@@ -75,6 +77,7 @@ export default function AccueilMembre({ moi, donnees }) {
 
       <ApercuMoments moiId={moi.id} />
       <ProchainsEvenements />
+      <LanceurTour />
 
       {nouveaux.length > 0 && (
         <Reveal>

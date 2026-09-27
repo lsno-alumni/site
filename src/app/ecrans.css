@@ -2580,3 +2580,65 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .dom .txt { color: var(--texte); }
 .dom .txt b { color: var(--texte); }
 .dom .txt > span { color: var(--brume); }
+
+/* ---------- tour des nouveautés ---------- */
+.tour { position: fixed; inset: 0; z-index: 1300; display: flex; flex-direction: column; background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); color: var(--texte); animation: vis-fondu .25s ease both; }
+.tour-tete { display: flex; align-items: center; justify-content: space-between; padding: calc(14px + env(safe-area-inset-top)) 16px 6px; }
+.tour-points { display: flex; gap: 6px; }
+.tour-points i { width: 18px; height: 4px; border-radius: 2px; background: var(--ligne); transition: background .25s; }
+.tour-points i.vu { background: var(--bleu-clair); opacity: .45; }
+.tour-points i.on { background: var(--bleu-clair); }
+.tour-passer { display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte-2); font: inherit; font-size: 13px; cursor: pointer; }
+.tour-rail { flex: 1; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.tour-rail::-webkit-scrollbar { display: none; }
+.tour-carte { flex: 0 0 100%; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; padding: 8px 24px 12px; overflow-y: auto; min-width: 0; }
+.tour-cadre { width: min(62vw, 240px); aspect-ratio: 9 / 16.5; border-radius: 26px; border: 6px solid var(--texte); background: var(--carte); overflow: hidden; box-shadow: 0 24px 50px -24px rgba(0,0,0,.7); flex-shrink: 0; }
+.tour-cadre img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.tour-nouveau { margin-top: 16px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 700; }
+.tour-carte h2 { margin: 6px 0 4px; font-family: var(--font-titres), serif; font-weight: 500; font-size: 28px; text-align: center; line-height: 1.1; }
+.tour-accroche { margin: 0 0 10px; text-align: center; color: var(--texte-2); font-size: 15px; line-height: 1.45; max-width: 34ch; }
+.tour-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; max-width: 380px; }
+.tour-liste li { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--texte); }
+.tour-liste li svg { flex-shrink: 0; margin-top: 3px; color: var(--bleu-texte); }
+.tour-pied { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 20px calc(18px + env(safe-area-inset-bottom)); }
+.tour-pied small { color: var(--brume); font-variant-numeric: tabular-nums; }
+.tour-suivant { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; font-size: 15px; }
+@media (min-height: 800px) { .tour-cadre { width: min(64vw, 270px); } }
+/* pastilles « Nouveau » */
+.avec-nouveau { position: relative; }
+.decouverte { position: absolute; z-index: 6; }
+.decouverte.ouvert { z-index: 30; }
+.nouveau-compose { top: -6px; right: 22px; }
+.nouveau-rail { top: 8px; right: 12px; }
+.nouveau-bandeau { top: -8px; right: 24px; }
+.nouveau-pastille { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 100px; border: 0; background: var(--bleu-clair); color: var(--sur-accent); font: inherit; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 16px -8px rgba(0,0,0,.6); animation: nouveau-pouls 2.4s ease-in-out infinite; }
+@keyframes nouveau-pouls { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .nouveau-pastille { animation: none; } }
+.nouveau-bulle { position: absolute; top: calc(100% + 8px); right: 0; width: min(78vw, 300px); padding: 12px 14px; border-radius: 14px; background: var(--texte); color: var(--fond); font-size: 13.5px; line-height: 1.45; box-shadow: 0 16px 40px -14px rgba(0,0,0,.7); display: grid; gap: 10px; z-index: 7; }
+.nouveau-bulle::before { content: ""; position: absolute; top: -6px; right: 22px; width: 12px; height: 12px; background: var(--texte); transform: rotate(45deg); }
+.nouveau-compris { justify-self: end; padding: 7px 12px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; }
+/* page Nouveautés */
+.tete-nouveautes::before { background-image: url("/img/lsno_groupe.jpg"); background-position: center 40%; }
+.n-tete.tete-nouveautes { padding-bottom: 40px; }
+.nv-corps { padding: 16px 16px 40px; display: grid; gap: 14px; }
+.nv-refaire { display: inline-flex; align-items: center; gap: 8px; justify-self: start; margin-top: -30px; position: relative; z-index: 2; }
+.nv-carte { display: grid; grid-template-columns: 1fr 96px; gap: 12px; padding: 16px; border-radius: 18px; border: 1px solid var(--ligne); background-color: var(--carte); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); position: relative; }
+.nv-num { position: absolute; top: -10px; left: 14px; width: 26px; height: 26px; border-radius: 50%; background: var(--bleu-clair); color: var(--sur-accent); display: grid; place-items: center; font-family: var(--font-titres), serif; font-size: 14px; }
+.nv-texte h2 { margin: 4px 0 2px; font-family: var(--font-titres), serif; font-weight: 500; font-size: 20px; }
+.nv-accroche { margin: 0 0 8px; color: var(--texte-2); font-size: 13.5px; line-height: 1.45; }
+.nv-texte ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.nv-texte li { display: flex; gap: 7px; align-items: flex-start; font-size: 13px; line-height: 1.45; }
+.nv-texte li svg { flex-shrink: 0; margin-top: 3px; color: var(--bleu-texte); }
+.nv-lien { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; color: var(--bleu-texte); font-weight: 600; font-size: 13.5px; text-decoration: none; }
+.nv-cadre { width: 96px; aspect-ratio: 9 / 16; border-radius: 14px; border: 3px solid var(--texte); overflow: hidden; background: var(--fond); align-self: start; }
+.nv-cadre img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.nv-gestes { padding: 16px; border-radius: 18px; background: var(--bleu); color: var(--sur-accent); }
+.nv-gestes h2 { margin: 0 0 10px; font-family: var(--font-titres), serif; font-weight: 500; font-size: 20px; }
+.nv-gestes dl { margin: 0; display: grid; gap: 8px; }
+.nv-gestes dt { font-weight: 700; font-size: 14px; }
+.nv-gestes dd { margin: 0; font-size: 13px; opacity: .85; }
+.ap-nouveautes { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--bleu); color: var(--sur-accent); text-decoration: none; }
+.ap-nouveautes > span:first-child { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ap-nouveautes b { font-size: 15px; }
+.ap-nouveautes small { font-size: 12.5px; opacity: .85; line-height: 1.4; }
+.ap-nouveautes-fleche { font-size: 20px; }

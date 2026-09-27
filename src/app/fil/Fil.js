@@ -19,6 +19,8 @@ import useClicDehors from "@/lib/useClicDehors";
 import { TexteMentions } from "@/lib/mentions";
 import EnvoyerEnMessage from "@/components/EnvoyerEnMessage";
 import { CarteQuestion } from "@/app/questions/Questions";
+import { CarteEvenement } from "@/app/evenements/Evenements";
+import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
 import { HelpCircle } from "lucide-react";
 
@@ -34,6 +36,7 @@ const FILTRES = [
   { cle: "offre", nom: "Offres" },
   { cle: "conseil", nom: "Conseils" },
   { cle: "question", nom: "Questions" },
+  { cle: "evenement", nom: "Événements" },
 ];
 
 function Publication({ p, moi, moderateur, onChange, signale }) {
@@ -203,6 +206,10 @@ export default function Fil({ moi, moderateur }) {
         <HelpCircle size={18} strokeWidth={1.9} aria-hidden />
         <span><b>Questions aux anciens</b><small>Pose ta question, ou réponds à celles des cadets</small></span>
       </Link>
+      <Link href="/evenements" className="fil-questions fil-evenements">
+        <CalendarDays size={18} strokeWidth={1.9} aria-hidden />
+        <span><b>Événements</b><small>Dîners de promo, visios, retrouvailles : organise ou réponds</small></span>
+      </Link>
 
       <div className="n-panneau fil-filtres">
         <div className="n-filtres">
@@ -220,6 +227,7 @@ export default function Fil({ moi, moderateur }) {
           if (x.type === "offre") return <Offre key={x.id} o={x.o} />;
           if (x.type === "conseil") return <Conseil key={x.id} c={x.c} />;
           if (x.type === "question") return <div key={x.id} className="qa-dans-fil"><small className="pub-etiquette">Question aux anciens</small><CarteQuestion q={x.q} /></div>;
+          if (x.type === "evenement") return <div key={x.id} className="qa-dans-fil"><small className="pub-etiquette">Événement</small><CarteEvenement e={x.e} /></div>;
           return null;
         })}
         {items !== null && visibles.length === 0 && (

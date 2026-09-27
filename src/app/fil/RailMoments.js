@@ -62,7 +62,7 @@ export default function RailMoments({ moi, moderateur }) {
               <Plus size={13} strokeWidth={3} aria-hidden />
             </span>
           </button>
-          <span className="rail-nom">{mienne ? "Toi" : "Ton moment"}</span>
+          <span className="rail-nom">{mienne ? "Toi" : "Ajouter"}</span>
         </div>
         {autres.map(({ a, ia }) => (
           <div key={a.auteur.id} className="rail-item" role="listitem">

@@ -8,7 +8,7 @@ import { membresJoignables, ouvrirDuo, creerGroupe, envoyerLien } from "@/lib/me
 
 // Le carnet : on coche une personne (conversation à deux) ou plusieurs (un
 // groupe à nommer). La recherche filtre sur le prénom, le nom, la promo.
-export default function NouvelleConversation() {
+export default function NouvelleConversation({ enFeuille = false }) {
   const routeur = useRouter();
   const params = useSearchParams();
   const lien = params.get("lien");            // « Envoyer en message » vers une nouvelle conversation
@@ -43,7 +43,7 @@ export default function NouvelleConversation() {
   };
 
   return (
-    <div className="cp">
+    <div className={`cp${enFeuille ? " cp-feuille" : ""}`}>
       <header className="cp-tete">
         <button type="button" className="cp-fermer" onClick={() => routeur.back()} aria-label="Annuler"><X size={20} aria-hidden /></button>
         <span className="cp-titre">{groupe ? "Nouveau groupe" : "Nouvelle conversation"}</span>

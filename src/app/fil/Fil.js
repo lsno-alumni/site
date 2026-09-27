@@ -61,7 +61,7 @@ function Publication({ p, moi, moderateur, onChange, signale }) {
     } catch (e) { if (e?.name !== "AbortError") signale("Action impossible : " + (e.message ?? "")); }
   };
   return (
-    <article className={`pub${p.masquee ? " pub-masquee" : ""}`}>
+    <article className={`pub${p.masquee ? " pub-masquee" : ""}${menu ? " menu-ouvert" : ""}`}>
       <header className="pub-tete">
         <Link href={`/profil/${p.auteur.id}`} className="pub-qui">
           <Avatar profil={{ prenom: p.auteur.prenom, nom: p.auteur.nom, photo: p.auteur.photo_url }} className="pub-avatar" />
@@ -167,6 +167,35 @@ export default function Fil({ moi, moderateur }) {
       setItems(r.items); setFin(r.fin); setDernierePub(r.dernierePub);
     } catch (e) { signale("Le fil ne répond pas : " + (e.message ?? "")); }
   };
+  // rafraîchissement DISCRET : les cartes déjà là reçoivent leurs compteurs à
+  // jour (bravos, commentaires, réponses) sans bouger ; les nouvelles cartes
+  // ne s'ajoutent en tête que si on est en haut, pour ne pas décaler la lecture
+  const rafraichirDoucement = async () => {
+    try {
+      const r = await chargerFil();
+      setItems((anciens) => {
+        if (!anciens) return r.items;
+        const parId = new Map(r.items.map((x) => [x.id, x]));
+        const fusion = anciens.map((x) => parId.get(x.id) ?? x);
+        const connus = new Set(anciens.map((x) => x.id));
+        const nouveaux = r.items.filter((x) => !connus.has(x.id) && x.type !== "conseil");
+        return nouveaux.length && window.scrollY <= 40 ? [...nouveaux, ...fusion] : fusion;
+      });
+    } catch { /* on garde ce qu'on a */ }
+  };
+  useEffect(() => {
+    if (chemin !== "/fil") return;
+    if (items !== null && memoire.lire("fil.items") !== null) { const t = setTimeout(rafraichirDoucement, 0); return () => clearTimeout(t); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chemin]);
+  useEffect(() => {
+    const visible = () => { if (document.visibilityState === "visible" && window.location.pathname === "/fil") rafraichirDoucement(); };
+    document.addEventListener("visibilitychange", visible);
+    window.addEventListener("focus", visible);
+    const t = setInterval(() => { if (document.visibilityState === "visible" && window.location.pathname === "/fil") rafraichirDoucement(); }, 60000);
+    return () => { document.removeEventListener("visibilitychange", visible); window.removeEventListener("focus", visible); clearInterval(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // au montage, et au retour du composer (qui vide la mémoire du fil pour
   // dire « il y a du neuf » : le Fil reste monté sous la feuille)
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect

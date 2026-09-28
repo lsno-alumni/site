@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { Bell, BellOff, X } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { pushDispo, abonnementLocal, abonner, desabonner } from "@/lib/push";
@@ -118,7 +119,7 @@ export default function Notifications({ profil }) {
     } catch (e) {
       setMessage(e?.message === "autorisation refusée"
         ? "Autorisation refusée — tu peux la rétablir dans les réglages du navigateur."
-        : "Échec : " + (e?.message ?? "impossible d'activer"));
+        : "Échec : " + texteErreur(e));
     } finally {
       setEnCours(false);
     }
@@ -132,7 +133,7 @@ export default function Notifications({ profil }) {
       await chargerAppareils();
       setMessage("Notifications désactivées sur cet appareil.");
     } catch (e) {
-      setMessage("Échec : " + (e?.message ?? ""));
+      setMessage("Échec : " + texteErreur(e));
     } finally {
       setEnCours(false);
     }

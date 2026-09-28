@@ -53,7 +53,7 @@
   --bleu: #2B4E80; --bleu-clair: #3B6FD1; --bleu-texte: #6FA8F5; --bleu-doux: #1F2C45;
   --accent-rgb: 59, 111, 209;
   --halo-rgb: 59, 111, 209;
-  --sur-accent: #F6F0E4;
+  --sur-accent: #FFFFFF;   /* blanc pur sur le bleu vif des boutons : 4,8:1 (le beige plafonnait à 4,2) */
   --monde: #1B2F4F; --monde-2: #23406B;
   --pierre: #0E1017;
   --vert-ok: #9CBF94;

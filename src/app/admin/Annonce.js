@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { Megaphone } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
@@ -42,7 +43,7 @@ export default function Annonce({ signale }) {
     setEnCours(true);
     const { error } = await supabase.rpc("admin_publie_annonce", { p_sujet: sujet.trim(), p_corps: corps.trim() });
     setEnCours(false);
-    if (error) { signale("Refusé : " + error.message); return; }
+    if (error) { signale("Refusé : " + texteErreur(error)); return; }
     setSujet(""); setCorps("");
     signale("Annonce lancée ✓ — première salve envoyée");
     chargerSuivi();

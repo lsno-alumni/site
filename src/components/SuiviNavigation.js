@@ -26,7 +26,12 @@ import { initInstallation } from "@/lib/installation";
 // à un vrai rechargement — exactement ce qu'on veut.
 // ============================================================
 
-let profondeur = 0;   // navigations internes depuis l'ouverture de l'onglet
+// navigations internes depuis l'ouverture de l'onglet — gardée dans la session
+// du navigateur : après une navigation complète (window.location.assign en
+// sortie de feuille, rechargement), le bouton Retour sait encore qu'il y a
+// une page derrière au lieu de renvoyer à une adresse fixe
+let profondeur = (() => { try { return Number(sessionStorage.getItem("lsno_profondeur") ?? 0) || 0; } catch { return 0; } })();
+const garderProfondeur = () => { try { sessionStorage.setItem("lsno_profondeur", String(profondeur)); } catch { /* navigation privée */ } };
 let premier = true;
 let retourLe = 0;     // horodatage du dernier retour arrière (popstate)
 let ongletLe = 0;     // horodatage du dernier tap sur la barre d'onglets
@@ -44,6 +49,11 @@ const estViaOnglet = () => Date.now() - ongletLe < DELAI_RETOUR;
 
 export function peutRevenir() {
   return profondeur > 0;
+}
+// une navigation complète (window.location.assign) déclenchée par nous : la
+// page qui arrive a bien une page derrière elle
+export function noterNavigationComplete() {
+  profondeur += 1; garderProfondeur();
 }
 
 // Dernière adresse complète d'un onglet (filtres et recherche compris), ou
@@ -88,7 +98,7 @@ export default function SuiviNavigation() {
       if (a.closest("nav.tabbar")) ongletLe = Date.now();
     };
     const auRetour = () => {
-      profondeur = Math.max(0, profondeur - 1);
+      profondeur = Math.max(0, profondeur - 1); garderProfondeur();
       retourLe = Date.now();
     };
     document.addEventListener("click", auClic, true);
@@ -101,7 +111,7 @@ export default function SuiviNavigation() {
 
   useEffect(() => {
     if (premier) premier = false;
-    else if (!estRetour()) profondeur += 1;
+    else if (!estRetour()) { profondeur += 1; garderProfondeur(); }
   }, [pathname]);
 
   return null;

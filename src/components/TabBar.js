@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 
 // 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
@@ -58,6 +58,14 @@ const CLASSE_CACHEE = "tb-cachee";
 
 function useCacherAuDefilement() {
   const [cachee, setCachee] = useState(false);
+  const chemin = usePathname();
+  // une feuille qui se ferme (ou toute navigation) ne déclenche aucun
+  // défilement : si la page est en haut, la barre doit être là — sinon elle
+  // restait cachée jusqu'au prochain geste vers le haut
+  useEffect(() => {
+    const t = setTimeout(() => { if (window.scrollY < SEUIL_HAUT) setCachee(false); }, 60);
+    return () => clearTimeout(t);
+  }, [chemin]);
 
   useEffect(() => {
     let dernierY = window.scrollY;
@@ -116,6 +124,12 @@ export default function TabBar({ actif }) {
   const routeur = useRouter();
   const [role, setRole] = useState(roleCache);
   const [connecte, setConnecte] = useState(connecteCache ?? (roleCache ? true : null));
+  // le réseau revient : toutes les listes se relisent (elles écoutent lsno:rafraichir)
+  useEffect(() => {
+    const retour = () => window.dispatchEvent(new CustomEvent("lsno:rafraichir"));
+    window.addEventListener("online", retour);
+    return () => window.removeEventListener("online", retour);
+  }, []);
   const cachee = useCacherAuDefilement();
 
   // la page libère la place réservée à la barre quand il n'y en a pas
@@ -161,7 +175,9 @@ export default function TabBar({ actif }) {
   const auTap = (e, o) => {
     if (actif === o.nom) {
       e.preventDefault();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // déjà en haut : on recharge (même geste que tirer vers le bas) ; sinon on remonte
+      if (window.scrollY <= 40) { window.dispatchEvent(new CustomEvent("lsno:rafraichir")); routeur.refresh(); }
+      else window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     const adresse = derniereAdresse(o.href);

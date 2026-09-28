@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { Download } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
@@ -37,7 +38,7 @@ export default function Sauvegarde({ signale }) {
       .select("profile_id, titre, etablissement, ville, annee_debut, annee_fin")
       .order("profile_id");
     setEnCours(false);
-    if (error || !profils) { signale("Export impossible : " + (error?.message ?? "?")); return; }
+    if (error || !profils) { signale("Export impossible : " + texteErreur(error)); return; }
     telecharger(`lsno-profils-${jour}.csv`, versCSV(profils.map((p) => ({ ...p, promotion: p.promotions?.numero, promotions: undefined }))));
     if (parcours?.length) telecharger(`lsno-parcours-${jour}.csv`, versCSV(parcours));
     // l'export quitte la plateforme : il est déclaré au journal (migration 36).

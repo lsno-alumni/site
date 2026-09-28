@@ -115,24 +115,30 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
       if (e.cancelable) e.preventDefault();
       poser(Math.min(dy * 0.45, SEUIL * 1.5));
     };
+    // le rafraîchissement lui-même (par le geste, ou demandé par l'onglet
+    // actif touché alors qu'on est déjà en haut : événement « lsno:rafraichir »)
+    const lancer = () => {
+      if (enCoursRef.current) return;
+      enCoursRef.current = true;
+      setEnCours(true);
+      poser(SEUIL);
+      Promise.resolve(onRafraichirRef.current?.()).finally(() => {
+        enCoursRef.current = false;
+        setEnCours(false);
+        setConfirme(true);
+        setTimeout(() => setConfirme(false), 1400);
+        poser(0);
+      });
+    };
     const fin = () => {
       if (!tient) return;
       tient = false;
       if (icone) icone.style.transition = ""; // revient à la transition CSS pour le retour en douceur
-      if (decide && tirage >= SEUIL) {
-        enCoursRef.current = true;
-        setEnCours(true);
-        Promise.resolve(onRafraichirRef.current?.()).finally(() => {
-          enCoursRef.current = false;
-          setEnCours(false);
-          setConfirme(true);
-          setTimeout(() => setConfirme(false), 1400);
-          poser(0);
-        });
-      } else {
-        poser(0);
-      }
+      if (decide && tirage >= SEUIL) lancer();
+      else poser(0);
     };
+    const surDemande = () => { if (window.scrollY <= 40) lancer(); };
+    window.addEventListener("lsno:rafraichir", surDemande);
 
     // iOS : c'est CET annulateur qui empêche le rebond élastique natif — un
     // touchmove non passif, annulé dès que le doigt tire vers le bas en haut
@@ -149,6 +155,7 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
     document.addEventListener("pointerup", fin);
     document.addEventListener("pointercancel", fin);
     return () => {
+      window.removeEventListener("lsno:rafraichir", surDemande);
       window.removeEventListener("scroll", majTouchAction);
       zone.removeEventListener("pointerdown", debut);
       document.removeEventListener("pointermove", bouge);
@@ -168,7 +175,7 @@ export default function GlisserRafraichir({ onRafraichir, children }) {
         </span>
       </div>
       {children}
-      <div className={`toast${confirme ? " la" : ""}`} role="status">
+      <div className={`toast toast-actualise${confirme ? " la" : ""}`} role="status">
         <Check size={14} aria-hidden style={{ verticalAlign: -2, marginRight: 5 }} /> Actualisé
       </div>
     </div>

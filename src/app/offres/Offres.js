@@ -14,7 +14,7 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 import { DOMAINES, nomPays } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
 import TamponDate from "@/components/TamponDate";
-import { TYPES, nomType, joursRestants, ilYA } from "@/lib/offres";
+import { TYPES, nomType, joursRestants, ilYA, lienAbsolu } from "@/lib/offres";
 
 const VIERGE = { type: "stage", titre: "", description: "", domaine: "info", pays: "", ville: "", date_limite: "", lien: "" };
 const MAX_FICHIERS = 5;
@@ -22,12 +22,6 @@ const MAX_TAILLE = 10 * 1024 * 1024; // 10 Mo
 const fichierOk = (f) => f.type === "application/pdf" || f.type.startsWith("image/");
 
 // sans protocole, un lien serait pris pour un chemin DU site (→ 404)
-function lienAbsolu(v) {
-  const l = (v ?? "").trim();
-  if (!l) return null;
-  return /^https?:\/\//i.test(l) ? l : `https://${l}`;
-}
-
 export default function Offres() {
   const supabase = creerClientNavigateur();
   const routeur = useRouter();

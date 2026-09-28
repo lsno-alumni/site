@@ -21,7 +21,7 @@
   --sable: #E4D6BC;
   --texte: #1F2230; --texte-rgb: 31, 34, 48;
   --texte-2: #3E4454;
-  --brume: #7C8190; --brume-rgb: 124, 129, 144;
+  --brume: #5D6375; --brume-rgb: 93, 99, 117;   /* gris des libellés et petites lignes : 5,3:1 sur le kraft, 6:1 sur une carte (l'ancien #7C8190 plafonnait à 3,4:1 — illisible au soleil) */
   --ligne: rgba(31, 34, 48, .12);
   /* l'accent : notre bleu. --bleu = bordures et détails, --bleu-clair = fonds
      pleins (boutons, badges), --bleu-texte = texte, --bleu-doux = fond pâle */
@@ -34,7 +34,7 @@
   --pierre: #2B2620;                    /* pied de page sombre et chaud */
   --voile-rgb: 25, 22, 20;
   --or: #E8B33C; --or-clair: #F5CD6E;   /* poussière d'or du héros, reflet des boutons */
-  --vert-ok: #4F7A4B;
+  --vert-ok: #3E6B3B;   /* 5,6:1 sur le kraft (l'ancien #4F7A4B : 4,4) */
   --rouge: #B33A3A;
   --ombre: 0 18px 40px -22px rgba(31, 34, 48, .38);
   --kraft: url("/fonds/kraft-clair.jpg"); --kraft-melange: multiply;

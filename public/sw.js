@@ -36,22 +36,26 @@ self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 // que de les empiler. En dessous du seuil, chacune reste individuelle : on ne
 // perd donc jamais le détail des premières.
 //   SEUIL = 4 → les 3 premières s'affichent séparément, la 4e déclenche le résumé.
-// Le comptage se fait par appareil, sur ce qui est encore affiché : lire ou
-// écarter les notifications remet le compteur à zéro (c'est voulu).
+// Le comptage se fait par appareil, sur ce qui est encore affiché ET reçu dans
+// les dernières 24 h : une notification d'il y a trois jours, jamais écartée,
+// ne compte plus (sinon une seule arrivée devenait « 4 nouveaux membres »).
+// Un envoi marqué « seul » (annonce de rentrée) n'est jamais regroupé.
 // ------------------------------------------------------------
 const SEUIL_REGROUPEMENT = 4;
+const FENETRE_MS = 24 * 3600 * 1000;
 const RESUMES = {
   reseau: {
-    titre: (n) => `${n} nouveaux membres`,
-    corps: "Ils viennent de rejoindre le réseau.",
+    titre: (n) => `${n} nouveaux membres aujourd'hui`,
+    corps: "Ils ont rejoint le réseau ces dernières 24 heures.",
     url: "/annuaire",
   },
   offres: {
-    titre: (n) => `${n} nouvelles opportunités`,
-    corps: "Elles viennent d'être partagées.",
+    titre: (n) => `${n} nouvelles opportunités aujourd'hui`,
+    corps: "Partagées ces dernières 24 heures.",
     url: "/offres",
   },
 };
+const recente = (n) => Date.now() - (n.data?.recu ?? 0) < FENETRE_MS;
 
 async function afficher(d) {
   const commun = {
@@ -61,7 +65,7 @@ async function afficher(d) {
     badge: "/badge-notif.png",
   };
   const famille = d.famille;
-  const resume = RESUMES[famille];
+  const resume = d.seul ? null : RESUMES[famille];
 
   // familles non regroupées (mes demandes, annonces) : une notification = une alerte
   if (!resume) {
@@ -75,37 +79,39 @@ async function afficher(d) {
 
   const affichees = await self.registration.getNotifications();
   const cleResume = `${famille}-resume`;
-  const dejaResume = affichees.find((n) => n.tag === cleResume);
+  const dejaResume = affichees.find((n) => n.tag === cleResume && recente(n));
+  // seules les individuelles RÉCENTES comptent ; les anciennes restent affichées telles quelles
   const individuelles = affichees.filter(
-    (n) => n.tag && n.tag.startsWith(`${famille}-`) && n.tag !== cleResume
+    (n) => n.tag && n.tag.startsWith(`${famille}-`) && n.tag !== cleResume && recente(n)
   );
+  const maintenant = Date.now();
 
-  // un résumé existe déjà : on l'incrémente
+  // un résumé récent existe déjà : on l'incrémente
   if (dejaResume) {
     const n = (dejaResume.data?.compte ?? SEUIL_REGROUPEMENT) + 1;
     dejaResume.close();
     return self.registration.showNotification(resume.titre(n), {
       ...commun, body: resume.corps, tag: cleResume, renotify: true,
-      data: { url: resume.url, compte: n },
+      data: { url: resume.url, compte: n, recu: maintenant },
     });
   }
 
-  // sous le seuil : notification individuelle (étiquette unique)
+  // sous le seuil : notification individuelle (étiquette unique, datée)
   if (individuelles.length + 1 < SEUIL_REGROUPEMENT) {
     return self.registration.showNotification(d.titre || "LSNO Amicale", {
       ...commun,
       body: d.corps || "",
-      tag: `${famille}-${Date.now()}`,
-      data: { url: d.url || "/" },
+      tag: `${famille}-${maintenant}`,
+      data: { url: d.url || "/", recu: maintenant },
     });
   }
 
-  // seuil atteint : les individuelles cèdent la place à un résumé
+  // seuil atteint dans la journée : les individuelles récentes cèdent la place à un résumé
   const n = individuelles.length + 1;
   individuelles.forEach((x) => x.close());
   return self.registration.showNotification(resume.titre(n), {
     ...commun, body: resume.corps, tag: cleResume, renotify: true,
-    data: { url: resume.url, compte: n },
+    data: { url: resume.url, compte: n, recu: maintenant },
   });
 }
 

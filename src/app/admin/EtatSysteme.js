@@ -12,7 +12,7 @@ const NOMS = {
   "relance-inscriptions": "Relance validations (lundi)",
   "relance-demandes-contact": "Relance mises en relation (quotidien)",
   "purge-comptes-fantomes": "Purge comptes jamais confirmés (mensuel)",
-  "cloture-offres": "Clôture des offres expirées (mensuel)",
+  "cloture-offres": "Clôture des offres expirées",
   "garde-vivant-brevo": "Contrôle des clés email (bimestriel)",
   "envoi-annonces": "Envoi des annonces (quotidien)",
   "purge-offres-cloturees": "Purge des offres clôturées (mensuel)",
@@ -24,7 +24,32 @@ const NOMS = {
   "push-rappel-annuel": "Notification : profils à jour ? (1er septembre)",
   "push-controle-cles": "Notification : contrôle des clés (bimestriel)",
   "push-rentree-octobre": "Notifications de la rentrée (1er octobre)",
+  // réseau social (migrations 52 → 68)
+  "purge-videos-expirees": "Effacement des vidéos du fil de plus de 14 jours",
+  "purge-messages": "Effacement des messages de plus de 30 jours",
+  "purge-pieces": "Effacement des pièces jointes expirées (messages, questions)",
+  "fermer-questions": "Fermeture des questions sans activité depuis 30 jours",
+  "purge-moments": "Effacement des moments arrivés à échéance",
+  "rappel-evenements": "Rappel « c’est demain » aux participants d’un événement",
 };
+
+// « 30 5 * * * » → « chaque jour à 5 h 30 » : la planification dite en français
+const MOIS = ["", "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+function lirePlanification(cron) {
+  const [min, heure, jourMois, mois, jourSem] = (cron ?? "").trim().split(/\s+/);
+  if (!heure) return cron ?? "";
+  if (heure === "*") return `chaque heure, à la ${Number(min)}e minute`;
+  const h = `${Number(heure)} h${Number(min) ? ` ${String(Number(min)).padStart(2, "0")}` : ""}`;
+  const jour = jourMois === "1" ? "1er" : jourMois;
+  const quand = jourSem !== "*" ? `le ${JOURS[Number(jourSem)] ?? jourSem}`
+    : jourMois !== "*" && mois.includes("/") ? `le ${jour} tous les ${mois.split("/")[1]} mois`
+    : jourMois !== "*" && mois !== "*" ? `le ${jour} ${MOIS[Number(mois)] ?? mois}`
+    : jourMois !== "*" ? `le ${jour} du mois`
+    : mois !== "*" ? `chaque jour de ${MOIS[Number(mois)] ?? mois}`
+    : "chaque jour";
+  return `${quand} à ${h} (heure du Burkina)`;
+}
 
 // les deux listes de comptes dépliables sous « État du système »
 const LISTES = {
@@ -129,7 +154,10 @@ export default function EtatSysteme() {
           return (
             <div key={j.nom} style={{ display: "flex", gap: 8, alignItems: "baseline", padding: "8px 0", borderBottom: "1px solid var(--ligne)", fontSize: 12.5 }}>
               <span aria-hidden style={{ color: ok ? "#9FD8B4" : "var(--rouge)" }}>{ok ? "✓" : "✗"}</span>
-              <span style={{ flex: 1, color: "var(--texte-2)" }}>{NOMS[j.nom] ?? j.nom}</span>
+              <span style={{ flex: 1, color: "var(--texte-2)", display: "flex", flexDirection: "column", gap: 2 }}>
+                <span>{NOMS[j.nom] ?? j.nom.replace(/-/g, " ")}</span>
+                <small style={{ color: "var(--brume)", fontSize: 11 }}>{lirePlanification(j.planification)}</small>
+              </span>
               <span style={{ color: ok ? "var(--brume)" : "var(--rouge)", whiteSpace: "nowrap" }}>
                 {j.derniere ? `${date(j.derniere.quand)}${ok ? "" : " — échec"}` : "en attente"}
               </span>

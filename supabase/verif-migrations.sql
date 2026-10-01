@@ -176,6 +176,9 @@ with attendu(num, laisse, present) as (
   union all select 74, 'clôture des offres quotidienne et discrète ; annonce de rentrée non regroupée',
     exists (select 1 from cron.job where jobname = 'cloture-offres' and schedule = '30 5 * * *')
     and exists (select 1 from pg_proc where proname = 'push_rentree_octobre' and prosrc like '%seul%')
+  union all select 75, 'conformité après le réseau social (vue sante_systeme étendue, dans_le_cercle en liste blanche)',
+    exists (select 1 from sante_fonctions_ouvertes where nom = 'dans_le_cercle')
+    and exists (select 1 from pg_policies where tablename = 'push_essai_comptes')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

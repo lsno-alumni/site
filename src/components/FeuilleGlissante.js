@@ -19,8 +19,20 @@ import { X, ArrowLeft } from "lucide-react";
 // `children` (défilant), jamais dans `tete`.
 const PEEK = 0.7; // fraction de l'écran COUVERTE (pas le décalage) à l'ouverture
 
-export default function FeuilleGlissante({ tete, children, onFermer }) {
-  const [etat, setEtat] = useState("peek"); // peek | plein | ferme
+// depart="plein" : la feuille monte du bas et s'ouvre ENTIÈREMENT d'un seul
+// mouvement (le composer du Fil) — même façon d'apparaître qu'une feuille,
+// sans l'étape à mi-écran. sansFermer : le contenu a déjà son propre bouton.
+// Relais entre deux feuilles qui se succèdent sans transition : la silhouette
+// d'attente (loading.js) puis la vraie feuille avec ses données. La seconde
+// reprend la position exacte de la première, sans rejouer la montée — sinon
+// l'animation se faisait deux fois (signalé le 02/10).
+let relais = { etat: null, quand: 0 };
+const RELAIS_MS = 1500;
+
+export default function FeuilleGlissante({ tete, children, onFermer, depart = "peek", sansFermer = false }) {
+  const [reprise] = useState(() => (relais.etat && relais.etat !== "ferme" && Date.now() - relais.quand < RELAIS_MS ? relais.etat : null));
+  const [etat, setEtat] = useState(reprise ?? depart); // peek | plein | ferme
+  const etatRef = useRef(reprise ?? depart);
   const feuilleRef = useRef(null);
   const priseRef = useRef(null);
   const poigneeRef = useRef(null);
@@ -44,6 +56,8 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
 
   const aller = (e, animee = true) => {
     setEtat(e);
+    etatRef.current = e;
+    relais = { etat: e, quand: Date.now() };
     majPoignee(e !== "plein");
     const f = feuilleRef.current;
     if (!f) return;
@@ -80,13 +94,19 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     hauteurRef.current = window.innerHeight;
     document.body.style.overflow = "hidden";
     const f = feuilleRef.current;
-    if (f) {
+    if (f && reprise) {
+      // une feuille était déjà là (la silhouette) : on se pose à sa place, sans montée
+      aller(reprise, false);
+      requestAnimationFrame(() => { f.style.transition = ""; });
+    } else if (f) {
       f.style.overflowY = "hidden";
       f.style.transition = "none";
       f.style.transform = `translateY(${hauteurRef.current}px)`;
+      f.getBoundingClientRect(); // force le point de départ avant d'animer
       requestAnimationFrame(() => {
         f.style.transition = "";
-        f.style.transform = `translateY(${hauteurRef.current * (1 - PEEK)}px)`;
+        if (depart === "plein") aller("plein");
+        else { f.style.transform = `translateY(${hauteurRef.current * (1 - PEEK)}px)`; relais = { etat: "peek", quand: Date.now() }; }
       });
     }
     const esc = (e) => e.key === "Escape" && aller("ferme");
@@ -94,6 +114,8 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", esc);
+      // on laisse la position à la feuille qui prend le relais ; une fermeture ne se transmet pas
+      relais = { etat: etatRef.current === "ferme" ? null : etatRef.current, quand: Date.now() };
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -157,7 +179,7 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
   }, [etat]);
 
   return (
-    <div className="fg-scrim" onClick={() => aller("ferme")} role="presentation">
+    <div className={`fg-scrim${reprise ? " sans-fondu" : ""}`} onClick={() => aller("ferme")} role="presentation">
       <div
         ref={feuilleRef}
         className="fg-feuille"
@@ -169,11 +191,13 @@ export default function FeuilleGlissante({ tete, children, onFermer }) {
           <div ref={poigneeRef} className="fg-poignee"><i /></div>
           {tete}
         </div>
-        <button type="button" className="fg-fermer"
-          aria-label={etat === "plein" ? "Retour" : "Fermer"} onClick={() => aller("ferme")}>
-          <X size={20} aria-hidden className={`fg-icone${etat === "plein" ? " cachee" : ""}`} />
-          <ArrowLeft size={20} aria-hidden className={`fg-icone${etat === "plein" ? "" : " cachee"}`} />
-        </button>
+        {!sansFermer && (
+          <button type="button" className="fg-fermer"
+            aria-label={etat === "plein" ? "Retour" : "Fermer"} onClick={() => aller("ferme")}>
+            <X size={20} aria-hidden className={`fg-icone${etat === "plein" ? " cachee" : ""}`} />
+            <ArrowLeft size={20} aria-hidden className={`fg-icone${etat === "plein" ? "" : " cachee"}`} />
+          </button>
+        )}
         <div className="fg-contenu">
           {children}
         </div>

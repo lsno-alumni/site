@@ -1640,3 +1640,5 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .dom .txt > span { color: var(--brume); }
 /* écran d'attente d'une feuille de création : la barre de titre fantôme */
 .sq-feuille-tete { display: flex; align-items: center; height: 56px; padding: 0 20px; }
+/* la feuille qui prend le relais de la silhouette : le voile est déjà là, pas de second fondu */
+.fg-scrim.sans-fondu { animation: none; }

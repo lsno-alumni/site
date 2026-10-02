@@ -179,6 +179,8 @@ with attendu(num, laisse, present) as (
   union all select 75, 'conformité après le réseau social (vue sante_systeme étendue, dans_le_cercle en liste blanche)',
     exists (select 1 from sante_fonctions_ouvertes where nom = 'dans_le_cercle')
     and exists (select 1 from pg_policies where tablename = 'push_essai_comptes')
+  union all select 76, 'coches « vu » du dernier message dans la liste des conversations (lu_par, autres)',
+    exists (select 1 from pg_proc where proname = 'mes_conversations' and prosrc like '%lu_par%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X, ChevronRight } from "lucide-react";
+import { MessageCircle, PenLine, Users, Search, Pin, PinOff, BellOff, Bell, CheckCheck, LogOut, Trash2, X, ChevronRight, Check } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import Nouveau, { decouvrir } from "@/components/Nouveau";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
@@ -17,6 +17,16 @@ import { mesConversations, nomConversation, ecouterTousMessages, ecouterConversa
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
 // groupe), qui s'ouvre en pleine page (/messages/[id]).
+
+// coches du dernier message quand c'est moi qui l'ai écrit (migration 76) :
+// une = envoyé, deux = lu par une partie, deux bleues = lu par tous
+function Coches({ d }) {
+  if (d.lu_par === undefined || d.lu_par === null) return null;
+  const tous = d.autres > 0 && d.lu_par >= d.autres;
+  if (tous) return <CheckCheck size={14} className="msg-coches-liste lu" aria-label="Lu" />;
+  if (d.lu_par > 0) return <CheckCheck size={14} className="msg-coches-liste" aria-label="Lu par une partie" />;
+  return <Check size={14} className="msg-coches-liste" aria-label="Envoyé" />;
+}
 
 function Vignette({ c }) {
   if (c.type === "groupe") {
@@ -171,7 +181,8 @@ export default function Conversations({ moi }) {
                 </span>
                 <span className="msg-ligne-bas">
                   <span className={`msg-apercu${frappes[c.id] ? " msg-frappe" : brouillons[c.id] ? " msg-brouillon" : ""}`}>
-                    {frappes[c.id] ? `${frappes[c.id]} écrit…` : brouillons[c.id] ? <><b>Brouillon :</b> {brouillons[c.id]}</> : apercu}
+                    {frappes[c.id] ? `${frappes[c.id]} écrit…` : brouillons[c.id] ? <><b>Brouillon :</b> {brouillons[c.id]}</>
+                      : <>{d && d.auteur === moi.id && !frappes[c.id] && <Coches d={d} />}{apercu}</>}
                   </span>
                   {c.non_lus > 0 && <span className="msg-pastille">{c.non_lus > 99 ? "99+" : c.non_lus}</span>}
                 </span>

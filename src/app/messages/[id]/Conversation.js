@@ -24,7 +24,7 @@ import {
   lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages, ecouterConversation,
   ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
   renommerGroupe, ajouterMembres, demandesGroupe, traiterDemandeGroupe, ACCES, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
-  televerserPiece, urlsPieces, urlsConnues, tailleLisible, libellePiece,
+  televerserPiece, urlsPieces, urlsConnues, oublierMedia, tailleLisible, libellePiece,
   mesBlocages, bloquer, debloquer, signalerMessage, majGroupe, televerserPhotoGroupe, epinglerMessage,
   creerSondage, lireSondages, ecouterVotes, transfererMessage, ouvrirDuo,
   nomConversation, heure, jour, MESSAGE_MAX, PIECE_VIDEO_SECONDES, PIECE_VIDEO_MO, PIECE_PDF_MO, VOCAL_SECONDES,
@@ -345,7 +345,11 @@ export default function Conversation({ id, moi }) {
           if (m.auteur === moi.id || enBas.current) doitDescendre.current = "smooth";
           else setNouveaux((n) => n + 1);
         },
-        surSuppression: (mid) => setMessages((l) => (l ? l.filter((x) => x.id !== mid) : l)),
+        surSuppression: (mid) => setMessages((l) => {
+          const parti = l?.find((x) => x.id === mid);
+          if (parti?.fichier_chemin && parti.fichier_type !== "lien") oublierMedia(parti.fichier_chemin);
+          return l ? l.filter((x) => x.id !== mid) : l;
+        }),
       }),
       ecouterModifications(id, (m) => setMessages((l) => (l ? l.map((x) => (x.id === m.id ? { ...x, ...m } : x)) : l))),
       ecouterLecture(id, (x) => setLectures((p) => ({ ...p, [x.membre]: x.lu_le }))),

@@ -159,6 +159,14 @@ export async function urlsPieces(chemins) {
   return out;
 }
 
+// un message supprimé en direct : son fichier quitte aussi le cache des médias du service worker
+export function oublierMedia(chemin) {
+  if (!chemin || typeof caches === "undefined") return;
+  caches.open("lsno-medias-v1").then(async (c) => {
+    for (const k of await c.keys()) if (new URL(k.url).pathname.endsWith("/" + chemin)) await c.delete(k);
+  }).catch(() => {});
+}
+
 export async function supprimerMessage(id) {
   const supabase = creerClientNavigateur();
   // le fichier est retiré par la base (déclencheur après suppression)

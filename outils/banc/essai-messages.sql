@@ -29,6 +29,8 @@ select 'B : non lus avant' as qui, messages_non_lus() as n;
 select 'B : liste' as quoi, (mes_conversations()->0->>'non_lus') as non_lus, (mes_conversations()->0->'dernier'->>'texte') as dernier,
        (mes_conversations()->0->'membres'->0->>'prenom') as avec;
 select marquer_lu((mes_conversations()->0->>'id')::bigint);
+-- coches de la liste (migration 76) : vu par B → lu_par = 1 sur 1 autre, du point de vue de A
+select 'B : coches' as quoi, (mes_conversations()->0->'dernier'->>'lu_par') as lu_par, (mes_conversations()->0->'dernier'->>'autres') as autres;
 select 'B : non lus après lecture' as qui, messages_non_lus() as n;
 select 'texte nettoyé ?' as essai, texte from messages order by id limit 1;
 reset role;

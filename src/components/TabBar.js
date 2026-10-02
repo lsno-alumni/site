@@ -6,6 +6,7 @@ import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
+import { verifierVersion, nouvelleVersionPrete, saisieEnCours } from "@/lib/version";
 
 // 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
 // délégués et admins (les membres n'y ont pas accès — la page affiche
@@ -172,7 +173,21 @@ export default function TabBar({ actif }) {
   //  - un tap sur un autre onglet ramène à sa dernière adresse complète
   //    (recherche et filtres compris), à la position mémorisée — SuiviNavigation
   //    a déjà noté le tap (écouteur en capture) quand on arrive ici.
+  // nouvelle version en ligne ? vérifiée à l'arrivée et à chaque retour au premier plan
+  useEffect(() => {
+    verifierVersion();
+    const retour = () => { if (document.visibilityState === "visible") verifierVersion().then((n) => { if (n && !saisieEnCours() && window.scrollY <= 40) window.location.reload(); }); };
+    document.addEventListener("visibilitychange", retour);
+    return () => document.removeEventListener("visibilitychange", retour);
+  }, []);
+
   const auTap = (e, o) => {
+    // une nouvelle version attend : un tap d'onglet devient une navigation complète, qui la charge
+    if (nouvelleVersionPrete() && !saisieEnCours()) {
+      e.preventDefault();
+      window.location.assign(actif === o.nom ? o.href : (derniereAdresse(o.href) ?? o.href));
+      return;
+    }
     if (actif === o.nom) {
       e.preventDefault();
       // déjà en haut : on recharge (même geste que tirer vers le bas) ; sinon on remonte

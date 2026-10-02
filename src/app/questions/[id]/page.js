@@ -11,9 +11,8 @@ export const dynamic = "force-dynamic";
 // c'est la feuille glissante (questions/@modal) qui s'ouvre à la place.
 export default async function PageQuestion({ params }) {
   const { id } = await params;
-  const moi = await utilisateurCourant();
+  const [moi, q] = await Promise.all([utilisateurCourant(), lireQuestionServeur(id)]);   // en parallèle : deux allers-retours en un
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
-  const q = await lireQuestionServeur(id);
   if (!q) notFound();
   return (
     <main className="page page-profil avec-tabbar">

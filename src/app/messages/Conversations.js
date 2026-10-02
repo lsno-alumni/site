@@ -18,13 +18,12 @@ import { mesConversations, nomConversation, ecouterTousMessages, ecouterConversa
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
 // groupe), qui s'ouvre en pleine page (/messages/[id]).
 
-// coches du dernier message quand c'est moi qui l'ai écrit (migration 76) :
-// une = envoyé, deux = lu par une partie, deux bleues = lu par tous
+// coches du dernier message quand c'est moi qui l'ai écrit (migration 76), façon
+// WhatsApp : une = parti, deux grises = reçu par tous, deux bleues = lu par tous
 function Coches({ d }) {
   if (d.lu_par === undefined || d.lu_par === null) return null;
-  const tous = d.autres > 0 && d.lu_par >= d.autres;
-  if (tous) return <CheckCheck size={14} className="msg-coches-liste lu" aria-label="Lu" />;
-  if (d.lu_par > 0) return <CheckCheck size={14} className="msg-coches-liste" aria-label="Lu par une partie" />;
+  if (d.autres > 0 && d.lu_par >= d.autres) return <CheckCheck size={14} className="msg-coches-liste lu" aria-label="Lu" />;
+  if (d.autres > 0 && (d.recu_par ?? 0) >= d.autres) return <CheckCheck size={14} className="msg-coches-liste" aria-label="Reçu" />;
   return <Check size={14} className="msg-coches-liste" aria-label="Envoyé" />;
 }
 

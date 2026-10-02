@@ -71,10 +71,10 @@ export async function membresJoignables() {
 
 export async function lireConversation(id) {
   const supabase = creerClientNavigateur();
-  const { data, error } = await supabase
-    .from("conversations")
-    .select("id, type, nom, photo_url, description, message_epingle, cree_par, acces, visibilite, officiel, membres:conversation_membres(membre, lu_le, muet, epingle, profil:profiles(id, prenom, nom, photo_url))")
-    .eq("id", id).maybeSingle();
+  const champs = (recu) => `id, type, nom, photo_url, description, message_epingle, cree_par, acces, visibilite, officiel, membres:conversation_membres(membre, lu_le,${recu ? " recu_le," : ""} muet, epingle, profil:profiles(id, prenom, nom, photo_url))`;
+  let { data, error } = await supabase.from("conversations").select(champs(true)).eq("id", id).maybeSingle();
+  // tant que la migration 76 (recu_le) n'est pas passée : même lecture sans la colonne
+  if (error?.code === "42703") ({ data, error } = await supabase.from("conversations").select(champs(false)).eq("id", id).maybeSingle());
   if (error) throw error;
   return data;
 }
@@ -468,6 +468,17 @@ export function tailleLisible(o) {
 export async function marquerLu(conversationId) {
   const supabase = creerClientNavigateur();
   await supabase.rpc("marquer_lu", { p_conversation: conversationId });
+}
+// « reçu » (deux coches grises chez l'expéditeur) : mon appli a eu le message
+// en main — en direct où que je sois, ou à l'ouverture (migration 76)
+export async function marquerRecu(conversationId) {
+  if (!conversationId) return;
+  const supabase = creerClientNavigateur();
+  await supabase.rpc("marquer_recu", { p_conversation: conversationId }).then(() => {}, () => {});
+}
+export async function marquerRecuTout() {
+  const supabase = creerClientNavigateur();
+  await supabase.rpc("marquer_recu_tout").then(() => {}, () => {});
 }
 
 export async function renommerGroupe(id, nom) {

@@ -75,6 +75,9 @@ const enTetes = [
 ];
 
 const nextConfig = {
+  // la version de ce build, lisible côté client (src/lib/version.js) : sur Vercel,
+  // l'identifiant du commit ; en local « dev » (jamais de rechargement)
+  env: { NEXT_PUBLIC_VERSION: process.env.VERCEL_GIT_COMMIT_SHA ?? "dev" },
   // « L'affaire du cache » (26/09). Chaque tap sur un onglet dynamique
   // (accueil, annuaire, conseils, profil, à propos) repartait au serveur, même
   // dix secondes après la visite précédente : ~1 s et un squelette à chaque

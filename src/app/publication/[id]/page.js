@@ -11,9 +11,8 @@ export const dynamic = "force-dynamic";
 // Fil, c'est la feuille glissante (fil/@modal) qui s'ouvre à la place.
 export default async function PagePublication({ params }) {
   const { id } = await params;
-  const moi = await utilisateurCourant();
+  const [moi, r] = await Promise.all([utilisateurCourant(), lirePublication(id)]);   // en parallèle : deux allers-retours en un
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
-  const r = await lirePublication(id);
   if (!r) notFound();
   const moderateur = moi.role === "admin" || moi.role === "delegue";
   if (r.publication.masquee && !moderateur && r.publication.auteur.id !== moi.id) notFound();

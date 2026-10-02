@@ -11,9 +11,8 @@ export const dynamic = "force-dynamic";
 // ou le Fil, c'est la feuille glissante (@modal) qui s'ouvre à la place.
 export default async function PageEvenement({ params }) {
   const { id } = await params;
-  const moi = await utilisateurCourant();
+  const [moi, e] = await Promise.all([utilisateurCourant(), lireEvenementServeur(id)]);   // en parallèle : deux allers-retours en un
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
-  const e = await lireEvenementServeur(id);
   if (!e) notFound();
   return (
     <main className="page page-profil avec-tabbar">

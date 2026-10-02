@@ -26,11 +26,16 @@ const PEEK = 0.7; // fraction de l'écran COUVERTE (pas le décalage) à l'ouver
 // d'attente (loading.js) puis la vraie feuille avec ses données. La seconde
 // reprend la position exacte de la première, sans rejouer la montée — sinon
 // l'animation se faisait deux fois (signalé le 02/10).
+// `vivantes` compte les feuilles montées : quand la vraie feuille se rend, la
+// silhouette est ENCORE là (elle ne se démonte qu'au même commit) — c'est ce
+// constat qui fait foi, pas un délai (sur téléphone le contenu peut mettre
+// plusieurs secondes, un délai expirait et la montée se rejouait).
 let relais = { etat: null, quand: 0 };
-const RELAIS_MS = 1500;
+let vivantes = 0;
+const RELAIS_MS = 400;
 
 export default function FeuilleGlissante({ tete, children, onFermer, depart = "peek", sansFermer = false }) {
-  const [reprise] = useState(() => (relais.etat && relais.etat !== "ferme" && Date.now() - relais.quand < RELAIS_MS ? relais.etat : null));
+  const [reprise] = useState(() => (relais.etat && relais.etat !== "ferme" && (vivantes > 0 || Date.now() - relais.quand < RELAIS_MS) ? relais.etat : null));
   const [etat, setEtat] = useState(reprise ?? depart); // peek | plein | ferme
   const etatRef = useRef(reprise ?? depart);
   const feuilleRef = useRef(null);
@@ -91,6 +96,7 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
   // ("peek") est déjà correct, seule la position VISUELLE (fermée → mi-écran)
   // doit s'animer — un pur ajustement du DOM, pas une synchronisation d'état.
   useEffect(() => {
+    vivantes += 1;
     hauteurRef.current = window.innerHeight;
     document.body.style.overflow = "hidden";
     const f = feuilleRef.current;
@@ -112,6 +118,7 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
     const esc = (e) => e.key === "Escape" && aller("ferme");
     document.addEventListener("keydown", esc);
     return () => {
+      vivantes = Math.max(0, vivantes - 1);
       document.body.style.overflow = "";
       document.removeEventListener("keydown", esc);
       // on laisse la position à la feuille qui prend le relais ; une fermeture ne se transmet pas

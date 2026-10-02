@@ -1638,3 +1638,5 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .dom .txt { color: var(--texte); }
 .dom .txt b { color: var(--texte); }
 .dom .txt > span { color: var(--brume); }
+/* écran d'attente d'une feuille de création : la barre de titre fantôme */
+.sq-feuille-tete { display: flex; align-items: center; height: 56px; padding: 0 20px; }

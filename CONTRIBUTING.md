@@ -109,7 +109,7 @@ Deux réflexes utiles :
 - **La confidentialité se joue dans la base** : si ta fonctionnalité touche aux données
   personnelles, la règle d'accès doit être une policy RLS ou une fonction SQL, pas un
   `if` côté client.
-- **Fraîcheur des données** : le service worker ne met rien en cache ; côté client, les
+- **Fraîcheur des données** : le service worker ne met en cache ni page ni donnée (seulement les MÉDIAS immuables des messages et du fil, voir `public/sw.js`) ; côté client, les
   pages dynamiques sont gardées 30 s (`staleTimes` dans `next.config.mjs`) et la mémoire
   d'onglet (`src/lib/memoire.js`) retrouve listes, filtres et position. La contrepartie :
   **toute écriture** (validation, publication, réglage…) doit être suivie d'un
@@ -269,10 +269,18 @@ vrais membres. Règles apprises à nos dépens :
   réabonnement « automatique » doit donc vérifier le refus explicite mémorisé sur
   l'appareil (`refusLocal()` dans `src/lib/push.js`) — sinon on réactive contre la
   volonté du membre (bug vécu le 29/07).
-- **Ne pas toucher au gestionnaire `fetch` vide de `public/sw.js`** ni à l'enregistrement du
+- **Les écrans qui chargent dans le navigateur gardent une mémoire d'onglet** (`src/lib/memoire.js`),
+  conversations comprises (`conv.<id>` : messages, réactions, sondages…) : on affiche ce qu'on
+  avait, on recharge derrière, et on FUSIONNE (le rechargement fait foi sur sa fenêtre, le
+  temps réel arrivé entre-temps est gardé — voir `fusionner()` dans Conversation.js). Les adresses
+  signées des pièces sont réutilisées 50 min (`urlsPieces` / `urlsConnues`) pour que le navigateur
+  resserve les fichiers déjà reçus. Toute image ou vidéo de contenu passe par `ImageRobuste` /
+  `useReessai` (`src/components/MediaRobuste.js`) : trois nouvelles tentatives, puis « Réessayer ».
+- **Ne pas retirer le gestionnaire `fetch` de `public/sw.js`** ni l'enregistrement du
   service worker pour tous (`initInstallation()`) : Chrome n'offre l'installation de l'appli
   que si un service worker actif possède un gestionnaire `fetch`. C'est la seule raison de sa
-  présence — il n'intercepte rien et ne met rien en cache.
+  présence au départ — il ne touche ni aux pages ni aux données ; il sert aussi, depuis le 02/10,
+  à garder les médias immuables (buckets `pieces` et `medias`, 300 fichiers max).
 - **`beforeinstallprompt` se capte au plus tôt** (dans le composant client du layout) : cet
   événement est émis une seule fois, peu après le chargement. Le capter dans une page arrivée
   trop tard le fait manquer.

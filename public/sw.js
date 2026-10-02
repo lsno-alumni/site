@@ -1,10 +1,38 @@
-// Service worker — les notifications push, et une page « hors ligne ».
-// ⚠ Aucune page ni donnée du site n'est mise en cache : la fraîcheur reste
-// intacte (décision « pas de cache client »). Seule la page hors ligne et le
-// blason sont gardés, pour répondre quand le réseau MANQUE — et seulement là.
+// Service worker — les notifications push, une page « hors ligne », et le
+// cache des MÉDIAS des messages et du fil.
+// Aucune page ni donnée n'est mise en cache (la fraîcheur reste au serveur et
+// à la mémoire d'onglet). En revanche les fichiers qui ne changent JAMAIS une
+// fois envoyés — photos, vidéos et vocaux des messages (bucket « pieces »),
+// photos et vidéos du fil et des moments (bucket « medias ») — sont gardés ici
+// une fois reçus : une conversation déjà ouverte se relit sans réseau, et une
+// adresse signée qui change ne force plus un nouveau téléchargement (la clé du
+// cache ignore le jeton). Plafond : MAX_MEDIAS fichiers, les plus anciens partent.
 
 const CACHE_HORS_LIGNE = "lsno-hors-ligne-v1";
 const PAGE_HORS_LIGNE = "/hors-ligne.html";
+const CACHE_MEDIAS = "lsno-medias-v1";
+const MAX_MEDIAS = 300;
+const estMedia = (url) => /\/storage\/v1\/object\/(sign\/pieces|public\/medias)\//.test(url.pathname);
+
+async function servirMedia(requete) {
+  const url = new URL(requete.url);
+  const cle = url.origin + url.pathname;          // sans le jeton de signature
+  const cache = await caches.open(CACHE_MEDIAS);
+  const connu = await cache.match(cle);
+  if (connu) return connu;
+  // en CORS pour obtenir une réponse lisible (donc stockable sans gonfler le
+  // quota) ; Supabase Storage autorise toutes les origines
+  let reponse;
+  try { reponse = await fetch(requete.url, { mode: "cors", credentials: "omit" }); }
+  catch { return fetch(requete); }
+  if (reponse.ok && /^(image|video|audio)\//.test(reponse.headers.get("content-type") || "")) {
+    cache.put(cle, reponse.clone()).then(async () => {
+      const cles = await cache.keys();
+      for (const k of cles.slice(0, Math.max(0, cles.length - MAX_MEDIAS))) await cache.delete(k);
+    }).catch(() => {});
+  }
+  return reponse;
+}
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -26,6 +54,11 @@ self.addEventListener("fetch", (e) => {
   // le blason de la page hors ligne : réseau d'abord, cache seulement s'il échoue
   if (new URL(e.request.url).pathname === "/img/logo.jpg") {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+  // médias immuables des messages et du fil : cache d'abord
+  if (e.request.method === "GET" && estMedia(new URL(e.request.url))) {
+    e.respondWith(servirMedia(e.request));
   }
 });
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));

@@ -2646,3 +2646,8 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .cg-liste li { line-height: 1.5; }
 /* question : les menus ⋯ (question et réponses) s'ouvrent vers le HAUT — vers le bas ils passaient sous la barre de réponse fixe */
 .qa-actions .pub-menu-liste, .qa-reponse-pied .pub-menu-liste { top: auto; bottom: calc(100% + 6px); z-index: 40; }
+/* médias robustes : le bouton « Réessayer » à la place d'un rectangle vide */
+.media-reessayer { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 100px; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.media-echec { display: grid; place-items: center; min-height: 90px; border-radius: 14px; background: rgba(var(--texte-rgb), .06); }
+.lecteur-audio.echec { justify-content: center; }
+.collage-case .media-echec { width: 100%; height: 100%; border-radius: 0; }

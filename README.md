@@ -164,7 +164,9 @@ avant d'en ajouter une.
 - **Fraîcheur avant tout, mais plus de rechargement brutal** : les pages dynamiques sont
   gardées 30 s côté client (`staleTimes`), une mémoire d'onglet (`src/lib/memoire.js`)
   retrouve listes, filtres et position instantanément, et chaque écriture appelle
-  `router.refresh()`. Le service worker ne met **rien** en cache — il sert aux
+  `router.refresh()`. Les conversations gardent aussi leur mémoire d'onglet (affichées d'un
+  coup, rafraîchies derrière, fusionnées avec le temps réel). Le service worker ne met en cache
+  **aucune page ni donnée**, seulement les médias immuables des messages et du fil — il sert aux
   notifications, à l'installation et à une page hors ligne.
 - **Les emails et les notifications partent de la base** (triggers + pg_cron), pas du
   front : chercher la logique dans `supabase/`, pas dans les composants.

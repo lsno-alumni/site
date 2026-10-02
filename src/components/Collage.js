@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useState } from "react";
 import Visionneuse from "@/components/Visionneuse";
 
@@ -19,7 +21,7 @@ export default function Collage({ urls, alt = "", className = "" }) {
       <div className={`collage collage-${Math.min(n, 4)}${className ? " " + className : ""}`} onPointerDown={(e) => e.stopPropagation()}>
         {visibles.map((u, i) => (
           <button key={i} type="button" className="collage-case" onClick={(e) => ouvrir(e, i)} aria-label={`Photo ${i + 1} sur ${n}`}>
-            <img src={u} alt={alt} loading="lazy" draggable={false} />
+            <ImageRobuste src={u} alt={alt} loading="lazy" draggable={false} />
             {i === 3 && reste > 0 && <span className="collage-plus">+{reste}</span>}
           </button>
         ))}

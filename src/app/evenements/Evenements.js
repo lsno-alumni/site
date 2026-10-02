@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useEffect, useState } from "react";
 import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
@@ -44,7 +46,7 @@ export function CarteEvenement({ e, compacte = false }) {
           {e.ma_reponse && <span className="ev-moi">{e.ma_reponse === "oui" ? "Tu y vas" : "Peut-être"}</span>}
         </span>
       </span>
-      {affiche && !compacte && <img className="ev-affiche-mini" src={affiche} alt="" loading="lazy" />}
+      {affiche && !compacte && <ImageRobuste className="ev-affiche-mini" src={affiche} alt="" loading="lazy" />}
     </Link>
   );
 }

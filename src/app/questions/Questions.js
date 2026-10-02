@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useEffect, useState } from "react";
 import { texteErreur, avecReprise } from "@/lib/erreurs";
 import Link from "next/link";
@@ -25,7 +27,7 @@ export function CarteQuestion({ q }) {
   const pdf = (q.fichier_type === "pdf" || q.fichier_type === "application/pdf") && !q.fichier_expiree;
   return (
     <Link href={`/questions/${q.id}`} className={`qa-carte${q.resolue ? " resolue" : ""}${q.masquee ? " pub-masquee" : ""}${photo ? " avec-vignette" : ""}`}>
-      {photo && <img className="qa-vignette" src={photo} alt="" loading="lazy" />}
+      {photo && <ImageRobuste className="qa-vignette" src={photo} alt="" loading="lazy" />}
       <span className="qa-carte-haut">
         {q.theme && <span className="qa-theme">{q.theme}</span>}
         {q.resolue && <span className="qa-resolue"><CheckCircle2 size={12} aria-hidden /> Résolue</span>}

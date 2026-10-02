@@ -9,7 +9,8 @@ export const metadata = { title: "Annuaire — LSNO Amicale" };
 export const dynamic = "force-dynamic";
 
 export default async function PageAnnuaire() {
-  const moi = await utilisateurCourant();
+  // l'utilisateur et la liste en même temps (la RLS rend la liste vide à un compte non validé)
+  const [moi, membres] = await Promise.all([utilisateurCourant(), listeMembres()]);
 
   // Compte pas encore validé : expliquer pourquoi l'annuaire est fermé, plutôt
   // que d'afficher une liste vide incompréhensible. Et surtout : ne pas faire
@@ -56,8 +57,6 @@ export default async function PageAnnuaire() {
     );
   }
 
-  // La RLS ne renvoie cette liste qu'aux comptes validés.
-  const membres = await listeMembres();
   return (
     <main className="page avec-tabbar">
       <Suspense>

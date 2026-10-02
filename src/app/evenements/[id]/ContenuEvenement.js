@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useRef, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
@@ -23,7 +25,7 @@ export function TeteEvenement({ e }) {
   const d = new Date(e.debut);
   return (
     <div className={`ev-tete${affiche ? " avec-affiche" : ""}`}>
-      {affiche && <img className="ev-affiche" src={affiche} alt="" />}
+      {affiche && <ImageRobuste className="ev-affiche" src={affiche} alt="" />}
       <div className="ev-tete-texte">
         <span className="ev-haut">
           {e.officiel && <span className="ev-officiel"><Award size={11} aria-hidden /> Amicale</span>}

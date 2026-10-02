@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useEffect, useRef, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
 import { createPortal } from "react-dom";
@@ -196,7 +198,7 @@ export default function LecteurMoments({ auteurs, departAuteur = 0, departMoment
 
       <div className="mo-scene" onPointerDown={debut} onPointerUp={fin} onPointerCancel={() => { clearTimeout(geste.current?.minuteur); geste.current = null; setPause(false); }}>
         {m.media_type === "photo"
-          ? <img src={m.url} alt={m.legende || ""} draggable={false} />
+          ? <ImageRobuste src={m.url} alt={m.legende || ""} draggable={false} />
           : <video ref={video} key={m.id} src={m.url} autoPlay playsInline preload="auto"
               onTimeUpdate={(e) => { const v = e.currentTarget; if (v.duration && isFinite(v.duration)) setAvancement(v.currentTime / v.duration); }}
               onEnded={suivant} />}

@@ -1,5 +1,7 @@
 "use client";
 
+import ImageRobuste from "@/components/MediaRobuste";
+
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -40,7 +42,7 @@ export default function Visionneuse({ urls: liste, src, alt = "", depart = 0, on
       {n > 1 && <span className="visionneuse-compteur">{i + 1} / {n}</span>}
       <div className="visionneuse-scene" onClick={(e) => e.stopPropagation()}
         onPointerDown={debut} onPointerMove={bouge} onPointerUp={fin} onPointerCancel={fin}>
-        <img src={urls[i]} alt={alt} draggable={false} style={{ transform: decal ? `translateX(${decal}px)` : undefined, transition: decal ? "none" : "transform .2s" }} />
+        <ImageRobuste src={urls[i]} alt={alt} draggable={false} style={{ transform: decal ? `translateX(${decal}px)` : undefined, transition: decal ? "none" : "transform .2s" }} />
       </div>
       {n > 1 && (
         <>

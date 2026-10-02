@@ -10,6 +10,7 @@ import {
   Ban, Flag, Forward, MessageSquare, Image as ImageIcone, BarChart3, Info, Camera, Copy, Search,
 } from "lucide-react";
 import Avatar from "@/components/Avatar";
+import { useReessai, BoutonReessayer } from "@/components/MediaRobuste";
 import { plat } from "@/components/Surligne";
 import useTempsReel from "@/lib/tempsReel";
 import { VISIBILITES, depuis } from "@/lib/fil";
@@ -23,7 +24,7 @@ import {
   lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages, ecouterConversation,
   ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
   renommerGroupe, ajouterMembres, demandesGroupe, traiterDemandeGroupe, ACCES, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
-  televerserPiece, urlsPieces, tailleLisible, libellePiece,
+  televerserPiece, urlsPieces, urlsConnues, tailleLisible, libellePiece,
   mesBlocages, bloquer, debloquer, signalerMessage, majGroupe, televerserPhotoGroupe, epinglerMessage,
   creerSondage, lireSondages, ecouterVotes, transfererMessage, ouvrirDuo,
   nomConversation, heure, jour, MESSAGE_MAX, PIECE_VIDEO_SECONDES, PIECE_VIDEO_MO, PIECE_PDF_MO, VOCAL_SECONDES,
@@ -50,6 +51,30 @@ function Citation({ c, nom }) {
   return <div className="msg-citation"><b>{nom}</b><span>{c.texte?.trim() ? c.texte.slice(0, 90) : libellePiece(c)}</span></div>;
 }
 
+// Le rechargement fait foi sur sa fenêtre (les 50 derniers) : ce qui y manque a
+// été supprimé. Hors fenêtre, on garde ce qu'on avait — les plus anciens déjà
+// chargés en remontant, et les messages arrivés EN DIRECT pendant le
+// chargement (le temps réel ne perd rien).
+function fusionner(prev, frais) {
+  if (!prev?.length) return frais;
+  if (!frais.length) return prev;
+  const ids = new Set(frais.map((x) => x.id));
+  const premier = frais[0].cree_le, dernier = frais[frais.length - 1].cree_le;
+  const gardes = prev.filter((x) => !ids.has(x.id) && (x.cree_le < premier || x.cree_le > dernier));
+  return [...gardes, ...frais].sort((a, b) => (a.cree_le < b.cree_le ? -1 : a.cree_le > b.cree_le ? 1 : 0));
+}
+
+function PhotoPiece({ url }) {
+  const { cle, srcAffiche, echec, surErreur, reessayer } = useReessai(url);
+  if (echec) return <span className="msg-piece-attente"><BoutonReessayer onClick={reessayer} /></span>;
+  return <a href={url} target="_blank" rel="noopener noreferrer" className="msg-piece-photo" draggable={false}><img key={cle} src={srcAffiche} alt="" loading="lazy" draggable={false} onError={surErreur} /></a>;
+}
+function VideoPiece({ url }) {
+  const { cle, srcAffiche, echec, surErreur, reessayer } = useReessai(url);
+  if (echec) return <span className="msg-piece-attente"><BoutonReessayer onClick={reessayer} /></span>;
+  return <video key={cle} className="msg-piece-video" src={srcAffiche} controls playsInline preload="metadata" onError={surErreur} />;
+}
+
 function Piece({ m, url, mienne }) {
   if (m.fichier_expiree) return <p className="msg-piece-expiree">{libellePiece(m)} expirée, gardée {JOURS_PIECE[m.fichier_type] ?? 30} jours.</p>;
   if (!m.fichier_chemin) return null;
@@ -62,8 +87,8 @@ function Piece({ m, url, mienne }) {
       </Link>
     );
   }
-  if (m.fichier_type === "photo") return url ? <a href={url} target="_blank" rel="noopener noreferrer" className="msg-piece-photo" draggable={false}><img src={url} alt="" loading="lazy" draggable={false} /></a> : <span className="msg-piece-attente" aria-hidden />;
-  if (m.fichier_type === "video") return url ? <video className="msg-piece-video" src={url} controls playsInline preload="metadata" /> : <span className="msg-piece-attente" aria-hidden><Play size={20} /></span>;
+  if (m.fichier_type === "photo") return url ? <PhotoPiece url={url} /> : <span className="msg-piece-attente" aria-hidden />;
+  if (m.fichier_type === "video") return url ? <VideoPiece url={url} /> : <span className="msg-piece-attente" aria-hidden><Play size={20} /></span>;
   if (m.fichier_type === "audio") return url ? <LecteurAudio src={url} mienne={mienne} /> : <span className="msg-piece-attente courte" aria-hidden><Mic size={18} /></span>;
   return (
     <a href={url ?? "#"} target="_blank" rel="noopener noreferrer" className="msg-piece-pdf" draggable={false}>
@@ -138,9 +163,12 @@ function Rang({ mid, mien, suite, groupe, auteur, enfants, onMenu, onRepondre, o
 
 export default function Conversation({ id, moi }) {
   const routeur = useRouter();
-  const [conv, setConv] = useState(null);
-  const [messages, setMessages] = useState(null);
-  const [debut, setDebut] = useState(false);
+  // ce qu'on avait la dernière fois (mémoire d'onglet) : affiché tout de suite,
+  // puis rafraîchi en arrière-plan — plus de page vide à chaque entrée
+  const [souvenir] = useState(() => memoire.lire(`conv.${id}`) ?? null);   // figé à l'ouverture
+  const [conv, setConv] = useState(souvenir?.conv ?? null);
+  const [messages, setMessages] = useState(souvenir?.messages ?? null);
+  const [debut, setDebut] = useState(souvenir?.debut ?? false);
   const [texte, setTexte] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -160,17 +188,17 @@ export default function Conversation({ id, moi }) {
   const [menuSens, setMenuSens] = useState("haut");   // vers le haut, ou vers le bas si la bulle est près du haut de l'écran
   const [reponseA, setReponseA] = useState(null);
   const [edition, setEdition] = useState(null);
-  const [reactions, setReactions] = useState({});
-  const [lectures, setLectures] = useState({});
+  const [reactions, setReactions] = useState(souvenir?.reactions ?? {});
+  const [lectures, setLectures] = useState(souvenir?.lectures ?? {});
   const [frappe, setFrappe] = useState(null);
   const [enregistrement, setEnregistrement] = useState(null);
   const [secondes, setSecondes] = useState(0);
   const [maintenant, setMaintenant] = useState(0);
   const [nouveaux, setNouveaux] = useState(0);
   const [blocages, setBlocages] = useState([]);      // ids que J'AI bloqués
-  const [epingle, setEpingle] = useState(null);      // le message épinglé (objet)
-  const [sondages, setSondages] = useState({});      // id → sondage
-  const [votes, setVotes] = useState({});            // sondageId → [{membre, choix}]
+  const [epingle, setEpingle] = useState(souvenir?.epingle ?? null);      // le message épinglé (objet)
+  const [sondages, setSondages] = useState(souvenir?.sondages ?? {});      // id → sondage
+  const [votes, setVotes] = useState(souvenir?.votes ?? {});            // sondageId → [{membre, choix}]
   const [joindreMenu, setJoindreMenu] = useState(false);
   const [aTransferer, setATransferer] = useState(null);
   const [convs, setConvs] = useState(null);          // pour le transfert
@@ -186,7 +214,7 @@ export default function Conversation({ id, moi }) {
   const pdfRef = useRef(null);
   const photoGroupeRef = useRef(null);
   const [piece, setPiece] = useState(null);      // { type, fichier, url, duree } ou { type: "photos", fichiers: [{fichier, url}] }
-  const [urls, setUrls] = useState({});
+  const [urls, setUrls] = useState(() => urlsConnues((souvenir?.messages ?? []).map((m) => m.fichier_chemin).filter(Boolean)));
   const enregistreur = useRef(null);
   const frappeRef = useRef({ canal: null, dernier: 0, minuteur: null });
   const signale = (m) => { setToast(m); setTimeout(() => setToast(""), 2600); };
@@ -289,19 +317,25 @@ export default function Conversation({ id, moi }) {
   };
 
   useEffect(() => {
+    if (!messages || !conv) return;
+    memoire.ecrire(`conv.${id}`, { conv, messages, debut, reactions, lectures, epingle, sondages, votes });
+  }, [id, conv, messages, debut, reactions, lectures, epingle, sondages, votes]);
+
+  useEffect(() => {
     let vivant = true;
     (async () => {
       try {
         const [c, m, b] = await Promise.all([lireConversation(id), chargerMessages(id), mesBlocages().catch(() => [])]);
         if (!vivant) return;
         if (!c) { setSouci("Cette conversation n'existe pas, ou tu n'en fais pas partie."); setMessages([]); return; }
-        setConv(c); setMessages(m); setDebut(m.length < 50); setBlocages(b);
+        setConv(c); setMessages((prev) => fusionner(prev, m)); setDebut(m.length < 50); setBlocages(b);
         setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, x.lu_le])));
         signer(m); chargerReactions(m); chargerSondages(m); chargerEpingle(c, m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
-        doitDescendre.current = "instant";
-      } catch (e) { if (vivant) { setSoucitexteErreur(e); setMessages([]); } }
+        if (!souvenir) doitDescendre.current = "instant";
+      } catch (e) { if (vivant && !souvenir) { setSoucitexteErreur(e); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
     })();
+    if (souvenir) descendre(false);
     const stops = [
       ecouterMessages(id, {
         surInsertion: (m) => {

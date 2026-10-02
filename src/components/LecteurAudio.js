@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
+import { useReessai, BoutonReessayer } from "@/components/MediaRobuste";
 
 // Lecteur de message vocal, dessiné avec les couleurs de la bulle (le
 // lecteur natif du navigateur est un bloc blanc qui jure dans les bulles).
@@ -13,6 +14,7 @@ export default function LecteurAudio({ src, mienne = false }) {
   const [temps, setTemps] = useState(0);
   const [duree, setDuree] = useState(0);
   const [vitesse, setVitesse] = useState(1);
+  const { cle, srcAffiche, echec, surErreur, reessayer } = useReessai(src);
   const changerVitesse = (e) => {
     e.stopPropagation();
     const v = vitesse === 1 ? 1.5 : vitesse === 1.5 ? 2 : 1;
@@ -35,7 +37,7 @@ export default function LecteurAudio({ src, mienne = false }) {
     const fin = () => { setJoue(false); setTemps(0); };
     a.addEventListener("timeupdate", maj); a.addEventListener("loadedmetadata", meta); a.addEventListener("durationchange", dureeChangee); a.addEventListener("ended", fin);
     return () => { a.removeEventListener("timeupdate", maj); a.removeEventListener("loadedmetadata", meta); a.removeEventListener("durationchange", dureeChangee); a.removeEventListener("ended", fin); };
-  }, [src]);
+  }, [cle]);   // la balise est recréée à chaque tentative : on rebranche les écouteurs
   const basculer = (e) => {
     e.stopPropagation();
     const a = audio.current;
@@ -51,9 +53,10 @@ export default function LecteurAudio({ src, mienne = false }) {
     a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * duree;
   };
   const part = duree ? Math.min(100, (temps / duree) * 100) : 0;
+  if (echec) return <div className={`lecteur-audio${mienne ? " mienne" : ""} echec`}><BoutonReessayer onClick={reessayer} /></div>;
   return (
     <div className={`lecteur-audio${mienne ? " mien" : ""}`}>
-      <audio ref={audio} src={src} preload="metadata" />
+      <audio key={cle} onError={surErreur} ref={audio} src={srcAffiche} preload="metadata" />
       <button type="button" className="lecteur-audio-bouton" onClick={basculer} aria-label={joue ? "Pause" : "Écouter"}>
         {joue ? <Pause size={16} aria-hidden /> : <Play size={16} aria-hidden style={{ marginLeft: 2 }} />}
       </button>

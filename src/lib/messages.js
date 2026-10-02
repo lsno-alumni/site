@@ -116,14 +116,46 @@ export async function televerserPiece(conversationId, { type, fichier }) {
   return { chemin, type, nom: type === "photo" ? "photo.jpg" : fichier.name.slice(0, 120), taille: corps.size ?? fichier.size };
 }
 
-// URL signées (1 h) pour afficher les pièces d'une conversation ; { chemin: url }
+// URL signées (1 h) pour afficher les pièces d'une conversation ; { chemin: url }.
+// Gardées 50 min, en mémoire ET dans localStorage : une adresse qui ne change
+// pas à chaque entrée, c'est une image que le navigateur (et le service worker)
+// peut resservir sans la retélécharger — ce qui change tout en 3G.
+const CLE_URLS = "lsno_urls_pieces";
+const DUREE_URL_MS = 50 * 60 * 1000;
+const cacheUrls = new Map();   // chemin → { url, exp }
+(() => {
+  try {
+    const brut = JSON.parse(localStorage.getItem(CLE_URLS) || "{}");
+    const now = Date.now();
+    for (const [chemin, v] of Object.entries(brut)) if (v?.exp > now) cacheUrls.set(chemin, v);
+  } catch { /* pas de localStorage (serveur, navigation privée) */ }
+})();
+function garderUrls() {
+  try {
+    const now = Date.now(); const obj = {};
+    for (const [chemin, v] of cacheUrls) if (v.exp > now) obj[chemin] = v;
+    localStorage.setItem(CLE_URLS, JSON.stringify(obj));
+  } catch { /* idem */ }
+}
+// ce qu'on connaît déjà, sans attendre : pour afficher une conversation revisitée d'un coup
+export function urlsConnues(chemins) {
+  const now = Date.now(); const out = {};
+  for (const c of chemins ?? []) { const v = cacheUrls.get(c); if (v && v.exp > now) out[c] = v.url; }
+  return out;
+}
 export async function urlsPieces(chemins) {
-  const liste = [...new Set(chemins.filter(Boolean))];
-  if (!liste.length) return {};
-  const supabase = creerClientNavigateur();
-  const { data } = await supabase.storage.from(BUCKET_PIECES).createSignedUrls(liste, 3600);
+  const now = Date.now();
   const out = {};
-  for (const d of data ?? []) if (d.signedUrl && !d.error) out[d.path] = d.signedUrl;
+  const manquants = [];
+  for (const c of new Set(chemins.filter(Boolean))) {
+    const v = cacheUrls.get(c);
+    if (v && v.exp > now) out[c] = v.url; else manquants.push(c);
+  }
+  if (!manquants.length) return out;
+  const supabase = creerClientNavigateur();
+  const { data } = await supabase.storage.from(BUCKET_PIECES).createSignedUrls(manquants, 3600);
+  for (const d of data ?? []) if (d.signedUrl && !d.error) { out[d.path] = d.signedUrl; cacheUrls.set(d.path, { url: d.signedUrl, exp: now + DUREE_URL_MS }); }
+  garderUrls();
   return out;
 }
 

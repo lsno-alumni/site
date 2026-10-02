@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { X, ArrowLeft } from "lucide-react";
 
 // Feuille qui glisse par-dessus la page (façon LinkedIn) : ouverte à mi-écran
@@ -35,7 +35,16 @@ let vivantes = 0;
 const RELAIS_MS = 400;
 
 export default function FeuilleGlissante({ tete, children, onFermer, depart = "peek", sansFermer = false }) {
-  const [reprise] = useState(() => (relais.etat && relais.etat !== "ferme" && (vivantes > 0 || Date.now() - relais.quand < RELAIS_MS) ? relais.etat : null));
+  // ce qui fait foi : une feuille déjà DANS LA PAGE au moment où celle-ci se
+  // rend (la silhouette est encore là) — lu dans le DOM, donc indépendant du
+  // partage de ce module entre morceaux de code ; le relais module en secours
+  const [reprise] = useState(() => {
+    if (typeof document !== "undefined") {
+      const autre = document.querySelector(".fg-feuille[data-etat]");
+      if (autre && autre.dataset.etat !== "ferme") return autre.dataset.etat;
+    }
+    return relais.etat && relais.etat !== "ferme" && (vivantes > 0 || Date.now() - relais.quand < RELAIS_MS) ? relais.etat : null;
+  });
   const [etat, setEtat] = useState(reprise ?? depart); // peek | plein | ferme
   const etatRef = useRef(reprise ?? depart);
   const feuilleRef = useRef(null);
@@ -59,10 +68,8 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
     if (poigneeRef.current) poigneeRef.current.style.opacity = visible ? "1" : "0";
   };
 
-  const aller = (e, animee = true) => {
-    setEtat(e);
-    etatRef.current = e;
-    relais = { etat: e, quand: Date.now() };
+  // appliquer : la partie DOM seule (position, coins, défilement) ; aller : l'état avec
+  const appliquer = (e, animee = true) => {
     majPoignee(e !== "plein");
     const f = feuilleRef.current;
     if (!f) return;
@@ -91,19 +98,36 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
     f.style.height = e === "plein" ? "auto" : "";
     if (e === "ferme") setTimeout(onFermer, animee ? 280 : 0);
   };
+  const aller = (e, animee = true) => {
+    setEtat(e);
+    etatRef.current = e;
+    relais = { etat: e, quand: Date.now() };
+    appliquer(e, animee);
+  };
 
   // Anime l'ENTRÉE au montage sans passer par setEtat : l'état initial
   // ("peek") est déjà correct, seule la position VISUELLE (fermée → mi-écran)
   // doit s'animer — un pur ajustement du DOM, pas une synchronisation d'état.
+  // reprise : la position est posée AVANT la première peinture (sinon, sur un
+  // téléphone lent, la feuille apparaissait un instant tout en bas — la
+  // position par défaut du CSS — puis remontait : l'animation « deux fois »)
+  useLayoutEffect(() => {
+    if (!reprise) return;
+    hauteurRef.current = window.innerHeight;
+    relais = { etat: reprise, quand: Date.now() };
+    appliquer(reprise, false);   // l'état vaut déjà `reprise` : rien à synchroniser
+    const f = feuilleRef.current;
+    requestAnimationFrame(() => { if (f) f.style.transition = ""; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     vivantes += 1;
     hauteurRef.current = window.innerHeight;
     document.body.style.overflow = "hidden";
     const f = feuilleRef.current;
     if (f && reprise) {
-      // une feuille était déjà là (la silhouette) : on se pose à sa place, sans montée
-      aller(reprise, false);
-      requestAnimationFrame(() => { f.style.transition = ""; });
+      // déjà positionnée par useLayoutEffect
     } else if (f) {
       f.style.overflowY = "hidden";
       f.style.transition = "none";
@@ -190,6 +214,8 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
       <div
         ref={feuilleRef}
         className="fg-feuille"
+        data-etat={etat}
+        style={reprise ? { transition: "none", transform: `translateY(${reprise === "plein" ? 0 : window.innerHeight * (1 - PEEK)}px)` } : undefined}
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}

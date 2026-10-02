@@ -6,7 +6,7 @@ import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-r
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
-import { nonLus, ecouterTousMessages } from "@/lib/messages";
+import { nonLus, ecouterTousMessages, marquerRecu, marquerRecuTout } from "@/lib/messages";
 import { momentsNonVus } from "@/lib/moments";
 
 // 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
@@ -147,8 +147,10 @@ export default function TabBar({ actif }) {
       try { if (n > 0) navigator.setAppBadge?.(n); else navigator.clearAppBadge?.(); } catch { /* non pris en charge */ }
     }).catch(() => {});
     lire();
-    // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit
-    const stop = ecouterTousMessages(() => lire());
+    // l'appli est ouverte : tout ce qui m'attendait est « reçu » (coches grises chez l'expéditeur)
+    marquerRecuTout();
+    // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit — et il est reçu
+    const stop = ecouterTousMessages((m, type) => { lire(); if (type === "INSERT") marquerRecu(m?.conversation_id); });
     return () => { vivant = false; stop(); window.removeEventListener("lsno:moments", lireMoments); };
   }, [connecte, actif]);
   // le réseau revient : toutes les listes se relisent (elles écoutent lsno:rafraichir)

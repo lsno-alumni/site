@@ -329,11 +329,11 @@ export default function Conversation({ id, moi }) {
         if (!vivant) return;
         if (!c) { setSouci("Cette conversation n'existe pas, ou tu n'en fais pas partie."); setMessages([]); return; }
         setConv(c); setMessages((prev) => fusionner(prev, m)); setDebut(m.length < 50); setBlocages(b);
-        setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, x.lu_le])));
+        setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, { lu: x.lu_le, recu: x.recu_le }])));
         signer(m); chargerReactions(m); chargerSondages(m); chargerEpingle(c, m);
         marquerLu(id); memoire.ecrire("messages.liste", null);
         if (!souvenir) doitDescendre.current = "instant";
-      } catch (e) { if (vivant && !souvenir) { setSoucitexteErreur(e); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
+      } catch (e) { if (vivant && !souvenir) { setSouci(texteErreur(e)); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
     })();
     if (souvenir) descendre(false);
     const stops = [
@@ -352,7 +352,7 @@ export default function Conversation({ id, moi }) {
         }),
       }),
       ecouterModifications(id, (m) => setMessages((l) => (l ? l.map((x) => (x.id === m.id ? { ...x, ...m } : x)) : l))),
-      ecouterLecture(id, (x) => setLectures((p) => ({ ...p, [x.membre]: x.lu_le }))),
+      ecouterLecture(id, (x) => setLectures((p) => ({ ...p, [x.membre]: { lu: x.lu_le, recu: x.recu_le } }))),
       ecouterReactions((p) => {
         const mid = p.new?.message_id ?? p.old?.message_id;
         const qui = p.new?.membre ?? p.old?.membre;
@@ -640,8 +640,11 @@ export default function Conversation({ id, moi }) {
   };
 
   const autres = useMemo(() => membres.filter((m) => m.id !== moi.id), [membres, moi.id]);
-  const estLu = (m) => autres.length > 0 && autres.every((x) => lectures[x.id] && new Date(lectures[x.id]) >= new Date(m.cree_le));
-  const estLuParUn = (m) => autres.some((x) => lectures[x.id] && new Date(lectures[x.id]) >= new Date(m.cree_le));
+  // coches façon WhatsApp : une = parti, deux grises = REÇU par tous les autres, deux bleues = LU par tous
+  const quand = (x, cle) => { const l = lectures[x.id]; return typeof l === "string" ? (cle === "lu" ? l : null) : l?.[cle]; };   // tolère l'ancienne forme en mémoire
+  const apres = (x, cle, m) => { const q = quand(x, cle); return !!q && new Date(q) >= new Date(m.cree_le); };
+  const estLu = (m) => autres.length > 0 && autres.every((x) => apres(x, "lu", m));
+  const estRecu = (m) => autres.length > 0 && autres.every((x) => apres(x, "recu", m) || apres(x, "lu", m));
   const parIdMsg = useMemo(() => Object.fromEntries((messages ?? []).map((m) => [m.id, m])), [messages]);
   const nomDe = (uid) => (uid === moi.id ? "Toi" : (parId[uid] ?? annuaire[uid])?.prenom ?? "Membre");
   const majChoix = (i, v) => setSondageForm((f) => { const c = [...f.choix]; c[i] = v; return { ...f, choix: c }; });
@@ -704,7 +707,7 @@ export default function Conversation({ id, moi }) {
           const suite = prec && prec.auteur === m.auteur && !nouveauJour && new Date(m.cree_le) - new Date(prec.cree_le) < 5 * 60000;
           const a = parId[m.auteur];
           const lu = mien && estLu(m);
-          const luUn = mien && !lu && estLuParUn(m);
+          const recu = mien && !lu && estRecu(m);
           return (
             <div key={m.id}>
               {nouveauJour && <div className="msg-jour"><span>{jour(m.cree_le)}</span></div>}
@@ -721,7 +724,7 @@ export default function Conversation({ id, moi }) {
                     {m.texte?.trim() && <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>}
                     <time>
                       {m.modifie_le && <em>modifié · </em>}{heure(m.cree_le)}
-                      {mien && (lu ? <CheckCheck size={14} className="msg-coches lu" aria-label="Lu" /> : luUn ? <CheckCheck size={14} className="msg-coches" aria-label="Lu par une partie" /> : <Check size={14} className="msg-coches" aria-label="Envoyé" />)}
+                      {mien && (lu ? <CheckCheck size={14} className="msg-coches lu" aria-label="Lu" /> : recu ? <CheckCheck size={14} className="msg-coches" aria-label="Reçu" /> : <Check size={14} className="msg-coches" aria-label="Envoyé" />)}
                     </time>
                   </div>
                   <Reactions liste={reactions[m.id]} moiId={moi.id} nomDe={nomDe} mienne={mien} onTap={(e) => reaction(m, e)} />

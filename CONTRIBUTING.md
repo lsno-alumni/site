@@ -322,6 +322,17 @@ vrais membres. Règles apprises à nos dépens :
   (`ecouterToutConversation`, `ecouterListe`) : sept abonnements d'un coup faisaient tomber une
   partie des canaux. La conversation relit aussi au retour au premier plan. Les canaux de
   diffusion « frappe » gardent un nom partagé : c'est lui qui relie les participants.
+- **Jamais de suppression de fichier du Storage en SQL** (03/10). Supabase refuse désormais
+  `delete from storage.objects` depuis une fonction, même « security definer » (42501 « Direct
+  deletion from storage tables is not allowed. Use the Storage API instead. »). Une fonction qui
+  retire une ligne renvoie le chemin du fichier, et l'appli le supprime par l'API Storage, couverte
+  par une politique `delete` adéquate (exemple : `carrousel_retirer`, migration 81). Les purges
+  planifiées, elles, passent par pg_net vers l'API avec la clé service_role.
+- **Toute nouvelle table doit satisfaire le contrôle de santé** (migration 75) : des droits de table
+  accordés à `authenticated` hors du modèle attendu sont signalés → préférer des fonctions
+  `security definer` en liste blanche (`sante_fonctions_ouvertes`) sans aucun droit de table ; RLS
+  activée avec au moins une politique ; pas de séquence (sinon accorder USAGE). Exemple :
+  `carrousel_photos` (migration 80).
 
 ## Le circuit d'une contribution
 

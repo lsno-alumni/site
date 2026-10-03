@@ -13,6 +13,7 @@ import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
+import PhotosPromo from "./PhotosPromo";
 import Sauvegarde from "./Sauvegarde";
 import Journal from "./Journal";
 import Annonce from "./Annonce";
@@ -211,6 +212,11 @@ export default function Validation() {
             ? <div className="a-stat"><b>{stats.promo}</b><span>promo {moi?.promotions?.numero}</span></div>
             : <div className="a-stat"><b>{membres.filter((m) => m.role === "delegue").length}</b><span>délégués</span></div>}
           <div className="a-stat"><b>{demandes.length}</b><span>en attente</span></div>
+        </div>
+
+        <div id="sec-carrousel" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+          <h2 className="a-titre ad-chapitre">{moi?.role === "admin" ? "Photos des promotions" : "Photos de ma promo"}</h2>
+          <PhotosPromo moi={moi} />
         </div>
 
         {moi?.role === "admin" && (

@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { apercuOffre } from "@/lib/api";
 import { OG, TAILLE, ressourcesOG, Fond, Entete, POLICE_TITRE, POLICE_TEXTE } from "@/lib/og";
+import { nomPays } from "@/lib/donnees";
 
 // Carte d'aperçu d'une offre partagée. Charte « Latérite » (03/10) : photo du
 // lycée sous un voile bleu nuit, badge du type, tampon d'échéance comme dans
@@ -19,7 +20,7 @@ const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août"
 export default async function Image({ params }) {
   const { id } = await params;
   const [o, r] = await Promise.all([apercuOffre(id), ressourcesOG()]);
-  const lieu = o ? [o.ville, o.pays].filter(Boolean).join(", ") : "";
+  const lieu = o ? [o.ville, o.pays ? nomPays(o.pays) : null].filter(Boolean).join(", ") : "";   // « Berlin, Allemagne », pas « DE »
   const limite = o?.date_limite ? new Date(o.date_limite) : null;
 
   return new ImageResponse(
@@ -57,7 +58,7 @@ export default async function Image({ params }) {
 
         {limite && (
           <div style={{ position: "absolute", right: 90, top: 150, width: 300, height: 300, borderRadius: 150, border: `4px solid ${OG.craie}`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: "rotate(-8deg)" }}>
-            <div style={{ fontSize: 17, letterSpacing: 3, color: OG.brume2, display: "flex" }}>CANDIDATER AVANT LE</div>
+            <div style={{ fontSize: 20, letterSpacing: 5, color: OG.brume2, display: "flex" }}>AVANT LE</div>
             <div style={{ fontFamily: POLICE_TITRE, fontSize: 72, lineHeight: 1, marginTop: 10, display: "flex" }}>{limite.getDate()} {MOIS[limite.getMonth()]}</div>
             <div style={{ fontSize: 22, letterSpacing: 3, color: OG.accentClair, marginTop: 10, display: "flex" }}>{limite.getFullYear()}</div>
           </div>

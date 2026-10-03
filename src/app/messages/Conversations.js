@@ -12,7 +12,7 @@ import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { SqueletteFiche } from "@/components/Squelettes";
 import * as memoire from "@/lib/memoire";
 import { depuis } from "@/lib/fil";
-import { mesConversations, nomConversation, ecouterTousMessages, ecouterConversations, ecouterFrappes, chercherMessages, libellePiece, reglerConversation, marquerLu, retirerMembre, JOURS_CONSERVATION } from "@/lib/messages";
+import { mesConversations, nomConversation, ecouterListe, ecouterFrappes, chercherMessages, libellePiece, reglerConversation, marquerLu, retirerMembre, JOURS_CONSERVATION } from "@/lib/messages";
 
 // La liste des conversations : la plus récente en haut, pastille des non
 // lus, aperçu du dernier message. Une ligne = une conversation (à deux ou
@@ -90,11 +90,9 @@ export default function Conversations({ moi }) {
   useEffect(() => { if (chemin === "/messages") charger(); }, [chemin]);
   useEffect(() => { if (liste !== null) memoire.ecrire("messages.liste", liste); }, [liste]);
   // temps réel : un message qui arrive (ou que j'envoie ailleurs) remet la liste à jour
+  // (messages, conversations, membres : un seul canal) — 2e rappel : à chaque (ré)abonnement, on relit ce qu'on a pu manquer
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => ecouterTousMessages(() => charger()), []);
-  // … et les conversations elles-mêmes (renommage, photo, nouveau groupe, départ, suppression)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => ecouterConversations(() => charger()), []);
+  useEffect(() => ecouterListe(() => charger(), () => charger()), []);
 
   const rafraichir = async () => { await charger(); routeur.refresh(); };
 

@@ -23,12 +23,12 @@ import { peutRevenir } from "@/components/SuiviNavigation";
 import * as memoire from "@/lib/memoire";
 import { useMentions, SuggestionsMention, TexteMentions, carnet as carnetMembres } from "@/lib/mentions";
 import {
-  lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterMessages, ecouterConversation,
-  ecouterModifications, ecouterLecture, ecouterReactions, canalFrappe, reactionsDe, reagir, reglerConversation,
+  lireConversation, chargerMessages, lireMessage, envoyerMessage, modifierMessage, supprimerMessage, marquerLu, ecouterToutConversation,
+  canalFrappe, reactionsDe, reagir, reglerConversation,
   renommerGroupe, ajouterMembres, demandesGroupe, traiterDemandeGroupe, ACCES, retirerMembre, supprimerGroupe, membresJoignables, mesConversations,
   televerserPiece, urlsPieces, urlsConnues, oublierMedia, tailleLisible, libellePiece,
   mesBlocages, bloquer, debloquer, signalerMessage, majGroupe, televerserPhotoGroupe, epinglerMessage,
-  creerSondage, lireSondages, ecouterVotes, transfererMessage, ouvrirDuo,
+  creerSondage, lireSondages, transfererMessage, ouvrirDuo,
   nomConversation, heure, jour, MESSAGE_MAX, PIECE_VIDEO_SECONDES, PIECE_VIDEO_MO, PIECE_PDF_MO, VOCAL_SECONDES,
   EMOJIS, EMOJIS_PLUS, MODIF_MINUTES, JOURS_PIECE,
 } from "@/lib/messages";
@@ -392,8 +392,31 @@ export default function Conversation({ id, moi }) {
       } catch (e) { if (vivant && !souvenir) { setSouci(texteErreur(e)); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
     })();
     if (souvenir) signer(souvenir.messages);
+    // rattrapage : ce qui a pu arriver pendant que le temps réel n'était pas
+    // branché (connexion lente à s'établir, coupure, appli en arrière-plan)
+    let rattrapageEnCours = false;
+    const rattraper = async () => {
+      if (rattrapageEnCours || document.visibilityState === "hidden") return;
+      rattrapageEnCours = true;
+      try {
+        const [c, m] = await Promise.all([lireConversation(id), chargerMessages(id)]);
+        if (!vivant || !c) return;
+        setMessages((prev) => fusionner(prev, m)); signer(m);
+        setLectures(Object.fromEntries((c.membres ?? []).map((x) => [x.membre, { lu: x.lu_le, recu: x.recu_le }])));
+        if (m.some((x) => x.auteur !== moi.id)) { marquerLu(id); memoire.ecrire("messages.liste", null); }
+      } catch { /* on réessaiera au prochain abonnement ou retour au premier plan */ }
+      finally { rattrapageEnCours = false; }
+    };
+    // un abonnement qui se confirme juste apres le chargement initial (moins de 3 s) ne rattrape rien :
+    // le chargement vient de tout lire ; plus tard (connexion lente, reconnexion), on relit
+    const ouvertLe = Date.now();
+    const surReprise = () => { if (Date.now() - ouvertLe > 3000) rattraper(); };
+    const retourPremierPlan = () => { if (document.visibilityState === "visible") rattraper(); };
+    document.addEventListener("visibilitychange", retourPremierPlan);
     const stops = [
-      ecouterMessages(id, {
+      () => document.removeEventListener("visibilitychange", retourPremierPlan),
+      ecouterToutConversation(id, {
+        surReprise,
         surInsertion: (m) => {
           setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
           signer([m]); chargerSondages([m]);
@@ -406,10 +429,9 @@ export default function Conversation({ id, moi }) {
           if (parti?.fichier_chemin && parti.fichier_type !== "lien") oublierMedia(parti.fichier_chemin);
           return l ? l.filter((x) => x.id !== mid) : l;
         }),
-      }),
-      ecouterModifications(id, (m) => setMessages((l) => (l ? l.map((x) => (x.id === m.id ? { ...x, ...m } : x)) : l))),
-      ecouterLecture(id, (x) => setLectures((p) => ({ ...p, [x.membre]: { lu: x.lu_le, recu: x.recu_le } }))),
-      ecouterReactions((p) => {
+        surModification: (m) => setMessages((l) => (l ? l.map((x) => (x.id === m.id ? { ...x, ...m } : x)) : l)),
+        surLecture: (x) => setLectures((p) => ({ ...p, [x.membre]: { lu: x.lu_le, recu: x.recu_le } })),
+        surReaction: (p) => {
         const mid = p.new?.message_id ?? p.old?.message_id;
         const qui = p.new?.membre ?? p.old?.membre;
         if (!mid) return;
@@ -418,8 +440,8 @@ export default function Conversation({ id, moi }) {
           const sans = (prev[mid] ?? []).filter((r) => r.membre !== qui);
           return { ...prev, [mid]: p.eventType === "DELETE" ? sans : [...sans, { membre: p.new.membre, emoji: p.new.emoji }] };
         });
-      }),
-      ecouterVotes((p) => {
+      },
+        surVote: (p) => {
         const sid = p.new?.sondage_id ?? p.old?.sondage_id;
         const qui = p.new?.membre ?? p.old?.membre;
         if (!sid) return;
@@ -427,20 +449,20 @@ export default function Conversation({ id, moi }) {
           const sans = (prev[sid] ?? []).filter((v) => v.membre !== qui);
           return { ...prev, [sid]: p.eventType === "DELETE" ? sans : [...sans, { membre: p.new.membre, choix: p.new.choix }] };
         });
+      },
+
+        // renommage, photo, description, message épinglé : on relit la conversation
+        surMaj: async () => { const c = await lireConversation(id); if (!vivant || !c) return; setConv(c); setMessages((l) => { chargerEpingle(c, l); return l; }); },
+        // groupe supprimé pendant qu'on y est
+        surSuppressionConv: () => { if (!vivant) return; memoire.ecrire("messages.liste", null); alert("Cette conversation a été supprimée."); routeur.replace("/messages"); },
+        // membre ajouté ou parti ; moi retiré → dehors
+        surMembres: async (type, ligne) => {
+          if (!vivant) return;
+          if (type === "DELETE" && ligne?.membre === moi.id) { memoire.ecrire("messages.liste", null); alert("Tu as été retiré·e de ce groupe."); routeur.replace("/messages"); return; }
+          const c = await lireConversation(id); if (c) setConv(c);
+        },
       }),
     ];
-    stops.push(ecouterConversation(id, {
-      // renommage, photo, description, message épinglé : on relit la conversation
-      surMaj: async () => { const c = await lireConversation(id); if (!vivant || !c) return; setConv(c); setMessages((l) => { chargerEpingle(c, l); return l; }); },
-      // groupe supprimé pendant qu'on y est
-      surSuppression: () => { if (!vivant) return; memoire.ecrire("messages.liste", null); alert("Cette conversation a été supprimée."); routeur.replace("/messages"); },
-      // membre ajouté ou parti ; moi retiré → dehors
-      surMembres: async (type, ligne) => {
-        if (!vivant) return;
-        if (type === "DELETE" && ligne?.membre === moi.id) { memoire.ecrire("messages.liste", null); alert("Tu as été retiré·e de ce groupe."); routeur.replace("/messages"); return; }
-        const c = await lireConversation(id); if (c) setConv(c);
-      },
-    }));
     const f = canalFrappe(id, (p) => {
       if (!p || p.membre === moi.id) return;
       setFrappe({ prenom: p.prenom ?? "Quelqu'un" });

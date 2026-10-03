@@ -312,6 +312,16 @@ vrais membres. Règles apprises à nos dépens :
   (`src/lib/video.js`) et on refuse HEVC/AV1/VP9/WebM avec le conseil utile (iPhone : « Le plus
   compatible »). Le service worker répond aux demandes **Range** des lecteurs en 206 : sans ça,
   impossible de se déplacer dans un vocal ou une vidéo servis depuis son cache.
+- **Temps réel : ne jamais le croire garanti** (03/10, messages jamais reçus d'un côté). Tout
+  abonnement passe par `abonner()` dans `src/lib/messages.js` : il attend que le client temps
+  réel porte le jeton de session (sinon le serveur vérifie les droits en anonyme et refuse :
+  « Unable to subscribe to changes with given parameters »), donne un nom UNIQUE à chaque canal
+  (deux abonnements au même nom sur une connexion se faisaient refuser), recrée et réessaie un
+  canal refusé (3 s, 8 s, 20 s), et rappelle `surReprise` à chaque (ré)abonnement pour que
+  l'écran relise ce qu'il a pu manquer pendant un trou. UN SEUL canal par écran
+  (`ecouterToutConversation`, `ecouterListe`) : sept abonnements d'un coup faisaient tomber une
+  partie des canaux. La conversation relit aussi au retour au premier plan. Les canaux de
+  diffusion « frappe » gardent un nom partagé : c'est lui qui relie les participants.
 
 ## Le circuit d'une contribution
 

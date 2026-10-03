@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -251,15 +251,40 @@ export default function Conversation({ id, moi }) {
   };
   const autre = vue?.type === "duo" ? vue.membres[0] : null;
   const bloqueParMoi = !!autre && blocages.includes(autre.id);
-  const descendre = (doux = false) => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: doux ? "smooth" : "instant" });
+  const dernierDoux = useRef(0);
+  const descendre = (doux = false) => { if (doux) dernierDoux.current = Date.now(); window.scrollTo({ top: document.documentElement.scrollHeight, behavior: doux ? "smooth" : "instant" }); };
   const doitDescendre = useRef(null);
-  useEffect(() => {
+  // useLayoutEffect : on se place en bas AVANT la peinture (avec useEffect, le
+  // haut de la conversation apparaissait puis sautait — demandé le 03/10 :
+  // « à chaque fois elle s'ouvre tout en bas »)
+  useLayoutEffect(() => {
     if (!doitDescendre.current || !messages) return;
     const mode = doitDescendre.current; doitDescendre.current = null;
     descendre(mode === "smooth");
     const t = setTimeout(() => descendre(mode === "smooth"), 350);
     return () => clearTimeout(t);
   }, [messages]);
+  useLayoutEffect(() => { if (souvenir) descendre(false); }, []);   // eslint-disable-line react-hooks/exhaustive-deps
+  // tant qu'on est en bas, on y RESTE quand le contenu grandit (photos et
+  // vocaux qui arrivent après coup) ; dès qu'on remonte lire, plus rien ne tire
+  // On juge « en bas » par rapport à la hauteur d'AVANT la croissance (pas
+  // par l'événement scroll, qui arrive parfois après une 2e croissance et
+  // concluait à tort qu'on avait remonté). Une descente animée en cours
+  // (message envoyé/reçu) n'est pas coupée par un saut.
+  const pageRef = useRef(null);
+  const hauteurPrec = useRef(0);
+  useEffect(() => {
+    const el = pageRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    hauteurPrec.current = document.documentElement.scrollHeight;
+    const ro = new ResizeObserver(() => {
+      const etaitEnBas = window.innerHeight + window.scrollY >= hauteurPrec.current - 140;
+      hauteurPrec.current = document.documentElement.scrollHeight;
+      if (etaitEnBas && Date.now() - dernierDoux.current > 600) descendre(false);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const verif = () => {
@@ -360,7 +385,7 @@ export default function Conversation({ id, moi }) {
         if (!souvenir) doitDescendre.current = "instant";
       } catch (e) { if (vivant && !souvenir) { setSouci(texteErreur(e)); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
     })();
-    if (souvenir) { descendre(false); signer(souvenir.messages); }
+    if (souvenir) signer(souvenir.messages);
     const stops = [
       ecouterMessages(id, {
         surInsertion: (m) => {
@@ -486,7 +511,14 @@ export default function Conversation({ id, moi }) {
   const demarrerVocal = async () => {
     try {
       const flux = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const type = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find((t) => window.MediaRecorder?.isTypeSupported?.(t)) || "";
+      // Sur iPhone (WebKit : Safari, Chrome iOS…), le webm produit porte une
+      // durée nulle et Chrome Android refuse de le lire (« demuxer seek
+      // failed », vocal de 16 s envoyé le 03/10 : illisible sur Android). Là,
+      // on enregistre en mp4 (AAC), lu partout. Ailleurs, webm/opus comme avant.
+      const ua = navigator.userAgent;
+      const webkit = /AppleWebKit/.test(ua) && !/Chrome\/|Chromium\/|Edg\//.test(ua);
+      const candidats = webkit ? ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"] : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+      const type = candidats.find((t) => window.MediaRecorder?.isTypeSupported?.(t)) || "";
       const rec = new MediaRecorder(flux, type ? { mimeType: type } : undefined);
       const morceaux = [];
       const debutEnr = Date.now();
@@ -675,7 +707,7 @@ export default function Conversation({ id, moi }) {
   const majChoix = (i, v) => setSondageForm((f) => { const c = [...f.choix]; c[i] = v; return { ...f, choix: c }; });
 
   return (
-    <div className="msg-page">
+    <div className="msg-page" ref={pageRef}>
       <header className="msg-tete">
         <button type="button" className="cp-fermer" onClick={retour} aria-label="Retour"><ArrowLeft size={20} aria-hidden /></button>
         {vue && (

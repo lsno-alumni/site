@@ -15,8 +15,8 @@ import { RefreshCw } from "lucide-react";
 const DELAIS = [1000, 3000, 8000];
 
 export function useReessai(src) {
-  const [etat, setEtat] = useState({ src, affiche: src, essai: 0, echec: false });
-  if (src !== etat.src) setEtat({ src, affiche: src, essai: 0, echec: false });   // nouvelle adresse : on repart (réglage pendant le rendu)
+  const [etat, setEtat] = useState({ src, affiche: src, essai: 0, echec: false, illisible: false });
+  if (src !== etat.src) setEtat({ src, affiche: src, essai: 0, echec: false, illisible: false });   // nouvelle adresse : on repart (réglage pendant le rendu)
   const minuteur = useRef(null);
   const blob = useRef(null);
   useEffect(() => () => { clearTimeout(minuteur.current); if (blob.current) URL.revokeObjectURL(blob.current); }, []);
@@ -35,14 +35,15 @@ export function useReessai(src) {
     }
   };
   const surErreur = () => {
-    if (etat.affiche !== etat.src) { setEtat((e) => ({ ...e, echec: true })); return; }   // le fichier reçu ne se lit pas : inutile d'insister
+    if (etat.affiche !== etat.src) { setEtat((e) => ({ ...e, echec: true, illisible: true })); return; }   // le fichier reçu ne se lit pas : inutile d'insister
     if (etat.essai > 0 || etat.echec) return;
     setEtat((e) => ({ ...e, essai: 1 }));
     clearTimeout(minuteur.current);
     minuteur.current = setTimeout(() => tenter(1), DELAIS[0]);
   };
-  const reessayer = (e) => { e?.stopPropagation?.(); e?.preventDefault?.(); setEtat((x) => ({ ...x, affiche: src, essai: 1, echec: false })); tenter(1); };
-  return { cle: etat.affiche, srcAffiche: etat.affiche, echec: etat.echec, surErreur, reessayer };
+  const reessayer = (e) => { e?.stopPropagation?.(); e?.preventDefault?.(); setEtat((x) => ({ ...x, affiche: src, essai: 1, echec: false, illisible: false })); tenter(1); };
+  // illisible : le fichier EST arrivé mais ce navigateur ne sait pas le lire (réessayer n'y changera rien)
+  return { cle: etat.affiche, srcAffiche: etat.affiche, echec: etat.echec, illisible: etat.illisible, surErreur, reessayer };
 }
 
 export function BoutonReessayer({ onClick, className = "" }) {

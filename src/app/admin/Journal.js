@@ -22,6 +22,7 @@ const ACTIONS = {
   email_confirme: "Email confirmé à la main",
   email_change: "Email de connexion changé",
   connexion_lien: "Connexion par lien email",
+  carrousel: "Photo du carrousel",
   mdp_temporaire: "Mot de passe temporaire posé",
   "2fa_retire": "Double authentification retirée",
   annonce: "Annonce publiée",
@@ -45,6 +46,8 @@ function precision(l) {
       return `${d.avant ?? "?"} → ${d.apres ?? "?"}`;
     case "annonce":
       return d.sujet ?? "";
+    case "carrousel":
+      return `promo ${d.promo ?? "?"} · photo ${d.position ?? "?"}${d.titre ? ` · « ${d.titre} »` : ""}${d.action === "retrait" ? " · retirée" : ""}`;
     case "reglage":
       return `${d.cle} : ${d.actif ? "activé" : "désactivé"}`;
     case "export":

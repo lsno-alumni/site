@@ -6,6 +6,8 @@ import { BlocInstallation } from "@/components/InstallerAppli";
 import RetourDynamique from "@/components/RetourDynamique";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import { statsPubliques, utilisateurCourant, listeDelegues, listeConseils } from "@/lib/api";
+import { creerClientServeur } from "@/lib/supabase/server";
+import { listeCarrousel, photosCarrousel } from "@/lib/carrousel";
 import { nomDomaine } from "@/lib/donnees";
 
 export const metadata = { title: "À propos — LSNO Amicale" };
@@ -16,7 +18,10 @@ export const dynamic = "force-dynamic";
 // kraft → délégués → photos → bloc d'installation replié → bande pierre
 // pour les mentions.
 export default async function APropos() {
-  const [stats, moi] = await Promise.all([statsPubliques(), utilisateurCourant()]);
+  const [stats, moi, carrousel] = await Promise.all([
+    statsPubliques(), utilisateurCourant(),
+    creerClientServeur().then(listeCarrousel).catch(() => null),   // les photos de promotions ; sans base, le lycée seul
+  ]);
   const membre = moi?.statut_compte === "valide";
   const [delegues, conseils] = membre
     ? await Promise.all([listeDelegues(), listeConseils()])
@@ -105,7 +110,14 @@ export default async function APropos() {
 
       <section className="ap-section ap-photos">
         <h2 className="a-titre">Le lycée, <em>en images</em></h2>
-        <Carrousel />
+        <Carrousel photos={photosCarrousel(carrousel)} />
+        {moi && (moi.role === "delegue" || moi.role === "admin") && (
+          <p style={{ textAlign: "center", fontSize: 13.5, marginTop: 6 }}>
+            <Link href="/admin#sec-carrousel" style={{ color: "var(--bleu-texte)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              {moi.role === "admin" ? "Gérer les photos des promotions" : "Ajoute les photos de ta promo"}
+            </Link>
+          </p>
+        )}
       </section>
 
       <div className="ap-installer">

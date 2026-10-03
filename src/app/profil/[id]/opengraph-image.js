@@ -8,10 +8,11 @@ export const alt = "Profil sur LSNO Amicale";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const OR = "#E8B33C";
-const OR_CLAIR = "#F5CD6E";
-const CRAIE = "#F5F1E8";
-const BRUME = "#93A5C0";
+// charte « Latérite » (26/09) : un seul accent bleu, plus d'or ; fond bleu nuit, texte craie
+const OR = "#3B6FD1";          // accent (liseré, surtitre) — nom gardé pour ne pas toucher au gabarit
+const OR_CLAIR = "#8FBBFF";    // promo / entreprise
+const CRAIE = "#F6F0E4";
+const BRUME = "#A9B4C8";
 
 export default async function Image({ params }) {
   const { id } = await params;
@@ -21,7 +22,7 @@ export default async function Image({ params }) {
     (
       <div style={{
         width: "100%", height: "100%", display: "flex", alignItems: "center",
-        background: "linear-gradient(135deg, #0A1B33 0%, #102544 100%)",
+        background: "linear-gradient(135deg, #1B2F4F 0%, #23406B 100%)",
         padding: 70, fontFamily: "sans-serif", position: "relative",
       }}>
         {/* liseré doré */}

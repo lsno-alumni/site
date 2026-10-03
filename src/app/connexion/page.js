@@ -167,9 +167,12 @@ export default function Connexion() {
           style={{ opacity: enCours || (captchaActif && !jeton && !sansVerif) ? 0.6 : 1 }}>
           {enCours ? "Connexion…" : "Se connecter"}
         </button>
-        <p style={{ textAlign: "center", fontSize: 13 }}>
+        <p style={{ textAlign: "center", fontSize: 13, display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
           <Link href="/mot-de-passe/oubli" style={{ color: "var(--brume)", textDecoration: "underline", textUnderlineOffset: 3 }}>
             Mot de passe oublié ?
+          </Link>
+          <Link href="/connexion/lien" style={{ color: "var(--brume)", textDecoration: "underline", textUnderlineOffset: 3 }}>
+            Recevoir un lien de connexion
           </Link>
         </p>
         <p style={{ textAlign: "center", fontSize: 13, color: "var(--brume)" }}>

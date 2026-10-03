@@ -21,6 +21,7 @@ const ACTIONS = {
   suppression_soi: "Compte supprimé par son propriétaire",
   email_confirme: "Email confirmé à la main",
   email_change: "Email de connexion changé",
+  connexion_lien: "Connexion par lien email",
   mdp_temporaire: "Mot de passe temporaire posé",
   "2fa_retire": "Double authentification retirée",
   annonce: "Annonce publiée",

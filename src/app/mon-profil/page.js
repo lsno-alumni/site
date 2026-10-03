@@ -16,6 +16,7 @@ import Sommaire from "@/components/Sommaire";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import Notifications from "@/components/Notifications";
 import DoubleAuth from "@/components/DoubleAuth";
+import ChangerEmail from "./ChangerEmail";
 import { SqueletteEnTeteListe, SqueletteFormulaire } from "@/components/Squelettes";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { Mail, Handshake, ChevronDown, Eye } from "lucide-react";
@@ -445,6 +446,7 @@ export default function MonProfil() {
         <h2 className="a-titre mp-chapitre" id="ch-compte">Mon compte</h2>
         <Notifications profil={profil} />
         <DoubleAuth profil={profil} />
+        <ChangerEmail />
 
         <div style={{ display: "grid", gap: 18 }}>
           <div className="champ">

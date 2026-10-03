@@ -7,10 +7,11 @@ export const alt = "Offre sur LSNO Amicale";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const OR = "#E8B33C";
-const OR_CLAIR = "#F5CD6E";
-const CRAIE = "#F5F1E8";
-const BRUME = "#93A5C0";
+// charte « Latérite » (26/09) : un seul accent bleu, plus d'or ; fond bleu nuit, texte craie
+const OR = "#3B6FD1";          // accent (liseré, surtitre) — nom gardé pour ne pas toucher au gabarit
+const OR_CLAIR = "#8FBBFF";    // promo / entreprise
+const CRAIE = "#F6F0E4";
+const BRUME = "#A9B4C8";
 const TYPES = {
   stage: "STAGE", emploi: "EMPLOI", bourse: "BOURSE",
   cooptation: "COOPTATION", concours: "CONCOURS", autre: "OPPORTUNITÉ",
@@ -28,7 +29,7 @@ export default async function Image({ params }) {
     (
       <div style={{
         width: "100%", height: "100%", display: "flex", alignItems: "center",
-        background: "linear-gradient(135deg, #0A1B33 0%, #102544 100%)",
+        background: "linear-gradient(135deg, #1B2F4F 0%, #23406B 100%)",
         padding: 70, fontFamily: "sans-serif", position: "relative",
       }}>
         <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 14, background: OR, display: "flex" }} />
@@ -39,7 +40,7 @@ export default async function Image({ params }) {
           {o && (
             <div style={{ display: "flex", marginTop: 34 }}>
               <div style={{
-                fontSize: 28, letterSpacing: 4, color: "#0A1B33", background: OR,
+                fontSize: 28, letterSpacing: 4, color: "#FFFFFF", background: OR,
                 padding: "10px 26px", borderRadius: 100, fontWeight: 700, display: "flex",
               }}>
                 {TYPES[o.type] ?? "OPPORTUNITÉ"}

@@ -179,6 +179,8 @@ with attendu(num, laisse, present) as (
   union all select 75, 'conformité après le réseau social (vue sante_systeme étendue, dans_le_cercle en liste blanche)',
     exists (select 1 from sante_fonctions_ouvertes where nom = 'dans_le_cercle')
     and exists (select 1 from pg_policies where tablename = 'push_essai_comptes')
+  union all select 78, 'emails à la charte Latérite (gabarit_email sur fond papier #F4ECDC)',
+    exists (select 1 from pg_proc where proname = 'gabarit_email' and prosrc like '%#F4ECDC%')
   union all select 77, 'durée des vocaux et vidéos portée par le message (messages.fichier_duree)',
     exists (select 1 from information_schema.columns where table_name = 'messages' and column_name = 'fichier_duree')
   union all select 76, 'coches parti / reçu / lu façon WhatsApp (recu_le, marquer_recu, mes_conversations avec recu_par et lu_par)',

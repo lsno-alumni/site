@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 const SECTIONS = [
   { id: "sec-demandes", nom: "Demandes" },
   { id: "sec-reseau", nom: "Le réseau" },
+  { id: "sec-carrousel", nom: "Photos" },
   { id: "sec-roles", nom: "Rôles" },
   { id: "sec-gerer", nom: "Gérer un membre" },
   { id: "sec-annonce", nom: "Annonce" },

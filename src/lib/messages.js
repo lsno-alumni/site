@@ -17,7 +17,10 @@ export const EMOJIS_PLUS = ["🔥", "👏", "🎉", "💯", "😍", "🤣", "�
 export const MODIF_MINUTES = 5;
 // durée de vie des pièces (la base fait foi : messages_avant_insert)
 export const JOURS_PIECE = { photo: 30, pdf: 14, video: 7, audio: 7 };
-const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree, sondage_id, transfere";
+const CHAMPS_MESSAGE = "id, auteur, texte, cree_le, mentions, reponse_a, modifie_le, fichier_chemin, fichier_type, fichier_nom, fichier_taille, fichier_expiree, fichier_duree, sondage_id, transfere";
+// tant que la migration 77 (fichier_duree) n'est pas passée : mêmes lectures sans la colonne
+const CHAMPS_SANS_DUREE = CHAMPS_MESSAGE.replace("fichier_duree, ", "");
+const sansColonne = (e) => e?.code === "42703";
 
 // libellé d'une conversation vu par moi : le nom du groupe, ou l'autre personne
 export function nomConversation(c) {
@@ -81,10 +84,13 @@ export async function lireConversation(id) {
 
 export async function chargerMessages(conversationId, { limite = 50, avant = null } = {}) {
   const supabase = creerClientNavigateur();
-  let req = supabase.from("messages").select(CHAMPS_MESSAGE)
-    .eq("conversation_id", conversationId).order("cree_le", { ascending: false }).limit(limite);
-  if (avant) req = req.lt("cree_le", avant);
-  const { data, error } = await req;
+  const requete = (champs) => {
+    let req = supabase.from("messages").select(champs)
+      .eq("conversation_id", conversationId).order("cree_le", { ascending: false }).limit(limite);
+    return avant ? req.lt("cree_le", avant) : req;
+  };
+  let { data, error } = await requete(CHAMPS_MESSAGE);
+  if (sansColonne(error)) ({ data, error } = await requete(CHAMPS_SANS_DUREE));
   if (error) throw error;
   return (data ?? []).reverse();   // du plus ancien au plus récent
 }
@@ -94,7 +100,9 @@ export async function envoyerMessage(conversationId, texte, mentions = [], piece
   const { data: { user } } = await supabase.auth.getUser();
   const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA, sondage_id: sondageId, ...extra };
   if (piece) Object.assign(ligne, { fichier_chemin: piece.chemin, fichier_type: piece.type, fichier_nom: piece.nom, fichier_taille: piece.taille });
-  const { data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_MESSAGE).single();
+  if (piece && Number.isFinite(piece.duree)) ligne.fichier_duree = Math.max(0, Math.round(piece.duree));
+  let { data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_MESSAGE).single();
+  if (sansColonne(error) && "fichier_duree" in ligne) { delete ligne.fichier_duree; ({ data, error } = await supabase.from("messages").insert(ligne).select(CHAMPS_SANS_DUREE).single()); }
   if (error) {
     if (piece) await supabase.storage.from(BUCKET_PIECES).remove([piece.chemin]);
     throw error;
@@ -103,7 +111,7 @@ export async function envoyerMessage(conversationId, texte, mentions = [], piece
 }
 
 // la pièce part d'abord dans le bucket privé : « <conversation>/<moi>/<horodatage>.<ext> »
-export async function televerserPiece(conversationId, { type, fichier }) {
+export async function televerserPiece(conversationId, { type, fichier, duree = null }) {
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const corps = type === "photo" ? await compresserImage(fichier) : fichier;
@@ -113,7 +121,7 @@ export async function televerserPiece(conversationId, { type, fichier }) {
     contentType: type === "photo" ? "image/jpeg" : type === "pdf" ? "application/pdf" : fichier.type,
   });
   if (error) throw error;
-  return { chemin, type, nom: type === "photo" ? "photo.jpg" : fichier.name.slice(0, 120), taille: corps.size ?? fichier.size };
+  return { chemin, type, nom: type === "photo" ? "photo.jpg" : fichier.name.slice(0, 120), taille: corps.size ?? fichier.size, duree };
 }
 
 // URL signées (1 h) pour afficher les pièces d'une conversation ; { chemin: url }.
@@ -153,9 +161,10 @@ export async function urlsPieces(chemins) {
   }
   if (!manquants.length) return out;
   const supabase = creerClientNavigateur();
-  const { data } = await supabase.storage.from(BUCKET_PIECES).createSignedUrls(manquants, 3600);
+  const { data, error } = await supabase.storage.from(BUCKET_PIECES).createSignedUrls(manquants, 3600);
   for (const d of data ?? []) if (d.signedUrl && !d.error) { out[d.path] = d.signedUrl; cacheUrls.set(d.path, { url: d.signedUrl, exp: now + DUREE_URL_MS }); }
   garderUrls();
+  if (error) throw error;   // coupure réseau : l'appelant garde la liste des manquants et réessaie
   return out;
 }
 
@@ -279,7 +288,8 @@ export function libellePiece(m) {
 // un message précis (le message épinglé, s'il n'est plus dans les 50 chargés)
 export async function lireMessage(id) {
   const supabase = creerClientNavigateur();
-  const { data } = await supabase.from("messages").select(CHAMPS_MESSAGE).eq("id", id).maybeSingle();
+  let { data, error } = await supabase.from("messages").select(CHAMPS_MESSAGE).eq("id", id).maybeSingle();
+  if (sansColonne(error)) ({ data } = await supabase.from("messages").select(CHAMPS_SANS_DUREE).eq("id", id).maybeSingle());
   return data;
 }
 

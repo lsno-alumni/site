@@ -14,22 +14,48 @@ const CACHE_MEDIAS = "lsno-medias-v1";
 const MAX_MEDIAS = 300;
 const estMedia = (url) => /\/storage\/v1\/object\/(sign\/pieces|public\/medias)\//.test(url.pathname);
 
+// Un lecteur audio ou vidéo demande des MORCEAUX (en-tête Range) : pour
+// sauter au milieu d'un vocal, le navigateur attend une réponse 206 avec le
+// morceau demandé. Répondre le fichier entier en 200 (ce que faisait le cache)
+// le rendait « non navigable » : impossible d'avancer dans un vocal (vu le
+// 03/10). On découpe donc le fichier gardé en cache.
+async function morceau(reponse, range) {
+  const m = /^bytes=(\d*)-(\d*)$/.exec(range || "");
+  if (!m) return reponse;
+  const corps = await reponse.arrayBuffer();
+  const total = corps.byteLength;
+  let debut = m[1] === "" ? Math.max(0, total - Number(m[2])) : Number(m[1]);
+  let fin = m[1] !== "" && m[2] !== "" ? Math.min(Number(m[2]), total - 1) : total - 1;
+  if (!Number.isFinite(debut) || debut >= total) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${total}` } });
+  }
+  const entetes = new Headers(reponse.headers);
+  entetes.set("Content-Range", `bytes ${debut}-${fin}/${total}`);
+  entetes.set("Content-Length", String(fin - debut + 1));
+  entetes.set("Accept-Ranges", "bytes");
+  return new Response(corps.slice(debut, fin + 1), { status: 206, statusText: "Partial Content", headers: entetes });
+}
+
 async function servirMedia(requete) {
   const url = new URL(requete.url);
   const cle = url.origin + url.pathname;          // sans le jeton de signature
+  const range = requete.headers.get("range");
   const cache = await caches.open(CACHE_MEDIAS);
   const connu = await cache.match(cle);
-  if (connu) return connu;
+  if (connu) return range ? morceau(connu, range) : connu;
   // en CORS pour obtenir une réponse lisible (donc stockable sans gonfler le
-  // quota) ; Supabase Storage autorise toutes les origines
+  // quota) ; Supabase Storage autorise toutes les origines. Le fichier est
+  // demandé en ENTIER (sans Range) pour pouvoir le garder.
   let reponse;
   try { reponse = await fetch(requete.url, { mode: "cors", credentials: "omit" }); }
   catch { return fetch(requete); }
-  if (reponse.ok && /^(image|video|audio)\//.test(reponse.headers.get("content-type") || "")) {
+  if (reponse.ok && reponse.status === 200 && /^(image|video|audio)\//.test(reponse.headers.get("content-type") || "")) {
+    const copie = reponse.clone();
     cache.put(cle, reponse.clone()).then(async () => {
       const cles = await cache.keys();
       for (const k of cles.slice(0, Math.max(0, cles.length - MAX_MEDIAS))) await cache.delete(k);
     }).catch(() => {});
+    if (range) return morceau(copie, range);
   }
   return reponse;
 }

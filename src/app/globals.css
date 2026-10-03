@@ -30,6 +30,7 @@
   --accent-rgb: 30, 58, 98;
   --halo-rgb: 59, 111, 209;      /* le halo des boutons reste bleu vif, même quand l'accent est bleu nuit */
   --sur-accent: #F6F0E4;
+  --coche-lue: #1A66C4; --coche-lue-bulle: #5CC8FF;   /* coches « lu » : liste des conversations (sur carte, 4,8:1) et bulle à moi (sur --bleu, 6:1) */
   /* la bande « Le réseau dans le monde », seule seconde couleur du site */
   --monde: #1F3B63; --monde-2: #2B4E80;
   --pierre: #2B2620;                    /* pied de page sombre et chaud */
@@ -55,6 +56,7 @@
   --accent-rgb: 59, 111, 209;
   --halo-rgb: 59, 111, 209;
   --sur-accent: #FFFFFF;   /* blanc pur sur le bleu vif des boutons : 4,8:1 (le beige plafonnait à 4,2) */
+  --coche-lue: #6FA8F5; --coche-lue-bulle: #8ED6FF;
   --monde: #1B2F4F; --monde-2: #23406B;
   --pierre: #0E1017;
   --vert-ok: #9CBF94;

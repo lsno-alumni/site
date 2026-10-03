@@ -3,6 +3,7 @@
 // Realtime sur la table messages.
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { compresserImage } from "@/lib/fil";
+import { avecReprise } from "@/lib/erreurs";
 
 export const MESSAGE_MAX = 2000;
 export const JOURS_CONSERVATION = 30;
@@ -116,11 +117,17 @@ export async function televerserPiece(conversationId, { type, fichier, duree = n
   const { data: { user } } = await supabase.auth.getUser();
   const corps = type === "photo" ? await compresserImage(fichier) : fichier;
   const ext = type === "photo" ? "jpg" : type === "pdf" ? "pdf" : (fichier.name.split(".").pop() || "mp4").toLowerCase().slice(0, 5);
-  const chemin = `${conversationId}/${user.id}/${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET_PIECES).upload(chemin, corps, {
-    contentType: type === "photo" ? "image/jpeg" : type === "pdf" ? "application/pdf" : fichier.type,
-  });
-  if (error) throw error;
+  // une coupure pendant l'envoi (« problème de réseau », 03/10) : on reprend
+  // jusqu'à trois fois avant d'abandonner, sous un nouveau nom à chaque fois
+  // (un premier envoi arrivé à moitié ne bloque pas la reprise)
+  const chemin = await avecReprise(async () => {
+    const c = `${conversationId}/${user.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from(BUCKET_PIECES).upload(c, corps, {
+      contentType: type === "photo" ? "image/jpeg" : type === "pdf" ? "application/pdf" : fichier.type,
+    });
+    if (error) throw error;
+    return c;
+  }, { essais: 3, delai: 1200 });
   return { chemin, type, nom: type === "photo" ? "photo.jpg" : fichier.name.slice(0, 120), taille: corps.size ?? fichier.size, duree };
 }
 

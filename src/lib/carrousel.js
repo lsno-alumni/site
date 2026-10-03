@@ -3,7 +3,29 @@
 // carrousel_photos, migration 80). Lecture publique par carrousel_liste() ;
 // écriture par carrousel_enregistrer() / carrousel_retirer() ; fichiers dans
 // le bucket public « medias », dossier carrousel/promo-<id>/<emplacement>.jpg.
-import { urlMedia, compresserImage } from "@/lib/fil";
+// Autonome (pas de dépendance au module du fil, absent de la production) :
+// adresse publique d'un objet du bucket « medias », et réduction d'une photo
+// sur le téléphone avant l'envoi (grand côté 1280 px, JPEG).
+const BUCKET_MEDIAS = "medias";
+export function urlMedia(chemin) {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_MEDIAS}/${chemin}`;
+}
+export function compresserImage(fichier, max = 1280) {
+  return new Promise((ok, ko) => {
+    const url = URL.createObjectURL(fichier);
+    const img = new Image();
+    img.onload = () => {
+      const r = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob((b) => (b ? ok(b) : ko(new Error("compression impossible"))), "image/jpeg", 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); ko(new Error("image illisible")); };
+    img.src = url;
+  });
+}
 
 export const PHOTOS_LYCEE = [
   { src: "/img/lsno_enseigne.jpg", titre: "Jardin aux lettres" },

@@ -14,16 +14,16 @@
    ============================================================ */
 :root {
   color-scheme: light;
-  /* papier adouci le 03/10 (« un peu agressif pour les yeux », comité) : un ton plus chaud et moins lumineux, cartes crème au lieu de quasi blanc ; tous les contrastes restent au-dessus de 4,5:1 */
-  --fond: #EFE7D8; --fond-rgb: 239, 231, 216;
-  --fond-2: #E8DFCE;
-  --fond-profil: #EAE1D0;   /* sol du profil consulté : même papier, un ton plus kraft que l'annuaire */
-  --carte: #FAF4E8;
-  --sable: #DCCDB1;
-  --texte: #1F2230; --texte-rgb: 31, 34, 48;
-  --texte-2: #3E4454;
-  --brume: #5D6375; --brume-rgb: 93, 99, 117;   /* gris des libellés et petites lignes : 5,3:1 sur le kraft, 6:1 sur une carte (l'ancien #7C8190 plafonnait à 3,4:1 — illisible au soleil) */
-  --ligne: rgba(31, 34, 48, .12);
+  /* thème clair — variante « net » (03/10, retour comité « agressif pour les yeux ») : papier sable, cartes crème, encre bleu-gris, grain du kraft atténué (soft-light) ; contrastes ≥ 4,5:1 vérifiés */
+  --fond: #E9E0CE; --fond-rgb: 233, 224, 206;
+  --fond-2: #E1D7C3;
+  --fond-profil: #E4DAC6;   /* sol du profil consulté : même papier, un ton plus kraft que l'annuaire */
+  --carte: #F4ECDC;
+  --sable: #D6C6A8;
+  --texte: #262A38; --texte-rgb: 38, 42, 56;
+  --texte-2: #444A5B;
+  --brume: #575D6E; --brume-rgb: 87, 93, 110;   /* gris des libellés et petites lignes : 5,3:1 sur le kraft, 6:1 sur une carte (l'ancien #7C8190 plafonnait à 3,4:1 — illisible au soleil) */
+  --ligne: rgba(38, 42, 56, .13);
   /* l'accent : notre bleu. --bleu = bordures et détails, --bleu-clair = fonds
      pleins (boutons, badges), --bleu-texte = texte, --bleu-doux = fond pâle */
   --bleu: #1E3A62; --bleu-clair: #1E3A62; --bleu-texte: #1E3A62; --bleu-doux: #DCE4F0;
@@ -38,7 +38,7 @@
   --vert-ok: #3E6B3B;   /* 5,6:1 sur le kraft (l'ancien #4F7A4B : 4,4) */
   --rouge: #A33030;   /* 4,8:1 sur le papier adouci (l'ancien #B33A3A passait sous 4,5 sur fond-2) */
   --ombre: 0 18px 40px -22px rgba(31, 34, 48, .38);
-  --kraft: url("/fonds/kraft-clair.jpg"); --kraft-melange: multiply;
+  --kraft: url("/fonds/kraft-clair.jpg"); --kraft-melange: soft-light;
 }
 :root[data-theme="sombre"] {
   color-scheme: dark;

@@ -179,6 +179,8 @@ with attendu(num, laisse, present) as (
   union all select 75, 'conformité après le réseau social (vue sante_systeme étendue, dans_le_cercle en liste blanche)',
     exists (select 1 from sante_fonctions_ouvertes where nom = 'dans_le_cercle')
     and exists (select 1 from pg_policies where tablename = 'push_essai_comptes')
+  union all select 81, 'retrait d''une photo du carrousel sans toucher au stockage en SQL (carrousel_retirer renvoie le chemin)',
+    exists (select 1 from pg_proc where proname = 'carrousel_retirer' and prorettype = 'text'::regtype)
   union all select 80, 'carrousel des promotions (carrousel_photos, carrousel_liste / enregistrer / retirer)',
     exists (select 1 from pg_proc where proname = 'carrousel_liste') and to_regclass('public.carrousel_photos') is not null
   union all select 79, 'connexion par lien email notée au journal (noter_connexion_lien)',

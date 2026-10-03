@@ -14,6 +14,9 @@ export default function PhotosPromo({ moi }) {
   const [liste, setListe] = useState(null);
   const [promo, setPromo] = useState(moi?.role === "admin" ? null : moi?.promotion_id ?? null);
   const [souci, setSouci] = useState("");
+  const [avis, setAvis] = useState("");   // « Photo enregistrée », « Photo retirée » — porté ici : l'emplacement se remonte après chaque geste
+  const minuteurAvis = useRef(null);
+  const confirmer = async (texte) => { await charger(); setAvis(texte); clearTimeout(minuteurAvis.current); minuteurAvis.current = setTimeout(() => setAvis(""), 2200); };
   const charger = async () => {
     try { const l = await listeCarrousel(creerClientNavigateur()); setListe(l); if (!promo && moi?.role === "admin") setPromo(l.promotions[0]?.id ?? null); }
     catch (e) { setSouci(texteErreur(e)); }
@@ -41,10 +44,11 @@ export default function PhotosPromo({ moi }) {
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "1fr 1fr" }}>
           {[1, 2].map((position) => (
             <Emplacement key={`${promotion.id}-${position}-${liste.photos.find((p) => p.promotion_id === promotion.id && p.position === position)?.maj_le ?? "vide"}`} promotion={promotion} position={position}
-              photo={liste.photos.find((p) => p.promotion_id === promotion.id && p.position === position) ?? null} onChange={charger} />
+              photo={liste.photos.find((p) => p.promotion_id === promotion.id && p.position === position) ?? null} onChange={confirmer} />
           ))}
         </div>
       )}
+      {avis && <p role="status" style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--vert-ok)", fontSize: 14, margin: 0 }}><Check size={16} aria-hidden /> {avis}</p>}
     </div>
   );
 }
@@ -53,7 +57,7 @@ function Emplacement({ promotion, position, photo, onChange }) {
   const [titre, setTitre] = useState(photo?.titre ?? "");
   const [fichier, setFichier] = useState(null);        // nouvelle photo choisie, pas encore envoyée
   const [apercu, setApercu] = useState(null);
-  const [etat, setEtat] = useState("");                 // "" | "envoi" | "fait"
+  const [etat, setEtat] = useState("");                 // "" | "envoi"
   const [erreur, setErreur] = useState("");
   const entree = useRef(null);
   useEffect(() => () => { if (apercu) URL.revokeObjectURL(apercu); }, [apercu]);
@@ -74,14 +78,14 @@ function Emplacement({ promotion, position, photo, onChange }) {
     try {
       const chemin = fichier ? await televerserPhotoCarrousel(supabase, promotion.id, position, fichier) : photo.chemin;
       await enregistrerPhotoCarrousel(supabase, promotion.id, position, chemin, t);
-      setEtat("fait"); setTimeout(() => setEtat(""), 1800);
-      await onChange();
+      setEtat("");
+      await onChange(fichier ? "Photo enregistrée" : "Titre enregistré");
     } catch (e) { setEtat(""); setErreur(texteErreur(e)); }
   };
   const retirer = async () => {
     if (!photo || !window.confirm("Retirer cette photo du carrousel ?")) return;
     setEtat("envoi"); setErreur("");
-    try { await retirerPhotoCarrousel(creerClientNavigateur(), promotion.id, position); setEtat(""); await onChange(); }
+    try { await retirerPhotoCarrousel(creerClientNavigateur(), promotion.id, position); setEtat(""); await onChange("Photo retirée"); }
     catch (e) { setEtat(""); setErreur(texteErreur(e)); }
   };
   const image = apercu ?? (photo ? srcPhoto(photo) : null);
@@ -98,9 +102,9 @@ function Emplacement({ promotion, position, photo, onChange }) {
       <input type="text" className="saisie" placeholder={`Titre (ex. Promo ${promotion.numero})`} maxLength={TITRE_MAX} value={titre} onChange={(e) => setTitre(e.target.value)} aria-label={`Titre de la photo ${position}`} style={{ fontSize: 14 }} />
       {erreur && <p role="alert" style={{ color: "var(--rouge)", fontSize: 12.5, margin: 0 }}>{erreur}</p>}
       <div style={{ display: "flex", gap: 8 }}>
-        <button type="button" className="btn btn-or" disabled={etat === "envoi" || (!modifie && etat !== "fait")} onClick={enregistrer} style={{ flex: 1, padding: "9px 10px", fontSize: 13.5, opacity: etat === "envoi" || !modifie ? 0.6 : 1 }}>
-          {etat === "envoi" ? <Loader2 size={15} className="tourne" aria-hidden /> : etat === "fait" ? <Check size={15} aria-hidden /> : null}
-          {etat === "fait" ? " Enregistré" : fichier ? " Envoyer" : " Enregistrer"}
+        <button type="button" className="btn btn-or" disabled={etat === "envoi" || !modifie} onClick={enregistrer} style={{ flex: 1, padding: "9px 10px", fontSize: 13.5, opacity: etat === "envoi" || !modifie ? 0.6 : 1 }}>
+          {etat === "envoi" && <Loader2 size={15} className="tourne" aria-hidden />}
+          {fichier ? " Envoyer" : " Enregistrer"}
         </button>
         {photo && <button type="button" className="btn btn-nu" onClick={retirer} disabled={etat === "envoi"} aria-label={`Retirer la photo ${position}`} style={{ padding: "9px 10px" }}><Trash2 size={15} aria-hidden /></button>}
       </div>

@@ -48,7 +48,7 @@ end $$;
 -- Cléo, admin : retitre la promo 5 puis retire la photo 2 de la promo 3
 select set_config('essai.uid', 'cccccccc-0000-0000-0000-000000000003', false);
 select carrousel_enregistrer((select id from promotions where numero = 5), 1, '/img/lsno_groupe.jpg', 'Promo 5 avec le proviseur du lycée');
-select carrousel_retirer((select id from promotions where numero = 3), 2);
+select 'retrait → chemin renvoyé : ' || coalesce(carrousel_retirer((select id from promotions where numero = 3), 2), '(aucun)') || ' (attendu carrousel/promo-…/2.jpg)';
 select 'après admin : promo 3 = ' || (select count(*) from carrousel_photos where promotion_id = (select id from promotions where numero = 3)) || ' photo (attendu 1), titre promo 5 = ' || (select titre from carrousel_photos where promotion_id = (select id from promotions where numero = 5));
 
 -- journal : 4 écritures (2 Ana + 2 Cléo)

@@ -18,7 +18,9 @@ export async function generateMetadata({ params }) {
   const echeance = o.date_limite
     ? ` — avant le ${new Date(o.date_limite).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}`
     : "";
-  const titre = `${nomType(o.type) === "Autre" ? "Opportunité" : nomType(o.type)} : ${o.titre}`;
+  const genre = nomType(o.type) === "Autre" ? "Opportunité" : nomType(o.type);
+  // « Stage : Stage en Allemagne » → le titre commence déjà par le type : on ne le répète pas
+  const titre = o.titre.trim().toLowerCase().startsWith(genre.toLowerCase()) ? o.titre.trim() : `${genre} : ${o.titre}`;
   const desc = `${echeance ? "À saisir" + echeance + ". " : ""}Partagée entre anciens sur LSNO Amicale.`;
   return {
     title: titre,

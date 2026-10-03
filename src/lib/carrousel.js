@@ -50,7 +50,10 @@ export async function enregistrerPhotoCarrousel(supabase, promotionId, position,
   if (error) throw error;
 }
 
+// la base retire la ligne et renvoie le chemin du fichier ; le fichier, lui, se supprime par
+// l'API Storage (Supabase refuse la suppression directe en SQL — migration 81)
 export async function retirerPhotoCarrousel(supabase, promotionId, position) {
-  const { error } = await supabase.rpc("carrousel_retirer", { p_promotion: promotionId, p_position: position });
+  const { data: chemin, error } = await supabase.rpc("carrousel_retirer", { p_promotion: promotionId, p_position: position });
   if (error) throw error;
+  if (chemin) await supabase.storage.from("medias").remove([chemin]).catch(() => {});   // la photo n'est plus affichée : un fichier qui traîne n'est pas bloquant
 }

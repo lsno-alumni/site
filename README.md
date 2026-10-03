@@ -148,7 +148,8 @@ le réseau de tous se renforce.
 | Fichiers | Supabase Storage | 3 buckets : `photos` (profils), `ressources` (pièces jointes des offres et des questions), `medias` (fil, moments, messages, événements) |
 
 Dépendances volontairement minimales : `@supabase/*`, `lucide-react` (icônes),
-`react-easy-crop` (recadrage photo), `web-push`. Rien d'autre — merci d'en discuter
+`react-easy-crop` (recadrage photo), `web-push`, `@breezystack/lamejs` (encodeur MP3 des
+vocaux, LGPL, chargé seulement au moment d'un envoi). Rien d'autre — merci d'en discuter
 avant d'en ajouter une.
 
 ### Points structurants à connaître avant de toucher au code

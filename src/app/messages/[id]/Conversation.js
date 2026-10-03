@@ -15,6 +15,8 @@ import { plat } from "@/components/Surligne";
 import useTempsReel from "@/lib/tempsReel";
 import { VISIBILITES, depuis } from "@/lib/fil";
 import LecteurAudio from "@/components/LecteurAudio";
+import { versMp3 } from "@/lib/audio";
+import { analyserVideo, verdictVideo } from "@/lib/video";
 import Sondage from "./Sondage";
 import useClicDehors from "@/lib/useClicDehors";
 import { peutRevenir } from "@/components/SuiviNavigation";
@@ -71,7 +73,11 @@ function PhotoPiece({ url }) {
   return <a href={url} target="_blank" rel="noopener noreferrer" className="msg-piece-photo" draggable={false}><img key={cle} src={srcAffiche} alt="" loading="lazy" draggable={false} onError={surErreur} /></a>;
 }
 function VideoPiece({ url }) {
-  const { cle, srcAffiche, echec, surErreur, reessayer } = useReessai(url);
+  const { cle, srcAffiche, echec, illisible, surErreur, reessayer } = useReessai(url);
+  // le fichier est arrivé mais ce navigateur ne sait pas le lire (vidéo HEVC d'un
+  // iPhone sur Android, WebM sur iPhone…) : on le dit, et on donne le fichier
+  // à ouvrir dans le lecteur du téléphone, qui lui saura peut-être
+  if (echec && illisible) return <span className="msg-piece-attente msg-piece-illisible"><span>Vidéo illisible sur cet appareil</span><a href={url} download target="_blank" rel="noopener noreferrer" className="media-reessayer" onClick={(e) => e.stopPropagation()}>Ouvrir le fichier</a></span>;
   if (echec) return <span className="msg-piece-attente"><BoutonReessayer onClick={reessayer} /></span>;
   return <video key={cle} className="msg-piece-video" src={srcAffiche} controls playsInline preload="metadata" onError={surErreur} />;
 }
@@ -492,8 +498,11 @@ export default function Conversation({ id, moi }) {
       const url = URL.createObjectURL(f);
       const v = document.createElement("video");
       v.preload = "metadata";
-      v.onloadedmetadata = () => {
+      v.onloadedmetadata = async () => {
         if (v.duration > PIECE_VIDEO_SECONDES + 0.5) { signale(`Vidéo trop longue (${Math.round(v.duration)} s). ${PIECE_VIDEO_SECONDES} secondes au maximum.`); URL.revokeObjectURL(url); return; }
+        // lisible par tous les téléphones ? (HEVC d'iPhone, WebM… ne le sont pas)
+        const verdict = verdictVideo(await analyserVideo(f).catch(() => null));
+        if (verdict) { signale(verdict); URL.revokeObjectURL(url); return; }
         setPiece({ type: "video", fichier: f, url, duree: Math.round(v.duration) });
       };
       v.onerror = () => { signale("Cette vidéo ne peut pas être lue ici."); URL.revokeObjectURL(url); };
@@ -503,11 +512,13 @@ export default function Conversation({ id, moi }) {
     signale("Photo, vidéo ou PDF seulement.");
   };
   const retirerPiece = () => {
+    conversion.current = null;
     if (piece?.url) URL.revokeObjectURL(piece.url);
     if (piece?.type === "photos") piece.fichiers.forEach((p) => URL.revokeObjectURL(p.url));
     setPiece(null);
   };
 
+  const conversion = useRef(null);   // promesse du vocal converti en MP3 (ou null)
   const demarrerVocal = async () => {
     try {
       const flux = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -535,9 +546,18 @@ export default function Conversation({ id, moi }) {
         const ext = mime.includes("mp4") ? "m4a" : mime.includes("ogg") ? "ogg" : "webm";
         const blob = new Blob(morceaux, { type: mime });
         const fichier = new File([blob], `vocal.${ext}`, { type: mime });
-        setPiece({ type: "audio", fichier, url: URL.createObjectURL(blob), duree: Math.round((Date.now() - debutEnr) / 1000) });
+        const brute = { type: "audio", fichier, url: URL.createObjectURL(blob), duree: Math.round((Date.now() - debutEnr) / 1000), preparation: true };
+        setPiece(brute);
         setEnregistrement(null);
         enregistreur.current = null;
+        // en MP3, lisible partout (voir src/lib/audio.js) ; si ça échoue, l'enregistrement part tel quel
+        conversion.current = versMp3(blob)
+          .then((mp3) => {
+            const prete = { type: "audio", fichier: mp3.fichier, url: URL.createObjectURL(mp3.fichier), duree: mp3.duree };
+            setPiece((p) => (p?.fichier === fichier ? prete : p));
+            return prete;
+          })
+          .catch(() => { setPiece((p) => (p?.fichier === fichier ? { ...p, preparation: false } : p)); return null; });
       };
       rec.start(250);
       enregistreur.current = { rec, limite: setTimeout(() => rec.state === "recording" && rec.stop(), VOCAL_SECONDES * 1000) };
@@ -569,7 +589,9 @@ export default function Conversation({ id, moi }) {
         retirerPiece();
         doitDescendre.current = "smooth";
       } else {
-        const jointe = piece ? await televerserPiece(id, piece) : null;
+        // un vocal encore en préparation : on attend sa version MP3 (ou l'original si elle a échoué)
+        const aEnvoyer = piece?.type === "audio" && conversion.current ? ((await conversion.current) ?? piece) : piece;
+        const jointe = aEnvoyer ? await televerserPiece(id, aEnvoyer) : null;
         const m = await envoyerMessage(id, texte, mentions.idsPour(texte), jointe, reponseA?.id ?? null);
         setMessages((l) => (l && !l.some((x) => x.id === m.id) ? [...l, m] : l));
         signer([m]); setReactions((p) => ({ ...p, [m.id]: [] }));
@@ -850,7 +872,7 @@ export default function Conversation({ id, moi }) {
             {piece.type === "pdf" && <span className="msg-piece-pdf statique"><FileText size={20} strokeWidth={1.7} aria-hidden /><span><b>{piece.fichier.name}</b><small>PDF · {tailleLisible(piece.fichier.size)}</small></span></span>}
             <span className="msg-piece-note">
               {piece.type === "photos" ? `${piece.fichiers.length} photos · réduites avant l'envoi · gardées ${JOURS_PIECE.photo} jours`
-                : piece.type === "video" || piece.type === "audio" ? `${piece.duree} s · gardé ${JOURS_PIECE[piece.type]} jours`
+                : piece.type === "video" || piece.type === "audio" ? `${piece.duree} s · gardé ${JOURS_PIECE[piece.type]} jours${piece.preparation ? " · préparation…" : ""}`
                 : piece.type === "photo" ? `réduite avant l'envoi · gardée ${JOURS_PIECE.photo} jours` : `gardé ${JOURS_PIECE.pdf} jours`}
             </span>
             <button type="button" className="cp-photo-retirer" onClick={retirerPiece} aria-label="Retirer la pièce jointe"><X size={14} aria-hidden /></button>

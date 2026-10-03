@@ -2023,7 +2023,10 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .msg-piece-photo { display: block; margin: -3px -6px 6px; border-radius: 14px; overflow: hidden; }
 .msg-piece-photo img { display: block; max-width: 100%; max-height: 320px; object-fit: cover; }
 .msg-piece-video { display: block; width: 100%; max-height: 320px; border-radius: 14px; background: #000; margin: -3px 0 6px; }
-.msg-piece-attente { display: grid; place-items: center; width: 200px; height: 140px; border-radius: 14px; background: rgba(var(--texte-rgb), .08); margin-bottom: 6px; color: var(--brume); }
+.msg-piece-attente { display: grid; place-items: center; width: 200px; height: 140px; border-radius: 14px; border: 0; padding: 0; font: inherit; background: rgba(var(--texte-rgb), .08); margin-bottom: 6px; color: var(--brume); cursor: pointer; }
+.msg-piece-attente.pdf { grid-auto-flow: column; gap: 8px; width: auto; max-width: 100%; padding: 0 12px; }
+.msg-piece-attente.pdf small { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-bulle.mienne .msg-piece-attente { background: rgba(255,255,255,.16); color: rgba(255,255,255,.8); }
 .msg-piece-pdf { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 6px; border-radius: 12px; color: inherit; margin-bottom: 4px; background: rgba(var(--texte-rgb), .06); }
 .msg-bulle.mienne .msg-piece-pdf { background: rgba(255,255,255,.12); }
 .msg-piece-pdf > span { display: flex; flex-direction: column; min-width: 0; }
@@ -2113,8 +2116,8 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 
 /* 5. coches par message */
 .msg-bulle time { display: flex; justify-content: flex-end; align-items: center; gap: 4px; }
-.msg-coches { color: rgba(246,240,228,.6); }
-.msg-coches.lu { color: #9FD6FF; }
+.msg-coches { color: rgba(255,255,255,.55); }
+.msg-coches.lu { color: var(--coche-lue-bulle); }   /* un bleu franc, bien distinct des coches grises (retour du 03/10 : « lu » invisible en thème clair) */
 
 /* 7. l'appui long est à nous : ni sélection, ni menu d'image ou de lien du navigateur */
 .msg-bulle, .msg-bulle * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
@@ -2653,7 +2656,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .collage-case .media-echec { width: 100%; height: 100%; border-radius: 0; }
 /* coches du dernier message dans la liste des conversations (sur kraft, pas dans une bulle) */
 .msg-coches-liste { vertical-align: -2px; margin-right: 4px; color: var(--brume); }
-.msg-coches-liste.lu { color: var(--bleu-texte); }
+.msg-coches-liste.lu { color: var(--coche-lue); }
 /* écran d'attente d'une feuille de création : la barre de titre fantôme */
 .sq-feuille-tete { display: flex; align-items: center; height: 56px; padding: 0 20px; }
 /* la feuille qui prend le relais de la silhouette : le voile est déjà là, pas de second fondu */

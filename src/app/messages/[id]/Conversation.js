@@ -44,6 +44,7 @@ import {
 
 const SEUIL_REPONSE = 56;   // px de glissement vers la droite pour répondre
 const APPUI_LONG = 450;     // ms
+const DELAIS_SIGNATURE = [2000, 6000, 15000];   // nouvelles demandes d'adresses signées après une coupure
 const cleBrouillon = (id) => `brouillon-conv-${id}`;
 
 function Citation({ c, nom }) {
@@ -75,7 +76,7 @@ function VideoPiece({ url }) {
   return <video key={cle} className="msg-piece-video" src={srcAffiche} controls playsInline preload="metadata" onError={surErreur} />;
 }
 
-function Piece({ m, url, mienne }) {
+function Piece({ m, url, mienne, reclamer }) {
   if (m.fichier_expiree) return <p className="msg-piece-expiree">{libellePiece(m)} expirée, gardée {JOURS_PIECE[m.fichier_type] ?? 30} jours.</p>;
   if (!m.fichier_chemin) return null;
   if (m.fichier_type === "lien") {
@@ -87,11 +88,14 @@ function Piece({ m, url, mienne }) {
       </Link>
     );
   }
-  if (m.fichier_type === "photo") return url ? <PhotoPiece url={url} /> : <span className="msg-piece-attente" aria-hidden />;
-  if (m.fichier_type === "video") return url ? <VideoPiece url={url} /> : <span className="msg-piece-attente" aria-hidden><Play size={20} /></span>;
-  if (m.fichier_type === "audio") return url ? <LecteurAudio src={url} mienne={mienne} /> : <span className="msg-piece-attente courte" aria-hidden><Mic size={18} /></span>;
+  // pas encore d'adresse signée (réseau capricieux) : un tap relance la demande
+  const attente = (classe, enfant) => <button type="button" className={`msg-piece-attente ${classe}`} onClick={(e) => { e.stopPropagation(); reclamer?.(); }} aria-label="Charger la pièce">{enfant}</button>;
+  if (m.fichier_type === "photo") return url ? <PhotoPiece url={url} /> : attente("", <ImageIcone size={20} aria-hidden />);
+  if (m.fichier_type === "video") return url ? <VideoPiece url={url} /> : attente("", <Play size={20} aria-hidden />);
+  if (m.fichier_type === "audio") return url ? <LecteurAudio src={url} mienne={mienne} duree={m.fichier_duree} /> : attente("courte", <Mic size={18} aria-hidden />);
+  if (!url) return attente("courte pdf", <><FileText size={18} aria-hidden /><small>{m.fichier_nom ?? "document.pdf"}</small></>);
   return (
-    <a href={url ?? "#"} target="_blank" rel="noopener noreferrer" className="msg-piece-pdf" draggable={false}>
+    <a href={url} target="_blank" rel="noopener noreferrer" className="msg-piece-pdf" draggable={false}>
       <FileText size={22} strokeWidth={1.7} aria-hidden />
       <span><b>{m.fichier_nom ?? "document.pdf"}</b><small>PDF · {tailleLisible(m.fichier_taille)}</small></span>
     </a>
@@ -286,12 +290,33 @@ export default function Conversation({ id, moi }) {
     try { if (texte.trim()) localStorage.setItem(cleBrouillon(id), texte); else localStorage.removeItem(cleBrouillon(id)); } catch { /* idem */ }
   }, [texte, id, edition]);
 
-  const signer = async (liste) => {
-    const manquants = [...new Set((liste ?? []).filter((m) => m.fichier_chemin && m.fichier_type !== "lien" && !m.fichier_expiree && !urls[m.fichier_chemin]).map((m) => m.fichier_chemin))];
+  // Adresses signées des pièces. Une coupure pendant la demande laissait les
+  // photos et vocaux en rectangles vides jusqu'à la prochaine entrée (vu le
+  // 03/10) : on garde la liste de ce qui manque, on réessaie (2 s, 6 s, 15 s),
+  // et on reprend au retour du réseau, au retour au premier plan, ou d'un tap.
+  const aSigner = useRef(new Set());
+  const minuteurSigner = useRef(null);
+  const signer = async (liste, essai = 0) => {
+    for (const m of liste ?? []) if (m.fichier_chemin && m.fichier_type !== "lien" && !m.fichier_expiree) aSigner.current.add(m.fichier_chemin);
+    const connues = urlsConnues([...aSigner.current]);
+    for (const c of Object.keys(connues)) aSigner.current.delete(c);
+    if (Object.keys(connues).length) setUrls((u) => ({ ...u, ...connues }));
+    const manquants = [...aSigner.current];
     if (!manquants.length) return;
-    const nouvelles = await urlsPieces(manquants);
-    setUrls((u) => ({ ...u, ...nouvelles }));
+    clearTimeout(minuteurSigner.current);
+    try {
+      const nouvelles = await urlsPieces(manquants);
+      for (const c of Object.keys(nouvelles)) aSigner.current.delete(c);
+      if (Object.keys(nouvelles).length) setUrls((u) => ({ ...u, ...nouvelles }));
+    } catch { /* coupure : on réessaie plus bas */ }
+    if (aSigner.current.size && essai < DELAIS_SIGNATURE.length) minuteurSigner.current = setTimeout(() => signer([], essai + 1), DELAIS_SIGNATURE[essai]);
   };
+  const reclamer = () => signer([], 0);
+  useEffect(() => {
+    const reprise = () => { if (document.visibilityState !== "hidden" && aSigner.current.size) signer([], 0); };
+    window.addEventListener("online", reprise); document.addEventListener("visibilitychange", reprise);
+    return () => { window.removeEventListener("online", reprise); document.removeEventListener("visibilitychange", reprise); clearTimeout(minuteurSigner.current); };
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
   const chargerReactions = async (liste) => {
     const ids = (liste ?? []).map((m) => m.id);
     if (!ids.length) return;
@@ -335,7 +360,7 @@ export default function Conversation({ id, moi }) {
         if (!souvenir) doitDescendre.current = "instant";
       } catch (e) { if (vivant && !souvenir) { setSouci(texteErreur(e)); setMessages([]); } }   // avec une mémoire, une coupure laisse l'écran tel quel
     })();
-    if (souvenir) descendre(false);
+    if (souvenir) { descendre(false); signer(souvenir.messages); }
     const stops = [
       ecouterMessages(id, {
         surInsertion: (m) => {
@@ -718,7 +743,7 @@ export default function Conversation({ id, moi }) {
                     {!mien && conv?.type === "groupe" && !suite && <b className="msg-auteur">{a ? a.prenom : "Membre"}</b>}
                     {m.transfere && <small className="msg-transfere"><Forward size={11} aria-hidden /> Transféré</small>}
                     {m.reponse_a && <Citation c={parIdMsg[m.reponse_a]} nom={parIdMsg[m.reponse_a] ? nomDe(parIdMsg[m.reponse_a].auteur) : ""} />}
-                    <Piece m={m} url={urls[m.fichier_chemin]} mienne={mien} />
+                    <Piece m={m} url={urls[m.fichier_chemin]} mienne={mien} reclamer={reclamer} />
                     {m.sondage_id && <Sondage sondage={sondages[m.sondage_id]} votes={votes[m.sondage_id] ?? []} moiId={moi.id} nomDe={nomDe}
                       onMaj={(choix) => setVotes((v) => ({ ...v, [m.sondage_id]: [...(v[m.sondage_id] ?? []).filter((x) => x.membre !== moi.id), ...(choix.length ? [{ membre: moi.id, choix }] : [])] }))} />}
                     {m.texte?.trim() && <p><TexteMentions texte={m.texte} mentions={(m.mentions ?? []).map((x) => parId[x] ?? annuaire[x]).filter(Boolean)} /></p>}

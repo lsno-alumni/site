@@ -301,6 +301,17 @@ vrais membres. Règles apprises à nos dépens :
 - **Les règles de lint React 19** (`set-state-in-effect`, `immutability`, refs en rendu,
   `Date.now()` en rendu) sont bloquantes : `setTimeout`/`requestAnimationFrame` pour un état
   posé après le rendu, `useState(() => Date.now())`, pas de composant défini dans le rendu.
+- **Médias lisibles par TOUTES les plateformes** (03/10). Chaque navigateur enregistre les
+  vocaux dans son format (webm/opus pour Chrome, ogg/opus pour Firefox, mp4/AAC pour Safari) et
+  aucun n'est lu par tous les autres (le webm de Firefox est refusé par Chrome : « demuxer seek
+  failed » ; l'ogg est inconnu de Safari). Règle : le vocal est **réencodé en MP3** avant l'envoi
+  par le téléphone qui l'a enregistré (`src/lib/audio.js`, encodeur chargé à la demande), et sa
+  durée mesurée part avec le message (`fichier_duree`). Le lecteur (`LecteurAudio`) a un **moteur
+  de secours** Web Audio pour les anciens fichiers qu'une balise `<audio>` refuse. Les vidéos ne
+  se convertissent pas dans le navigateur : on lit leur étiquette avant l'envoi
+  (`src/lib/video.js`) et on refuse HEVC/AV1/VP9/WebM avec le conseil utile (iPhone : « Le plus
+  compatible »). Le service worker répond aux demandes **Range** des lecteurs en 206 : sans ça,
+  impossible de se déplacer dans un vocal ou une vidéo servis depuis son cache.
 
 ## Le circuit d'une contribution
 

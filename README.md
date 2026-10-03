@@ -121,7 +121,7 @@ le réseau de tous se renforce.
   'none'`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS.
 - **Audit mensuel des dépendances** : `.github/workflows/audit-dependances.yml`
   (échoue sur un avis `high`, GitHub prévient par email).
-- **79 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
+- **80 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
   et c'est vérifié à chaque push, pas seulement affirmé (`npm run banc` rejoue le tout sur
   un PostgreSQL jetable en mémoire ; `outils/verif_sql.py` en contrôle la syntaxe). Les
   scénarios `outils/banc/essai-*.sql` exercent en plus le comportement (visibilité, messages,

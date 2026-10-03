@@ -1570,7 +1570,8 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .cv3d-carte:not(.actif)::after {
   content: ""; position: absolute; inset: 0; background: rgba(var(--voile-rgb), .35);
 }
-.cv3d-points { display: flex; justify-content: center; gap: 7px; margin-top: 16px; }
+.cv3d-titre { text-align: center; font-family: var(--font-titres), serif; font-size: 17px; color: var(--texte); margin: 14px 0 0; min-height: 1.3em; text-wrap: balance; }
+.cv3d-points { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
 .cv3d-points button {
   width: 7px; height: 7px; border-radius: 50%; border: none; padding: 0; cursor: pointer;
   background: rgba(var(--brume-rgb), .35); transition: width .3s, background .3s;

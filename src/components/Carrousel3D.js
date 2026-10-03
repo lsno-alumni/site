@@ -78,11 +78,11 @@ export default function Carrousel3D({ photos }) {
               aria-hidden={i !== actif}
             >
               <img src={ph.src} alt={ph.titre} draggable="false" loading={dist <= 1 ? "eager" : "lazy"} />
+              <figcaption className="cv3d-legende">{ph.titre}</figcaption>
             </figure>
           );
         })}
       </div>
-      <p className="cv3d-titre" aria-live="polite">{PHOTOS[actif]?.titre}</p>
       <div className="cv3d-points" role="tablist" aria-label="Photos du lycée">
         {PHOTOS.map((_, i) => (
           <button

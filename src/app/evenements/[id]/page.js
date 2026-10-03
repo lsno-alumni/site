@@ -6,6 +6,12 @@ import { utilisateurCourant, lireEvenementServeur } from "@/lib/api";
 import ContenuEvenement from "./ContenuEvenement";
 
 export const dynamic = "force-dynamic";
+// aperçu de partage GÉNÉRIQUE : les événements sont réservés aux membres
+export const metadata = {
+  title: "Événement — LSNO Amicale",
+  description: "Un événement entre anciens du LSNO, réservé aux membres du réseau.",
+  openGraph: { title: "Un événement sur LSNO Amicale", description: "Réservé aux membres du réseau. Connecte-toi pour voir les détails et répondre." },
+};
 
 // Un événement en pleine page (lien partagé, notification) ; depuis la liste
 // ou le Fil, c'est la feuille glissante (@modal) qui s'ouvre à la place.

@@ -6,6 +6,12 @@ import { utilisateurCourant, lirePublication } from "@/lib/api";
 import ContenuPublication from "./ContenuPublication";
 
 export const dynamic = "force-dynamic";
+// aperçu de partage GÉNÉRIQUE : le contenu du fil est réservé aux membres
+export const metadata = {
+  title: "Publication — LSNO Amicale",
+  description: "Une publication d'un ancien du LSNO, réservée aux membres du réseau.",
+  openGraph: { title: "Une publication sur LSNO Amicale", description: "Réservée aux membres du réseau. Connecte-toi pour la lire et y répondre." },
+};
 
 // Une publication en pleine page (lien partagé, actualisation) ; depuis le
 // Fil, c'est la feuille glissante (fil/@modal) qui s'ouvre à la place.

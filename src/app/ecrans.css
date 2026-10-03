@@ -2080,6 +2080,8 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 /* 1. lecteur vocal aux couleurs de la bulle */
 .lecteur-audio { display: flex; align-items: center; gap: 10px; width: min(250px, 100%); padding: 4px 0 6px; }
 .lecteur-audio audio { display: none; }
+.lecteur-audio.echec { flex-wrap: wrap; gap: 6px; }
+.lecteur-audio-illisible { font-size: 12.5px; opacity: .85; flex-basis: 100%; }
 .lecteur-audio-bouton { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--bleu); color: var(--sur-accent); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .lecteur-audio.mien .lecteur-audio-bouton { background: rgba(255,255,255,.22); color: #fff; }
 .lecteur-audio-piste { position: relative; flex: 1; height: 4px; border-radius: 4px; background: rgba(var(--texte-rgb), .18); cursor: pointer; }

@@ -22,7 +22,7 @@ export default function LecteurAudio({ src, mienne = false, duree: dureeConnue =
   const [temps, setTemps] = useState(0);
   const [dureeLue, setDureeLue] = useState(0);
   const [vitesse, setVitesse] = useState(1);
-  const { cle, srcAffiche, echec, surErreur, reessayer } = useReessai(src);
+  const { cle, srcAffiche, echec, illisible, surErreur, reessayer } = useReessai(src);
   const connue = Number.isFinite(dureeConnue) && dureeConnue > 0;
   const duree = connue ? dureeConnue : dureeLue;
   const changerVitesse = (e) => {
@@ -70,7 +70,8 @@ export default function LecteurAudio({ src, mienne = false, duree: dureeConnue =
     setTemps(a.currentTime);
   };
   const part = duree ? Math.min(100, (temps / duree) * 100) : 0;
-  if (echec) return <div className={`lecteur-audio${mienne ? " mienne" : ""} echec`}><BoutonReessayer onClick={reessayer} /></div>;
+  if (echec && illisible) return <div className={`lecteur-audio${mienne ? " mien" : ""} echec`}><span className="lecteur-audio-illisible">Vocal illisible sur cet appareil</span><BoutonReessayer onClick={reessayer} /></div>;
+  if (echec) return <div className={`lecteur-audio${mienne ? " mien" : ""} echec`}><BoutonReessayer onClick={reessayer} /></div>;
   return (
     <div className={`lecteur-audio${mienne ? " mien" : ""}`}>
       <audio key={cle} onError={surErreur} ref={audio} src={srcAffiche} preload="metadata" />

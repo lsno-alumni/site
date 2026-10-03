@@ -511,13 +511,19 @@ export default function Conversation({ id, moi }) {
   const demarrerVocal = async () => {
     try {
       const flux = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Sur iPhone (WebKit : Safari, Chrome iOS…), le webm produit porte une
-      // durée nulle et Chrome Android refuse de le lire (« demuxer seek
-      // failed », vocal de 16 s envoyé le 03/10 : illisible sur Android). Là,
-      // on enregistre en mp4 (AAC), lu partout. Ailleurs, webm/opus comme avant.
+      // Le webm de FIREFOX (bibliothèque libwebm) est refusé par Chrome
+      // (« FFmpegDemuxer: demuxer seek failed » — vocaux de 16 s et 11 s
+      // envoyés le 03/10 depuis Firefox Windows, illisibles sur Android ;
+      // reproduit avec le vrai Firefox, avec ou sans tranches). Firefox
+      // enregistre donc en ogg/opus, que Chrome et Firefox lisent et
+      // parcourent. Sur WebKit (Safari, iPhone), mp4 (AAC), lu partout.
+      // Ailleurs (Chrome, Samsung, Edge…), webm/opus comme avant.
       const ua = navigator.userAgent;
+      const firefox = /Firefox\//.test(ua);
       const webkit = /AppleWebKit/.test(ua) && !/Chrome\/|Chromium\/|Edg\//.test(ua);
-      const candidats = webkit ? ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"] : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+      const candidats = firefox ? ["audio/ogg;codecs=opus", "audio/webm;codecs=opus", "audio/webm"]
+        : webkit ? ["audio/mp4", "audio/webm;codecs=opus", "audio/webm"]
+        : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
       const type = candidats.find((t) => window.MediaRecorder?.isTypeSupported?.(t)) || "";
       const rec = new MediaRecorder(flux, type ? { mimeType: type } : undefined);
       const morceaux = [];

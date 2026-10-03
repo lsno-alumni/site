@@ -218,20 +218,16 @@ export async function reagir(messageId, emoji) {
 }
 export function ecouterReactions(surChangement) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel("reactions-" + Math.random().toString(36).slice(2, 8))
-    .on("postgres_changes", { event: "*", schema: "public", table: "message_reactions" }, (p) => surChangement?.(p))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+  return abonner(supabase, () => supabase.channel("reactions-" + suffixe())
+    .on("postgres_changes", { event: "*", schema: "public", table: "message_reactions" }, (p) => surChangement?.(p)), null);
 }
 
 // ---- « vu » : la date de lecture des autres membres bouge en temps réel ----
-export function ecouterLecture(conversationId, surMaj) {
+export function ecouterLecture(conversationId, surMaj, surReprise = null) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel(`lecture-${conversationId}`)
+  return abonner(supabase, () => supabase.channel(`lecture-${conversationId}-${suffixe()}`)
     .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversation_membres", filter: `conversation_id=eq.${conversationId}` },
-      (p) => surMaj?.(p.new))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+      (p) => surMaj?.(p.new)), surReprise);
 }
 
 // ---- « … écrit » : diffusion éphémère, rien en base ----
@@ -268,11 +264,9 @@ export async function reglerConversation(conversationId, champs) {
 // ---- modifications en temps réel (message modifié) ----
 export function ecouterModifications(conversationId, surMaj) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel(`modifs-${conversationId}`)
+  return abonner(supabase, () => supabase.channel(`modifs-${conversationId}-${suffixe()}`)
     .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-      (p) => surMaj?.(p.new))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+      (p) => surMaj?.(p.new)), null);
 }
 
 // ---- recherche ----
@@ -430,10 +424,8 @@ export async function voter(sondageId, choix) {
 }
 export function ecouterVotes(surChangement) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel("votes-" + Math.random().toString(36).slice(2, 8))
-    .on("postgres_changes", { event: "*", schema: "public", table: "sondage_votes" }, (p) => surChangement?.(p))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+  return abonner(supabase, () => supabase.channel("votes-" + suffixe())
+    .on("postgres_changes", { event: "*", schema: "public", table: "sondage_votes" }, (p) => surChangement?.(p)), null);
 }
 
 // ---- transférer un message vers une autre conversation ----
@@ -458,23 +450,19 @@ export async function transfererMessage(m, versConversationId) {
 //      épinglé, suppression du groupe) et ses membres, en temps réel ----
 export function ecouterConversation(conversationId, { surMaj, surSuppression, surMembres }) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel(`conv-${conversationId}`)
+  return abonner(supabase, () => supabase.channel(`conv-${conversationId}-${suffixe()}`)
     .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, (p) => surMaj?.(p.new))
     .on("postgres_changes", { event: "DELETE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, () => surSuppression?.())
     .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres", filter: `conversation_id=eq.${conversationId}` },
-      (p) => { if (p.eventType !== "UPDATE") surMembres?.(p.eventType, p.new ?? p.old); })
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+      (p) => { if (p.eventType !== "UPDATE") surMembres?.(p.eventType, p.new ?? p.old); }), null);
 }
 
 // pour la LISTE : toute conversation qui change (nom, photo, ajout ou départ d'un membre, groupe supprimé)
-export function ecouterConversations(surChangement) {
+export function ecouterConversations(surChangement, surReprise = null) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel("convs-" + Math.random().toString(36).slice(2, 8))
+  return abonner(supabase, () => supabase.channel("convs-" + suffixe())
     .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, (p) => surChangement?.(p))
-    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres" }, (p) => surChangement?.(p))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres" }, (p) => surChangement?.(p)), surReprise);
 }
 
 export function tailleLisible(o) {
@@ -524,27 +512,95 @@ export async function supprimerGroupe(id) {
   if (error) throw error;
 }
 
+// ============================================================
+// Temps réel : les leçons du 03/10 (messages jamais reçus d'un côté)
+//  - Le temps réel n'est pas garanti : sur un réseau capricieux, la connexion
+//    WebSocket met parfois 30 s à s'établir, tombe et se rétablit, et un
+//    téléphone la coupe en arrière-plan. Ce qui est arrivé PENDANT ces trous ne
+//    sera jamais poussé : à chaque (ré)abonnement, `surReprise` prévient l'écran
+//    pour qu'il relise ce qu'il a pu manquer.
+//  - Le canal doit partir AVEC le jeton de session. Au chargement, l'abonnement
+//    partait parfois avant que le client temps réel ait reçu le jeton : le
+//    serveur vérifiait les droits en anonyme et refusait (« Unable to subscribe
+//    to changes with given parameters »), et le canal restait muet jusqu'à la
+//    reconnexion suivante.
+//  - Un canal refusé ou sans réponse est RECRÉÉ et réessayé (3 s, 8 s, 20 s) :
+//    un canal déjà joint ne peut pas être rejoint.
+//  - Chaque abonnement porte un NOM UNIQUE : deux abonnements au même nom sur
+//    une même connexion (écran monté deux fois) se faisaient refuser. Les canaux
+//    de diffusion « frappe » gardent leur nom partagé : c'est lui qui relie les
+//    participants.
+//  - UN SEUL canal par écran (ecouterToutConversation, ecouterListe) : sept
+//    abonnements partaient d'un coup à l'ouverture d'une conversation.
+// ============================================================
+const suffixe = () => Math.random().toString(36).slice(2, 8);
+// `creer` fabrique le canal avec ses écouteurs. Renvoie la fonction d'arrêt.
+const abonner = (supabase, creer, surReprise) => {
+  let arrete = false, essais = 0, minuteur = null, canal = null;
+  const brancher = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) await supabase.realtime.setAuth(session.access_token);
+    } catch { /* sans session : on tente quand même */ }
+    if (arrete) return;
+    canal = creer();
+    canal.subscribe((etat) => {
+      if (arrete) return;
+      if (etat === "SUBSCRIBED") { essais = 0; surReprise?.(); }
+      else if (etat === "CHANNEL_ERROR" || etat === "TIMED_OUT") {
+        const delai = [3000, 8000, 20000][Math.min(essais++, 2)];
+        clearTimeout(minuteur);
+        minuteur = setTimeout(() => { if (arrete) return; const vieux = canal; canal = null; supabase.removeChannel(vieux); brancher(); }, delai);
+      }
+    });
+  };
+  brancher();
+  return () => { arrete = true; clearTimeout(minuteur); if (canal) supabase.removeChannel(canal); };
+};
+
 // s'abonner aux nouveaux messages (et suppressions) d'une conversation ;
 // renvoie la fonction de désabonnement
-export function ecouterMessages(conversationId, { surInsertion, surSuppression }) {
+export function ecouterMessages(conversationId, { surInsertion, surSuppression, surReprise }) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel(`messages-${conversationId}`)
+  return abonner(supabase, () => supabase.channel(`messages-${conversationId}-${suffixe()}`)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
       (p) => surInsertion?.(p.new))
     .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-      (p) => surSuppression?.(p.old?.id))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+      (p) => surSuppression?.(p.old?.id)), surReprise);
+}
+
+// UN SEUL canal pour toute la conversation ouverte (messages, modifications,
+// lectures, réactions, votes, la conversation et ses membres)
+export function ecouterToutConversation(conversationId, h) {
+  const supabase = creerClientNavigateur();
+  const filtre = `conversation_id=eq.${conversationId}`;
+  return abonner(supabase, () => supabase.channel(`conversation-${conversationId}-${suffixe()}`)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: filtre }, (p) => h.surInsertion?.(p.new))
+    .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages", filter: filtre }, (p) => h.surSuppression?.(p.old?.id))
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: filtre }, (p) => h.surModification?.(p.new))
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres", filter: filtre },
+      (p) => { if (p.eventType === "UPDATE") h.surLecture?.(p.new); else h.surMembres?.(p.eventType, p.new ?? p.old); })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, (p) => h.surMaj?.(p.new))
+    .on("postgres_changes", { event: "DELETE", schema: "public", table: "conversations", filter: `id=eq.${conversationId}` }, () => h.surSuppressionConv?.())
+    .on("postgres_changes", { event: "*", schema: "public", table: "message_reactions" }, (p) => h.surReaction?.(p))
+    .on("postgres_changes", { event: "*", schema: "public", table: "sondage_votes" }, (p) => h.surVote?.(p)), h.surReprise);
+}
+
+// UN SEUL canal pour la liste des conversations : messages, conversations, membres
+export function ecouterListe(surChangement, surReprise = null) {
+  const supabase = creerClientNavigateur();
+  return abonner(supabase, () => supabase.channel("liste-" + suffixe())
+    .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, (p) => surChangement?.(p))
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, (p) => surChangement?.(p))
+    .on("postgres_changes", { event: "*", schema: "public", table: "conversation_membres" }, (p) => surChangement?.(p)), surReprise);
 }
 
 // tous les nouveaux messages qui me concernent (la RLS ne laisse passer que
 // ceux de mes conversations) : pour la liste et la pastille de l'onglet
-export function ecouterTousMessages(surInsertion) {
+export function ecouterTousMessages(surInsertion, surReprise = null) {
   const supabase = creerClientNavigateur();
-  const canal = supabase.channel("messages-tous-" + Math.random().toString(36).slice(2, 8))
-    .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, (p) => surInsertion?.(p.new ?? p.old, p.eventType))
-    .subscribe();
-  return () => { supabase.removeChannel(canal); };
+  return abonner(supabase, () => supabase.channel("messages-tous-" + suffixe())
+    .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, (p) => surInsertion?.(p.new ?? p.old, p.eventType)), surReprise);
 }
 
 // heure courte pour les bulles ; date pour les séparateurs de jour

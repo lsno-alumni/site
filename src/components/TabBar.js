@@ -151,7 +151,7 @@ export default function TabBar({ actif }) {
     // l'appli est ouverte : tout ce qui m'attendait est « reçu » (coches grises chez l'expéditeur)
     marquerRecuTout();
     // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit — et il est reçu
-    const stop = ecouterTousMessages((m, type) => { lire(); if (type === "INSERT") marquerRecu(m?.conversation_id); });
+    const stop = ecouterTousMessages((m, type) => { lire(); if (type === "INSERT") marquerRecu(m?.conversation_id); }, () => { lire(); marquerRecuTout(); });   // à chaque (ré)abonnement : recompter, et tout ce qui attendait est reçu
     return () => { vivant = false; stop(); window.removeEventListener("lsno:moments", lireMoments); };
   }, [connecte, actif]);
   // le réseau revient : toutes les listes se relisent (elles écoutent lsno:rafraichir)

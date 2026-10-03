@@ -35,8 +35,8 @@
   --pierre: #2B2620;                    /* pied de page sombre et chaud */
   --voile-rgb: 25, 22, 20;
   --or: #E8B33C; --or-clair: #F5CD6E;   /* poussière d'or du héros, reflet des boutons */
-  --vert-ok: #3E6B3B;   /* 5,6:1 sur le kraft (l'ancien #4F7A4B : 4,4) */
-  --rouge: #A33030;   /* 4,8:1 sur le papier adouci (l'ancien #B33A3A passait sous 4,5 sur fond-2) */
+  --vert-ok: #305430;   /* ≥ 4,5:1 sur le papier sépia et son fond-2 */
+  --rouge: #8F2727;   /* ≥ 4,5:1 sur le papier sépia et son fond-2 */
   --ombre: 0 18px 40px -22px rgba(31, 34, 48, .38);
   --kraft: none; --kraft-melange: normal;
 }

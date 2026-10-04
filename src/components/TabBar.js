@@ -9,6 +9,7 @@ import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 import { verifierVersion, nouvelleVersionPrete, saisieEnCours } from "@/lib/version";
 import { nonLus, ecouterTousMessages, marquerRecu, marquerRecuTout } from "@/lib/messages";
 import { momentsNonVus } from "@/lib/moments";
+import { noterVisiteDuJour } from "@/lib/visites";
 
 // 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
 // « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
@@ -135,6 +136,7 @@ export default function TabBar({ actif }) {
   // chaque navigation), gardée au niveau module pour ne pas clignoter
   const [nonLu, setNonLu] = useState(nonLusCache);
   const [moments, setMoments] = useState(momentsCache);
+  useEffect(() => { noterVisiteDuJour(); }, []);   // fréquentation : un membre, un jour (migration 85)
   useEffect(() => {
     if (connecte === false) return;
     let vivant = true;

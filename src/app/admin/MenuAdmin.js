@@ -11,6 +11,7 @@ const SECTIONS = [
   { id: "sec-reseau", nom: "Le réseau" },
   { id: "sec-bibliotheque", nom: "Bibliothèque" },
   { id: "sec-carrousel", nom: "Photos" },
+  { id: "sec-frequentation", nom: "Fréquentation" },
   { id: "sec-roles", nom: "Rôles" },
   { id: "sec-gerer", nom: "Gérer un membre" },
   { id: "sec-annonce", nom: "Annonce" },

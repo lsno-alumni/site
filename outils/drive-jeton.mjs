@@ -43,5 +43,5 @@ const serveur = http.createServer(async (req, res) => {
 });
 serveur.listen(PORT, () => {
   console.log("Ouvre cette adresse si le navigateur ne s'ouvre pas tout seul :\n" + url + "\n");
-  exec(`start "" "${url.replace(/&/g, "^&")}"`);
+  exec(`start "" "${url}"`);
 });

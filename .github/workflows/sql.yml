@@ -16,9 +16,9 @@ name: Syntaxe SQL
 
 on:
   push:
-    paths: ["supabase/**.sql", "outils/**"]
+    paths: ["supabase/**.sql", "outils/**", ".github/workflows/sql.yml"]
   pull_request:
-    paths: ["supabase/**.sql", "outils/**"]
+    paths: ["supabase/**.sql", "outils/**", ".github/workflows/sql.yml"]
   workflow_dispatch: {}
 
 permissions:

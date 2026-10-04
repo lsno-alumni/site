@@ -121,6 +121,8 @@ le réseau de tous se renforce.
   'none'`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS.
 - **Audit mensuel des dépendances** : `.github/workflows/audit-dependances.yml`
   (échoue sur un avis `high`, GitHub prévient par email).
+- **Bibliothèque « Annales et sujets »** : propositions des membres, modération par les délégués, fichiers
+  sur le Google Drive de l'association (rien sur le site) — `outils/LISEZMOI-drive.md` pour le branchement.
 - **82 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
   et c'est vérifié à chaque push, pas seulement affirmé (`npm run banc` rejoue le tout sur
   un PostgreSQL jetable en mémoire ; `outils/verif_sql.py` en contrôle la syntaxe). Les

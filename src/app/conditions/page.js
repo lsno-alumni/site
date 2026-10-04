@@ -32,7 +32,7 @@ export default function Conditions() {
 
       <Sommaire className="cg-sommaire" sections={SECTIONS.map((t, i) => ({ id: `s${i + 1}`, nom: <><b>{i + 1}</b> {t}</> }))} />
       <div className="f-corps cg-corps">
-        <p className="cg-date">Dernière mise à jour : 28 septembre 2026</p>
+        <p className="cg-date">Dernière mise à jour : 4 octobre 2026</p>
         <div className="cg-bref">
           <p className="lbl">L’essentiel</p>
           <ul>
@@ -164,6 +164,16 @@ export default function Conditions() {
           comme un message envoyé sur n’importe quelle messagerie.
         </Para>
 
+        <Para>
+          <b>Documents de la bibliothèque.</b>{" "}Quand tu proposes un sujet, un devoir ou un cours
+          dans « Annales et sujets », le fichier n’est pas conservé sur le site : il est déposé
+          sur le Google Drive de l’association (compte de l’amicale), dans un dossier dédié, et
+          rendu lisible par lien pour les membres. Un délégué le relit avant publication ; la
+          fiche publiée affiche ton prénom et ta promotion comme proposant. Un document refusé
+          ou retiré est supprimé du Drive. Tu confirmes, en proposant, que le document peut
+          être partagé.
+        </Para>
+
         <Titre n={5}>Qui voit tes informations</Titre>
         <p>
           <b>Jamais le grand public, jamais les moteurs de recherche.</b>{" "}Ton profil et tes
@@ -252,7 +262,9 @@ export default function Conditions() {
         <Titre n={10}>Hébergement</Titre>
         <p>
           Le site est hébergé par Vercel et les données, fichiers compris, stockées chez Supabase,
-          deux services professionnels appliquant les standards de sécurité actuels.
+          deux services professionnels appliquant les standards de sécurité actuels. Seuls les
+          documents de la bibliothèque « Annales et sujets » font exception : ils sont déposés
+          sur le Google Drive de l’association (voir §4).
           Le code du site est public ; tes données, elles, ne le sont jamais.
         </p>
 
@@ -261,7 +273,8 @@ export default function Conditions() {
           Si ces conditions évoluent de manière notable, les membres en seront informés par email
           ou sur le site. La version en vigueur est toujours celle de cette page. Le 28 septembre
           2026, elles ont été complétées pour décrire le fil, les messages, les questions aux
-          anciens, les moments, les événements et les groupes.
+          anciens, les moments, les événements et les groupes ; le 4 octobre 2026, pour la
+          bibliothèque « Annales et sujets » et ses documents déposés sur le Drive de l’association.
         </p>
 
         <p style={{ marginTop: 26, fontSize: 12.5, color: "var(--brume)" }}>

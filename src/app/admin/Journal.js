@@ -23,6 +23,7 @@ const ACTIONS = {
   email_change: "Email de connexion changé",
   connexion_lien: "Connexion par lien email",
   carrousel: "Photo du carrousel",
+  bibliotheque: "Bibliothèque",
   mdp_temporaire: "Mot de passe temporaire posé",
   "2fa_retire": "Double authentification retirée",
   annonce: "Annonce publiée",
@@ -55,6 +56,8 @@ function precision(l) {
       return `${d.avant ?? "?"} → ${d.apres ?? "?"}`;
     case "annonce":
       return d.sujet ?? "";
+    case "bibliotheque":
+      return `${d.decision === "publie" ? "publié" : d.decision === "refuse" ? "refusé" : "retiré"} · « ${d.titre ?? "?"} » (${d.matiere ?? "?"}, ${d.annee ?? "?"})${d.motif ? ` · ${d.motif}` : ""}`;
     case "carrousel":
       return `promo ${d.promo ?? "?"} · photo ${d.position ?? "?"}${d.titre ? ` · « ${d.titre} »` : ""}${d.action === "retrait" ? " · retirée" : ""}`;
     case "reglage":

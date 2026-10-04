@@ -14,6 +14,7 @@ import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import PhotosPromo from "./PhotosPromo";
+import Bibliotheque from "./Bibliotheque";
 import Sauvegarde from "./Sauvegarde";
 import Journal from "./Journal";
 import Signalements from "./Signalements";
@@ -213,6 +214,11 @@ export default function Validation() {
             ? <div className="a-stat"><b>{stats.promo}</b><span>promo {moi?.promotions?.numero}</span></div>
             : <div className="a-stat"><b>{membres.filter((m) => m.role === "delegue").length}</b><span>délégués</span></div>}
           <div className="a-stat"><b>{demandes.length}</b><span>en attente</span></div>
+        </div>
+
+        <div id="sec-bibliotheque" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+          <h2 className="a-titre ad-chapitre">Bibliothèque : à relire</h2>
+          <Bibliotheque signale={(m) => { setSnack({ info: m }); clearTimeout(minuteur.current); minuteur.current = setTimeout(() => setSnack(null), 4200); }} />
         </div>
 
         <div id="sec-carrousel" className="sec-admin" style={{ scrollMarginTop: 12 }}>

@@ -137,6 +137,9 @@ export default function AccueilMembre({ moi, donnees }) {
           <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--bleu-texte)" }}>
             Tous les conseils par thème <ArrowRight size={13} aria-hidden />
           </Link>
+          <Link href="/bibliotheque" className="am-tout" style={{ marginTop: 6, color: "var(--bleu-texte)" }}>
+            Annales et sujets : la bibliothèque <ArrowRight size={13} aria-hidden />
+          </Link>
         </section>
         </Reveal>
       )}

@@ -1,6 +1,7 @@
 import TabBar from "@/components/TabBar";
 import Conseils from "./Conseils";
 import RetourDynamique from "@/components/RetourDynamique";
+import Link from "next/link";
 import { listeConseils, utilisateurCourant } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,9 @@ export default async function PageConseils() {
         <RetourDynamique secours="/" libelle="Retour" />
         <h1 style={{ marginTop: 8 }}>Conseils<br />aux <em>cadets</em></h1>
         <p className="cpt">La sagesse des anciens, réunie par thème.</p>
+        {moi?.statut_compte === "valide" && (
+          <Link href="/bibliotheque" className="btn btn-nu" style={{ marginTop: 10, display: "inline-flex" }}>Annales et sujets →</Link>
+        )}
       </header>
       <Conseils conseils={conseils} moiId={moi?.id ?? null} />
       <TabBar />

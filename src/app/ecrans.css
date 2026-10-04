@@ -1570,6 +1570,43 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .cv3d-carte:not(.actif)::after {
   content: ""; position: absolute; inset: 0; background: rgba(var(--voile-rgb), .35);
 }
+/* ---------- Bibliothèque « Annales et sujets » ---------- */
+.bib { padding: 14px 18px 40px; display: grid; gap: 14px; }
+.bib-actions { display: flex; justify-content: flex-end; }
+.bib-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
+.bib-filtres { display: grid; gap: 8px; }
+.bib-recherche { display: flex; align-items: center; gap: 8px; color: var(--brume); }
+.bib-recherche .saisie { flex: 1; }
+.bib-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bib-selects .saisie { font-size: 13.5px; padding: 9px 10px; }
+.bib-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.bib-fiche { position: relative; }
+.bib-ouvrir { display: flex; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--carte); border: 1px solid var(--ligne); color: inherit; text-decoration: none; }
+.bib-icone { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: var(--bleu-doux); color: var(--bleu-texte); display: grid; place-items: center; }
+.bib-corps { display: grid; gap: 3px; min-width: 0; }
+.bib-meta { font-size: 12px; color: var(--brume); letter-spacing: .01em; }
+.bib-meta b { color: var(--bleu-texte); font-weight: 600; }
+.bib-titre { font-family: var(--font-titres), serif; font-size: 17px; line-height: 1.25; color: var(--texte); }
+.bib-desc { font-size: 13px; color: var(--texte-2); line-height: 1.45; }
+.bib-pied { font-size: 12px; color: var(--brume); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; }
+.bib-retirer { position: absolute; right: 10px; top: 10px; border: 0; background: rgba(var(--texte-rgb), .06); color: var(--brume); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
+.bib-attente { font-size: 13px; color: var(--brume); text-align: center; margin: 6px 0 0; }
+.bib-form .champ small { font-weight: 400; color: var(--brume); }
+.bib-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 14px; background: rgba(var(--texte-rgb), .06); }
+.bib-modes button { border: 0; border-radius: 11px; padding: 10px 8px; font: inherit; font-size: 13.5px; color: var(--texte-2); background: transparent; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.bib-modes button.on { background: var(--carte); color: var(--texte); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.bib-modes button:disabled { opacity: .5; cursor: default; }
+.bib-note { font-size: 13px; color: var(--texte-2); background: var(--bleu-doux); border-radius: 12px; padding: 10px 12px; margin: 0; line-height: 1.5; }
+.bib-depot { width: 100%; display: flex; align-items: center; gap: 12px; padding: 16px 14px; border-radius: 14px; border: 1.5px dashed var(--ligne); background: rgba(var(--texte-rgb), .04); color: var(--texte-2); font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+.bib-depot b { color: var(--texte); overflow-wrap: anywhere; }
+.bib-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; }
+.bib-accord { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: var(--texte-2); }
+.bib-accord input { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; }
+.bib-progres { position: relative; height: 26px; border-radius: 13px; background: rgba(var(--texte-rgb), .08); overflow: hidden; }
+.bib-progres > div { position: absolute; left: 0; top: 0; bottom: 0; background: var(--bleu-clair); transition: width .3s; }
+.bib-progres > span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12.5px; color: var(--texte); }
+.bib-moderation .bib-titre { font-size: 16px; }
+
 /* le titre, posé au bas de la photo sur un fondu sombre (comme les premières légendes du carrousel) */
 .cv3d-legende { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 30px 14px 11px; text-align: center; font-family: var(--font-titres), serif; font-size: 15px; line-height: 1.3; color: #F6F0E4; background: linear-gradient(0deg, rgba(10,18,32,.88), rgba(10,18,32,0)); text-shadow: 0 1px 2px rgba(0,0,0,.4); }
 .cv3d-carte:not(.actif) .cv3d-legende { opacity: 0; }

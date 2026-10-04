@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pglast
+      - run: pip install "pglast==8.4"   # épinglé le 04/10 : la 8.5, sortie ce jour-là, ne s'installait pas sur le runner et faisait passer le job au rouge sans analyser une ligne
       - run: python outils/verif_sql.py
 
   banc:

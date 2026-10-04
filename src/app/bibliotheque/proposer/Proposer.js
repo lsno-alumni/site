@@ -12,7 +12,7 @@ import { TYPES, CLASSES, MATIERES, TAILLE_MAX_MO, deposerFichier, proposerDocume
 // créée en attente de relecture. Rien n'est stocké sur le site.
 const ANNEE = new Date().getFullYear();
 
-export default function Proposer() {
+export default function Proposer({ moderateur = false }) {
   const [mode, setMode] = useState("fichier");   // fichier | lien
   const [fichier, setFichier] = useState(null);
   const [f, setF] = useState({ titre: "", type: "annale", matiere: "Mathématiques", matiereAutre: "", classe: "bac", annee: String(ANNEE), serie: "", description: "", lien: "" });
@@ -70,8 +70,10 @@ export default function Proposer() {
     return (
       <div className="succes" style={{ paddingTop: 30 }}>
         <div className="coche" aria-hidden><Check size={30} strokeWidth={2} /></div>
-        <h2>Merci, c&apos;est proposé</h2>
-        <p>Un délégué relit ta proposition. Tu seras prévenu·e quand elle sera publiée, et elle apparaîtra dans la bibliothèque pour tous les membres.</p>
+        <h2>{moderateur ? "C'est publié" : "Merci, c'est proposé"}</h2>
+        <p>{moderateur
+          ? "Le document est déjà dans la bibliothèque, visible par tous les membres."
+          : "Un délégué relit ta proposition. Tu seras prévenu·e quand elle sera publiée, et elle apparaîtra dans la bibliothèque pour tous les membres."}</p>
         <Link href="/bibliotheque" className="btn btn-or" style={{ marginTop: 20 }}>Retour à la bibliothèque</Link>
         <button type="button" className="btn btn-nu" style={{ marginTop: 10 }} onClick={() => { setEtat(""); setFichier(null); setAccord(false); setF((v) => ({ ...v, titre: "", description: "", lien: "" })); }}>Proposer un autre document</button>
       </div>

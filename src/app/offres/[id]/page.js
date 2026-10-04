@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import TabBar from "@/components/TabBar";
 import Retour from "@/app/profil/[id]/Retour";
-import { utilisateurCourant, apercuOffre, lireOffre, suiteOffre } from "@/lib/api";
+import { utilisateurCourant, apercuOffre, lireOffre, suiteOffre, lireInteractions } from "@/lib/api";
 import { nomType, joursRestants } from "@/lib/offres";
 import { CouvertureOffre, TeteOffre, SuiteOffre } from "./ContenuOffre";
 import Sceau from "@/components/Sceau";
@@ -36,7 +36,7 @@ export default async function PageOffre({ params }) {
   if (moi && moi.statut_compte === "valide") {
     const o = await lireOffre(id);
     if (!o) notFound();
-    const suite = await suiteOffre(id, o.domaine);
+    const [suite, interactions] = await Promise.all([suiteOffre(id, o.domaine), lireInteractions("offre", id)]);
     return (
       <main className="page page-profil avec-tabbar">
         <RafraichirPage>
@@ -44,7 +44,9 @@ export default async function PageOffre({ params }) {
             <Retour secours="/offres" />
           </CouvertureOffre>
           <TeteOffre o={o} />
-          <SuiteOffre o={o} moiId={moi.id} suite={suite} />
+          <SuiteOffre o={o} moiId={moi.id} suite={suite} interactions={interactions}
+            moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role }}
+            moderateur={moi.role === "admin" || moi.role === "delegue"} />
         </RafraichirPage>
         <TabBar actif="Offres" />
       </main>

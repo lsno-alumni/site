@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as memoire from "@/lib/memoire";
-import { Plus, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search } from "lucide-react";
+import { Plus, Megaphone, CheckCheck, Trash2, Hourglass, Pencil, Share2, Paperclip, FileText, Image as ImageIcon, Search, BookOpen } from "lucide-react";
 import Avatar from "@/components/Avatar";
 import { RestaurerDefilement } from "@/components/SuiviNavigation";
 import GlisserRafraichir from "@/components/GlisserRafraichir";
@@ -227,7 +227,12 @@ export default function Offres() {
     <GlisserRafraichir onRafraichir={charger}>
     <>
       <header className="n-tete tete-eleves">
-        <h1>Offres &amp; opportunités</h1>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <h1>Offres &amp; opportunités</h1>
+          <Link href="/bibliotheque" className="n-vers-conseils">
+            <BookOpen size={14} strokeWidth={1.9} aria-hidden /> Annales
+          </Link>
+        </div>
         <p className="cpt">Stages, bourses, cooptations — partagés entre anciens.</p>
         {moi?.statut_compte === "valide" && !formulaire && (
           <button className="btn btn-or" style={{ marginTop: 14, padding: "11px 18px", fontSize: 13.5, boxShadow: "0 4px 12px -4px rgba(59,111,209,.35)" }}

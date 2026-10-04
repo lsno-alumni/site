@@ -21,8 +21,8 @@ const ui = Instrument_Sans({
 // la barre du navigateur prend la couleur du fond ; mise à jour par le thème (src/lib/theme.js)
 // interactiveWidget : quand le clavier s'ouvre (Android), la fenêtre de mise en
 // page RÉTRÉCIT au lieu d'être recouverte — les barres fixes ou collantes du bas
-// restent visibles au-dessus du clavier, et le navigateur n'a plus à faire
-// défiler la page pour montrer le champ.
+// (saisie d'un message, pied du composer) restent visibles au-dessus du clavier,
+// et le navigateur n'a plus à faire défiler la page pour montrer le champ.
 export const viewport = { themeColor: "#F6F0E4", interactiveWidget: "resizes-content" };
 
 export const metadata = {

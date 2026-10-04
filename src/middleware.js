@@ -69,7 +69,9 @@ export async function middleware(req) {
     // profil partagé (vitrine choisie) ; les humains vont à la connexion
     const ua = req.headers.get("user-agent") ?? "";
     const robotApercu = /whatsapp|facebookexternalhit|twitterbot|linkedinbot|telegrambot|slackbot|discordbot|skypeuripreview|pinterestbot/i.test(ua);
-    if (robotApercu && (chemin.startsWith("/profil/") || /^\/offres\/\d+/.test(chemin))) return res;
+    // les robots d'aperçu (WhatsApp…) voient la page telle quelle : ils y lisent les métadonnées et
+    // la carte d'image ; profils et offres montrent leur vitrine, publications et événements une carte générique
+    if (robotApercu && (chemin.startsWith("/profil/") || /^\/(offres|publication|evenements)\/\d+/.test(chemin))) return res;
     const url = req.nextUrl.clone();
     url.pathname = "/connexion";
     return NextResponse.redirect(url);

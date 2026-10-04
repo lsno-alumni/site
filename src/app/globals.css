@@ -14,31 +14,32 @@
    ============================================================ */
 :root {
   color-scheme: light;
-  /* thème clair — variante « net » (03/10, retour comité « agressif pour les yeux ») : papier sable, cartes crème, encre bleu-gris, grain du kraft atténué (soft-light) ; contrastes ≥ 4,5:1 vérifiés */
-  --fond: #E9E0CE; --fond-rgb: 233, 224, 206;
-  --fond-2: #E1D7C3;
-  --fond-profil: #E4DAC6;   /* sol du profil consulté : même papier, un ton plus kraft que l'annuaire */
-  --carte: #F4ECDC;
-  --sable: #D6C6A8;
-  --texte: #262A38; --texte-rgb: 38, 42, 56;
-  --texte-2: #444A5B;
-  --brume: #575D6E; --brume-rgb: 87, 93, 110;   /* gris des libellés et petites lignes : 5,3:1 sur le kraft, 6:1 sur une carte (l'ancien #7C8190 plafonnait à 3,4:1 — illisible au soleil) */
-  --ligne: rgba(38, 42, 56, .13);
+  /* thème clair — variante « marqué » (03/10, à faire juger par le comité) : papier sépia, cartes crème soutenu, encre adoucie, sans grain ; contrastes ≥ 4,5:1 vérifiés */
+  --fond: #E2D8C2; --fond-rgb: 226, 216, 194;
+  --fond-2: #D9CDB4;
+  --fond-profil: #DDD2BB;   /* sol du profil consulté : même papier, un ton plus kraft que l'annuaire */
+  --carte: #EFE6D3;
+  --sable: #CDBC9B;
+  --texte: #2C3040; --texte-rgb: 44, 48, 64;
+  --texte-2: #4A5063;
+  --brume: #525869; --brume-rgb: 82, 88, 105;   /* gris des libellés et petites lignes : 5,3:1 sur le kraft, 6:1 sur une carte (l'ancien #7C8190 plafonnait à 3,4:1 — illisible au soleil) */
+  --ligne: rgba(44, 48, 64, .14);
   /* l'accent : notre bleu. --bleu = bordures et détails, --bleu-clair = fonds
      pleins (boutons, badges), --bleu-texte = texte, --bleu-doux = fond pâle */
   --bleu: #1E3A62; --bleu-clair: #1E3A62; --bleu-texte: #1E3A62; --bleu-doux: #DCE4F0;
   --accent-rgb: 30, 58, 98;
   --halo-rgb: 59, 111, 209;      /* le halo des boutons reste bleu vif, même quand l'accent est bleu nuit */
   --sur-accent: #F6F0E4;
+  --coche-lue: #1A66C4; --coche-lue-bulle: #5CC8FF;   /* coches « lu » : liste des conversations (sur carte, 4,8:1) et bulle à moi (sur --bleu, 6:1) */
   /* la bande « Le réseau dans le monde », seule seconde couleur du site */
   --monde: #1F3B63; --monde-2: #2B4E80;
   --pierre: #2B2620;                    /* pied de page sombre et chaud */
   --voile-rgb: 25, 22, 20;
   --or: #E8B33C; --or-clair: #F5CD6E;   /* poussière d'or du héros, reflet des boutons */
-  --vert-ok: #305430;   /* ≥ 4,5:1 sur le papier sable et son fond-2 */
-  --rouge: #8F2727;   /* ≥ 4,5:1 sur le papier sable et son fond-2 */
+  --vert-ok: #305430;   /* ≥ 4,5:1 sur le papier sépia et son fond-2 */
+  --rouge: #8F2727;   /* ≥ 4,5:1 sur le papier sépia et son fond-2 */
   --ombre: 0 18px 40px -22px rgba(31, 34, 48, .38);
-  --kraft: url("/fonds/kraft-clair.jpg"); --kraft-melange: soft-light;
+  --kraft: none; --kraft-melange: normal;
 }
 :root[data-theme="sombre"] {
   color-scheme: dark;
@@ -55,6 +56,7 @@
   --accent-rgb: 59, 111, 209;
   --halo-rgb: 59, 111, 209;
   --sur-accent: #FFFFFF;   /* blanc pur sur le bleu vif des boutons : 4,8:1 (le beige plafonnait à 4,2) */
+  --coche-lue: #6FA8F5; --coche-lue-bulle: #8ED6FF;
   --monde: #1B2F4F; --monde-2: #23406B;
   --pierre: #0E1017;
   --vert-ok: #9CBF94;

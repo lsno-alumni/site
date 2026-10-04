@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
-import { Send, Check, Share2 } from "lucide-react";
+import { Send, Check, Share2, MessageCircle } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
 // Boutons d'action du profil : « Demander le contact » (mise en relation)
@@ -34,6 +34,25 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
     setFormulaire(false);
   };
 
+  const [bloque, setBloque] = useState(null);   // null = pas encore su
+  useEffect(() => {
+    import("@/lib/messages").then(({ mesBlocages }) => mesBlocages().then((l) => setBloque(l.includes(cibleId))).catch(() => setBloque(false)));
+  }, [cibleId]);
+  const basculerBlocage = async () => {
+    try {
+      const { bloquer, debloquer } = await import("@/lib/messages");
+      if (bloque) { await debloquer(cibleId); setBloque(false); setErreur("Membre débloqué"); }
+      else { if (!confirm(`Bloquer ${prenom} ? Plus de conversation possible entre vous, ses messages disparaissent de ta vue.`)) return; await bloquer(cibleId); setBloque(true); setErreur("Membre bloqué"); }
+      setTimeout(() => setErreur(""), 2500);
+    } catch (e) { setErreur("Impossible : " + texteErreur(e)); setTimeout(() => setErreur(""), 3000); }
+  };
+  const ecrire = async () => {
+    try {
+      const { ouvrirDuo } = await import("@/lib/messages");
+      const cid = await ouvrirDuo(cibleId);
+      window.location.assign(`/messages/${cid}`);
+    } catch (e) { setErreur("Impossible d'ouvrir la conversation : " + texteErreur(e)); setTimeout(() => setErreur(""), 3000); }
+  };
   const partager = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -63,10 +82,19 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
             <Check size={15} aria-hidden /> Demande envoyée
           </span>
         )}
+        <button className="btn btn-nu" onClick={ecrire}>
+          <MessageCircle size={15} aria-hidden /> Message
+        </button>
         <button className="btn btn-nu" onClick={partager}>
           <Share2 size={15} aria-hidden /> Partager
         </button>
       </div>
+
+      {bloque !== null && (
+        <button type="button" className="p-bloquer" onClick={basculerBlocage}>
+          {bloque ? "Débloquer ce membre" : "Bloquer ce membre"}
+        </button>
+      )}
 
       {formulaire && (
         <div className="f-corps" style={{ paddingTop: 0, paddingBottom: 10 }}>

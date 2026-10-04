@@ -16,6 +16,7 @@ const ANGLAIS = /\b(error|exception|undefined|null|failed|invalid|denied|violate
 export function texteErreur(e, secours = "réessaie dans un instant.") {
   if (e) console.warn("[LSNO] erreur :", e);
   const m = String(e?.message ?? e ?? "").trim();
+  if (/profil_incomplet/.test(m)) return "complète d'abord ton profil : photo, ville, pays et une ligne sur toi.";
   if (estReseau(e)) return "la connexion a lâché. Vérifie le réseau et réessaie.";
   if (/jwt|expired|not authenticated|session|refresh_token|401/i.test(m)) return "ta session a expiré : reconnecte-toi.";
   if (/row-level security|permission denied|403|not allowed/i.test(m)) return "tu n’as pas le droit de faire ça.";

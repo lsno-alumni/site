@@ -2,6 +2,7 @@
 // Affiche et photos dans le bucket public « medias », sous
 // <uuid>/evt-<horodatage>.jpg.
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 import * as memoire from "@/lib/memoire";
 import { compresserImage, urlMedia, BUCKET_MEDIAS } from "@/lib/fil";
 import { creerGroupe } from "@/lib/messages";
@@ -40,6 +41,7 @@ export async function televerserAffiche(fichier) {
   return chemin;
 }
 export async function creerEvenement(champs) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase.from("evenements").insert({ organisateur: user.id, ...champs }).select("id").single();

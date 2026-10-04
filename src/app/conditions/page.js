@@ -138,6 +138,14 @@ export default function Conditions() {
           et tu peux le modifier ou le supprimer toi-même à tout moment. Voici ce qui existe, et
           combien de temps chaque chose vit :
         </p>
+        <Para>
+          <b>On prend la parole à visage découvert.</b>{" "}Pour publier, écrire à un membre,
+          poser ou répondre à une question, organiser un événement, demander un contact ou
+          proposer un document, ton profil doit porter le minimum : une photo, ta ville, ton
+          pays et une ligne sur toi (les élèves en sont dispensés pour la ligne). Lire, mettre
+          un bravo et commenter restent libres. Tant que ce minimum manque, le site te le
+          propose à l’endroit même du geste, et te le rappelle au plus trois fois.
+        </Para>
         <ul className="cg-liste">
           <li><b>Le fil</b> : des publications (texte, jusqu’à dix photos ou une vidéo courte), des bravos et des commentaires. Les publications restent tant que tu ne les supprimes pas ; <b>les vidéos sont effacées au bout de 14 jours</b>, pour ménager l’espace de stockage.</li>
           <li><b>Les moments</b> : une photo ou une vidéo qui vit <b>24 heures, 3 jours ou 7 jours</b> — tu choisis — puis disparaît d’elle-même, fichier compris. Tu peux voir qui a regardé ton moment ; personne d’autre ne le peut. Tu peux aussi en garder un en publication avant qu’il s’efface.</li>
@@ -193,7 +201,9 @@ export default function Conditions() {
           <b>Tes contacts</b> obéissent à TES réglages, appliqués de la même façon :
           « Membres » (cliquable par les membres validés), « Sur demande » (partagé seulement si
           tu acceptes une demande de mise en relation), « Masqué » (invisible de tous). Les
-          administrateurs eux-mêmes ne voient pas tes contacts masqués.
+          administrateurs eux-mêmes ne voient pas tes contacts masqués. Donnant-donnant : les
+          coordonnées des autres ne te sont montrées que si ton propre profil porte le minimum
+          décrit au §4.
         </Para>
         <Para>
           <b>Les messages</b> ne sont lisibles que par les participants à la conversation. Les
@@ -274,7 +284,8 @@ export default function Conditions() {
           ou sur le site. La version en vigueur est toujours celle de cette page. Le 28 septembre
           2026, elles ont été complétées pour décrire le fil, les messages, les questions aux
           anciens, les moments, les événements et les groupes ; le 4 octobre 2026, pour la
-          bibliothèque « Annales et sujets » et ses documents déposés sur le Drive de l’association.
+          bibliothèque « Annales et sujets » et ses documents déposés sur le Drive de l’association,
+          et pour la règle du profil minimum avant toute prise de parole.
         </p>
 
         <p style={{ marginTop: 26, fontSize: 12.5, color: "var(--brume)" }}>

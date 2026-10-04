@@ -3,6 +3,7 @@
 // publications à des cartes AUTOMATIQUES (arrivées, offres, conseils) pour
 // ne jamais paraître vide.
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 
 export const BUCKET_MEDIAS = "medias";
 export const VIDEO_SECONDES = 30;
@@ -195,6 +196,7 @@ export function messageEnvoi(err) {
 }
 
 export async function publier({ texte, media, photos = [], visibilite = "tous", mentions = [] }) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   let media_chemin = null, media_type = null;

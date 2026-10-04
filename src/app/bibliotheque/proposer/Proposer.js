@@ -6,6 +6,7 @@ import { FileUp, Link2, Check, Loader2 } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { texteErreur } from "@/lib/erreurs";
 import { TYPES, CLASSES, MATIERES, TAILLE_MAX_MO, deposerFichier, proposerDocument, tailleLisible } from "@/lib/bibliotheque";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 
 // Le formulaire : le fichier part sur le Drive de l'association par morceaux
 // (ou, à défaut, un lien vers un fichier déjà en ligne), puis la fiche est
@@ -49,6 +50,7 @@ export default function Proposer({ moderateur = false }) {
     if (mode === "fichier" && !fichier) { setErreur("Choisis le fichier à déposer."); return; }
     if (mode === "lien" && !/^https?:\/\/\S+/.test(f.lien.trim())) { setErreur("Colle un lien complet, qui commence par https://."); return; }
     if (!accord) { setErreur("Confirme que ce document peut être partagé."); return; }
+    try { await exigerProfilComplet(); } catch { return; }   // avant d'envoyer quoi que ce soit sur le Drive
     try {
       let lien = f.lien.trim(), drive_id = null, taille = null;
       if (mode === "fichier") {

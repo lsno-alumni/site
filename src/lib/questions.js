@@ -1,5 +1,6 @@
 // Questions aux anciens — côté navigateur (RLS et RPC de la migration 59).
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 import { compresserImage } from "@/lib/fil";
 
 export const PIECE_QUESTION_JOURS = 14;
@@ -45,6 +46,7 @@ export async function televerserPieceQuestion(fichier) {
 }
 
 export async function poserQuestion({ titre, details, theme, domaine, anonyme, piece = null }) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase.from("questions")
@@ -70,6 +72,7 @@ export async function supprimerQuestion(id) {
 }
 
 export async function repondre(questionId, texte) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const { data, error } = await supabase.from("reponses")

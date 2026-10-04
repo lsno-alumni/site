@@ -329,6 +329,12 @@ vrais membres. Règles apprises à nos dépens :
   retire une ligne renvoie le chemin du fichier, et l'appli le supprime par l'API Storage, couverte
   par une politique `delete` adéquate (exemple : `carrousel_retirer`, migration 81). Les purges
   planifiées, elles, passent par pg_net vers l'API avec la clé service_role.
+- **Toute nouvelle prise de parole passe par `profil_complet()`** (04/10, migration 84) : côté base,
+  la politique d'insertion (ou la fonction) ajoute `and profil_complet()` ; côté écran, la fonction de
+  la lib commence par `await exigerProfilComplet()` (`src/lib/profilComplet.js`), qui ouvre la feuille
+  `CompleterProfil` montée dans la mise en page racine et reprend le geste une fois le minimum posé.
+  Les deux sont nécessaires : l'écran pour l'expérience, la base pour la règle. Le banc
+  `essai-profil-complet.sql` compte les politiques concernées (7) — l'y ajouter.
 - **Bibliothèque : les fichiers vivent sur le Google Drive de l'association, pas sur le site** (04/10).
   Le serveur dépose sur le Drive de lsno.alumni avec un jeton durable (portée `drive.file` : le site ne
   voit que les fichiers qu'il crée) ; quatre variables Vercel `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 import { Send, Check, Share2, MessageCircle } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
@@ -17,6 +18,7 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
   const [erreur, setErreur] = useState("");
 
   const envoyer = async () => {
+    try { await exigerProfilComplet(); } catch { return; }   // la feuille « Dis-leur qui tu es » s'est ouverte, ou « plus tard »
     setEnCours(true);
     setErreur("");
     const { data: { user } } = await supabase.auth.getUser();

@@ -2,6 +2,7 @@
 // 7 jours (migrations 64 et 65). Fichiers dans le bucket public « medias »,
 // sous <uuid>/moment-<horodatage>.<ext>, purgés par le cron avec le moment.
 import { useEffect, useState } from "react";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import * as memoire from "@/lib/memoire";
 import { compresserImage, urlMedia, BUCKET_MEDIAS, VIDEO_MO, VIDEO_SECONDES } from "@/lib/fil";
@@ -73,6 +74,7 @@ export async function momentsNonVus() {
 }
 
 export async function publierMoment({ fichier, type, legende = "", visibilite = "tous", duree = DUREE_DEFAUT, mentions = [] }) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const estVideo = type === "video";

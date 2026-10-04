@@ -328,6 +328,13 @@ vrais membres. Règles apprises à nos dépens :
   retire une ligne renvoie le chemin du fichier, et l'appli le supprime par l'API Storage, couverte
   par une politique `delete` adéquate (exemple : `carrousel_retirer`, migration 81). Les purges
   planifiées, elles, passent par pg_net vers l'API avec la clé service_role.
+- **Bibliothèque : les fichiers vivent sur le Google Drive de l'association, pas sur le site** (04/10).
+  Le serveur dépose sur le Drive de lsno.alumni avec un jeton durable (portée `drive.file` : le site ne
+  voit que les fichiers qu'il crée) ; quatre variables Vercel `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+  `GOOGLE_REFRESH_TOKEN`, `DRIVE_DOSSIER_ID` (procédure : `outils/LISEZMOI-drive.md`). Sans elles, les
+  routes `/api/bibliotheque/*` répondent 503 et le formulaire ne propose que le lien. Une requête Vercel
+  ne dépasse pas 4,5 Mo : le dépôt se fait par morceaux de 3 Mo (multiples de 256 Ko, exigence Drive)
+  transmis à une session « resumable ». Un refus ou un retrait supprime le fichier par l'API, jamais en SQL.
 - **Toute nouvelle table doit satisfaire le contrôle de santé** (migration 75) : des droits de table
   accordés à `authenticated` hors du modèle attendu sont signalés → préférer des fonctions
   `security definer` en liste blanche (`sante_fonctions_ouvertes`) sans aucun droit de table ; RLS

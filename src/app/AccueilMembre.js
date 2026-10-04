@@ -109,6 +109,12 @@ export default function AccueilMembre({ moi, donnees }) {
         )}
 
         <section className="a-section">
+          <h2 className="a-titre" style={{ marginBottom: 6 }}>Annales et sujets</h2>
+          <p className="am-sous-titre">Sujets du bac, devoirs de l&apos;école, cours et corrigés, gardés par les anciens pour les cadets. Tu en as un ? Propose-le.</p>
+          <Link href="/bibliotheque" className="am-tout">Ouvrir la bibliothèque <ArrowRight size={13} aria-hidden /></Link>
+        </section>
+
+        <section className="a-section">
           <h2 className="a-titre" style={{ marginBottom: 12 }}>Dernières opportunités</h2>
           <div className="am-offres">
             {offres.map((o) => (
@@ -136,9 +142,6 @@ export default function AccueilMembre({ moi, donnees }) {
           </Link>
           <Link href="/conseils" className="am-tout" style={{ marginTop: 14, color: "var(--bleu-texte)" }}>
             Tous les conseils par thème <ArrowRight size={13} aria-hidden />
-          </Link>
-          <Link href="/bibliotheque" className="am-tout" style={{ marginTop: 6, color: "var(--bleu-texte)" }}>
-            Annales et sujets : la bibliothèque <ArrowRight size={13} aria-hidden />
           </Link>
         </section>
         </Reveal>

@@ -63,6 +63,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <div className="am-liens">
           <Link href="/nouveautes" className="am-lien">Nouveautés</Link>
           <Link href="/a-propos" className="am-lien">À propos du réseau</Link>
+          <Link href="/bibliotheque" className="am-lien">Annales et sujets</Link>
           {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
         </div>
         {completion < 100 && (
@@ -107,12 +108,6 @@ export default function AccueilMembre({ moi, donnees }) {
             <Link href="/questions?filtre=sans_reponse" className="am-tout">Toutes les questions <ArrowRight size={13} aria-hidden /></Link>
           </section>
         )}
-
-        <section className="a-section">
-          <h2 className="a-titre" style={{ marginBottom: 6 }}>Annales et sujets</h2>
-          <p className="am-sous-titre">Sujets du bac, devoirs de l&apos;école, cours et corrigés, gardés par les anciens pour les cadets. Tu en as un ? Propose-le.</p>
-          <Link href="/bibliotheque" className="am-tout">Ouvrir la bibliothèque <ArrowRight size={13} aria-hidden /></Link>
-        </section>
 
         <section className="a-section">
           <h2 className="a-titre" style={{ marginBottom: 12 }}>Dernières opportunités</h2>

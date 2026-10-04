@@ -23,6 +23,7 @@ import { Mail, Handshake, ChevronDown, Eye } from "lucide-react";
 import { IconeLinkedin, IconeWhatsApp } from "@/components/Marques";
 import { SITUATIONS, SUJETS_CADETS, DOMAINES, THEMES_CONSEIL, estEncoreEleve, tauxCompletion, manquesCompletion } from "@/lib/donnees";
 import ChoixPays from "@/components/ChoixPays";
+import Blocages from "@/components/Blocages";
 
 const VISIBILITES = [
   { cle: "membres", nom: "Membres" },
@@ -74,7 +75,7 @@ export default function MonProfil() {
     if (!user) return routeur.push("/connexion");
     const { data } = await supabase
       .from("profiles")
-      .select("id, prenom, nom, role, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, refuse_le, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, push_reseau_portee, promotions(numero)")
+      .select("id, prenom, nom, role, situation, statut_titre, conseil, conseil_theme, histoire, ville, pays, domaine, domaine_precision, repond_cadets, sujets_cadets, statut_compte, refuse_le, whatsapp_visi, email_visi, linkedin_visi, photo_url, push_mes_demandes, push_reseau, push_offres, push_annonces, push_messages, push_fil, push_reseau_portee, promotions(numero)")
       .eq("id", user.id)
       .maybeSingle();
     // les valeurs de contact ne sont lisibles que via cette fonction
@@ -447,6 +448,7 @@ export default function MonProfil() {
         <Notifications profil={profil} />
         <DoubleAuth profil={profil} />
         <ChangerEmail />
+        <Blocages />
 
         <div style={{ display: "grid", gap: 18 }}>
           <div className="champ">
@@ -464,6 +466,10 @@ export default function MonProfil() {
       <section className="n-cloture compte">
         <p className="lbl">Mon compte</p>
         <div className="mp-compte">
+          {profil.role && profil.role !== "membre" && (
+            <Link href="/admin" className="btn btn-or">Espace {profil.role === "admin" ? "admin" : "délégué"} · Validation</Link>
+          )}
+          <Link href="/a-propos" className="btn btn-nu">À propos du réseau</Link>
           <Link href="/mot-de-passe/nouveau" className="btn btn-nu">Changer mon mot de passe</Link>
           <button className="btn btn-nu" onClick={deconnecter}>Se déconnecter</button>
         </div>

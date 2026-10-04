@@ -14,8 +14,10 @@ import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import PhotosPromo from "./PhotosPromo";
+import Bibliotheque from "./Bibliotheque";
 import Sauvegarde from "./Sauvegarde";
 import Journal from "./Journal";
+import Signalements from "./Signalements";
 import Annonce from "./Annonce";
 import EtatSysteme from "./EtatSysteme";
 import MenuAdmin from "./MenuAdmin";
@@ -214,6 +216,11 @@ export default function Validation() {
           <div className="a-stat"><b>{demandes.length}</b><span>en attente</span></div>
         </div>
 
+        <div id="sec-bibliotheque" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+          <h2 className="a-titre ad-chapitre">Bibliothèque : à relire</h2>
+          <Bibliotheque signale={(m) => { setSnack({ info: m }); clearTimeout(minuteur.current); minuteur.current = setTimeout(() => setSnack(null), 4200); }} />
+        </div>
+
         <div id="sec-carrousel" className="sec-admin" style={{ scrollMarginTop: 12 }}>
           <h2 className="a-titre ad-chapitre">{moi?.role === "admin" ? "Photos des promotions" : "Photos de ma promo"}</h2>
           <PhotosPromo moi={moi} />
@@ -301,6 +308,9 @@ export default function Validation() {
                 clearTimeout(minuteur.current);
                 minuteur.current = setTimeout(() => setSnack(null), 4200);
               }} />
+            </div>
+            <div id="sec-signalements" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+              <Signalements />
             </div>
             <div id="sec-journal" className="sec-admin" style={{ scrollMarginTop: 12 }}>
               <Journal />

@@ -259,7 +259,7 @@ export async function utilisateurCourant() {
   if (!jeton?.claims) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, whatsapp_visi, email_visi, linkedin_visi, double_auth_active, promotions(numero)")
+    .select("id, prenom, nom, role, statut_compte, refuse_le, situation, statut_titre, ville, pays, conseil, photo_url, domaine, domaine_precision, whatsapp_visi, email_visi, linkedin_visi, double_auth_active, promotions(numero)")
     .eq("id", jeton.claims.sub)
     .maybeSingle();
   if (!data) return null;
@@ -282,7 +282,7 @@ export async function donneesAccueilMembre(moi) {
   const limite60 = new Date(Date.now() - 60 * 86400000).toISOString();
   const aujourdhui = new Date().toISOString().slice(0, 10);
 
-  const [nouveaux, offres, conseils, demandes, stats] = await Promise.all([
+  const [nouveaux, offres, conseils, demandes, stats, questions] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, prenom, nom, photo_url, domaine, domaine_precision, promotions(numero)")
@@ -313,10 +313,12 @@ export async function donneesAccueilMembre(moi) {
           .eq("statut_compte", "en_attente")
       : Promise.resolve({ count: 0 }),
     supabase.rpc("stats_publiques"),
+    supabase.rpc("liste_questions", { p_filtre: "sans_reponse", p_theme: null, p_limite: 3, p_avant: null, p_q: null }),
   ]);
 
   const listeConseils = conseils.data ?? [];
   return {
+    questions: (questions.data ?? []).filter((q) => !q.masquee),
     nouveaux: nouveaux.data ?? [],
     offres: offres.data ?? [],
     conseil: listeConseils.length
@@ -326,5 +328,56 @@ export async function donneesAccueilMembre(moi) {
     parPromo: stats.data?.par_promo ?? {},
     parPays: stats.data?.par_pays ?? {},
     parDomaine: stats.data?.par_domaine ?? {},
+  };
+}
+
+// ---------- Questions aux anciens (migration 59) ----------
+export async function lireQuestionServeur(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("lire_question", { p_id: Number(id) });
+  if (error) { console.error("lireQuestionServeur:", error.message); return null; }
+  return data ?? null;
+}
+
+export async function lireEvenementServeur(id) {
+  const supabase = await creerClientServeur();
+  const { data, error } = await supabase.rpc("lire_evenement", { p_id: Number(id) });
+  if (error) { console.error("lireEvenementServeur:", error.message); return null; }
+  return data ?? null;
+}
+
+// ---------- Le Fil (migration 52) ----------
+// bravos + commentaires d'une offre (ou d'un conseil), pour la feuille et la page
+export async function lireInteractions(type, id) {
+  const supabase = await creerClientServeur();
+  const [{ data: cpt }, { data: liste }] = await Promise.all([
+    supabase.rpc("bravos_de", { p_type: type, p_id: String(id) }),
+    type === "conseil" ? Promise.resolve({ data: [] }) : supabase.rpc("commentaires_de", { p_type: type, p_id: String(id) }),
+  ]);
+  return { bravos: cpt?.bravos ?? 0, jai_bravo: cpt?.jai_bravo ?? false, commentaires: cpt?.commentaires ?? 0, liste: liste ?? [] };
+}
+
+// Une publication en pleine page ou en feuille : auteur, compteurs, « j'ai
+// bravo » (bravos_de s'appuie sur auth.uid(), donc sur la session du lecteur).
+export async function lirePublication(id) {
+  const supabase = await creerClientServeur();
+  const { data: p } = await supabase
+    .from("publications")
+    .select("id, texte, media_chemin, media_type, media_expire_le, photos, visibilite, masquee, cree_le, mentions, auteur:profiles!publications_auteur_fkey(id, prenom, nom, photo_url, promotions(numero))")
+    .eq("id", id).maybeSingle();
+  if (!p) return null;
+  const [{ data: cpt }, { data: commentaires }, { data: mentionnes }] = await Promise.all([
+    supabase.rpc("bravos_de", { p_type: "publication", p_id: String(p.id) }),
+    supabase.rpc("commentaires_de", { p_type: "publication", p_id: String(p.id) }),
+    p.mentions?.length ? supabase.from("profiles").select("id, prenom, nom").in("id", p.mentions) : Promise.resolve({ data: [] }),
+  ]);
+  return {
+    publication: {
+      ...p,
+      auteur: { id: p.auteur.id, prenom: p.auteur.prenom, nom: p.auteur.nom, photo_url: p.auteur.photo_url, promo: p.auteur.promotions?.numero },
+      mentions: mentionnes ?? [],
+      bravos: cpt?.bravos ?? 0, jai_bravo: cpt?.jai_bravo ?? false, commentaires: cpt?.commentaires ?? 0,
+    },
+    commentaires: commentaires ?? [],
   };
 }

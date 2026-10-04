@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { texteErreur } from "@/lib/erreurs";
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import ComptesEssai from "./ComptesEssai";
 
 // Tableau de bord lecture seule : les tâches automatiques tournent-elles ?
 const NOMS = {
@@ -22,7 +24,7 @@ const NOMS = {
   "push-rappel-annuel": "Notification : profils à jour ? (1er septembre)",
   "push-controle-cles": "Notification : contrôle des clés (bimestriel)",
   "push-rentree-octobre": "Notifications de la rentrée (1er octobre)",
-  // réseau social (migrations 52 → 68, base commune : les tâches tournent déjà)
+  // réseau social (migrations 52 → 68)
   "purge-videos-expirees": "Effacement des vidéos du fil de plus de 14 jours",
   "purge-messages": "Effacement des messages de plus de 30 jours",
   "purge-pieces": "Effacement des pièces jointes expirées (messages, questions)",
@@ -64,12 +66,42 @@ const STATUTS = { valide: "validé", en_attente: "en attente de validation", sus
 
 const CLE_EMAILS = "emails_inscription_admins";  // les EMAILS aux admins
 const CLE_PUSH   = "push_inscription_admins";    // les NOTIFICATIONS aux admins (migration 45)
+const CLE_ESSAI = "push_mode_essai";               // mode essai : notifications limitées aux admins + comptes de test (migration 63)
+
+// fichiers et octets par bucket (photos, ressources, medias, pieces) : le
+// palier gratuit s'arrête à 1 Go, on s'inquiète à partir de 700 Mo
+const NOMS_BUCKETS = { photos: "Photos de profil", ressources: "Ressources", medias: "Fil (photos, vidéos) et photos de groupe", pieces: "Pièces jointes des messages" };
+const SEUIL_MO = 700;
+function Stockage() {
+  const [liste, setListe] = useState(null);
+  useEffect(() => { import("@/lib/messages").then(({ adminStockage }) => adminStockage().then(setListe).catch(() => setListe([]))); }, []);
+  const total = (liste ?? []).reduce((s, b) => s + Number(b.octets), 0);
+  const mo = (o) => (o / 1048576).toFixed(1).replace(".", ",") + " Mo";
+  const alerte = total > SEUIL_MO * 1048576;
+  return (
+    <div className="carte-sombre" style={{ padding: "10px 14px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 12.5 }}>
+        <b>Stockage</b>
+        <span style={{ color: alerte ? "var(--rouge)" : "var(--texte-2)" }}>{liste === null ? "…" : `${mo(total)} / 1 Go${alerte ? " — proche de la limite" : ""}`}</span>
+      </div>
+      {liste?.map((b) => (
+        <div key={b.bucket} style={{ display: "flex", gap: 8, fontSize: 12, color: "var(--brume)", padding: "4px 0" }}>
+          <span style={{ flex: 1 }}>{NOMS_BUCKETS[b.bucket] ?? b.bucket}</span>
+          <span>{b.fichiers} fichier{b.fichiers > 1 ? "s" : ""}</span>
+          <span style={{ minWidth: 64, textAlign: "right", color: "var(--texte-2)" }}>{mo(Number(b.octets))}</span>
+        </div>
+      ))}
+      {liste?.length === 0 && <p style={{ fontSize: 12, color: "var(--brume)" }}>Rien à afficher (réservé aux modérateurs).</p>}
+    </div>
+  );
+}
 
 export default function EtatSysteme() {
   const supabase = creerClientNavigateur();
   const [etat, setEtat] = useState(null);
   const [emailsAdmins, setEmailsAdmins] = useState(null); // null = réglage absent
   const [pushAdmins, setPushAdmins] = useState(null);     // idem (migration 45)
+  const [modeEssai, setModeEssai] = useState(null);       // idem (migration 63)
   const [bascule, setBascule] = useState("");             // clé en cours de bascule
   const [testPush, setTestPush] = useState("");
   // liste de comptes dépliée : null = aucune ; sinon { quoi, donnees } avec
@@ -78,11 +110,12 @@ export default function EtatSysteme() {
 
   useEffect(() => {
     supabase.rpc("admin_etat_systeme").then(({ data }) => setEtat(data ?? false));
-    supabase.from("reglages").select("cle, actif").in("cle", [CLE_EMAILS, CLE_PUSH])
+    supabase.from("reglages").select("cle, actif").in("cle", [CLE_EMAILS, CLE_PUSH, CLE_ESSAI])
       .then(({ data }) => {
         const lu = (cle) => (data ?? []).find((r) => r.cle === cle);
         setEmailsAdmins(lu(CLE_EMAILS) ? lu(CLE_EMAILS).actif : null);
         setPushAdmins(lu(CLE_PUSH) ? lu(CLE_PUSH).actif : null);
+        setModeEssai(lu(CLE_ESSAI) ? lu(CLE_ESSAI).actif : null);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -114,6 +147,7 @@ export default function EtatSysteme() {
       <p style={{ fontSize: 12.5, color: "var(--brume)", marginTop: -6 }}>
         Les tâches automatiques et leur dernière exécution.
       </p>
+      <Stockage />
       <div className="carte-sombre" style={{ padding: "6px 14px" }}>
         {(etat.jobs ?? []).map((j) => {
           const ok = !j.derniere || j.derniere.statut === "succeeded";
@@ -251,6 +285,26 @@ export default function EtatSysteme() {
           </div>
         )}
 
+        {modeEssai !== null && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                        borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>
+            <span style={{ flex: 1, minWidth: 190, fontSize: 13 }}>
+              <b>Mode essai des notifications</b>
+              <span style={{ display: "block", color: modeEssai ? "var(--rouge)" : "var(--brume)", fontSize: 12, lineHeight: 1.5, marginTop: 2 }}>
+                {modeEssai
+                  ? "Actif : seuls les administrateurs et les comptes de test reçoivent des notifications. Les autres membres ne sont pas dérangés — pense à l’éteindre après les essais."
+                  : "Éteint : tout le monde reçoit ses notifications. À activer le temps d’un essai sur la vraie base."}
+              </span>
+            </span>
+            <button className={`btn ${modeEssai ? "btn-or" : "btn-nu"}`}
+              style={{ padding: "9px 15px", fontSize: 12.5 }}
+              onClick={() => basculer(CLE_ESSAI, modeEssai, setModeEssai)} disabled={Boolean(bascule)}>
+              {bascule === CLE_ESSAI ? "…" : modeEssai ? "Éteindre" : "Activer"}
+            </button>
+          </div>
+        )}
+        {modeEssai !== null && <ComptesEssai actif={modeEssai} />}
+
         <span style={{ display: "block", color: "var(--brume)", fontSize: 12, lineHeight: 1.5,
                        borderTop: "1px solid var(--ligne)", paddingTop: 10 }}>
           Vérifier que la chaîne complète fonctionne, de la base à ton téléphone.
@@ -258,7 +312,7 @@ export default function EtatSysteme() {
         <button type="button" className="btn btn-nu" style={{ padding: "9px 15px", fontSize: 12.5, justifySelf: "start" }}
           onClick={async () => {
             const { error } = await supabase.rpc("admin_test_push");
-            setTestPush(error ? "Échec : " + error.message
+            setTestPush(error ? "Échec : " + texteErreur(error)
               : "Envoyée — si rien n'arrive, active les notifications dans Mon profil.");
           }}>
           M&apos;envoyer une notification de test

@@ -10,6 +10,9 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
+import ApercuMoments from "@/app/ApercuMoments";
+import ProchainsEvenements from "@/app/ProchainsEvenements";
+import LanceurTour from "@/components/LanceurTour";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
 import NuagePays from "@/components/NuagePays";
@@ -57,6 +60,12 @@ export default function AccueilMembre({ moi, donnees }) {
             <ArrowRight size={14} aria-hidden style={{ marginLeft: "auto" }} />
           </Link>
         )}
+        <div className="am-liens">
+          <Link href="/nouveautes" className="am-lien">Nouveautés</Link>
+          <Link href="/a-propos" className="am-lien">À propos du réseau</Link>
+          <Link href="/bibliotheque" className="am-lien">Annales et sujets</Link>
+          {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
+        </div>
         {completion < 100 && (
           <Link href="/mon-profil" className="am-rappel">
             Ton profil est à {completion} % — le compléter
@@ -66,6 +75,10 @@ export default function AccueilMembre({ moi, donnees }) {
 
       <InviteNotifications profilId={moi.id} />
       <InviteInstallation />
+
+      <ApercuMoments moiId={moi.id} />
+      <ProchainsEvenements />
+      <LanceurTour />
 
       {nouveaux.length > 0 && (
         <Reveal>
@@ -79,6 +92,23 @@ export default function AccueilMembre({ moi, donnees }) {
 
       {offres.length > 0 && (
         <Reveal>
+        {donnees.questions?.length > 0 && (
+          <section className="a-section">
+            <h2 className="a-titre" style={{ marginBottom: 6 }}>Ils attendent une réponse</h2>
+            <p className="am-sous-titre">Des cadets posent leurs questions aux anciens. Tu es passé par là ?</p>
+            <div className="am-offres">
+              {donnees.questions.map((q) => (
+                <Link key={q.id} href={`/questions/${q.id}`} className="am-offre am-question">
+                  <span className="qa-theme">{q.theme ?? "Question"}</span>
+                  <span className="am-offre-titre">{q.titre}</span>
+                  <span className="am-question-repondre">Répondre <ArrowRight size={12} aria-hidden /></span>
+                </Link>
+              ))}
+            </div>
+            <Link href="/questions?filtre=sans_reponse" className="am-tout">Toutes les questions <ArrowRight size={13} aria-hidden /></Link>
+          </section>
+        )}
+
         <section className="a-section">
           <h2 className="a-titre" style={{ marginBottom: 12 }}>Dernières opportunités</h2>
           <div className="am-offres">

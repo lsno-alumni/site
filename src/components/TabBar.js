@@ -2,22 +2,26 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Megaphone, Info, CircleUser, ShieldCheck } from "lucide-react";
+import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
 import { verifierVersion, nouvelleVersionPrete, saisieEnCours } from "@/lib/version";
+import { nonLus, ecouterTousMessages, marquerRecu, marquerRecuTout } from "@/lib/messages";
+import { momentsNonVus } from "@/lib/moments";
 
-// 4 onglets pour tout le monde ; « Validation » ajouté seulement pour les
-// délégués et admins (les membres n'y ont pas accès — la page affiche
-// « espace réservé » de toute façon).
+// 5 onglets, les MÊMES pour tout le monde (décision du 26/09, chantier
+// « réseau social ») : Fil, Annuaire, Offres, Messages, Mon profil.
+// À propos est passé dans le menu ☰, la bande « Mon compte » et le sceau ;
+// Validation (délégués/admins) se rejoint par l'alerte en haut de l'accueil
+// et par « Espace admin » dans la bande « Mon compte » de Mon profil.
 const ONGLETS = [
+  { href: "/fil", Icone: Newspaper, nom: "Fil" },
   { href: "/annuaire", Icone: Users, nom: "Annuaire" },
   { href: "/offres", Icone: Megaphone, nom: "Offres" },
-  { href: "/a-propos", Icone: Info, nom: "À propos" },
+  { href: "/messages", Icone: MessageCircle, nom: "Messages" },
   { href: "/mon-profil", Icone: CircleUser, nom: "Mon profil" },
 ];
-const VALIDATION = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 
 // Cache au niveau MODULE : survit aux navigations client (contrairement à
 // l'état React qui se réinitialise à chaque remontage de la TabBar) → dès la
@@ -30,6 +34,8 @@ let roleCache = null;
 // contrôle de session, puis mémorisé au niveau module pour que les pages
 // publiques suivantes ne la fassent même pas apparaître un instant.
 let connecteCache = null;   // null = pas encore su, true/false ensuite
+let nonLusCache = 0;        // messages non lus (pastille de l'onglet Messages)
+let momentsCache = 0;       // moments non vus (point sur l'onglet Fil)
 const CLASSE_SANS = "sans-tabbar";
 
 // Cache/glisse au défilement, comme sur les réseaux sociaux : on descend dans
@@ -125,6 +131,29 @@ export default function TabBar({ actif }) {
   const routeur = useRouter();
   const [role, setRole] = useState(roleCache);
   const [connecte, setConnecte] = useState(connecteCache ?? (roleCache ? true : null));
+  // pastille des messages non lus : lue à chaque page (la barre remonte à
+  // chaque navigation), gardée au niveau module pour ne pas clignoter
+  const [nonLu, setNonLu] = useState(nonLusCache);
+  const [moments, setMoments] = useState(momentsCache);
+  useEffect(() => {
+    if (connecte === false) return;
+    let vivant = true;
+    const lireMoments = () => momentsNonVus().then((n) => { if (vivant) { momentsCache = n; setMoments(n); } }).catch(() => {});
+    lireMoments();
+    window.addEventListener("lsno:moments", lireMoments);
+    const lire = () => nonLus().then((n) => {
+      if (!vivant) return;
+      nonLusCache = n; setNonLu(n);
+      // pastille sur l'icône de l'appli installée (Android, ordinateur) : rien à demander à l'utilisateur
+      try { if (n > 0) navigator.setAppBadge?.(n); else navigator.clearAppBadge?.(); } catch { /* non pris en charge */ }
+    }).catch(() => {});
+    lire();
+    // l'appli est ouverte : tout ce qui m'attendait est « reçu » (coches grises chez l'expéditeur)
+    marquerRecuTout();
+    // temps réel : la pastille bouge dès qu'un message arrive, où qu'on soit — et il est reçu
+    const stop = ecouterTousMessages((m, type) => { lire(); if (type === "INSERT") marquerRecu(m?.conversation_id); }, () => { lire(); marquerRecuTout(); });   // à chaque (ré)abonnement : recompter, et tout ce qui attendait est reçu
+    return () => { vivant = false; stop(); window.removeEventListener("lsno:moments", lireMoments); };
+  }, [connecte, actif]);
   // le réseau revient : toutes les listes se relisent (elles écoutent lsno:rafraichir)
   useEffect(() => {
     const retour = () => window.dispatchEvent(new CustomEvent("lsno:rafraichir"));
@@ -166,7 +195,7 @@ export default function TabBar({ actif }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onglets = role && role !== "membre" ? [...ONGLETS, VALIDATION] : ONGLETS;
+  const onglets = ONGLETS;
 
   // Un onglet est un ÉTAT, pas une page (comme dans une appli) :
   //  - un tap sur l'onglet déjà actif remonte en haut ;
@@ -215,6 +244,8 @@ export default function TabBar({ actif }) {
           className={`tab${actif === o.nom ? " on" : ""}`}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
+          {o.nom === "Messages" && nonLu > 0 && <span className="tab-pastille" aria-label={`${nonLu} non lus`}>{nonLu > 99 ? "99+" : nonLu}</span>}
+          {o.nom === "Fil" && moments > 0 && actif !== "Fil" && <span className="tab-point" aria-label={`${moments} moment${moments > 1 ? "s" : ""} à voir`} />}
         </Link>
       ))}
     </nav>

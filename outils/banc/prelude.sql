@@ -52,6 +52,12 @@ $$;
 create or replace function auth.jwt() returns jsonb
 language sql stable as $$ select '{}'::jsonb $$;
 
+-- comme dans Supabase : les rôles applicatifs peuvent appeler auth.uid()/auth.jwt()
+-- (sinon un essai « set role authenticated » serait refusé sur le schéma auth)
+grant usage on schema auth to anon, authenticated, service_role;
+grant execute on function auth.uid() to anon, authenticated, service_role;
+grant execute on function auth.jwt() to anon, authenticated, service_role;
+
 -- ---------- le Vault ----------
 create schema if not exists vault;
 create table vault.secrets (
@@ -95,6 +101,9 @@ create schema if not exists net;
 create or replace function net.http_post(
   url text, body jsonb default '{}'::jsonb, params jsonb default '{}'::jsonb,
   headers jsonb default '{}'::jsonb, timeout_milliseconds int default 5000
+) returns bigint language sql as $$ select 1::bigint $$;
+create or replace function net.http_delete(
+  url text, params jsonb default '{}'::jsonb, headers jsonb default '{}'::jsonb, timeout_milliseconds int default 5000
 ) returns bigint language sql as $$ select 1::bigint $$;
 
 -- ---------- le schéma storage ----------

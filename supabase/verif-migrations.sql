@@ -116,6 +116,84 @@ with attendu(num, laisse, present) as (
   -- ⚠ ne JAMAIS citer une table créée par une migration dans ce fichier : si
   -- elle manque, tout le contrôle plante au lieu de dire « MANQUE » (vécu
   -- le 23/09 avec sante_fonctions_ouvertes). Passer par pg_proc / to_regclass.
+  union all select 52, 'le Fil : publications, réactions, commentaires, signalements, purge des vidéos',
+    to_regclass('public.publications') is not null and to_regclass('public.reactions') is not null
+    and to_regclass('public.commentaires') is not null and to_regclass('public.signalements') is not null
+    and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'fil_publications')
+    and exists (select 1 from cron.job where jobname = 'purge-videos-expirees')
+  union all select 53, 'Messages : conversations, membres, messages, purge à 30 jours, temps réel',
+    to_regclass('public.conversations') is not null and to_regclass('public.conversation_membres') is not null
+    and to_regclass('public.messages') is not null
+    and to_regprocedure('mes_conversations()') is not null
+    and exists (select 1 from cron.job where jobname = 'purge-messages')
+  union all select 54, 'pièces jointes dans les messages (colonnes fichier_*, politiques du bucket pieces)',
+    exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'messages' and column_name = 'fichier_chemin')
+    and exists (select 1 from pg_policies where tablename = 'objects' and policyname = 'pieces_lecture')
+  union all select 55, 'réactions libres sur les messages (contrainte emoji assouplie)',
+    exists (select 1 from pg_constraint where conname = 'message_reactions_emoji_check' and pg_get_constraintdef(oid) like '%char_length%')
+  union all select 56, 'messagerie : blocages, signalement de message, stockage, photo/description/épinglé de groupe, sondages',
+    to_regclass('public.blocages') is not null and to_regclass('public.sondages') is not null
+    and to_regprocedure('admin_stockage()') is not null
+  union all select 57, 'push : suppression et modification d''un message répercutées sur les notifications',
+    to_regprocedure('envoyer_push_liste(uuid[], text, text, text, text, text, jsonb)') is not null
+  union all select 58, 'temps réel complet (replica identity full sur messages et conversations) + marque transféré',
+    exists (select 1 from pg_class where relname = 'messages' and relreplident = 'f')
+    and exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'messages' and column_name = 'transfere')
+  union all select 59, 'Questions aux anciens : tables questions et reponses, liste_questions, lire_question',
+    to_regclass('public.questions') is not null and to_regclass('public.reponses') is not null
+    and to_regprocedure('lire_question(bigint)') is not null
+  union all select 60, 'bravo sur les questions et les réponses (basculer_bravo élargi)',
+    exists (select 1 from pg_proc where proname = 'basculer_bravo' and prosrc like '%reponse%')
+  union all select 61, 'questions : pièce jointe, recherche, fermeture automatique (liste_questions à 5 paramètres)',
+    to_regprocedure('liste_questions(text, text, integer, timestamptz, text)') is not null
+    and exists (select 1 from cron.job where jobname = 'fermer-questions')
+  union all select 62, 'plusieurs photos par publication (colonne photos)',
+    exists (select 1 from information_schema.columns where table_name = 'publications' and column_name = 'photos')
+  union all select 63, 'mode essai des notifications (push_mode_essai, push_essai_comptes)',
+    exists (select 1 from reglages where cle = 'push_mode_essai') and to_regclass('push_essai_comptes') is not null
+  union all select 64, 'moments (tables moments et moment_vues, rail_moments, purge horaire)',
+    to_regclass('moments') is not null and exists (select 1 from cron.job where jobname = 'purge-moments')
+  union all select 65, 'moments : réactions rapides et mentions (moment_reactions, colonne mentions)',
+    to_regclass('moment_reactions') is not null
+    and exists (select 1 from information_schema.columns where table_name = 'moments' and column_name = 'mentions')
+  union all select 66, 'événements (evenements, réponses, photos, rappel de la veille)',
+    to_regclass('evenements') is not null and exists (select 1 from cron.job where jobname = 'rappel-evenements')
+  union all select 67, 'événements : fichiers effacés par déclencheur à la suppression (photos, affiche)',
+    exists (select 1 from pg_trigger where tgname = 'evenement_photos_apres_delete')
+  union all select 68, 'groupes qu''on peut rejoindre (acces, visibilite, groupe_demandes)',
+    to_regclass('groupe_demandes') is not null
+    and exists (select 1 from information_schema.columns where table_name = 'conversations' and column_name = 'acces')
+  union all select 69, 'temps réel du réseau social (publications, questions, événements, moments, demandes)',
+    exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'publications')
+  union all select 70, 'comptes de test des notifications gérés dans l''interface (admin_essai_*)',
+    to_regprocedure('admin_essai_ajouter(uuid)') is not null
+  union all select 71, 'liste des questions avec la pièce jointe (vignette)',
+    exists (select 1 from pg_proc where proname = 'liste_questions' and prosrc like '%fichier_chemin%')
+  union all select 72, 'tour des nouveautés (tour_version, decouvertes sur profiles)',
+    exists (select 1 from information_schema.columns where table_name = 'profiles' and column_name = 'tour_version')
+  union all select 73, 'message de bienvenue qui parle du réseau entier (email + notification)',
+    exists (select 1 from pg_proc where proname = 'notifie_validation' and prosrc like '%Entrer dans le réseau%')
+  union all select 74, 'clôture des offres quotidienne et discrète ; annonce de rentrée non regroupée',
+    exists (select 1 from cron.job where jobname = 'cloture-offres' and schedule = '30 5 * * *')
+    and exists (select 1 from pg_proc where proname = 'push_rentree_octobre' and prosrc like '%seul%')
+  union all select 75, 'conformité après le réseau social (vue sante_systeme étendue, dans_le_cercle en liste blanche)',
+    exists (select 1 from sante_fonctions_ouvertes where nom = 'dans_le_cercle')
+    and exists (select 1 from pg_policies where tablename = 'push_essai_comptes')
+  union all select 82, 'bibliothèque « Annales et sujets » (bibliotheque, bibliotheque_liste / proposer / moderer / supprimer)',
+    exists (select 1 from pg_proc where proname = 'bibliotheque_proposer') and to_regclass('public.bibliotheque') is not null
+  union all select 81, 'retrait d''une photo du carrousel sans toucher au stockage en SQL (carrousel_retirer renvoie le chemin)',
+    exists (select 1 from pg_proc where proname = 'carrousel_retirer' and prorettype = 'text'::regtype)
+  union all select 80, 'carrousel des promotions (carrousel_photos, carrousel_liste / enregistrer / retirer)',
+    exists (select 1 from pg_proc where proname = 'carrousel_liste') and to_regclass('public.carrousel_photos') is not null
+  union all select 79, 'connexion par lien email notée au journal (noter_connexion_lien)',
+    exists (select 1 from pg_proc where proname = 'noter_connexion_lien')
+  union all select 78, 'emails à la charte Latérite (gabarit_email sur fond papier #F4ECDC)',
+    exists (select 1 from pg_proc where proname = 'gabarit_email' and prosrc like '%#F4ECDC%')
+  union all select 77, 'durée des vocaux et vidéos portée par le message (messages.fichier_duree)',
+    exists (select 1 from information_schema.columns where table_name = 'messages' and column_name = 'fichier_duree')
+  union all select 76, 'coches parti / reçu / lu façon WhatsApp (recu_le, marquer_recu, mes_conversations avec recu_par et lu_par)',
+    exists (select 1 from information_schema.columns where table_name = 'conversation_membres' and column_name = 'recu_le')
+    and exists (select 1 from pg_proc where proname = 'mes_conversations' and prosrc like '%recu_par%')
   union all select 51, 'admin_liste_non_confirmes() corrigée (plus d''erreur d''énumération)',
     exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = 'admin_liste_non_confirmes'

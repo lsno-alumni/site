@@ -44,6 +44,12 @@ le réseau de tous se renforce.
   exposer autre chose qu'une vitrine volontaire
 - **Thème clair, sombre ou automatique** (refonte « Latérite » de septembre 2026 : un seul
   accent bleu, vraies matières et vraies photos)
+- **Connexion par lien email** (sans mot de passe) et **changement d'adresse email** par le
+  membre lui-même depuis Mon profil, avec double confirmation
+- **Emails et cartes de partage à la charte** : logo, thème sombre respecté, cartes d'aperçu
+  (profil, offre, publication, événement) générées à la volée et légères pour WhatsApp
+- **Carrousel d'À propos** : les photos du lycée, puis deux photos par promotion, tenues par
+  ses délégués avec leur titre
 
 **Pour les membres — le réseau social (V3)**
 
@@ -67,7 +73,7 @@ le réseau de tous se renforce.
   marque « Amicale » pour les délégués et admins, duplication
 - **Signalement et modération** partout : un membre signale avec un motif, un délégué ou un
   admin masque ou supprime, chaque geste est journalisé, l'auteur est prévenu
-- **Tour des nouveautés** : six cartes à la première ouverture (une fois par compte, versionné),
+- **Tour des nouveautés** : sept cartes à la première ouverture, huit pour un délégué (une fois par compte, versionné),
   pastilles « Nouveau » discrètes qui s'effacent à l'usage ou après 30 jours, page permanente
   `/nouveautes` avec les gestes à connaître
 - **Gestes** : glisser-rafraîchir sur toutes les listes, feuilles glissantes pour les
@@ -123,7 +129,7 @@ le réseau de tous se renforce.
   (échoue sur un avis `high`, GitHub prévient par email).
 - **Bibliothèque « Annales et sujets »** : propositions des membres, modération par les délégués (qui publient d'emblée ce qu'ils proposent eux-mêmes), fichiers
   sur le Google Drive de l'association (rien sur le site) — `outils/LISEZMOI-drive.md` pour le branchement.
-- **82 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
+- **83 migrations SQL** rejouables (`supabase/`) : la base se reconstruit à l'identique —
   et c'est vérifié à chaque push, pas seulement affirmé (`npm run banc` rejoue le tout sur
   un PostgreSQL jetable en mémoire ; `outils/verif_sql.py` en contrôle la syntaxe). Les
   scénarios `outils/banc/essai-*.sql` exercent en plus le comportement (visibilité, messages,
@@ -191,7 +197,7 @@ src/lib/            données de référence (domaines, pays, promotions), client
                     et un module par brique : fil, messages, questions, moments,
                     evenements, offres, mentions, tempsReel, erreurs, memoire, tour
 src/middleware.js   protection des routes (vérification locale du jeton + double auth)
-supabase/           schema.sql + migration-02…73 : tables, RLS, triggers, crons ;
+supabase/           schema.sql + migration-02…83 : tables, RLS, triggers, crons ;
                     verif-migrations.sql, verif-sante.sql
 outils/             banc d'essai PGlite (banc_essai.js + banc/essai-*.sql), verif_sql.py
 public/             images du lycée, icônes, illustrations, captures du tour, sw.js

@@ -11,7 +11,8 @@ lsno.alumni@gmail.com) pour en discuter — beaucoup d'idées ont déjà été �
 certaines volontairement écartées (statistiques visuelles, notifications de « qui a vu
 mon profil », commentaires sur les profils, réactions emoji sur les publications,
 récurrence des événements, co-admin de groupe…). La messagerie et le fil, longtemps
-écartés, existent depuis septembre 2026 (branche `social`, voir README).
+écartés, existent depuis septembre 2026 et sont en production depuis le 4 octobre 2026
+(fusion de la branche `social` après validation du comité, voir README).
 
 ## Installation
 
@@ -345,9 +346,8 @@ vrais membres. Règles apprises à nos dépens :
 
 1. Crée une branche sur ton fork : `git checkout -b ma-modif`.
 2. Code, teste en local (y compris à 340 px), `npm run build` doit passer sans erreur.
-3. Pousse et ouvre une **Pull Request** vers `main` du dépôt (ou vers `social` tant que le
-   réseau social n'y est pas fusionné), en décrivant : le problème, la solution, ce que tu
-   as testé. Une capture d'écran mobile aide beaucoup. Chaque branche a son aperçu Vercel.
+3. Pousse et ouvre une **Pull Request** vers `main` du dépôt, en décrivant : le problème,
+   la solution, ce que tu as testé. Une capture d'écran mobile aide beaucoup. Chaque branche a son aperçu Vercel.
 4. Un mainteneur relit, discute si besoin, et merge. **Le merge sur `main` déploie
    automatiquement en production** — c'est pour ça que tout passe par relecture.
 5. S'il y a une migration SQL, un admin l'exécute au moment du merge. Précise dans la PR

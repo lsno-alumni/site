@@ -14,6 +14,7 @@ import Surligne, { plat } from "@/components/Surligne";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import GestionMembre from "./GestionMembre";
 import PhotosPromo from "./PhotosPromo";
+import Frequentation from "./Frequentation";
 import Bibliotheque from "./Bibliotheque";
 import Sauvegarde from "./Sauvegarde";
 import Journal from "./Journal";
@@ -228,6 +229,10 @@ export default function Validation() {
 
         {moi?.role === "admin" && (
           <>
+            <div id="sec-frequentation" className="sec-admin" style={{ scrollMarginTop: 12 }}>
+              <h2 className="a-titre ad-chapitre">Fréquentation</h2>
+              <Frequentation />
+            </div>
             {/* repliée par défaut : ouvrir l'onglet affichait sinon la liste des
                 ~200 membres en entier avant même d'avoir cherché quoi que ce
                 soit — repliable comme les grandes sections de Mon profil */}

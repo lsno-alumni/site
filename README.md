@@ -93,6 +93,8 @@ le réseau de tous se renforce.
   emails jamais confirmés listés
 - **Annonce à tout le réseau** (envoi étalé pour respecter le quota d'emails)
 - **Sauvegarde** en un clic (CSV) et **état du système** (tâches automatiques)
+- **Fréquentation** (admins, octobre 2026) : actifs du jour, de la semaine, du mois, courbe sur
+  30 jours, part des profils complets — une visite = un membre et un jour, rien d'autre
 - **Interrupteurs** : emails et notifications d'inscription aux admins, et **mode essai des
   notifications** (seuls les admins et une liste de comptes de test reçoivent les push — pour
   tester sans bruit chez les vrais membres)

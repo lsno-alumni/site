@@ -28,6 +28,11 @@ le réseau de tous se renforce.
   (membres / sur demande / masqué)
 - **Mise en relation** : demander le contact d'un ancien, qui accepte ou refuse
   (le refus reste silencieux, volontairement)
+- **« Pour prendre la parole, dis qui tu es »** (octobre 2026) : publier, écrire, questionner,
+  organiser, demander un contact ou proposer un document exige le profil minimum (photo, ville,
+  pays, une ligne sur soi ; élèves dispensés de la ligne), règle tenue par la base ; les
+  coordonnées des autres ne s'ouvrent qu'à un profil complet ; feuille « Dis-leur qui tu es »
+  à l'endroit du geste ; relances à J+3, J+14, J+45 puis silence
 - **Offres & opportunités** : stages, emplois, bourses, cooptations, concours — publiés
   par les membres, avec **pièces jointes** (PDF ou images), filtres et tri par échéance
 - **Conseils aux cadets** regroupés **par thème**, alimentés par les profils

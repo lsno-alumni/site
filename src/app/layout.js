@@ -1,6 +1,7 @@
 import { Fraunces, Instrument_Sans } from "next/font/google";
 import SuiviNavigation from "@/components/SuiviNavigation";
 import Theme from "@/components/Theme";
+import CompleterProfil from "@/components/CompleterProfil";
 import { SCRIPT_INITIAL } from "@/lib/theme";
 import "./globals.css";
 import "./ecrans.css";
@@ -80,6 +81,7 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANISATION) }}
         />
         {children}
+        <CompleterProfil />
         {/* mémorise la profondeur de navigation et les positions de défilement,
             pour un « ← Retour » fiable (voir SuiviNavigation.js) */}
         <SuiviNavigation />

@@ -2,6 +2,7 @@
 // la RLS et les RPC de la migration 53 font foi). Temps réel par Supabase
 // Realtime sur la table messages.
 import { creerClientNavigateur } from "@/lib/supabase/client";
+import { exigerProfilComplet } from "@/lib/profilComplet";
 import { compresserImage } from "@/lib/fil";
 import { avecReprise } from "@/lib/erreurs";
 
@@ -44,6 +45,7 @@ export async function nonLus() {
 }
 
 export async function ouvrirDuo(autreId) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data, error } = await supabase.rpc("ouvrir_duo", { p_autre: autreId });
   if (error) throw error;
@@ -51,6 +53,7 @@ export async function ouvrirDuo(autreId) {
 }
 
 export async function creerGroupe(nom, membres, reglages = null) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data, error } = await supabase.rpc("creer_groupe", { p_nom: nom, p_membres: membres });
   if (error) throw error;
@@ -97,6 +100,7 @@ export async function chargerMessages(conversationId, { limite = 50, avant = nul
 }
 
 export async function envoyerMessage(conversationId, texte, mentions = [], piece = null, reponseA = null, sondageId = null, extra = {}) {
+  await exigerProfilComplet();   // « dis d'abord qui tu es » : ouvre la feuille si le profil n'a pas le minimum (migration 84)
   const supabase = creerClientNavigateur();
   const { data: { user } } = await supabase.auth.getUser();
   const ligne = { conversation_id: conversationId, auteur: user.id, texte: texte.trim(), mentions, reponse_a: reponseA, sondage_id: sondageId, ...extra };

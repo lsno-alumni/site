@@ -10,6 +10,7 @@ import Avatar from "@/components/Avatar";
 import Salutation from "@/components/Salutation";
 import Reveal from "@/components/Reveal";
 import TexteReplie from "@/components/TexteReplie";
+import Nouveau from "@/components/Nouveau";
 import ApercuMoments from "@/app/ApercuMoments";
 import ProchainsEvenements from "@/app/ProchainsEvenements";
 import LanceurTour from "@/components/LanceurTour";
@@ -63,7 +64,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <div className="am-liens">
           <Link href="/nouveautes" className="am-lien">Nouveautés</Link>
           <Link href="/a-propos" className="am-lien">À propos du réseau</Link>
-          <Link href="/bibliotheque" className="am-lien">Annales et sujets</Link>
+          <span className="am-lien-nouveau"><Link href="/bibliotheque" className="am-lien">Annales et sujets</Link><Nouveau cle="bibliotheque" className="nouveau-lien" /></span>
           {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
         </div>
         {completion < 100 && (

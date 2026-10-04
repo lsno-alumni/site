@@ -2657,6 +2657,11 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .nouveau-compose { top: -8px; right: 22px; }
 .nouveau-rail { top: 8px; right: 12px; }
 .nouveau-bandeau { top: -9px; right: 22px; }
+.am-lien-nouveau { position: relative; display: inline-flex; }   /* le bouton « Annales et sujets » de l'accueil et sa pastille */
+.nouveau-lien { top: -14px; right: -22px; }
+/* le bouton est à gauche de l'écran et l'en-tête rogne ce qui dépasse en bas : la bulle s'ouvre au-dessus, vers la droite */
+.nouveau-lien .nouveau-bulle { top: auto; bottom: calc(100% + 8px); right: auto; left: -40px; }
+.nouveau-lien .nouveau-bulle::before { top: auto; bottom: -6px; right: auto; left: 54px; }
 .nouveau-pastille { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 100px; font: inherit; font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--bleu-texte); background: color-mix(in srgb, var(--carte) 88%, transparent); border: 1px solid rgba(var(--accent-rgb), .45); backdrop-filter: blur(6px); transition: background .2s, border-color .2s; }
 .nouveau-pastille:hover, .decouverte.ouvert .nouveau-pastille { background: var(--carte); border-color: rgba(var(--accent-rgb), .7); }
 .nouveau-bulle { position: absolute; top: calc(100% + 8px); right: 0; width: min(78vw, 300px); padding: 12px 14px; border-radius: 14px; background: var(--texte); color: var(--fond); font-size: 13.5px; line-height: 1.45; box-shadow: 0 16px 40px -14px rgba(0,0,0,.7); display: grid; gap: 10px; z-index: 7; }

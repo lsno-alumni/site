@@ -5,8 +5,11 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 
 // Le tour des nouveautés (migration 72) : ce qu'on montre, et ce que le
 // compte a déjà vu. La version augmente quand on ajoute des nouveautés :
-// seuls ceux qui ne l'ont pas vue la reçoivent.
-export const TOUR_VERSION = 1;
+// seuls ceux qui ne l'ont pas vue la reçoivent — et ils revoient tout le
+// tour, pas seulement les ajouts (choix du 04/10).
+// v2 (04/10) : bibliothèque « Annales et sujets » ; carte « Ta promo » pour
+// les délégués et admins (photos du carrousel, relecture des documents).
+export const TOUR_VERSION = 2;
 
 export const CARTES = [
   { cle: "fil", titre: "Le Fil", accroche: "Ce qui se passe dans le réseau, en une page.", image: "/img/tour/fil.jpg", lien: "/fil",
@@ -21,7 +24,16 @@ export const CARTES = [
     points: ["Dis « J’y vais », ajoute-le à ton agenda.", "Un rappel la veille, et si la date change.", "Après coup, les participants y déposent leurs photos."] },
   { cle: "groupes", titre: "Groupes", accroche: "Rejoins des groupes, ou ouvre le tien.", image: "/img/tour/groupes.jpg", lien: "/messages/groupes",
     points: ["« Découvrir des groupes » dans Messages : ouverts ou sur demande.", "Le créateur accepte qui entre, d’un tap.", "Rends ton groupe visible dans ses réglages."] },
+  { cle: "bibliotheque", titre: "Annales et sujets", accroche: "Les sujets du bac et de l’école, gardés par les anciens pour les cadets.", image: "/img/tour/bibliotheque.jpg", lien: "/bibliotheque",
+    points: ["Annales, devoirs, cours et corrigés, par matière, classe et année.", "Tu en as un ? Propose-le, fichier ou lien : un délégué relit, puis c’est publié.", "Depuis l’accueil, Conseils ou Offres : « Annales »."] },
+  { cle: "promo", titre: "Ta promo", accroche: "Ses photos dans le carrousel, et la relecture des documents : c’est toi.", image: "/img/tour/promo.jpg", lien: "/admin#sec-bibliotheque", roles: ["delegue", "admin"],
+    points: ["Dans Validation : deux photos de ta promo, avec leur titre, dans « Le lycée, en images ».", "Les documents proposés passent par toi : publier, ou refuser avec un mot.", "Ce que tu proposes toi-même est publié d’emblée."] },
 ];
+
+// les cartes qu'un compte voit : toutes, sauf celles réservées à un rôle qu'il n'a pas
+export function cartesPour(role) {
+  return CARTES.filter((c) => !c.roles || c.roles.includes(role));
+}
 
 export const GESTES = [
   { titre: "Glisser vers la droite", texte: "sur un message : tu y réponds." },
@@ -39,10 +51,11 @@ export const PASTILLES = {
   questions: "Pose une question aux anciens, ou réponds à celles des cadets.",
   evenements: "Les événements du réseau : dis si tu viens, ajoute-les à ton agenda.",
   groupes: "Des groupes à rejoindre d’un tap ou sur demande.",
+  bibliotheque: "Annales du bac, devoirs, cours et corrigés, gardés par les anciens. Tu en as ? Propose-les.",
 };
 
 // ---- ce que le compte a déjà vu (une lecture par session, partagée) ----
-let etat = null;           // { tour_version, decouvertes }
+let etat = null;           // { tour_version, decouvertes, role }
 let enCours = null;
 const abonnes = new Set();
 async function lireEtat() {
@@ -52,8 +65,8 @@ async function lireEtat() {
       const supabase = creerClientNavigateur();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
-      const { data } = await supabase.from("profiles").select("tour_version, decouvertes").eq("id", user.id).maybeSingle();
-      etat = data ? { tour_version: data.tour_version ?? 0, decouvertes: data.decouvertes ?? [] } : null;
+      const { data } = await supabase.from("profiles").select("tour_version, decouvertes, role").eq("id", user.id).maybeSingle();
+      etat = data ? { tour_version: data.tour_version ?? 0, decouvertes: data.decouvertes ?? [], role: data.role ?? "membre" } : null;
       return etat;
     })().finally(() => { enCours = null; });
   }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TourNouveautes from "@/components/TourNouveautes";
-import { TOUR_VERSION, useTourEtat } from "@/lib/tour";
+import { TOUR_VERSION, cartesPour, useTourEtat } from "@/lib/tour";
 
 // À l'ouverture de l'appli (accueil connecté) : si le compte n'a pas encore
 // vu cette version du tour, il s'ouvre, une fois. Lecture côté client : tant
@@ -17,5 +17,5 @@ export default function LanceurTour() {
     return () => clearTimeout(t);
   }, [etat, refuse]);
   if (!ouvert) return null;
-  return <TourNouveautes onFermer={() => { setOuvert(false); setRefuse(true); }} />;
+  return <TourNouveautes cartes={cartesPour(etat?.role)} onFermer={() => { setOuvert(false); setRefuse(true); }} />;
 }

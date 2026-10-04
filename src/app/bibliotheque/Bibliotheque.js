@@ -7,6 +7,7 @@ import { creerClientNavigateur } from "@/lib/supabase/client";
 import { texteErreur } from "@/lib/erreurs";
 import { SqueletteFiche } from "@/components/Squelettes";
 import { listeBibliotheque, supprimerDocument, TYPES, CLASSES, libelleType, libelleClasse, tailleLisible } from "@/lib/bibliotheque";
+import { marquerDecouverte } from "@/lib/tour";
 
 // La bibliothèque : filtres (type, matière, classe, année), recherche, fiches.
 // Chaque fiche ouvre le fichier sur le Drive de l'association (ou le lien).
@@ -33,7 +34,7 @@ export default function Bibliotheque({ moi }) {
     } catch (e) { setSouci(texteErreur(e)); setFiches([]); }
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-  useEffect(() => { charger(); }, []);
+  useEffect(() => { charger(); marquerDecouverte("bibliotheque"); }, []);   // venir ici vaut découverte : la pastille de l'accueil s'efface
 
   const matieres = useMemo(() => [...new Set((fiches ?? []).map((f) => f.matiere))].sort((a, b) => a.localeCompare(b, "fr")), [fiches]);
   const annees = useMemo(() => [...new Set((fiches ?? []).map((f) => f.annee))].sort((a, b) => b - a), [fiches]);

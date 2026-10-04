@@ -5,12 +5,14 @@ import Link from "next/link";
 import { ArrowRight, Check, PlayCircle } from "lucide-react";
 import RetourDynamique from "@/components/RetourDynamique";
 import TourNouveautes from "@/components/TourNouveautes";
-import { CARTES, GESTES } from "@/lib/tour";
+import { GESTES, cartesPour, useTourEtat } from "@/lib/tour";
 
 // La page « Nouveautés » : les cartes du tour en version lisible, les gestes
 // à connaître, et « Refaire le tour ».
 export default function Nouveautes() {
   const [tour, setTour] = useState(false);
+  const etat = useTourEtat();
+  const cartes = cartesPour(etat?.role);   // la carte « Ta promo » n'apparaît qu'aux délégués et admins
   return (
     <>
       <header className="n-tete tete-nouveautes">
@@ -20,7 +22,7 @@ export default function Nouveautes() {
       </header>
       <div className="nv-corps">
         <button type="button" className="btn btn-or nv-refaire" onClick={() => setTour(true)}><PlayCircle size={18} aria-hidden /> Refaire le tour</button>
-        {CARTES.map((c, i) => (
+        {cartes.map((c, i) => (
           <article key={c.cle} className="nv-carte" id={`nv-${c.cle}`}>
             <span className="nv-num">{i + 1}</span>
             <div className="nv-texte">
@@ -39,7 +41,7 @@ export default function Nouveautes() {
           </dl>
         </section>
       </div>
-      {tour && <TourNouveautes onFermer={() => setTour(false)} />}
+      {tour && <TourNouveautes cartes={cartes} onFermer={() => setTour(false)} />}
     </>
   );
 }

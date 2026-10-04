@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { X, ArrowRight, Check } from "lucide-react";
 import { CARTES, marquerTourVu } from "@/lib/tour";
 
-// Le tour de bienvenue : six cartes plein écran qu'on fait glisser, une par
-// nouveauté. « Passer » à tout moment ; sur la dernière, « C'est parti »
+// Le tour de bienvenue : des cartes plein écran qu'on fait glisser, une par
+// nouveauté (sept pour un membre, huit pour un délégué ou un admin). « Passer » à tout moment ; sur la dernière, « C'est parti »
 // ouvre l'écran concerné. Vu une fois par compte (migration 72).
 export default function TourNouveautes({ onFermer, cartes = CARTES }) {
   const routeur = useRouter();

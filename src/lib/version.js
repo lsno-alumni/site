@@ -12,8 +12,9 @@ const INTERVALLE_MS = 60 * 1000;
 let nouvelle = false;
 let derniere = 0;
 
-export async function verifierVersion() {
-  if (nouvelle || VERSION === "dev" || Date.now() - derniere < INTERVALLE_MS) return nouvelle;
+// `force` (changement d'écran) : on accepte une vérification toutes les 10 s au lieu de 60
+export async function verifierVersion(force = false) {
+  if (nouvelle || VERSION === "dev" || Date.now() - derniere < (force ? 10 * 1000 : INTERVALLE_MS)) return nouvelle;
   derniere = Date.now();
   try {
     const r = await fetch("/api/version", { cache: "no-store" });

@@ -60,57 +60,57 @@ export default function CompleterProfil() {
   };
 
   return createPortal(
-    <div className="cp" role="dialog" aria-modal="true" aria-labelledby="cp-titre">
-      <div className="cp-voile" onClick={() => fermer(false)} />
-      <form className="cp-feuille" onSubmit={enregistrer}>
-        <header className="cp-tete">
+    <div className="dq" role="dialog" aria-modal="true" aria-labelledby="dq-titre">
+      <div className="dq-voile" onClick={() => fermer(false)} />
+      <form className="dq-feuille" onSubmit={enregistrer}>
+        <header className="dq-tete">
           <div>
-            <small className="cp-sur">Avant d’écrire aux anciens</small>
-            <h2 id="cp-titre">Dis-leur qui tu es</h2>
+            <small className="dq-sur">Avant d’écrire aux anciens</small>
+            <h2 id="dq-titre">Dis-leur qui tu es</h2>
           </div>
-          <button type="button" className="cp-fermer" onClick={() => fermer(false)} aria-label="Plus tard"><X size={18} aria-hidden /></button>
+          <button type="button" className="dq-fermer" onClick={() => fermer(false)} aria-label="Plus tard"><X size={18} aria-hidden /></button>
         </header>
-        <p className="cp-texte">
+        <p className="dq-texte">
           Sur ce réseau, on prend la parole à visage découvert : {champs.length > 1 ? "il manque encore quelques repères" : "il manque encore un repère"} sur ton profil.
           Une minute, et tout le réseau s’ouvre — écrire, demander un contact, voir les coordonnées des autres.
         </p>
 
         {champs.includes("photo_url") && (
-          <div className="cp-champ cp-photo">
-            <span className="cp-etiquette">Ta photo</span>
+          <div className="dq-champ dq-photo">
+            <span className="dq-etiquette">Ta photo</span>
             <Photo profil={profil} onPhoto={(url) => setProfil((p) => ({ ...p, photo_url: url }))} signale={signale} />
           </div>
         )}
         {champs.includes("statut_titre") && (
-          <div className="champ cp-champ">
-            <label htmlFor="cp-titre-ligne">En une ligne (poste, école…)</label>
-            <input id="cp-titre-ligne" className="saisie" placeholder="Ex. : Data scientist — M2 IA à Montréal" maxLength={120}
+          <div className="champ dq-champ">
+            <label htmlFor="dq-titre-ligne">En une ligne (poste, école…)</label>
+            <input id="dq-titre-ligne" className="saisie" placeholder="Ex. : Data scientist — M2 IA à Montréal" maxLength={120}
               value={profil.statut_titre ?? ""} onChange={(e) => setProfil((p) => ({ ...p, statut_titre: e.target.value }))} />
           </div>
         )}
         {champs.includes("ville") && (
-          <div className="champ cp-champ">
-            <label htmlFor="cp-ville">Ta ville</label>
-            <input id="cp-ville" className="saisie" placeholder="Ex. : Ouagadougou" maxLength={80}
+          <div className="champ dq-champ">
+            <label htmlFor="dq-ville">Ta ville</label>
+            <input id="dq-ville" className="saisie" placeholder="Ex. : Ouagadougou" maxLength={80}
               value={profil.ville ?? ""} onChange={(e) => setProfil((p) => ({ ...p, ville: e.target.value }))} />
           </div>
         )}
         {champs.includes("pays") && (
-          <div className="champ cp-champ">
-            <label htmlFor="cp-pays">Ton pays</label>
-            <ChoixPays id="cp-pays" valeur={profil.pays} onChange={(v) => setProfil((p) => ({ ...p, pays: v }))} obligatoire />
+          <div className="champ dq-champ">
+            <label htmlFor="dq-pays">Ton pays</label>
+            <ChoixPays id="dq-pays" valeur={profil.pays} onChange={(v) => setProfil((p) => ({ ...p, pays: v }))} obligatoire />
           </div>
         )}
 
-        {erreur && <p role="alert" className="cp-erreur">{erreur}</p>}
-        {toast && <p role="status" className="cp-toast">{toast}</p>}
-        <footer className="cp-pied">
+        {erreur && <p role="alert" className="dq-erreur">{erreur}</p>}
+        {toast && <p role="status" className="dq-toast">{toast}</p>}
+        <footer className="dq-pied">
           <button type="button" className="btn btn-nu" onClick={() => fermer(false)}>Plus tard</button>
           <button type="submit" className="btn btn-or" disabled={etat === "envoi"}>
             {etat === "envoi" ? "Enregistrement…" : <>Enregistrer et continuer <ArrowRight size={16} aria-hidden /></>}
           </button>
         </footer>
-        <small className="cp-note">Tu pourras tout retoucher ensuite dans Mon profil. {champsMinimum(profil).length === 3 ? "Élève : pas de ligne de présentation demandée." : ""}</small>
+        <small className="dq-note">Tu pourras tout retoucher ensuite dans Mon profil. {champsMinimum(profil).length === 3 ? "Élève : pas de ligne de présentation demandée." : ""}</small>
       </form>
     </div>,
     document.body

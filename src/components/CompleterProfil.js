@@ -14,6 +14,10 @@ import Photo from "@/app/mon-profil/Photo";
 // — photo avec recadrage, ligne de présentation, ville, pays — et reprend le geste
 // interrompu sur « Enregistrer et continuer ». Montée une fois, dans la mise en
 // page racine ; dort tant que personne ne l'appelle.
+// « une photo, ta ville et une ligne sur toi » : seulement ce qui manque, dans l'ordre de la feuille
+const MOTS = { photo_url: "une photo", statut_titre: "une ligne sur toi", ville: "ta ville", pays: "ton pays" };
+const liste = (champs) => { const l = champs.map((c) => MOTS[c]); return l.length <= 1 ? l.join("") : l.slice(0, -1).join(", ") + " et " + l[l.length - 1]; };
+
 export default function CompleterProfil() {
   const [demande, setDemande] = useState(null);     // { profil, termine, annule }
   const [profil, setProfil] = useState(null);
@@ -71,8 +75,8 @@ export default function CompleterProfil() {
           <button type="button" className="dq-fermer" onClick={() => fermer(false)} aria-label="Plus tard"><X size={18} aria-hidden /></button>
         </header>
         <p className="dq-texte">
-          Sur ce réseau, on prend la parole à visage découvert : {champs.length > 1 ? "il manque encore quelques repères" : "il manque encore un repère"} sur ton profil.
-          Une minute, et tout le réseau s’ouvre — écrire, demander un contact, voir les coordonnées des autres.
+          Pour que les autres membres du réseau te reconnaissent, ajoute {liste(champs)}.
+          C’est tout ce qu’il manque pour écrire, demander un contact et voir leurs coordonnées.
         </p>
 
         {champs.includes("photo_url") && (

@@ -2711,24 +2711,24 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .fg-scrim.sans-fondu { animation: none; }
 
 /* ---- « Dis-leur qui tu es » : la feuille du profil minimum (migration 84) ---- */
-.cp { position: fixed; inset: 0; z-index: 1400; display: flex; flex-direction: column; justify-content: flex-end; }
-.cp-voile { position: absolute; inset: 0; background: rgba(8, 11, 18, .55); backdrop-filter: blur(2px); }
-.cp-feuille { position: relative; max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 14px 20px calc(16px + env(safe-area-inset-bottom)); border-radius: 22px 22px 0 0; background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); box-shadow: 0 -20px 50px -20px rgba(0,0,0,.6); display: grid; gap: 12px; }
-@media (min-width: 640px) { .cp { justify-content: center; align-items: center; } .cp-feuille { width: min(92vw, 480px); border-radius: 22px; max-height: 88vh; } }
-.cp-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.cp-sur { display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 700; }
-.cp-tete h2 { margin: 4px 0 0; font-family: var(--font-titres), serif; font-weight: 500; font-size: 26px; line-height: 1.1; }
-.cp-fermer { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); display: grid; place-items: center; cursor: pointer; }
-.cp-texte { margin: 0; font-size: 14px; line-height: 1.5; color: var(--texte-2); }
-.cp-champ { margin: 0; }
-.cp-etiquette { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--brume); font-weight: 600; margin-bottom: 8px; }
-.cp-photo { padding: 10px 12px 0; }
-.cp-photo .photo-edit { justify-content: flex-start; }
-.cp-erreur { margin: 0; color: var(--rouge); font-size: 13px; line-height: 1.5; }
-.cp-toast { margin: 0; color: var(--vert-ok); font-size: 13px; }
-.cp-pied { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
-.cp-pied .btn-or { display: inline-flex; align-items: center; gap: 8px; }
-.cp-note { color: var(--brume); font-size: 12px; line-height: 1.45; }
+.dq { position: fixed; inset: 0; z-index: 1400; display: flex; flex-direction: column; justify-content: flex-end; }
+.dq-voile { position: absolute; inset: 0; background: rgba(8, 11, 18, .55); backdrop-filter: blur(2px); }
+.dq-feuille { position: relative; max-height: 92dvh; overflow-y: auto; overscroll-behavior: contain; margin: 0; padding: 14px 20px calc(16px + env(safe-area-inset-bottom)); border-radius: 22px 22px 0 0; background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); box-shadow: 0 -20px 50px -20px rgba(0,0,0,.6); display: grid; gap: 12px; }
+@media (min-width: 640px) { .dq { justify-content: center; align-items: center; } .dq-feuille { width: min(92vw, 480px); border-radius: 22px; max-height: 88vh; } }
+.dq-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dq-sur { display: block; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--bleu-texte); font-weight: 700; }
+.dq-tete h2 { margin: 4px 0 0; font-family: var(--font-titres), serif; font-weight: 500; font-size: 26px; line-height: 1.1; }
+.dq-fermer { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--ligne); background: var(--carte); color: var(--texte); display: grid; place-items: center; cursor: pointer; }
+.dq-texte { margin: 0; font-size: 14px; line-height: 1.5; color: var(--texte-2); }
+.dq-champ { margin: 0; }
+.dq-etiquette { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--brume); font-weight: 600; margin-bottom: 8px; }
+.dq-photo { padding: 10px 12px 0; }
+.dq-photo .photo-edit { justify-content: flex-start; }
+.dq-erreur { margin: 0; color: var(--rouge); font-size: 13px; line-height: 1.5; }
+.dq-toast { margin: 0; color: var(--vert-ok); font-size: 13px; }
+.dq-pied { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+.dq-pied .btn-or { display: inline-flex; align-items: center; gap: 8px; }
+.dq-note { color: var(--brume); font-size: 12px; line-height: 1.45; }
 /* le profil d'un autre : coordonnées sous verrou tant que mon profil n'a pas le minimum */
 .p-verrou-texte { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 12px; font-size: 13.5px; line-height: 1.5; color: var(--texte-2); }
 .p-verrou-texte svg { flex-shrink: 0; margin-top: 3px; color: var(--bleu-texte); }

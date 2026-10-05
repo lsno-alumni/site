@@ -329,6 +329,11 @@ vrais membres. Règles apprises à nos dépens :
   retire une ligne renvoie le chemin du fichier, et l'appli le supprime par l'API Storage, couverte
   par une politique `delete` adéquate (exemple : `carrousel_retirer`, migration 81). Les purges
   planifiées, elles, passent par pg_net vers l'API avec la clé service_role.
+- **Plusieurs déploiements rapprochés = écart de version chez les membres** (05/10) : un onglet ou une appli
+  restée ouverte garde l'ancien code et demande des feuilles de style par écran qui n'existent plus → pages
+  sans mise en page. `VeilleVersion` (mise en page racine) compare la version à chaque changement d'écran et
+  recharge, et recharge aussi, une fois par minute au plus, si une feuille de style ne se charge pas. Ne pas
+  retirer ces deux filets ; éviter quand même d'enchaîner les déploiements en pleine journée.
 - **Toute nouvelle prise de parole passe par `profil_complet()`** (04/10, migration 84) : côté base,
   la politique d'insertion (ou la fonction) ajoute `and profil_complet()` ; côté écran, la fonction de
   la lib commence par `await exigerProfilComplet()` (`src/lib/profilComplet.js`), qui ouvre la feuille

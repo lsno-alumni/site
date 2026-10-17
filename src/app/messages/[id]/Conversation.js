@@ -2,6 +2,11 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
+
+// Convention WhatsApp (05/10) : au clavier d'ordinateur, Entrée envoie et Maj+Entrée revient à la
+// ligne ; sur un écran tactile (pas de Maj+Entrée possible), Entrée revient à la ligne et seul le
+// bouton envoie. Décidé au moment de la touche : un téléphone avec clavier Bluetooth reste « tactile ».
+const clavierPhysique = () => typeof window !== "undefined" && !window.matchMedia("(pointer: coarse)").matches;
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -493,6 +498,8 @@ export default function Conversation({ id, moi }) {
 
   const surSaisie = (e) => {
     mentions.surChangement(e);
+    // le champ grandit avec les lignes : field-sizing côté CSS, et ce repli là où il manque (Firefox, Safari)
+    if (!(typeof CSS !== "undefined" && CSS.supports?.("field-sizing", "content"))) { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }
     const t = Date.now();
     if (t - frappeRef.current.dernier > 2000 && e.target.value.trim()) {
       frappeRef.current.dernier = t;
@@ -925,7 +932,7 @@ export default function Conversation({ id, moi }) {
           ) : (
             <textarea ref={champ} className="saisie" placeholder={edition ? "Nouveau texte…" : piece ? "Un mot avec la pièce jointe ? (facultatif)" : "Écrire un message…"} rows={1} value={texte} maxLength={MESSAGE_MAX}
               onChange={surSaisie}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); envoyer(e); } if (e.key === "Escape") annulerSaisie(); }} />
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && clavierPhysique()) { e.preventDefault(); envoyer(e); } if (e.key === "Escape") annulerSaisie(); }} />
           )}
           {!texte.trim() && !piece && !edition ? (
             enregistrement

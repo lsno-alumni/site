@@ -5,9 +5,10 @@
    base ci-dessous) ; tout le reste vit dans la requête de média.
    Le mobile est contrôlé au pixel près après chaque étape (outils/bureau-ref.js).
    ============================================================================ */
-.bu, .bu-nav, .bu-domaines, .bu-regle, .bu-pied { display: none; }
+.bu, .bu-nav, .bu-domaines, .bu-regle, .bu-pied, .bu-rail-tete { display: none; }
 
 @media (min-width: 1024px) {
+  .bu { display: revert; }   /* les mots et petits éléments « bu » réapparaissent (bloc : donner leur display) */
   /* ---------- gabarit : la page n'est plus une colonne de 480 px ---------- */
   .page.bu-accueil { max-width: none; }
 
@@ -112,6 +113,65 @@
   .bu-entree .pied-sceau { grid-column: 2; grid-row: 4; }
   .bu-entree .f-corps .saisie { font-size: 15px; }
 
+  /* ---------- le rail : la barre d'onglets du mobile devient une colonne à gauche ----------
+     Même composant, même état actif, mêmes pastilles ; elle ne se cache plus au défilement. */
+  .tabbar {
+    left: 0; right: auto; top: 0; bottom: 0; width: 232px; max-width: none; margin: 0;
+    flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 4px;
+    padding: 22px 14px 24px; border-top: 0; border-right: 1px solid rgba(var(--texte-rgb), .1);
+    background: var(--fond-2); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
+    transform: none !important; transition: none;
+  }
+  .tabbar .bu-rail-tete { display: flex; align-items: center; gap: 12px; padding: 6px 10px 22px; margin-bottom: 8px; border-bottom: 1px solid rgba(var(--texte-rgb), .1); color: var(--texte); }
+  .tabbar .bu-rail-tete img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #fff; border: 1.5px solid rgba(var(--accent-rgb), .6); }
+  .tabbar .bu-rail-tete span { font-family: var(--font-titres), serif; font-size: 17px; line-height: 1.05; font-weight: 500; }
+  .tab { flex-direction: row; justify-content: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; font-size: 14.5px; letter-spacing: 0; color: var(--texte-2); }
+  .tab:hover { background: rgba(var(--texte-rgb), .06); color: var(--texte); }
+  .tab.on { background: var(--carte); color: var(--texte); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 8px 20px -14px rgba(0,0,0,.5); font-weight: 600; }
+  .tab.on::after { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 22px; border-radius: 3px; }
+  .tab svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .tab-pastille { position: static; margin-left: auto; }
+  .tab-point { top: 50%; left: auto; right: 14px; transform: translateY(-50%); }
+  /* les pages à barre d'onglets : décalées du rail, plus de réserve en bas */
+  .page.avec-tabbar { max-width: none; margin: 0 0 0 232px; padding-bottom: 40px !important; }
+  /* en attendant leur mise en page propre, les écrans membres gardent une colonne lisible */
+  .page.avec-tabbar:not(.bu-accueil-membre) > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+
+  /* ---------- l'accueil connecté : le fil des sections à gauche, l'aparté à droite ---------- */
+  .bu-accueil-membre .gr-zone { display: grid; grid-template-columns: minmax(0, 1fr) 360px; column-gap: 40px; padding: 0 48px 40px; align-items: start; }
+  .bu-accueil-membre .am-tete { grid-column: 1 / -1; margin: 24px 0 8px; border-radius: 24px; min-height: 260px; padding: 28px 40px 32px; overflow: hidden; }
+  .bu-accueil-membre .am-tete::before { animation: none; transform: none; }
+  .bu-accueil-membre .am-tete h1 { font-size: clamp(38px, 3.4vw, 50px); }
+  .bu-accueil-membre .am-tete .am-sous { font-size: 17px; }
+  .bu-accueil-membre .am-liens { margin-top: 18px; }
+  .bu-accueil-membre .am-tete .a-marque { display: none; }   /* le blason est déjà dans le rail */
+  .bu-accueil-membre .bu-cote { grid-column: 2; grid-row: 2 / span 30; position: sticky; top: 24px; display: grid; gap: 16px; }
+  /* deux colonnes égales, les sections s'y rangent par paires :
+     arrivées | aparté (ou offres) · offres | · questions ·· témoin ·· domaines ·· monde | qui fait quoi */
+  .bu-accueil-membre .gr-zone { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1240px; margin: 0 auto; column-gap: 36px; }
+  .bu-accueil-membre .bu-cote { grid-column: auto; grid-row: auto; position: static; }
+  .bu-accueil-membre .bu-cote:empty { display: none; }
+  /* les arrivées à gauche, l'aparté (invitations, moments, événements) à droite, quel que soit l'ordre du balisage */
+  .bu-accueil-membre .gr-zone > .am-tete { order: -2; }
+  .bu-accueil-membre .gr-zone > .rev:has(.eventail) { order: -1; }
+  .bu-accueil-membre .gr-zone > .rev:has(.am-question), .bu-accueil-membre .gr-zone > .rev:has(.a-temoin),
+  .bu-accueil-membre .gr-zone > .rev:has(.bu-domaines), .bu-accueil-membre .gr-zone > .rev:has(.am-pierre) { grid-column: 1 / -1; }
+  .bu-accueil-membre .am-pierre { border-radius: 24px; margin: 0 !important; padding: 34px 40px 44px !important; }
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > section.a-section:has(.am-offres) { grid-column: 1 / -1; }
+  .bu-accueil-membre .gr-zone > .rev:has(.eventail) .eventail { max-width: 460px; margin-left: auto; margin-right: auto; }
+  .bu-accueil-membre .gr-zone > .rev:has(.am-anneaux) .am-anneaux { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bu-accueil-membre .bu-cote > * { margin-left: 0 !important; margin-right: 0 !important; }
+  .bu-accueil-membre .gr-zone > * { min-width: 0; }
+  .bu-tel { display: none; }   /* mots réservés au téléphone (« touche ») ; leur pendant « bu » (« clique sur ») prend le relais */
+  .bu-accueil-membre .gr-zone-icone { display: none; }   /* le glisser-rafraîchir est un geste de téléphone */
+  .bu-accueil-membre .a-section { padding-left: 0; padding-right: 0; max-width: none; }
+  .bu-accueil-membre .a-temoin { margin-left: 0; margin-right: 0; }
+  .bu-accueil-membre .bu-roue-mobile { display: none; }
+  .bu-accueil-membre .bu-domaines { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+  @media (min-width: 1200px) { .bu-accueil-membre .bu-domaines { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .bu-accueil-membre .bu-domaines .dom { margin: 0; }
+  .bu-accueil-membre .am-monde { border-radius: 24px; margin-left: 0 !important; margin-right: 0 !important; }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: 1180px; margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }
@@ -179,4 +239,13 @@
     @keyframes bu-parallaxe { from { background-position: 50% 30%; } to { background-position: 50% 48%; } }
     .bu-accueil .a-hero::before { animation: bu-parallaxe linear both; animation-timeline: scroll(root); animation-range: 0 100vh; }
   }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .bu-entree .f-tete h1, .bu-entree .f-tete p { animation: bu-monte .8s cubic-bezier(.22,1,.36,1) both; }
+  .bu-entree .f-tete p { animation-delay: .15s; }
+  .bu-entree .f-tete + .f-corps, .bu-entree .f-tete + .succes, .bu-entree .f-tete + .f-prog, .bu-entree .f-prog + .f-corps, .bu-entree .f-prog + .succes {
+    animation: bu-monte .8s cubic-bezier(.22,1,.36,1) .25s both;
+  }
+  .bu-entree .f-preuve { animation: bu-monte .8s cubic-bezier(.22,1,.36,1) .5s both; }
 }

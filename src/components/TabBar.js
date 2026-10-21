@@ -236,6 +236,10 @@ export default function TabBar({ actif }) {
   if (connecte === false) return null;
   return (
     <nav className={`tabbar${cachee ? " tabbar-cachee" : ""}`} aria-label="Navigation principale">
+      {/* grand écran : le blason et le nom en tête du rail (caché sur mobile) */}
+      <Link href="/" className="bu bu-rail-tete" aria-label="Accueil">
+        <img src="/img/logo.jpg" alt="" /><span>LSNO<br />Amicale</span>
+      </Link>
       {/* scroll={false} : c'est RestaurerDefilement (SuiviNavigation.js) qui place la
           page — à la position mémorisée de l'onglet, ou en haut — d'un coup, sans
           le glissement vers le haut que Next ferait après coup.

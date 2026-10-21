@@ -42,7 +42,7 @@ export default function AccueilMembre({ moi, donnees }) {
   const completion = tauxCompletion(moi);
 
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-accueil-membre">
     <RafraichirPage>
       <header className="am-tete">
         <div className="am-haut">
@@ -74,18 +74,21 @@ export default function AccueilMembre({ moi, donnees }) {
         )}
       </header>
 
-      <InviteNotifications profilId={moi.id} />
-      <InviteInstallation />
+      {/* grand écran : ces blocs forment la colonne de droite (sur mobile, un simple conteneur sans style) */}
+      <div className="bu-cote">
+        <InviteNotifications profilId={moi.id} />
+        <InviteInstallation />
 
-      <ApercuMoments moiId={moi.id} />
-      <ProchainsEvenements />
+        <ApercuMoments moiId={moi.id} />
+        <ProchainsEvenements />
+      </div>
       <LanceurTour />
 
       {nouveaux.length > 0 && (
         <Reveal>
         <section className="a-section">
           <h2 className="a-titre">Ils viennent d&apos;arriver</h2>
-          <p className="a-sous">Touche une carte pour voir le profil.</p>
+          <p className="a-sous"><span className="bu-tel">Touche une carte pour voir le profil.</span><span className="bu">Clique sur une carte pour voir le profil.</span></p>
           <Eventail membres={nouveaux} />
         </section>
         </Reveal>
@@ -146,6 +149,7 @@ export default function AccueilMembre({ moi, donnees }) {
       <Reveal>
       <section className="a-section" style={{ paddingBottom: 30 }}>
         <h2 className="a-titre">Chercher par domaine</h2>
+        <div className="bu-roue-mobile">
         <Roue3D memo="membre-domaines" classeCarteListe="dom"
           sousRoue="Fais tourner la roue, touche un domaine pour l'explorer."
           sousListe="Touche un domaine pour l'explorer." aria="Domaines — flèches haut et bas pour parcourir"
@@ -160,6 +164,17 @@ export default function AccueilMembre({ moi, donnees }) {
               </>
             ),
           }))} />
+        </div>
+        {/* grand écran : les mêmes domaines, en grille */}
+        <div className="bu-domaines">
+          {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
+            <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
+              <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
+              <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
+              <span className="fl" aria-hidden>→</span>
+            </Link>
+          ))}
+        </div>
       </section>
       </Reveal>
 
@@ -167,7 +182,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section am-monde" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau dans le monde</h2>
-          <p className="a-sous">Touche un pays pour voir qui y est.</p>
+          <p className="a-sous"><span className="bu-tel">Touche un pays pour voir qui y est.</span><span className="bu">Clique sur un pays pour voir qui y est.</span></p>
           <NuagePays parPays={parPays} />
         </section>
         </Reveal>
@@ -177,7 +192,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <Reveal>
         <section className="a-section" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Qui fait quoi</h2>
-          <p className="a-sous">Touche un domaine pour voir qui y est.</p>
+          <p className="a-sous"><span className="bu-tel">Touche un domaine pour voir qui y est.</span><span className="bu">Clique sur un domaine pour voir qui y est.</span></p>
           <div className="am-anneaux">
             {domainesTries.map(([cle, n]) => {
               const pct = Math.round((n / domainesTries[0][1]) * 100);
@@ -201,7 +216,7 @@ export default function AccueilMembre({ moi, donnees }) {
         <section className="a-section am-pierre" style={{ paddingBottom: 30 }}>
           <h2 className="a-titre">Le réseau par promotion</h2>
           <Roue3D memo="membre-promos"
-            sousRoue="Fais tourner la roue, touche une promotion pour la parcourir."
+            sousRoue={<><span className="bu-tel">Fais tourner la roue, touche une promotion pour la parcourir.</span><span className="bu">Fais tourner la roue, clique sur une promotion pour la parcourir.</span></>}
             sousListe="Membres inscrits — touche une promotion pour la parcourir." axe="x" pitch={114} hauteur={100}
             classeCarte="am-promo" classeListe="am-promos"
             aria="Promotions — flèches gauche et droite pour parcourir"

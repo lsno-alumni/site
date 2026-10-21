@@ -88,7 +88,7 @@ export default function Questions() {
     <>
       <header className="n-tete tete-questions">
         <RetourDynamique secours="/fil" libelle="Retour" />
-        <h1 style={{ marginTop: 8 }}>Questions<br />aux <em>anciens</em></h1>
+        <h1 style={{ marginTop: 8 }}>Questions <br />aux <em>anciens</em></h1>
         <p className="cpt">Tu hésites, tu ne sais pas : demande. Quelqu&apos;un est passé par là.</p>
       </header>
 

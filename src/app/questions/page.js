@@ -12,7 +12,7 @@ export default async function PageQuestions() {
   const moi = await utilisateurCourant();
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-questions">
       <Questions moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role }}
         moderateur={moi.role === "admin" || moi.role === "delegue"} />
       <TabBar actif="Fil" />

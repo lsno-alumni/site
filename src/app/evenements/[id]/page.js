@@ -21,7 +21,7 @@ export default async function PageEvenement({ params }) {
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   if (!e) notFound();
   return (
-    <main className="page page-profil avec-tabbar">
+    <main className="page page-profil avec-tabbar bu-lecture">
       <RafraichirPage>
         <div className="pu-page">
           <div className="pu-bandeau"><Retour secours="/evenements" /></div>

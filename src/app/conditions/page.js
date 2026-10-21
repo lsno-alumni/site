@@ -23,7 +23,7 @@ const Para = ({ children }) => <p style={{ marginTop: 10 }}>{children}</p>;
 
 export default function Conditions() {
   return (
-    <main className="page">
+    <main className="page bu-conditions">
       <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/" libelle="Retour" />
         <h1>Conditions<br />&amp; <em>confidentialité</em></h1>

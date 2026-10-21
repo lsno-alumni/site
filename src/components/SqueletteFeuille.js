@@ -16,7 +16,7 @@ export default function SqueletteFeuille({ plein = false, titre = false }) {
       tete={plein
         ? <div className="sq-feuille-tete" aria-hidden><span className="sk sk-ligne" style={{ width: 160, height: 18 }} /></div>
         : <div aria-hidden>
-            <div className="sk" style={{ height: 150, borderRadius: 0 }} />
+            <div className="sk sk-couv" style={{ height: 150, borderRadius: 0 }} />
             <div className="p-corps" style={{ paddingBottom: 8 }}>
               <span className="sk" style={{ display: "block", width: 92, height: 92, borderRadius: 32, marginTop: -46 }} />
               <span className="sk sk-ligne" style={{ display: "block", width: "55%", height: 20, marginTop: 16 }} />

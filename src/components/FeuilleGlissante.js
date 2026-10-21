@@ -45,6 +45,9 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
     }
     return relais.etat && relais.etat !== "ferme" && (vivantes > 0 || Date.now() - relais.quand < RELAIS_MS) ? relais.etat : null;
   });
+  // grand écran (bureau.css) : le panneau qui prend le relais reprend l'entrée là où la silhouette
+  // en était, grâce à un délai négatif égal au temps déjà écoulé (variable CSS, sans effet sur mobile)
+  const [ecoule] = useState(() => (reprise ? Math.max(0, Date.now() - relais.quand) : 0));
   const [etat, setEtat] = useState(reprise ?? depart); // peek | plein | ferme
   const etatRef = useRef(reprise ?? depart);
   const feuilleRef = useRef(null);
@@ -215,7 +218,7 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
         ref={feuilleRef}
         className="fg-feuille"
         data-etat={etat}
-        style={reprise ? { transition: "none", transform: `translateY(${reprise === "plein" ? 0 : window.innerHeight * (1 - PEEK)}px)` } : undefined}
+        style={reprise ? { transition: "none", transform: `translateY(${reprise === "plein" ? 0 : window.innerHeight * (1 - PEEK)}px)`, "--ecoule": `${ecoule}ms` } : undefined}
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}

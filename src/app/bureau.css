@@ -239,7 +239,8 @@
   .bu-annuaire .n-liste { grid-column: 2; padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
   @media (min-width: 1360px) { .bu-annuaire .n-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (min-width: 1800px) { .bu-annuaire .n-liste { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-  .bu-annuaire .n-lettre { grid-column: 1 / -1; padding: 12px 2px 0; }
+  .bu-annuaire .n-lettre { grid-column: 1 / -1; padding: 12px 2px 6px; position: sticky; top: 0; z-index: 4;
+    background-color: var(--fond); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange); }   /* la lettre reste en haut pendant qu'on parcourt son groupe */
   .bu-annuaire .n-lettre b { font-size: 34px; }
   .bu-annuaire .n-liste .vide { grid-column: 1 / -1; padding-top: 60px; }
   .bu-annuaire .fiche { display: flex; flex-direction: column; }
@@ -258,6 +259,12 @@
     animation: bu-panneau .38s cubic-bezier(.22,1,.36,1) both;
   }
   .fg-feuille[data-etat="ferme"] { animation: bu-panneau-sortie .26s ease-in forwards; }
+  /* la vraie feuille prend le relais de la silhouette d'attente (scrim « sans-fondu ») : elle ne rejoue pas l'entrée */
+  .fg-scrim.sans-fondu .fg-feuille:not([data-etat="ferme"]) { animation-delay: calc(-1 * var(--ecoule, 0ms)); }   /* elle continue le mouvement commencé, sans repartir du bord */
+  .fg-feuille .sk-couv { height: 210px !important; }   /* la silhouette a la couverture du panneau, pas celle du téléphone */
+  .fg-feuille .bu-pleine-page { position: absolute; top: 22px; right: 70px; z-index: 2; display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #fff; text-decoration: none;
+    background: rgba(20, 16, 14, .38); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255, .28); }
+  .fg-feuille .bu-pleine-page:hover { background: rgba(20, 16, 14, .55); }
   @keyframes bu-panneau { from { translate: 100% 0; } to { translate: 0 0; } }
   @keyframes bu-panneau-sortie { from { translate: 0 0; } to { translate: 100% 0; } }
   .fg-poignee { display: none; }

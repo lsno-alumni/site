@@ -7,7 +7,7 @@ const { chromium, devices } = require("playwright");
 const fs = require("fs"); const path = require("path");
 const BASE = process.env.BASE || "http://localhost:3007";
 const DOSSIER = path.join(__dirname, "..", "..", "bureau-captures");
-const PUBLICS = ["/", "/connexion", "/inscription", "/connexion/lien", "/mot-de-passe/oubli", "/conditions", "/a-propos"];
+const PUBLICS = ["/", "/connexion", "/inscription", "/connexion/lien", "/connexion/lien/retour", "/mot-de-passe/oubli", "/mot-de-passe/nouveau", "/bienvenue", "/conditions", "/a-propos"];
 const MEMBRES = ["/", "/annuaire", "/fil", "/offres", "/messages", "/mon-profil", "/conseils", "/questions", "/evenements", "/bibliotheque", "/nouveautes", "/a-propos", "/admin"];
 const mode = process.argv[2] || "ref";
 const nom = (route, theme, largeur) => `${route === "/" ? "accueil" : route.slice(1).replace(/\W+/g, "_")}--${theme}${largeur ? "--" + largeur : ""}.png`;

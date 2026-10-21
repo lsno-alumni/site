@@ -36,7 +36,7 @@ export default function MotDePasseOublie() {
   };
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <Link href="/connexion" className="retour">← Connexion</Link>
         <h1>Mot de passe<br /><em>oublié ?</em></h1>

@@ -55,7 +55,7 @@ export default function NouveauMotDePasse() {
   };
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/connexion" libelle="Retour" />
         <h1>Nouveau<br /><em>mot de passe</em></h1>

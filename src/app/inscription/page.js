@@ -102,7 +102,7 @@ export default function Inscription() {
   };
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className={`f-tete${envoye && [1, 2, 3].includes(form.promotion) ? " tete-promo-choisie" : ""}`}
         style={{ paddingTop: 20, "--photo": `url("/img/lsno_promo${form.promotion}.jpg")` }}>
         <Link href="/" className="retour">← Retour</Link>

@@ -34,7 +34,7 @@ export default function RetourLien() {
   }, []);
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <h1 style={{ marginTop: 30 }}>Connexion<br /><em>par lien</em></h1>
       </header>

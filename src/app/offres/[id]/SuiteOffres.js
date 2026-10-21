@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Defilable from "@/components/Defilable";
 import TamponDate from "@/components/TamponDate";
 import { nomType, joursRestants } from "@/lib/offres";
 import { metaOffre } from "./ContenuOffre";
@@ -34,6 +35,7 @@ export default function SuiteOffres({ suite, domaine }) {
       {offres.length > 0 && (
         <>
           <h4>D&apos;autres offres à saisir</h4>
+          <Defilable>
           <div className="voisins">
             {offres.map((o) => (
               <Link key={o.id} href={`/offres/${o.id}`} className="o-mini" draggable={false}>
@@ -44,12 +46,13 @@ export default function SuiteOffres({ suite, domaine }) {
               </Link>
             ))}
           </div>
+          </Defilable>
         </>
       )}
       {anciens.length > 0 && (
         <>
           <h4>Des anciens en {domaine}</h4>
-          <div className="voisins">{anciens.map((m) => <Polaroid key={m.id} m={m} />)}</div>
+          <Defilable><div className="voisins">{anciens.map((m) => <Polaroid key={m.id} m={m} />)}</div></Defilable>
         </>
       )}
     </section>

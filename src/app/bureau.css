@@ -117,13 +117,17 @@
   .bu-entree .f-corps .saisie { font-size: 15px; }
 
   /* ---------- le rail : la barre d'onglets du mobile devient une colonne à gauche ----------
-     Même composant, même état actif, mêmes pastilles ; elle ne se cache plus au défilement. */
+     Même composant, même état actif, mêmes pastilles ; elle ne se cache plus au défilement.
+     Repliable sur ses icônes (classe bu-rail-replie sur <html>, mémorisée) : tout ce qui se cale
+     sur lui lit la variable --bu-rail. */
+  :root { --bu-rail: 232px; }
+  :root.bu-rail-replie { --bu-rail: 76px; }
   .tabbar {
-    left: 0; right: auto; top: 0; bottom: 0; width: 232px; max-width: none; margin: 0;
+    left: 0; right: auto; top: 0; bottom: 0; width: var(--bu-rail); max-width: none; margin: 0;
     flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 4px;
     padding: 22px 14px 24px; border-top: 0; border-right: 1px solid rgba(var(--texte-rgb), .1);
     background: var(--fond-2); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
-    transform: none !important; transition: none; overflow-y: auto;   /* douze liens : sur un petit écran en hauteur, le rail défile */
+    transform: none !important; transition: width .25s cubic-bezier(.22,1,.36,1); overflow-y: auto;   /* douze liens : sur un petit écran en hauteur, le rail défile */
   }
   .tabbar .bu-rail-tete { display: flex; align-items: center; gap: 12px; padding: 6px 10px 22px; margin-bottom: 8px; border-bottom: 1px solid rgba(var(--texte-rgb), .1); color: var(--texte); }
   .tabbar .bu-rail-tete img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #fff; border: 1.5px solid rgba(var(--accent-rgb), .6); }
@@ -135,6 +139,16 @@
   .tab svg { width: 20px; height: 20px; flex-shrink: 0; }
   .tabbar .bu-rail-plus { display: grid; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(var(--texte-rgb), .1); }
   .tabbar .tab.bu { display: flex; }   /* Validation (délégués/admins) : un onglet comme les autres, absent du mobile */
+  .tabbar .bu-rail-bascule { margin-top: auto; align-self: flex-end; width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(var(--texte-rgb), .14); background: var(--carte); color: var(--texte-2); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+  .tabbar .bu-rail-bascule:hover { color: var(--texte); background: rgba(var(--texte-rgb), .06); }
+  /* replié : les icônes seules, centrées ; les mots restent dans la page (lecteurs d'écran, info-bulles) mais ne prennent plus de place */
+  .bu-rail-replie .tabbar { padding-left: 10px; padding-right: 10px; }
+  .bu-rail-replie .tabbar .bu-rail-tete { justify-content: center; padding-left: 0; padding-right: 0; }
+  .bu-rail-replie .tabbar .bu-rail-tete span { display: none; }
+  .bu-rail-replie .tab { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; font-size: 0; }
+  .bu-rail-replie .tab-pastille { position: absolute; top: 4px; right: 6px; margin: 0; }
+  .bu-rail-replie .tab-point { top: 6px; right: 10px; transform: none; }
+  .bu-rail-replie .tabbar .bu-rail-bascule { align-self: center; }
   .tabbar { scrollbar-width: none; }  .tabbar::-webkit-scrollbar { display: none; }   /* si le rail doit malgré tout défiler : sans barre visible */
   /* écran bas (portable 1366×768 avec la barre du navigateur) : le rail se resserre au lieu de défiler */
   @media (max-height: 820px) {
@@ -151,7 +165,7 @@
   .tab-pastille { position: static; margin-left: auto; }
   .tab-point { top: 50%; left: auto; right: 14px; transform: translateY(-50%); }
   /* les pages à barre d'onglets : décalées du rail, plus de réserve en bas */
-  .page.avec-tabbar { max-width: none; margin: 0 0 0 232px; padding-bottom: 40px !important; }
+  .page.avec-tabbar { max-width: none; margin: 0 0 0 var(--bu-rail); padding-bottom: 40px !important; transition: margin-left .25s cubic-bezier(.22,1,.36,1); }
   /* en attendant leur mise en page propre, les écrans membres gardent une colonne lisible */
   .page.avec-tabbar:not([class*=" bu-"]) > * { max-width: 760px; margin-left: auto; margin-right: auto; }
   .page.avec-tabbar .gr-zone-icone { display: none; }   /* le glisser-rafraîchir est un geste de téléphone */
@@ -354,7 +368,7 @@
   .bu-conv-vide { grid-column: 2; display: grid; place-items: center; min-height: 100vh; position: sticky; top: 0; }
   .bu-conv-vide .vide { max-width: 34ch; font-size: 14px; }
   .bu-conv-vide .vide .gros { color: var(--bleu-texte); }
-  .bu-conv { display: grid; grid-template-columns: 380px minmax(0, 1fr); margin-left: 232px; max-width: none; align-items: start; }
+  .bu-conv { display: grid; grid-template-columns: 380px minmax(0, 1fr); margin-left: var(--bu-rail); max-width: none; align-items: start; transition: margin-left .25s cubic-bezier(.22,1,.36,1); }
   .bu-conv-liste { grid-column: 1; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-right: 1px solid rgba(var(--texte-rgb), .1); }
   .bu-conv > .msg-page { grid-column: 2; grid-row: 1; }
   /* la colonne de liste, compacte : bandeau bas, lignes serrées, ligne ouverte marquée */
@@ -366,7 +380,7 @@
   .bu-conv-liste .msg-ligne.bu-active { background: rgba(var(--accent-rgb), .1); border-color: rgba(var(--accent-rgb), .45); }
   .bu-messages .gr-decouvrir, .bu-conv-liste .gr-decouvrir { margin: 0 12px 8px; }
   /* la plume : au bas de la colonne de liste */
-  .bu-messages .fil-fab, .bu-conv-liste .fil-fab { left: calc(232px + 380px - 72px); right: auto; bottom: 28px; }
+  .bu-messages .fil-fab, .bu-conv-liste .fil-fab { left: calc(var(--bu-rail) + 380px - 72px); right: auto; bottom: 28px; }
   /* la conversation, en plus large : bulles moins étirées, saisie et tête alignées sur la colonne */
   .bu-conv .msg-page { min-height: 100vh; }
   .bu-conv .msg-tete { padding: 12px 20px 12px 10px; }
@@ -378,6 +392,46 @@
   /* le menu d'une ligne (appui long / clic droit) : une fenêtre au centre, pas une feuille du bas */
   .msg-voile { align-items: center; }
   .msg-panneau { width: min(440px, 92vw); border-radius: 24px; padding-bottom: 18px; box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }
+
+  /* ---------- les offres : le même registre que l'annuaire ----------
+     Bandeau avec le titre, la recherche et « Proposer une offre » ; filtres en colonne à gauche ;
+     offres en cartes sur deux ou trois colonnes. */
+  .bu-offres .gr-zone { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 32px; max-width: clamp(1240px, 86%, 1700px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-offres .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
+  .bu-offres .n-tete::before { animation: none; }
+  .bu-offres .n-tete > div:first-child { grid-column: 1; grid-row: 1; align-items: center !important; }
+  .bu-offres .n-tete h1 { font-size: clamp(36px, 3.2vw, 50px); line-height: 1; }
+  .bu-offres .n-tete .cpt { grid-column: 1; grid-row: 2; font-size: 15px; margin-top: 8px; }
+  .bu-offres .n-tete > .btn-or { grid-column: 1; grid-row: 3; justify-self: start; }
+  .bu-offres .n-cherche { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; align-self: end; }
+  .bu-offres .n-cherche input { font-size: 15px; padding: 16px 0; }
+  .bu-offres .n-vers-conseils { order: 2; }
+  /* le formulaire « Proposer une offre » : sur la colonne des cartes, en carte */
+  .bu-offres .f-corps { grid-column: 2; padding: 22px 24px 18px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); margin-bottom: 20px; }
+  .bu-offres .n-panneau { grid-column: 1; position: sticky; top: 20px; z-index: 5; margin: 0; padding: 18px 16px 16px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-offres .n-panneau .n-filtres { flex-wrap: wrap; overflow: visible; padding: 0 0 14px; gap: 6px; touch-action: auto; }
+  .bu-offres .n-panneau .n-filtres::before { content: "Type"; display: block; width: 100%; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 4px; }
+  .bu-offres .n-panneau .n-filtres + .n-filtres { display: grid; gap: 8px; padding: 14px 0 0 !important; border-top: 1px solid var(--ligne); }
+  .bu-offres .n-panneau .n-filtres + .n-filtres::before { content: "Affiner"; margin-bottom: 0; }
+  .bu-offres .n-panneau select.puce { width: 100%; padding: 10px 14px; border-radius: 14px; background: var(--fond); color: var(--texte); }
+  .bu-offres .n-panneau .n-filtres + .n-filtres .puce:not(select) { white-space: normal; text-align: left; }
+  .bu-offres .n-liste { grid-column: 2; padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
+  @media (min-width: 1800px) { .bu-offres .n-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .bu-offres .n-liste .vide { grid-column: 1 / -1; padding-top: 60px; }
+  .bu-offres .fiche.offre { display: flex; flex-direction: column; }
+  .bu-offres .fiche.offre .o-suite-carte { flex: 1; }
+  .bu-offres .n-cloture { grid-column: 1 / -1; border-radius: 24px; margin: 36px 0 0; padding: 48px 40px !important; }
+
+  /* ---------- la page d'une offre : l'annonce à gauche, qui la propose à droite ---------- */
+  .bu-offre .gr-zone { display: grid; grid-template-columns: minmax(0, 1fr) 340px; column-gap: 48px; max-width: clamp(1100px, 82%, 1500px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-offre .o-cover { grid-column: 1 / -1; height: 260px; border-radius: 24px; }
+  .bu-offre .o-corps, .bu-offre .o-desc, .bu-offre .o-actions, .bu-offre .o-fichiers-page, .bu-offre .o-reactions { grid-column: 1; padding-left: 8px; padding-right: 8px; }
+  .bu-offre .o-corps { padding-top: 28px; }
+  .bu-offre .o-corps h1 { font-size: 34px; }
+  .bu-offre .o-desc { font-size: 16px; max-width: 70ch; }
+  .bu-offre .o-posteur { grid-column: 2; grid-row: 2 / span 5; position: sticky; top: 20px; margin: 28px 0 0; padding: 18px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); }
+  .bu-offre .o-reactions { margin-left: 0; margin-right: 0; }
+  .bu-offre .o-suite { grid-column: 1 / -1; }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }

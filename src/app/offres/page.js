@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default function PageOffres() {
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-offres">
       <Suspense>
         <Offres />
       </Suspense>

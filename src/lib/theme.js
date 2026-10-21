@@ -42,4 +42,4 @@ export function enregistrer(reglage) {
 
 // Script exécuté avant le premier rendu (layout.js) : doit rester autonome,
 // sans import — c'est une COPIE de la logique ci-dessus.
-export const SCRIPT_INITIAL = `(function(){var t="clair";try{var r=localStorage.getItem("${CLE}");var h=new Date().getHours();t=(r==="clair"||r==="sombre")?r:((h>=${HEURE_JOUR}&&h<${HEURE_NUIT})?"clair":"sombre")}catch(e){}document.documentElement.setAttribute("data-theme",t)})();`;
+export const SCRIPT_INITIAL = `(function(){var t="clair";try{var r=localStorage.getItem("${CLE}");var h=new Date().getHours();t=(r==="clair"||r==="sombre")?r:((h>=${HEURE_JOUR}&&h<${HEURE_NUIT})?"clair":"sombre")}catch(e){}document.documentElement.setAttribute("data-theme",t);try{if(localStorage.getItem("lsno_rail")==="replie")document.documentElement.classList.add("bu-rail-replie")}catch(e){}})();`;   // + le rail du grand écran replié (bureau.css), sans clignotement

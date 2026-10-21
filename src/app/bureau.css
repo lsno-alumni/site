@@ -479,6 +479,39 @@
   .bu-bib .pu-vide, .bu-bib .bib-attente, .bu-bib .bib > .fiche { grid-column: 2; }
   .bu-bib .bib-attente { text-align: left; }
 
+  /* ---------- questions et événements : le registre, comme l'annuaire ---------- */
+  .bu-questions > .gr-zone, .bu-evenements > .gr-zone { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 32px; max-width: clamp(1240px, 86%, 1700px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-questions .n-tete, .bu-evenements .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 32px 40px 28px !important; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: 22px; position: relative; }
+  .bu-questions .n-tete::before, .bu-evenements .n-tete::before { animation: none; }
+  .bu-questions .n-tete h1, .bu-evenements .n-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; margin-top: 0 !important; }
+  .bu-questions .n-tete h1 br { display: none; }
+  .bu-questions .n-tete .cpt, .bu-evenements .n-tete .cpt { font-size: 15px; }
+  .bu-questions .n-tete .retour, .bu-evenements .n-tete .retour { position: absolute; top: 22px; left: 24px; margin: 0; }
+  /* la colonne de gauche : recherche, puis les filtres */
+  .bu-questions .msg-recherche { grid-column: 1; grid-row: 2; padding: 0; }
+  .bu-questions .n-panneau, .bu-evenements .n-panneau { grid-column: 1; position: sticky; top: 20px; z-index: 5; margin: 0; padding: 16px 14px 14px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-questions .n-panneau { grid-row: 3; margin-top: 12px; }
+  .bu-questions .n-panneau .n-filtres, .bu-evenements .n-panneau .n-filtres { flex-wrap: wrap; overflow: visible; padding: 0; gap: 6px; touch-action: auto; }
+  .bu-questions .n-panneau .n-filtres::before, .bu-evenements .n-panneau .n-filtres::before { content: "Afficher"; display: block; width: 100%; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 4px; }
+  .bu-questions .n-panneau .qa-themes { margin-top: 12px; padding-top: 12px !important; border-top: 1px solid var(--ligne); }
+  .bu-questions .n-panneau .qa-themes::before { content: "Thèmes"; }
+  /* les cartes, sur deux colonnes */
+  .bu-questions .qa-liste, .bu-evenements .qa-liste { grid-column: 2; grid-row: 2 / span 3; padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
+  @media (min-width: 1800px) { .bu-questions .qa-liste, .bu-evenements .qa-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .bu-questions .qa-liste .vide, .bu-questions .qa-liste .fil-suite, .bu-evenements .qa-liste .ev-vide { grid-column: 1 / -1; }
+  .bu-evenements .ev-vide { margin: 30px 0; text-align: center; }
+  .bu-questions .fil-fab, .bu-evenements .fil-fab { right: 36px; bottom: 36px; }
+
+  /* ---------- une question, un événement : une colonne de lecture ---------- */
+  .bu-lecture .gr-zone { max-width: 860px; margin: 24px auto 0; padding: 0 40px 40px; }
+  .bu-lecture .pu-page { border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); overflow: hidden; min-height: 0; }
+  .bu-lecture .qa-titre-page, .bu-lecture .ev-titre-page { font-size: 30px; }
+  .bu-lecture .qa-details, .bu-lecture .ev-description-texte { font-size: 16px; }
+  .bu-lecture .com-saisie { position: static; background: transparent; border-top: 1px solid var(--ligne); }   /* la saisie fait partie de la carte */
+
+  /* ---------- les formulaires en pleine page (poser une question, organiser, publier) : une feuille centrée ---------- */
+  .page:not(.avec-tabbar):not([class*=" bu-"]):not(.page-sceau) { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }

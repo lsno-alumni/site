@@ -68,7 +68,7 @@ export default async function Accueil() {
         {Array.from({ length: stats.promotions }, (_, i) => {
           const bac = 2020 + i; const enCours = bac > new Date().getFullYear();
           return (
-            <Link key={i} href="/annuaire" className={enCours ? "en-cours" : ""}>
+            <Link key={i} href="/annuaire" className={enCours ? "en-cours" : ""} style={{ "--i": i }}>
               <b>P{i + 1}</b><small>{enCours ? "au lycée" : `bac ${bac}`}</small>
             </Link>
           );

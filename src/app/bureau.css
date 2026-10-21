@@ -16,7 +16,7 @@
      trois chiffres sont des tampons posés sur la couture, et une règle des
      promotions court sous la photo, de la première promotion à aujourd'hui. */
   .bu-accueil .a-hero {
-    min-height: 100vh; min-height: 100svh; padding: 0; overflow: visible;
+    min-height: min(100vh, 980px); min-height: min(100svh, 980px); padding: 0; overflow: visible;
     display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); grid-template-rows: auto 1fr auto auto auto auto;
     color: var(--texte);
   }
@@ -25,12 +25,13 @@
     background: linear-gradient(90deg, rgba(var(--fond-rgb), .55) 0%, rgba(var(--fond-rgb), 0) 18%), linear-gradient(180deg, rgba(var(--voile-rgb), .15), rgba(var(--voile-rgb), .55));
   }
   .bu-accueil .a-hero > * { position: relative; z-index: 1; }
-  .bu-accueil .a-nav { position: relative; grid-column: 1 / -1; grid-row: 1; padding: 22px 48px 0; display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); align-items: center; }
-  .bu-accueil .a-marque { grid-column: 1; grid-row: 1; justify-self: start; }
+  .bu-accueil .a-nav { position: relative; grid-column: 1 / -1; grid-row: 1; padding: 22px 48px 0; display: flex; align-items: center; gap: 24px; }
+  .bu-accueil .a-marque { flex-shrink: 0; }
   .bu-accueil .a-marque { font-size: 16px; gap: 11px; color: var(--texte); }
   .bu-accueil .a-marque .sceau { width: 36px; height: 36px; }
   .bu-accueil .a-nav > div[style] { display: none; }               /* le menu burger du mobile */
-  .bu-accueil .bu-nav { display: flex; align-items: center; gap: 4px; grid-column: 1; grid-row: 1; justify-self: end; padding-right: 36px; }
+  /* les liens s'arrêtent à la couture (45 % de la largeur utile) : jamais sur la photo */
+  .bu-accueil .bu-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; margin-right: calc(45% - 24px); }
   .bu-accueil .bu-nav .choix-theme { position: absolute; right: 48px; left: auto; top: 22px; margin: 0; width: auto; max-width: none; display: inline-flex; }   /* à droite, sur la photo : la pastille a son propre fond */
   .bu-accueil .bu-nav a { padding: 10px 14px; border-radius: 100px; font-size: 14px; font-weight: 500; color: var(--texte); }
   .bu-accueil .bu-nav a:hover { background: rgba(var(--texte-rgb), .07); }
@@ -91,7 +92,7 @@
 
   /* ---------- le monde : les mots à gauche, le nuage à droite ---------- */
   .bu-accueil .am-monde {
-    margin: 70px 0 0 !important; padding: 72px max(48px, calc((100% - 1180px) / 2)) 72px !important;
+    max-width: none; margin: 70px 0 0 !important; padding: 72px max(48px, calc((100% - 1180px) / 2)) 72px !important;   /* pleine largeur : la règle .a-section plafonnait à 1180 px */
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 64px; align-items: center;
   }
   .bu-accueil .am-monde .a-titre { grid-column: 1; grid-row: 1; align-self: end; font-size: 44px; margin: 0; }
@@ -111,4 +112,8 @@
   .bu-accueil .pied-public .bu-pied a { display: block; color: #D9D2C4; padding: 4px 0; }
   .bu-accueil .pied-public .bu-pied a:hover { color: #fff; }
   .bu-accueil .pied-public > .ecusson, .bu-accueil .pied-public > .tagline, .bu-accueil .pied-public > p { display: none; }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .bu-accueil .bu-nav a[href="/a-propos"] { display: none; }
 }

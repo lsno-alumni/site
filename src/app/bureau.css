@@ -330,20 +330,54 @@
   /* le bouton d'écriture flottant : en bas à droite de la fenêtre, plus au-dessus d'une barre d'onglets */
   .bu-fil .fil-fab { right: 36px; bottom: 36px; }
 
-  /* ---------- le composer (feuille « plein ») devient une fenêtre au centre ---------- */
-  .fg-feuille:has(.cp-feuille) {
+  /* ---------- les feuilles qui s'ouvrent entières (composer, nouvelle conversation, groupes) deviennent des fenêtres au centre ---------- */
+  .fg-feuille.fg-fenetre {
     left: 50%; right: auto; top: 50% !important; bottom: auto; width: min(720px, 92vw); height: auto !important; max-height: 88vh;
     border-radius: 24px; translate: -50% -50%; box-shadow: 0 40px 90px -30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08);
     animation: bu-fenetre .32s cubic-bezier(.22,1,.36,1) both;
   }
-  .fg-feuille:has(.cp-feuille)[data-etat="ferme"] { animation: bu-fenetre-sortie .22s ease-in forwards; }
-  .fg-scrim.sans-fondu .fg-feuille:has(.cp-feuille):not([data-etat="ferme"]) { animation-delay: calc(-1 * var(--ecoule, 0ms)); }
+  .fg-feuille.fg-fenetre[data-etat="ferme"] { animation: bu-fenetre-sortie .22s ease-in forwards; }
+  .fg-scrim.sans-fondu .fg-feuille.fg-fenetre:not([data-etat="ferme"]) { animation-delay: calc(-1 * var(--ecoule, 0ms)); }
   @keyframes bu-fenetre { from { opacity: 0; translate: -50% -46%; } to { opacity: 1; translate: -50% -50%; } }
   @keyframes bu-fenetre-sortie { from { opacity: 1; translate: -50% -50%; } to { opacity: 0; translate: -50% -47%; } }
   .fg-feuille .cp-prise { display: none; }
   .fg-feuille .cp-feuille { min-height: 0; }
   .fg-feuille .cp-texte { min-height: 160px; font-size: 16px; }
   .fg-feuille .cp-pied { padding-bottom: 18px; }
+
+  /* ---------- les messages : la liste à gauche, la conversation à droite ----------
+     Sur la page Messages, la moitié droite attend qu'on choisisse ; dans une conversation, la liste
+     reste là (colonne collante qui défile seule) et la conversation garde le défilement de la fenêtre,
+     dont dépend sa logique (se placer en bas, « nouveaux messages »). */
+  .bu-messages { display: grid; grid-template-columns: 380px minmax(0, 1fr); align-items: start; }
+  .bu-messages > .gr-zone { grid-column: 1; min-height: 100vh; border-right: 1px solid rgba(var(--texte-rgb), .1); }
+  .bu-conv-vide { grid-column: 2; display: grid; place-items: center; min-height: 100vh; position: sticky; top: 0; }
+  .bu-conv-vide .vide { max-width: 34ch; font-size: 14px; }
+  .bu-conv-vide .vide .gros { color: var(--bleu-texte); }
+  .bu-conv { display: grid; grid-template-columns: 380px minmax(0, 1fr); margin-left: 232px; max-width: none; align-items: start; }
+  .bu-conv-liste { grid-column: 1; grid-row: 1; position: sticky; top: 0; height: 100vh; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; border-right: 1px solid rgba(var(--texte-rgb), .1); }
+  .bu-conv > .msg-page { grid-column: 2; grid-row: 1; }
+  /* la colonne de liste, compacte : bandeau bas, lignes serrées, ligne ouverte marquée */
+  .bu-messages .n-tete, .bu-conv-liste .n-tete { padding: 26px 20px 22px; }
+  .bu-messages .n-tete::before, .bu-conv-liste .n-tete::before { animation: none; }
+  .bu-messages .n-tete h1, .bu-conv-liste .n-tete h1 { font-size: 30px; }
+  .bu-messages .n-tete .cpt, .bu-conv-liste .n-tete .cpt { font-size: 12.5px; }
+  .bu-messages .msg-liste, .bu-conv-liste .msg-liste { padding: 10px 12px 100px; gap: 6px; }
+  .bu-conv-liste .msg-ligne.bu-active { background: rgba(var(--accent-rgb), .1); border-color: rgba(var(--accent-rgb), .45); }
+  .bu-messages .gr-decouvrir, .bu-conv-liste .gr-decouvrir { margin: 0 12px 8px; }
+  /* la plume : au bas de la colonne de liste */
+  .bu-messages .fil-fab, .bu-conv-liste .fil-fab { left: calc(232px + 380px - 72px); right: auto; bottom: 28px; }
+  /* la conversation, en plus large : bulles moins étirées, saisie et tête alignées sur la colonne */
+  .bu-conv .msg-page { min-height: 100vh; }
+  .bu-conv .msg-tete { padding: 12px 20px 12px 10px; }
+  .bu-conv .msg-tete .cp-fermer { display: none; }   /* la liste est là : pas de bouton retour */
+  .bu-conv .msg-zone { padding: 16px 32px 10px; }
+  .bu-conv .msg-bulle-menu { max-width: 62%; }
+  .bu-conv .msg-saisie { padding: 12px 24px 14px; }
+  .bu-conv .msg-description, .bu-conv .msg-epingle { margin-left: 32px; margin-right: 32px; }
+  /* le menu d'une ligne (appui long / clic droit) : une fenêtre au centre, pas une feuille du bas */
+  .msg-voile { align-items: center; }
+  .msg-panneau { width: min(440px, 92vw); border-radius: 24px; padding-bottom: 18px; box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }

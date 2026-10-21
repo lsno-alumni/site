@@ -132,6 +132,20 @@
   .tab.on::after { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 22px; border-radius: 3px; }
   .tab svg { width: 20px; height: 20px; flex-shrink: 0; }
   .tabbar .bu-rail-plus { display: grid; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(var(--texte-rgb), .1); }
+  .tabbar .tab.bu { display: flex; }   /* Validation (délégués/admins) : un onglet comme les autres, absent du mobile */
+  .tabbar { scrollbar-width: none; }  .tabbar::-webkit-scrollbar { display: none; }   /* si le rail doit malgré tout défiler : sans barre visible */
+  /* écran bas (portable 1366×768 avec la barre du navigateur) : le rail se resserre au lieu de défiler */
+  @media (max-height: 820px) {
+    .tabbar { padding: 14px 12px 16px; gap: 2px; }
+    .tabbar .bu-rail-tete { padding: 4px 10px 14px; margin-bottom: 4px; }
+    .tab { padding: 8px 12px; font-size: 14px; }
+    .tabbar .bu-rail-plus { gap: 2px; margin-top: 8px; padding-top: 8px; }
+  }
+  @media (max-height: 660px) {
+    .tabbar .bu-rail-tete span { display: none; }
+    .tab { padding: 6px 12px; font-size: 13.5px; }
+    .tab svg { width: 18px; height: 18px; }
+  }
   .tab-pastille { position: static; margin-left: auto; }
   .tab-point { top: 50%; left: auto; right: 14px; transform: translateY(-50%); }
   /* les pages à barre d'onglets : décalées du rail, plus de réserve en bas */
@@ -147,6 +161,12 @@
   .bu-accueil-membre .am-tete .am-sous { font-size: 17px; }
   .bu-accueil-membre .am-liens { margin-top: 18px; }
   .bu-accueil-membre .am-tete .a-marque { display: none; }   /* le blason est déjà dans le rail */
+  .bu-accueil-membre .am-haut { position: absolute; top: 22px; right: 26px; margin: 0; z-index: 1; }   /* le thème se règle en haut à droite */
+  .bu-accueil-membre .am-tete { position: relative; display: flex; flex-direction: column; justify-content: flex-end; }
+  .bu-accueil-membre .am-tete h1 { margin-top: 36px; }
+  .bu-accueil-membre .am-rappel { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px 8px 12px; border-radius: 999px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.18); text-decoration: none; width: max-content; margin-top: 16px; }
+  .bu-accueil-membre .am-rappel::before { content: ""; width: 72px; height: 5px; border-radius: 5px; background: rgba(255,255,255,.22); flex-shrink: 0; order: -1; }
+  .bu-accueil-membre .am-rappel::after { content: ""; position: absolute; left: 12px; top: 50%; margin-top: -2.5px; height: 5px; width: calc(72px * var(--c, 0) / 100); border-radius: 5px; background: var(--bleu-clair); }
   .bu-accueil-membre .bu-cote { grid-column: 2; grid-row: 2 / span 30; position: sticky; top: 24px; display: grid; gap: 16px; }
   /* deux colonnes égales, les sections s'y rangent par paires :
      arrivées | aparté (ou offres) · offres | · questions ·· témoin ·· domaines ·· monde | qui fait quoi */
@@ -181,6 +201,17 @@
   @media (min-width: 1200px) { .bu-accueil-membre .bu-domaines { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .bu-accueil-membre .bu-domaines .dom { margin: 0; }
   .bu-accueil-membre .am-monde { border-radius: 24px; margin-left: 0 !important; margin-right: 0 !important; }
+
+  /* ---------- les flèches de l'éventail et de la roue des promotions ---------- */
+  .bu-fleche { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+    background: var(--carte); color: var(--texte); border: 1px solid rgba(var(--texte-rgb), .14); box-shadow: 0 8px 22px -12px rgba(0,0,0,.5); transition: transform .2s, background .2s; }
+  .bu-fleche:hover { transform: translateY(-50%) scale(1.08); }
+  .bu-fleche.gauche { left: -6px; }  .bu-fleche.droite { right: -6px; }
+  .bu-accueil-membre .eventail { position: relative; }
+  .bu-accueil-membre .eventail .bu-fleche { top: calc(50% - 22px); }   /* centrées sur les cartes, pas sur l'aide */
+  .am-pierre .bu-fleche { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
+  .am-pierre .bu-fleche:hover { background: rgba(255,255,255,.22); }
+  .am-pierre .roue3d-zone .bu-fleche.gauche { left: 6px; }  .am-pierre .roue3d-zone .bu-fleche.droite { right: 6px; }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }

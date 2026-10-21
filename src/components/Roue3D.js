@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { lireAffichage, noterAffichage } from "@/components/SuiviNavigation";
 
@@ -73,6 +74,7 @@ export default function Roue3D({
   const refRoue = useRef(null);
   const refPoints = useRef(null);
   const refRang = useRef(null);
+  const refPas = useRef(null);   // grand écran : les flèches font avancer la roue d'un cran (posé par l'effet)
   const horiz = axe === "x";
   const { pas, rayon, boucle, echelle } = geometrie(Math.max(items.length, 1), pitch);
   const N = items.length;
@@ -122,6 +124,7 @@ export default function Roue3D({
     };
 
     const aller = (i, doux = true) => { anime = doux; angle = borner(i * pas); rendre(); };
+    refPas.current = (d) => aller(Math.round(angle / pas) + d);
 
     // La carte de face ouvre, une autre vient au centre par le chemin le plus court.
     const toucher = (i) => {
@@ -158,6 +161,7 @@ export default function Roue3D({
     };
 
     const surDescendre = (e) => {
+      if (e.target.closest?.(".bu-fleche")) return;   // flèches du grand écran : la zone ne capture pas le pointeur, le clic leur revient
       // poser le doigt sur une roue en vol l'arrête — et RIEN d'autre : ce geste
       // ne doit pas ouvrir la carte qui se trouvait dessous par hasard.
       arretVol = lancer !== 0;
@@ -288,6 +292,11 @@ export default function Roue3D({
           </div>
           <div className={horiz ? "voile3d gauche" : "voile3d haut"} />
           <div className={horiz ? "voile3d droite" : "voile3d bas"} />
+          {/* grand écran, roue horizontale : deux flèches (cachées sur mobile) */}
+          {horiz && <>
+            <button type="button" className="bu bu-fleche gauche" aria-label="Précédente" onPointerDown={(e) => e.stopPropagation()} onClick={() => refPas.current?.(-1)}><ChevronLeft size={20} aria-hidden /></button>
+            <button type="button" className="bu bu-fleche droite" aria-label="Suivante" onPointerDown={(e) => e.stopPropagation()} onClick={() => refPas.current?.(1)}><ChevronRight size={20} aria-hidden /></button>
+          </>}
           {/* points de position : sous les cartes à l'horizontale. À la verticale,
               les tuiles occupent toute la largeur — ils les chevaucheraient, et
               le repère « 3 / 14 » dit déjà où l'on est. */}

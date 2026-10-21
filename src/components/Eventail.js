@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { nomDomaine } from "@/lib/donnees";
 
 // « Ils viennent d'arriver » : des cartes polaroïd (photo bord à bord, prénom
@@ -47,6 +48,11 @@ export default function Eventail({ membres }) {
 
   return (
     <div className="eventail" ref={zone} role="group" aria-label="Nouveaux membres">
+      {/* grand écran : deux flèches de part et d'autre (cachées sur mobile, où l'on glisse) */}
+      {n > 1 && <>
+        <button type="button" className="bu bu-fleche gauche" aria-label="Carte précédente" onPointerDown={(e) => e.stopPropagation()} onClick={() => setActif((a) => (a - 1 + n) % n)}><ChevronLeft size={20} aria-hidden /></button>
+        <button type="button" className="bu bu-fleche droite" aria-label="Carte suivante" onPointerDown={(e) => e.stopPropagation()} onClick={() => setActif((a) => (a + 1) % n)}><ChevronRight size={20} aria-hidden /></button>
+      </>}
       <div className="eventail-pile" style={{ "--n": n }}>
         {membres.map((m, i) => {
           // position relative à la carte de face : -1 = à gauche, 0 = devant, +1 = à droite…
@@ -77,7 +83,7 @@ export default function Eventail({ membres }) {
           {membres.map((m, i) => <i key={m.id} className={i === actif ? "on" : ""} />)}
         </div>
       )}
-      {n > 1 && <p className="eventail-aide">Glisse pour voir les suivants</p>}
+      {n > 1 && <p className="eventail-aide"><span className="bu-tel">Glisse pour voir les suivants</span><span className="bu">Les flèches, ou un clic sur une carte voisine</span></p>}
     </div>
   );
 }

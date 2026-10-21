@@ -68,7 +68,7 @@ export default function AccueilMembre({ moi, donnees }) {
           {["delegue", "admin"].includes(moi.role) && <Link href="/admin" className="am-lien">Validation{demandesEnAttente > 0 ? ` · ${demandesEnAttente}` : ""}</Link>}
         </div>
         {completion < 100 && (
-          <Link href="/mon-profil" className="am-rappel">
+          <Link href="/mon-profil" className="am-rappel" style={{ "--c": completion }}>   {/* --c : la jauge du grand écran */}
             Ton profil est à {completion} % — le compléter
           </Link>
         )}

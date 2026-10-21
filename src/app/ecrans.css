@@ -1325,6 +1325,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
   background: rgba(var(--accent-rgb), .14); color: var(--bleu-texte);
 }
 .invite-notif .txt { flex: 1; min-width: 0; font-size: 12px; color: var(--brume); line-height: 1.45; }
+.invite-contexte { margin: 10px 14px; }   /* en contexte (conversation, question, demande de contact) */
 .invite-notif .txt b { display: block; font-size: 13.5px; color: var(--texte); }
 .invite-notif .btn { padding: 9px 15px; font-size: 12.5px; flex-shrink: 0; }
 .invite-notif .fermer {

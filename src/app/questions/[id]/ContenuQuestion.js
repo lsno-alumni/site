@@ -17,6 +17,7 @@ import { ouvrirDuo, tailleLisible } from "@/lib/messages";
 import { CarteQuestion } from "@/app/questions/Questions";
 import { THEMES_CONSEIL } from "@/lib/donnees";
 import useTempsReel from "@/lib/tempsReel";
+import InviteNotifsContexte from "@/components/InviteNotifsContexte";
 
 // Une question ouverte (page /questions/[id] ET feuille depuis la liste).
 // TeteQuestion (thème, titre, auteur : glissable) puis SuiteQuestion
@@ -244,6 +245,7 @@ export default function ContenuQuestion({ q: initial, moi, moderateur }) {
   return (
     <>
       <TeteQuestion q={q} />
+      <InviteNotifsContexte declencheur={`question:${q.id}`} />
       <SuiteQuestion q={q} moi={moi} moderateur={moderateur} onMaj={setQ} />
     </>
   );

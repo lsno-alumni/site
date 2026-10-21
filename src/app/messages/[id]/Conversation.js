@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
+import InviteNotifsContexte from "@/components/InviteNotifsContexte";
 
 // Convention WhatsApp (05/10) : au clavier d'ordinateur, Entrée envoie et Maj+Entrée revient à la
 // ligne ; sur un écran tactile (pas de Maj+Entrée possible), Entrée revient à la ligne et seul le
@@ -186,6 +187,7 @@ export default function Conversation({ id, moi }) {
   const [debut, setDebut] = useState(souvenir?.debut ?? false);
   const [texte, setTexte] = useState("");
   const [envoi, setEnvoi] = useState(false);
+  const [inviteNotifs, setInviteNotifs] = useState(false);   // après un envoi : « pour savoir quand on te répond… »
   const [menu, setMenu] = useState(false);
   const [panneau, setPanneau] = useState(null);   // "membres" | "renommer" | "ajouter" | "infos" | "transfert" | "sondage"
   const [nom, setNom] = useState("");
@@ -628,6 +630,7 @@ export default function Conversation({ id, moi }) {
         doitDescendre.current = "smooth";
       }
       annulerSaisie(); memoire.ecrire("messages.liste", null);
+      setInviteNotifs(true);
     } catch (err) { signale("Envoi impossible : " + texteErreur(err)); }
     setEnvoi(false);
   };
@@ -877,6 +880,7 @@ export default function Conversation({ id, moi }) {
         </button>
       )}
 
+      {inviteNotifs && <InviteNotifsContexte declencheur />}
       {bloqueParMoi ? (
         <div className="msg-saisie" style={{ alignItems: "center", textAlign: "center", fontSize: 13, color: "var(--texte-2)" }}>
           Tu as bloqué {autre.prenom}. <button type="button" className="btn btn-nu" style={{ padding: "8px 12px", fontSize: 12 }} onClick={() => agir("bloquer")}>Débloquer</button>

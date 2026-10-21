@@ -188,10 +188,10 @@ export default function MonProfil() {
 
   return (
     <GlisserRafraichir onRafraichir={charger}>
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-mon-profil">
       <header className="f-tete tete-etude" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/annuaire" libelle="Retour" />
-        <h1>Modifier<br />mon <em>profil</em></h1>
+        <h1>Modifier <br />mon <em>profil</em></h1>
         <p>
           {profil.refuse_le
             ? "Ta demande d'inscription n'a pas été retenue : ton profil n'apparaît pas dans l'annuaire."

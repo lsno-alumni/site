@@ -10,7 +10,8 @@
 @media (min-width: 1024px) {
   .bu { display: revert; }   /* les mots et petits éléments « bu » réapparaissent (bloc : donner leur display) */
   /* ---------- gabarit : la page n'est plus une colonne de 480 px ---------- */
-  .page.bu-accueil { max-width: none; }
+  /* les très grands écrans : la largeur utile suit l'écran (1180 px jusqu'à ~1640 px de large, puis jusqu'à 1520 px) */
+  .page.bu-accueil { max-width: none; --bu-large: clamp(1180px, 72vw, 1520px); }
 
   /* ---------- l'accueil public : la double page ----------
      À gauche, le papier et les mots ; à droite, la photo pleine hauteur. Les
@@ -120,7 +121,7 @@
     flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 4px;
     padding: 22px 14px 24px; border-top: 0; border-right: 1px solid rgba(var(--texte-rgb), .1);
     background: var(--fond-2); background-image: var(--kraft); background-size: 420px auto; background-blend-mode: var(--kraft-melange);
-    transform: none !important; transition: none;
+    transform: none !important; transition: none; overflow-y: auto;   /* douze liens : sur un petit écran en hauteur, le rail défile */
   }
   .tabbar .bu-rail-tete { display: flex; align-items: center; gap: 12px; padding: 6px 10px 22px; margin-bottom: 8px; border-bottom: 1px solid rgba(var(--texte-rgb), .1); color: var(--texte); }
   .tabbar .bu-rail-tete img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #fff; border: 1.5px solid rgba(var(--accent-rgb), .6); }
@@ -130,6 +131,7 @@
   .tab.on { background: var(--carte); color: var(--texte); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 8px 20px -14px rgba(0,0,0,.5); font-weight: 600; }
   .tab.on::after { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 22px; border-radius: 3px; }
   .tab svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .tabbar .bu-rail-plus { display: grid; gap: 4px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(var(--texte-rgb), .1); }
   .tab-pastille { position: static; margin-left: auto; }
   .tab-point { top: 50%; left: auto; right: 14px; transform: translateY(-50%); }
   /* les pages à barre d'onglets : décalées du rail, plus de réserve en bas */
@@ -148,7 +150,7 @@
   .bu-accueil-membre .bu-cote { grid-column: 2; grid-row: 2 / span 30; position: sticky; top: 24px; display: grid; gap: 16px; }
   /* deux colonnes égales, les sections s'y rangent par paires :
      arrivées | aparté (ou offres) · offres | · questions ·· témoin ·· domaines ·· monde | qui fait quoi */
-  .bu-accueil-membre .gr-zone { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1240px; margin: 0 auto; column-gap: 36px; }
+  .bu-accueil-membre .gr-zone { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: clamp(1240px, 82%, 1600px); margin: 0 auto; column-gap: 36px; grid-auto-flow: dense; }   /* dense : aucune case vide, le bloc suivant la comble */
   .bu-accueil-membre .bu-cote { grid-column: auto; grid-row: auto; position: static; }
   .bu-accueil-membre .bu-cote:empty { display: none; }
   /* les arrivées à gauche, l'aparté (invitations, moments, événements) à droite, quel que soit l'ordre du balisage */
@@ -157,12 +159,17 @@
   .bu-accueil-membre .gr-zone > .rev:has(.am-question), .bu-accueil-membre .gr-zone > .rev:has(.a-temoin),
   .bu-accueil-membre .gr-zone > .rev:has(.bu-domaines), .bu-accueil-membre .gr-zone > .rev:has(.am-pierre) { grid-column: 1 / -1; }
   .bu-accueil-membre .am-pierre { border-radius: 24px; margin: 0 !important; padding: 34px 40px 44px !important; }
-  /* quand l'aparté occupe la colonne de droite, les offres (et les questions) passent en pleine largeur, sur deux colonnes */
-  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > .rev:has(.am-offres) { grid-column: 1 / -1; }
+  /* quand l'aparté occupe la colonne de droite, les offres passent en pleine largeur, sur deux colonnes */
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > .rev:has(.am-offres):not(:has(.am-question)) { grid-column: 1 / -1; }
+  /* rien à droite des arrivées (ni aparté, ni offres) : le témoin y monte */
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:empty):not(:has(.am-offres)) > .rev.rev:has(.a-temoin) { grid-column: auto; order: -1; }
+  /* pas d'arrivées : les offres prennent leur place, à côté de l'aparté */
+  .bu-accueil-membre .gr-zone:not(:has(.eventail)) > .rev.rev:has(.am-offres):not(:has(.am-question)) { grid-column: auto; order: -1; }
   .bu-accueil-membre .gr-zone > .rev:has(.am-offres) .am-offres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
   .bu-accueil-membre .gr-zone:has(> .bu-cote:empty) > .rev:has(.am-offres):not(:has(.am-question)) .am-offres { grid-template-columns: minmax(0, 1fr); }
   .bu-accueil-membre .gr-zone > .rev:has(.eventail) .eventail { max-width: 460px; margin-left: auto; margin-right: auto; }
   .bu-accueil-membre .gr-zone > .rev:has(.am-anneaux) .am-anneaux { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (min-width: 1600px) { .bu-accueil-membre .gr-zone > .rev:has(.am-anneaux) .am-anneaux { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .bu-accueil-membre .bu-cote > * { margin-left: 0 !important; margin-right: 0 !important; }
   .bu-accueil-membre .gr-zone > * { min-width: 0; }
   .bu-tel { display: none; }   /* mots réservés au téléphone (« touche ») ; leur pendant « bu » (« clique sur ») prend le relais */
@@ -176,7 +183,7 @@
   .bu-accueil-membre .am-monde { border-radius: 24px; margin-left: 0 !important; margin-right: 0 !important; }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
-  .bu-accueil .a-section { max-width: 1180px; margin: 0 auto; padding: 72px 48px 10px; }
+  .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }
   .bu-accueil .a-sous { font-size: 16px; }
   .bu-accueil .bu-roue-mobile { display: none; }
@@ -186,7 +193,7 @@
 
   /* ---------- le monde : les mots à gauche, le nuage à droite ---------- */
   .bu-accueil .am-monde {
-    max-width: none; margin: 70px 0 0 !important; padding: 72px max(48px, calc((100% - 1180px) / 2)) 72px !important;   /* pleine largeur : la règle .a-section plafonnait à 1180 px */
+    max-width: none; margin: 70px 0 0 !important; padding: 72px max(48px, calc((100% - var(--bu-large)) / 2)) 72px !important;   /* pleine largeur : la règle .a-section plafonnait à 1180 px */
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); column-gap: 64px; align-items: center;
   }
   .bu-accueil .am-monde .a-titre { grid-column: 1; grid-row: 1; align-self: end; font-size: 44px; margin: 0; }
@@ -194,14 +201,14 @@
   .bu-accueil .am-monde .np-zone, .bu-accueil .am-monde .a-pays { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
 
   /* ---------- le témoignage : en grand, centré ---------- */
-  .bu-accueil .a-temoin { max-width: 860px; margin: 80px auto 0; padding: 48px 56px 40px; text-align: center; }
+  .bu-accueil .a-temoin { max-width: clamp(860px, 50vw, 1040px); margin: 80px auto 0; padding: 48px 56px 40px; text-align: center; }
   .bu-accueil .a-temoin p { font-size: 28px; line-height: 1.35; }
   .bu-accueil .a-temoin::before { font-size: 220px; top: -30px; right: 30px; }
   .bu-accueil .a-temoin .qui { justify-content: center; }
 
   /* ---------- le pied : trois colonnes sur la photo du jardin ---------- */
   .bu-accueil .pied-public { margin-top: 90px; padding: 110px 48px 56px; }
-  .bu-accueil .pied-public .bu-pied { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; max-width: 1180px; margin: 0 auto; text-align: left; align-items: start; }
+  .bu-accueil .pied-public .bu-pied { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; max-width: var(--bu-large); margin: 0 auto; text-align: left; align-items: start; }
   .bu-accueil .pied-public .bu-pied h4 { margin: 0 0 10px; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: #8FBBFF; }   /* sur la photo sombre du jardin : bleu clair, lisible dans les deux thèmes */
   .bu-accueil .pied-public .bu-pied a { display: block; color: #D9D2C4; padding: 4px 0; }
   .bu-accueil .pied-public .bu-pied a:hover { color: #fff; }

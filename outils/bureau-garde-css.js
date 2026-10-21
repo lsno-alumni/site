@@ -8,10 +8,12 @@ racine.nodes.forEach((n) => {
   if (n.type === "comment") return;
   if (n.type === "atrule" && n.name === "media") { if (!/min-width:\s*1024px/.test(n.params)) fautes.push(`@media sans min-width 1024 : ${n.params}`); return; }
   if (n.type === "rule") {
-    const ok = n.selectors.every((s) => /^\.bu(-[a-z0-9-]+)?$/.test(s.trim())) && n.nodes.length === 1 && n.nodes[0].prop === "display" && n.nodes[0].value === "none";
+    const cache = n.selectors.every((s) => /^\.bu(-[a-z0-9-]+)?$/.test(s.trim())) && n.nodes.length === 1 && n.nodes[0].prop === "display" && n.nodes[0].value === "none";
+    const transparent = n.selector === ".bu-groupe" && n.nodes.length === 1 && n.nodes[0].prop === "display" && n.nodes[0].value === "contents";
+    const ok = cache || transparent;
     if (!ok) fautes.push(`règle hors média : ${n.selector}`); return;
   }
   fautes.push(`inattendu : ${n.type} ${n.name || ""}`);
 });
 if (fautes.length) { console.log("KO  bureau.css touche au mobile :\n  - " + fautes.join("\n  - ")); process.exit(1); }
-console.log("OK  bureau.css : rien hors « min-width: 1024px » sauf la règle qui cache les éléments bu-…");
+console.log("OK  bureau.css : rien hors « min-width: 1024px » sauf la règle qui cache les éléments bu-… (et le groupe transparent .bu-groupe)");

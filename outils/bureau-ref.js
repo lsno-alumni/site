@@ -8,11 +8,12 @@ const fs = require("fs"); const path = require("path");
 const BASE = process.env.BASE || "http://localhost:3007";
 const DOSSIER = path.join(__dirname, "..", "..", "bureau-captures");
 const PUBLICS = ["/", "/connexion", "/inscription", "/connexion/lien", "/connexion/lien/retour", "/mot-de-passe/oubli", "/mot-de-passe/nouveau", "/bienvenue", "/conditions", "/a-propos"];
-const MEMBRES = ["/", "/annuaire", "/fil", "/offres", "/messages", "/mon-profil", "/conseils", "/questions", "/evenements", "/bibliotheque", "/nouveautes", "/a-propos", "/admin"];
+// « /profil/* » = la fiche du premier membre de l'annuaire ; « /annuaire#feuille » = l'annuaire avec sa feuille de profil ouverte (photo de la fenêtre seule)
+const MEMBRES = ["/", "/annuaire", "/fil", "/offres", "/messages", "/mon-profil", "/conseils", "/questions", "/evenements", "/bibliotheque", "/nouveautes", "/a-propos", "/admin", "/profil/*", "/annuaire#feuille"];
 const mode = process.argv[2] || "ref";
 const THEMES = (process.env.THEMES || "clair,sombre").split(",");   // THEMES=sombre pour ne refaire qu'un thème
 // ROUTES=accueil,mon_profil pour ne refaire que ces écrans (noms des fichiers, sans barre : Git Bash transforme « / » en chemin Windows)
-const cle = (route) => (route === "/" ? "accueil" : route.slice(1).replace(/\W+/g, "_"));
+const cle = (route) => (route === "/" ? "accueil" : route.slice(1).replace(/\W+/g, "_").replace(/_$/, ""));
 const ROUTES = process.env.ROUTES ? process.env.ROUTES.split(",") : null;
 const garder = (liste) => (ROUTES ? liste.filter((r) => ROUTES.includes(cle(r))) : liste);
 const nom = (route, theme, largeur) => `${cle(route)}--${theme}${largeur ? "--" + largeur : ""}.png`;
@@ -45,7 +46,21 @@ async function connecter(p) {
   if (!ok) console.log("   (connexion : page restée sur", new URL(p.url()).pathname, "| message :", (await p.locator("[role=alert]").allTextContents()).join(" ").slice(0, 160) || "aucun", ")");
   return ok;
 }
+async function premierProfil(p) {
+  await p.goto(BASE + "/annuaire", { timeout: 240000, waitUntil: "domcontentloaded" }); await p.waitForSelector(".fiche", { timeout: 60000 });
+  return p.locator(".fiche").first().getAttribute("href");
+}
 async function capturer(p, route, fichier) {
+  let fenetreSeule = false;
+  if (route === "/profil/*") route = await premierProfil(p);
+  if (route === "/annuaire#feuille") {
+    await p.goto(BASE + "/annuaire", { timeout: 240000, waitUntil: "domcontentloaded" }); await p.waitForSelector(".fiche", { timeout: 60000 });
+    try { await p.waitForLoadState("networkidle", { timeout: 15000 }); } catch { /* on continue */ }
+    await p.evaluate(() => { document.documentElement.setAttribute("data-theme", localStorage.getItem("lsno-theme")); });
+    await p.locator(".fiche").first().click(); await p.waitForSelector(".fg-feuille", { timeout: 60000 }); await p.waitForTimeout(2500);
+    await p.screenshot({ path: fichier, fullPage: false });   // la feuille est fixe : la fenêtre seule
+    return;
+  }
   await p.goto(BASE + route, { timeout: 240000, waitUntil: "domcontentloaded" });
   try { await p.waitForLoadState("networkidle", { timeout: 15000 }); } catch { /* flux temps réel : on n'attend pas plus */ }
   await p.waitForTimeout(2500);   // compteurs (figés par reducedMotion), chiffres chargés après coup

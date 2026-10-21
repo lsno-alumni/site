@@ -6,6 +6,7 @@
    Le mobile est contrôlé au pixel près après chaque étape (outils/bureau-ref.js).
    ============================================================================ */
 .bu, .bu-nav, .bu-domaines, .bu-regle, .bu-pied, .bu-rail-tete { display: none; }
+.bu-groupe { display: contents; }   /* un groupe sans boîte : il ne range ses enfants en colonne qu'en grand écran */
 
 @media (min-width: 1024px) {
   .bu { display: revert; }   /* les mots et petits éléments « bu » réapparaissent (bloc : donner leur display) */
@@ -151,7 +152,8 @@
   /* les pages à barre d'onglets : décalées du rail, plus de réserve en bas */
   .page.avec-tabbar { max-width: none; margin: 0 0 0 232px; padding-bottom: 40px !important; }
   /* en attendant leur mise en page propre, les écrans membres gardent une colonne lisible */
-  .page.avec-tabbar:not(.bu-accueil-membre) > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .page.avec-tabbar:not([class*=" bu-"]) > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .page.avec-tabbar .gr-zone-icone { display: none; }   /* le glisser-rafraîchir est un geste de téléphone */
 
   /* ---------- l'accueil connecté : le fil des sections à gauche, l'aparté à droite ---------- */
   .bu-accueil-membre .gr-zone { display: grid; grid-template-columns: minmax(0, 1fr) 360px; column-gap: 40px; padding: 0 48px 40px; align-items: start; }
@@ -212,6 +214,76 @@
   .am-pierre .bu-fleche { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
   .am-pierre .bu-fleche:hover { background: rgba(255,255,255,.22); }
   .am-pierre .roue3d-zone .bu-fleche.gauche { left: 6px; }  .am-pierre .roue3d-zone .bu-fleche.droite { right: 6px; }
+
+  /* ---------- l'annuaire : le registre ----------
+     En haut la photo de promotion avec le titre et la recherche ; à gauche une colonne de filtres
+     qui reste sous la main ; à droite les fiches en grille, groupées par lettre. */
+  .bu-annuaire .gr-zone { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 32px; row-gap: 0; max-width: clamp(1240px, 86%, 1700px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-annuaire .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
+  .bu-annuaire .n-tete::before { animation: none; }
+  .bu-annuaire .n-tete > div:first-child { grid-column: 1; grid-row: 1; align-items: center !important; }
+  .bu-annuaire .n-tete h1 { font-size: clamp(40px, 3.6vw, 54px); line-height: 1; }
+  .bu-annuaire .n-tete .cpt { grid-column: 1; grid-row: 2; font-size: 15px; margin-top: 8px; }
+  .bu-annuaire .n-cherche { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; align-self: end; }
+  .bu-annuaire .n-cherche input { font-size: 15px; padding: 16px 0; }
+  .bu-annuaire .n-vers-conseils { order: 2; }
+  /* la colonne des filtres */
+  .bu-annuaire .n-panneau { grid-column: 1; position: sticky; top: 20px; z-index: 5; margin: 0; padding: 18px 16px 16px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-annuaire .n-panneau .n-filtres { flex-wrap: wrap; overflow: visible; padding: 0 0 14px; gap: 6px; touch-action: auto; }
+  .bu-annuaire .n-panneau .n-filtres::before { content: "Domaines"; display: block; width: 100%; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); margin-bottom: 4px; }
+  .bu-annuaire .n-panneau .n-filtres + .n-filtres { display: grid; gap: 8px; padding: 14px 0 0 !important; border-top: 1px solid var(--ligne); }
+  .bu-annuaire .n-panneau .n-filtres + .n-filtres::before { content: "Affiner"; margin-bottom: 0; }
+  .bu-annuaire .n-panneau select.puce { width: 100%; padding: 10px 14px; border-radius: 14px; background: var(--fond); color: var(--texte); }
+  .bu-annuaire .puce { font-size: 12.5px; padding: 7px 12px; }
+  /* la grille des fiches, deux, trois ou quatre colonnes selon la place */
+  .bu-annuaire .n-liste { grid-column: 2; padding: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
+  @media (min-width: 1360px) { .bu-annuaire .n-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1800px) { .bu-annuaire .n-liste { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .bu-annuaire .n-lettre { grid-column: 1 / -1; padding: 12px 2px 0; }
+  .bu-annuaire .n-lettre b { font-size: 34px; }
+  .bu-annuaire .n-liste .vide { grid-column: 1 / -1; padding-top: 60px; }
+  .bu-annuaire .fiche { display: flex; flex-direction: column; }
+  .bu-annuaire .fiche .haut { flex: 1; align-items: flex-start; }
+  .bu-annuaire .fiche .pied { margin-top: auto; }
+  .bu-annuaire .n-cloture { grid-column: 1 / -1; border-radius: 24px; margin: 36px 0 0; padding: 48px 40px !important; }
+
+  /* ---------- la feuille de profil devient un panneau à droite ----------
+     Même composant, même contenu : la position et le mouvement changent, le geste de glissement
+     n'a plus de sens (le panneau ne se tire pas), la croix et la touche Échap ferment. */
+  .fg-scrim { background: rgba(var(--voile-rgb), .32); }
+  .fg-feuille {
+    left: auto; right: 0; top: 0 !important; bottom: 0; height: auto !important; width: min(620px, 48vw); max-width: none; margin: 0;
+    border-radius: 0; transform: none !important; overflow-y: auto !important; overscroll-behavior: contain;
+    box-shadow: -30px 0 70px -24px rgba(0,0,0,.6);
+    animation: bu-panneau .38s cubic-bezier(.22,1,.36,1) both;
+  }
+  .fg-feuille[data-etat="ferme"] { animation: bu-panneau-sortie .26s ease-in forwards; }
+  @keyframes bu-panneau { from { translate: 100% 0; } to { translate: 0 0; } }
+  @keyframes bu-panneau-sortie { from { translate: 0 0; } to { translate: 100% 0; } }
+  .fg-poignee { display: none; }
+  .fg-prise { touch-action: auto; cursor: default; }
+  .fg-feuille .p-cover { height: 210px; }
+  .fg-fermer { top: 16px; right: 16px; }
+
+  /* ---------- la page d'un profil : la fiche à gauche, le récit à droite ---------- */
+  .bu-profil .gr-zone { display: grid; grid-template-columns: 400px minmax(0, 1fr); column-gap: 56px; max-width: clamp(1100px, 82%, 1500px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-profil .p-cover { grid-column: 1 / -1; height: 280px; border-radius: 24px; }
+  .bu-profil .p-cover .p-retour { top: 20px; left: 20px; }
+  .bu-profil .p-corps { grid-column: 1; margin-top: -64px; padding: 0 8px; }
+  .bu-profil .p-photo { width: 132px; height: 132px; border-radius: 42px; border-width: 5px; }
+  .bu-profil .p-corps h1 { font-size: 34px; margin-top: 18px; }
+  .bu-profil .p-corps .statut { font-size: 15px; }
+  .bu-profil .p-corps-suite { grid-column: 1; padding: 0 8px; }
+  .bu-profil .p-contacts { grid-column: 1; padding-left: 8px; padding-right: 8px; }
+  .bu-profil .bu-groupe { display: block; grid-column: 2; grid-row: 2 / span 4; padding-top: 24px; }
+  .bu-profil .bu-groupe .p-bloc { padding-left: 0; padding-right: 0; }
+  .bu-profil .bu-groupe .p-bloc:first-child { padding-top: 0; }
+  .bu-profil .bu-groupe .p-conseil { margin-left: 0; margin-right: 0; }
+  .bu-profil .bu-groupe .p-conseil p { font-size: 17px; }
+  .bu-profil .p-voisins { grid-column: 1 / -1; padding-top: 10px; }
+  /* profil sans parcours, conseil ni histoire : une seule colonne, plus large, au lieu d'un côté vide */
+  .bu-profil .gr-zone:has(> .bu-groupe:empty) { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+  .bu-profil .bu-groupe:empty { display: none; }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }

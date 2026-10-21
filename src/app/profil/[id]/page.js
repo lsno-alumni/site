@@ -55,7 +55,7 @@ export default async function PageProfil({ params }) {
 
   const voisins = await profilsVoisins(id, p.promotion, p.domaine);
   return (
-    <main className="page page-profil avec-tabbar">
+    <main className="page page-profil avec-tabbar bu-profil">
       <RafraichirPage>
         <CouvertureProfil p={p}>
           <Retour />

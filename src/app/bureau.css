@@ -86,6 +86,32 @@
   .bu-accueil .bu-regle a:hover { background: rgba(var(--texte-rgb), .06); transform: translateY(-3px); }
   .bu-accueil .bu-regle a.en-cours b { color: var(--bleu-texte); }
 
+  /* ---------- les entrées : connexion, inscription, lien, mot de passe, bienvenue ----------
+     « La porte » : à gauche la photo du lycée en pleine hauteur, qui reste à l'écran
+     pendant que le formulaire défile ; à droite le papier, la feuille au centre. */
+  .page.bu-entree { max-width: none; display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); grid-template-rows: auto 1fr auto auto; min-height: 100vh; min-height: 100svh; }
+  .bu-entree .f-tete {
+    grid-column: 1; grid-row: 1 / span 4; position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 0;
+    padding: 32px 48px 56px !important; justify-content: flex-end;
+  }
+  .bu-entree .f-tete::before { animation: none; transform: none; box-shadow: inset -14px 0 28px -14px rgba(0,0,0,.45); }
+  .bu-entree .f-tete::after { background: linear-gradient(180deg, rgba(var(--voile-rgb), .1) 0%, rgba(var(--voile-rgb), .25) 50%, rgba(var(--voile-rgb), .8) 100%); }
+  .bu-entree .f-tete .retour, .bu-entree .f-tete > a:first-child, .bu-entree .f-tete > button:first-child { position: absolute; top: 28px; left: 48px; }
+  .bu-entree .f-tete h1 { font-size: clamp(44px, 4.2vw, 64px); line-height: 1.02; max-width: 12ch; margin-top: 0 !important; }
+  .bu-entree .f-tete p { font-size: 16px; max-width: 42ch; margin-top: 14px; }
+  .bu-entree .f-tete .btn { margin-top: 22px; }
+  /* la feuille, au centre du papier : plus de chevauchement de la photo, qui est à côté */
+  .bu-entree .f-tete + .f-corps, .bu-entree .f-tete + .succes, .bu-entree .f-tete + .f-prog,
+  .bu-entree .f-prog + .f-corps, .bu-entree .f-prog + .succes {
+    grid-column: 2; width: min(560px, calc(100% - 96px)); margin-left: auto; margin-right: auto; margin-top: 0;
+  }
+  .bu-entree .f-tete + .f-prog { grid-row: 1; margin-top: 56px; padding: 22px 28px 6px; }
+  .bu-entree .f-tete + .f-corps, .bu-entree .f-tete + .succes { grid-row: 2; align-self: center; padding: 36px 40px 40px; margin-top: 48px; margin-bottom: 24px; }
+  .bu-entree .f-prog + .f-corps, .bu-entree .f-prog + .succes { grid-row: 2; align-self: start; padding: 20px 40px 36px; margin-bottom: 24px; }
+  .bu-entree .f-preuve { grid-column: 2; grid-row: 3; padding: 10px 24px 20px; font-size: 16px; }
+  .bu-entree .pied-sceau { grid-column: 2; grid-row: 4; }
+  .bu-entree .f-corps .saisie { font-size: 15px; }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: 1180px; margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }

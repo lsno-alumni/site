@@ -120,7 +120,7 @@ export default function Connexion() {
   };
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <Link href="/" className="retour">← Retour</Link>
         <h1>Content de<br />te <em>revoir.</em></h1>

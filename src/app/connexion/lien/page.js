@@ -41,7 +41,7 @@ export default function ConnexionParLien() {
   };
 
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-entree">
       <header className="f-tete" style={{ paddingTop: 20 }}>
         <Link href="/connexion" className="retour">← Connexion</Link>
         <h1>Un lien<br /><em>pour entrer</em></h1>

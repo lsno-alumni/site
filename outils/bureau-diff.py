@@ -6,7 +6,7 @@ from PIL import Image, ImageChops
 D = os.path.join(os.path.dirname(__file__), "..", "..", "bureau-captures")
 ref, apres = os.path.join(D, "mobile-ref"), os.path.join(D, "mobile-apres")
 # écrans à contenu vivant (listes, horodatages, ordre aléatoire) : un écart n'y prouve rien, il est signalé à part
-VARIABLES = ("accueil--", "accueil_public--", "fil--", "annuaire--", "questions--", "messages--", "evenements--", "offres--", "connexion_lien_retour--", "bienvenue--", "mot_de_passe_nouveau--")
+VARIABLES = ("accueil--", "accueil_public--", "profil--", "fil--", "annuaire--", "questions--", "messages--", "evenements--", "offres--", "connexion_lien_retour--", "bienvenue--", "mot_de_passe_nouveau--")
 total = changes = variables = 0
 for f in sorted(os.listdir(apres)):
     r = os.path.join(ref, f)

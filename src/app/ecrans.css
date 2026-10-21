@@ -1542,7 +1542,7 @@ details .ad-chapitre { border-bottom: 1px solid var(--ligne); }
 .p-corps-suite { padding: 0 22px; margin-top: 14px; }
 /* sans parcours, ce qui suit les boutons doit garder l'air que la section
    Parcours apportait */
-.p-corps-suite + .p-conseil { margin-top: 28px; }
+.p-corps-suite + .p-conseil, .p-corps-suite + .bu-groupe > .p-conseil:first-child { margin-top: 28px; }   /* .bu-groupe (bureau) est transparent : même règle à travers lui */
 .p-bloc + .p-conseil { margin-top: 26px; }
 .p-corps-suite + .p-bloc.p-histoire { padding-top: 28px; }
 

@@ -58,7 +58,7 @@ export default async function PageAnnuaire() {
   }
 
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-annuaire">
       <Suspense>
         <Annuaire membres={membres} />
       </Suspense>

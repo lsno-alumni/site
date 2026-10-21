@@ -111,6 +111,7 @@ export function SuiteProfil({ p, contacts, demande, id, voisins }) {
         />
       </div>
 
+      <div className="bu-groupe">
       {p.parcours.length > 0 && (
         <section className="p-bloc">
           <h4>Parcours</h4>
@@ -144,6 +145,7 @@ export function SuiteProfil({ p, contacts, demande, id, voisins }) {
       )}
 
       {p.histoire && <Histoire prenom={p.prenom} texte={p.histoire} />}
+      </div>
 
       {contacts?.verrou === "profil_incomplet" && <VerrouContacts prenom={p.prenom} />}
       {lignes.length > 0 && (

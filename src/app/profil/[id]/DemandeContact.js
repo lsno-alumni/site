@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { texteErreur } from "@/lib/erreurs";
 import { exigerProfilComplet } from "@/lib/profilComplet";
+import InviteNotifsContexte from "@/components/InviteNotifsContexte";
 import { Send, Check, Share2, MessageCircle } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 
@@ -16,6 +17,7 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
   const [message, setMessage] = useState("");
   const [enCours, setEnCours] = useState(false);
   const [erreur, setErreur] = useState("");
+  const [vientDEnvoyer, setVientDEnvoyer] = useState(false);
 
   const envoyer = async () => {
     try { await exigerProfilComplet(); } catch { return; }   // la feuille « Dis-leur qui tu es » s'est ouverte, ou « plus tard »
@@ -34,6 +36,7 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
     }
     setStatut("attente");
     setFormulaire(false);
+    setVientDEnvoyer(true);
   };
 
   const [bloque, setBloque] = useState(null);   // null = pas encore su
@@ -92,6 +95,7 @@ export default function DemandeContact({ cibleId, prenom, statutInitial, aSurDem
         </button>
       </div>
 
+      {vientDEnvoyer && <InviteNotifsContexte declencheur />}
       {bloque !== null && (
         <button type="button" className="p-bloquer" onClick={basculerBlocage}>
           {bloque ? "Débloquer ce membre" : "Bloquer ce membre"}

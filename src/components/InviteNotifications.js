@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import { Bell, X } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { pushDispo, abonnementLocal, abonner, refusLocal, CLE_INVITE_ECARTEE } from "@/lib/push";
-import { modeInvitationInstall } from "@/lib/installation";
+import { modeInvitationInstall, plateforme } from "@/lib/installation";
+import { ecartee, ecarter } from "@/lib/invitations";
 
 // Invitation discrète sur l'accueil, pour les membres qui n'ont pas encore
 // autorisé les notifications (le navigateur exige un geste : impossible de les
 // activer d'office). Un seul appui suffit, sans passer par Mon profil.
-// Écartée une fois, elle ne revient plus (mémorisée sur l'appareil).
+// Écartée, elle revient après 30 jours, trois fois au plus (lib/invitations).
+// Sur iPhone elle attend que l'appli soit installée (les notifications en
+// dépendent) ; ailleurs elle cohabite avec le bandeau d'installation (21/10).
 const CLE_ECARTEE = CLE_INVITE_ECARTEE;
 
 export default function InviteNotifications({ profilId }) {
@@ -20,11 +23,11 @@ export default function InviteNotifications({ profilId }) {
 
   useEffect(() => {
     if (!pushDispo() || !profilId) return;
-    if (localStorage.getItem(CLE_ECARTEE)) return;
+    if (ecartee(CLE_ECARTEE)) return;
     if (refusLocal()) return;   // a désactivé volontairement : ne pas le relancer
     (async () => {
-      // un seul bandeau à la fois : l'installation passe devant, sur tous les appareils
-      if (await modeInvitationInstall()) return;
+      // sur iPhone seulement, l'installation passe devant : sans l'appli, pas de notifications
+      if (plateforme().startsWith("ios") && await modeInvitationInstall()) return;
       if (await abonnementLocal()) return;                  // déjà abonné
       if (Notification.permission === "granted") {
         // autorisation déjà là : on enregistre sans rien demander
@@ -44,14 +47,14 @@ export default function InviteNotifications({ profilId }) {
       setTimeout(() => setVisible(false), 2200);
     } catch {
       setVisible(false);   // refus : on ne redemande pas
-      localStorage.setItem(CLE_ECARTEE, "1");
+      ecarter(CLE_ECARTEE);
     } finally {
       setEnCours(false);
     }
   };
 
   const ecarter = () => {
-    localStorage.setItem(CLE_ECARTEE, "1");
+    ecarter(CLE_ECARTEE);
     setVisible(false);
   };
 
@@ -66,8 +69,8 @@ export default function InviteNotifications({ profilId }) {
         <>
           <span className="txt">
             <b>Active tes notifs</b>{" "}
-            Demandes de contact, nouvelles offres, arrivées… Tu peux tout paramétrer
-            ensuite dans « Mon profil ».
+            Quand quelqu&apos;un te répond ou te demande ton contact, tu le sais tout de suite.
+            Rien de plus : tu choisis ce que tu reçois dans Mon profil.
           </span>
           <button type="button" className="btn btn-notif" onClick={activer} disabled={enCours}>
             {enCours ? "…" : "Activer"}

@@ -12,6 +12,8 @@
 // qui les avaient activées, et personne d'autre ne voyait jamais de proposition.
 // D'où initInstallation() : on l'enregistre pour tout le monde, au chargement.
 
+import { ecartee } from "@/lib/invitations";
+
 let invite = null;        // l'événement mis de côté par le navigateur
 let installee = false;    // passée à true si l'installation aboutit
 let demarre = false;
@@ -61,7 +63,7 @@ export const CLE_INSTALL_ECARTEE = "lsno_invite_install_ecartee";
 // ou null (rien d'utile à proposer ici).
 export async function modeInvitationInstall() {
   if (typeof window === "undefined" || dejaInstallee()) return null;
-  try { if (localStorage.getItem(CLE_INSTALL_ECARTEE)) return null; } catch { /* ignore */ }
+  if (ecartee(CLE_INSTALL_ECARTEE)) return null;   // « plus tard » : 30 jours, trois fois au plus
   const p = plateforme();
   if (p === "ios-autre" || p === "in-app") return null;   // installation impossible ici
 

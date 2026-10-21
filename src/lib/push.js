@@ -8,6 +8,8 @@
 // Refus EXPLICITE sur cet appareil. Indispensable : désactiver depuis l'appli ne
 // révoque pas l'autorisation du navigateur — sans cette mémoire, l'auto-abonnement
 // silencieux ci-dessous réactivait tout seul au rechargement suivant.
+import { ecartee } from "@/lib/invitations";
+
 const CLE_REFUS = "lsno_push_refuse";
 export const refusLocal = () => {
   try { return localStorage.getItem(CLE_REFUS) === "1"; } catch { return false; }
@@ -24,7 +26,7 @@ export const CLE_INVITE_ECARTEE = "lsno_invite_notif_ecartee";
 // empiler deux bandeaux sur l'accueil.
 export async function inviteNotifsAttendue() {
   if (!pushDispo() || refusLocal()) return false;
-  try { if (localStorage.getItem(CLE_INVITE_ECARTEE)) return false; } catch { /* ignore */ }
+  if (ecartee(CLE_INVITE_ECARTEE)) return false;
   if (Notification.permission !== "default") return false;   // déjà accordée ou refusée
   return (await abonnementLocal()) === null;
 }

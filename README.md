@@ -38,6 +38,10 @@ le réseau de tous se renforce.
 - **Conseils aux cadets** regroupés **par thème**, alimentés par les profils
 - **Accueil personnalisé** pour les membres connectés ; vitrine anonyme pour les visiteurs
 - **Photo de profil** recadrable (carré) et supprimable
+- **Invitations au bon moment** (octobre 2026) : « Active tes notifs » et « Installe l'appli »
+  reviennent après 30 jours quand on a dit « plus tard », trois fois au plus ; et l'invitation
+  aux notifications se propose juste après un message envoyé, une question posée ou une
+  demande de contact (« pour savoir quand on te répond »)
 - **Notifications push** : être prévenu, appli fermée, d'une demande de contact, d'une
   nouvelle offre, de l'arrivée d'un camarade, d'un message, d'une publication de son
   cercle… réglables par **six familles** (mes demandes, le réseau, les offres, le fil, les

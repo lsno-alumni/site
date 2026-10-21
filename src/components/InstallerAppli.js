@@ -6,6 +6,7 @@ import {
   dejaInstallee, inviteDisponible, lancerInstallation, plateforme, MODES,
   modeInvitationInstall, CLE_INSTALL_ECARTEE,
 } from "@/lib/installation";
+import { ecarter } from "@/lib/invitations";
 
 const CLE_ECARTEE = CLE_INSTALL_ECARTEE;
 
@@ -20,9 +21,9 @@ function Etapes({ mode }) {
 
 // ============================================================
 // A) Bandeau sur l'accueil — proposition au bon moment
-//    Un seul bandeau à la fois, et l'installation PASSE AVANT celui des
-//    notifications sur TOUS les appareils : l'appli installée est la meilleure
-//    porte d'entrée (et sur iPhone, les notifications en dépendent).
+//    Sur iPhone, l'installation PASSE AVANT le bandeau des notifications (elles
+//    en dépendent) ; ailleurs les deux cohabitent (21/10). « Plus tard » :
+//    retour après 30 jours, trois fois au plus (lib/invitations).
 // ============================================================
 export function InviteInstallation() {
   const [etat, setEtat] = useState(null);   // null = on décide, "bouton" | "gestes" | null
@@ -37,7 +38,7 @@ export function InviteInstallation() {
     if (await lancerInstallation()) { setFait(true); setTimeout(() => setEtat(null), 2500); }
   };
   const ecarter = () => {
-    try { localStorage.setItem(CLE_ECARTEE, "1"); } catch { /* ignore */ }
+    ecarter(CLE_ECARTEE);
     setEtat(null);
   };
 

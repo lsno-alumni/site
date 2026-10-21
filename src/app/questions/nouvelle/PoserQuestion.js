@@ -9,6 +9,7 @@ import Avatar from "@/components/Avatar";
 import * as memoire from "@/lib/memoire";
 import { THEMES_CONSEIL, DOMAINES } from "@/lib/donnees";
 import { poserQuestion, televerserPieceQuestion, PIECE_QUESTION_JOURS } from "@/lib/questions";
+import { marquerContexte } from "@/lib/invitations";
 import { tailleLisible } from "@/lib/messages";
 
 const TITRE_MAX = 140;
@@ -47,6 +48,7 @@ export default function PoserQuestion({ moi, enFeuille = false }) {
       // en feuille : la question remplace le formulaire dans la feuille ; en
       // pleine page : chargement complet, sinon la feuille s'ouvrirait
       // par-dessus le formulaire resté derrière
+      marquerContexte(`question:${id}`);   // l'écran de la question proposera les notifs : « pour savoir quand on te répond »
       noterNavigationComplete(); if (enFeuille) routeur.replace(`/questions/${id}`); else window.location.assign(`/questions/${id}`);
     } catch (err) { setSouci("Impossible d'envoyer : " + texteErreur(err)); setEnvoi(false); }
   };

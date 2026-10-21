@@ -6,6 +6,7 @@ import VeilleVersion from "@/components/VeilleVersion";
 import { SCRIPT_INITIAL } from "@/lib/theme";
 import "./globals.css";
 import "./ecrans.css";
+import "./bureau.css";   // grand écran (≥ 1024 px) uniquement
 
 const titres = Fraunces({
   subsets: ["latin"],

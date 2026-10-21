@@ -5,6 +5,7 @@ import Poussiere from "@/components/Poussiere";
 import MenuPublic from "@/components/MenuPublic";
 import IconeDomaine from "@/components/IconeDomaine";
 import Roue3D from "@/components/Roue3D";
+import ChoixTheme from "@/components/ChoixTheme";
 import NuagePays from "@/components/NuagePays";
 import { DOMAINES, PAYS } from "@/lib/donnees";
 import { statsPubliques, utilisateurCourant, donneesAccueilMembre } from "@/lib/api";
@@ -28,7 +29,7 @@ export default async function Accueil() {
   const aDesPays = Object.keys(stats.parPays ?? {}).length > 0;
 
   return (
-    <main className="page">
+    <main className="page bu-accueil">
       <header className="a-hero">
         <Poussiere />
         <div className="a-nav">
@@ -36,6 +37,13 @@ export default async function Accueil() {
             <img className="sceau" src="/img/logo.jpg" alt="Blason du LSNO" /> LSNO Amicale
           </div>
           <MenuPublic />
+          {/* grand écran : les liens en clair, à la place du menu replié */}
+          <nav className="bu-nav" aria-label="Navigation">
+            <Link href="/a-propos">À propos</Link>
+            <Link href="/connexion">Se connecter</Link>
+            <Link href="/inscription" className="btn btn-or">Rejoindre le réseau</Link>
+            <ChoixTheme compact />
+          </nav>
         </div>
         <p className="tagline">
           {stats.anciens} ancien{stats.anciens > 1 ? "s" : ""} · {stats.pays} pays
@@ -54,10 +62,23 @@ export default async function Accueil() {
         <div className="a-stat"><b><Compteur valeur={stats.pays} /></b><span>pays</span></div>
         <div className="a-stat"><b><Compteur valeur={stats.promotions} /></b><span>promotions</span></div>
       </div>
+      {/* grand écran : la règle des promotions, de la première à aujourd'hui (P1 = entrée 2017, bac 2020) */}
+      <div className="bu-regle" aria-label="Les promotions">
+        <span className="bu-regle-titre">Les promotions</span>
+        {Array.from({ length: stats.promotions }, (_, i) => {
+          const bac = 2020 + i; const enCours = bac > new Date().getFullYear();
+          return (
+            <Link key={i} href="/annuaire" className={enCours ? "en-cours" : ""}>
+              <b>P{i + 1}</b><small>{enCours ? "au lycée" : `bac ${bac}`}</small>
+            </Link>
+          );
+        })}
+      </div>
 
       <Reveal>
       <section className="a-section">
         <h2 className="a-titre">Qui fait quoi ?</h2>
+        <div className="bu-roue-mobile">
         <Roue3D memo="public-domaines" classeCarteListe="dom"
           sousRoue="Fais tourner la roue, touche un domaine pour voir qui contacter."
           sousListe="Choisis un domaine, découvre qui contacter." aria="Domaines — flèches haut et bas pour parcourir"
@@ -73,6 +94,18 @@ export default async function Accueil() {
               </>
             ),
           }))} />
+        </div>
+        {/* grand écran : les mêmes domaines, en grille */}
+        <div className="bu-domaines">
+          {DOMAINES.filter((d) => d.cle !== "autre").map((d) => (
+            <Link key={d.cle} href={`/annuaire?domaine=${d.cle}`} className="dom">
+              <span className="pictol"><IconeDomaine domaine={d.cle} /></span>
+              <span className="txt"><b>{d.nom}</b><span>{d.detail}</span></span>
+              <span className="nb"><Compteur valeur={parDomaine[d.cle] ?? 0} /></span>
+              <span className="fl" aria-hidden>→</span>
+            </Link>
+          ))}
+        </div>
       </section>
       </Reveal>
 
@@ -115,6 +148,24 @@ export default async function Accueil() {
       </Reveal>
 
       <footer className="pied-public">
+        <div className="bu-pied">
+          <div>
+            <img className="ecusson" src="/img/logo.jpg" alt="" style={{ marginBottom: 10 }} />
+            <p className="tagline" style={{ color: "var(--bleu-texte)" }}>Travail · Excellence · Discipline</p>
+            <p style={{ marginTop: 8 }}>LSNO Amicale, le réseau des anciens du Lycée Scientifique National de Ouagadougou. Réservé aux anciens et aux élèves, validés par leur promotion.</p>
+          </div>
+          <div>
+            <h4>Le lycée</h4>
+            <p>Lycée Scientifique National de Ouagadougou<br />Ouagadougou, Burkina Faso<br />Série C · Promotions 2017 → aujourd&apos;hui</p>
+          </div>
+          <div>
+            <h4>Le réseau</h4>
+            <Link href="/inscription">Rejoindre le réseau</Link>
+            <Link href="/connexion">Se connecter</Link>
+            <Link href="/a-propos">À propos</Link>
+            <Link href="/conditions">Conditions &amp; confidentialité</Link>
+          </div>
+        </div>
         <img className="ecusson" src="/img/logo.jpg" alt="" />
         <p className="tagline" style={{ color: "var(--bleu-texte)" }}>Travail · Excellence · Discipline</p>
         <p style={{ marginTop: 8 }}>

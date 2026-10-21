@@ -216,7 +216,7 @@ export default function FeuilleGlissante({ tete, children, onFermer, depart = "p
     <div className={`fg-scrim${reprise ? " sans-fondu" : ""}`} onClick={() => aller("ferme")} role="presentation">
       <div
         ref={feuilleRef}
-        className="fg-feuille"
+        className={`fg-feuille${depart === "plein" ? " fg-fenetre" : ""}`}
         data-etat={etat}
         style={reprise ? { transition: "none", transform: `translateY(${reprise === "plein" ? 0 : window.innerHeight * (1 - PEEK)}px)`, "--ecoule": `${ecoule}ms` } : undefined}
         role="dialog"

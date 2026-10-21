@@ -42,7 +42,8 @@ function Vignette({ c }) {
   return a ? <Avatar profil={{ prenom: a.prenom, nom: a.nom, photo: a.photo_url }} className="msg-vignette" /> : <span className="msg-vignette avatar-init">?</span>;
 }
 
-export default function Conversations({ moi }) {
+// enColonne : rendue à gauche d'une conversation ouverte (grand écran) — pas de restauration de défilement, ligne active marquée
+export default function Conversations({ moi, enColonne = false }) {
   const routeur = useRouter();
   const chemin = usePathname();
   const [liste, setListe] = useState(() => memoire.lire("messages.liste") ?? null);
@@ -167,7 +168,7 @@ export default function Conversations({ moi }) {
           const contenu = d ? (d.texte?.trim() ? d.texte : libellePiece(d)) : "";
           const apercu = d ? `${d.auteur === moi.id ? "Toi" : d.prenom} : ${contenu}` : "Nouvelle conversation";
           return (
-            <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}`} draggable={false}
+            <Link key={c.id} href={`/messages/${c.id}`} className={`msg-ligne${c.non_lus > 0 ? " non-lu" : ""}${enColonne && chemin === `/messages/${c.id}` ? " bu-active" : ""}`} draggable={false}
               onPointerDown={debutGeste(c)} onPointerMove={bougeGeste} onPointerUp={finGeste} onPointerCancel={finGeste}
               onContextMenu={(e) => { e.preventDefault(); setMenuConv(c); }}>
               <Vignette c={c} />
@@ -211,7 +212,7 @@ export default function Conversations({ moi }) {
         </div>
       )}
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
-      <RestaurerDefilement />
+      {!enColonne && <RestaurerDefilement />}
     </>
     </GlisserRafraichir>
   );

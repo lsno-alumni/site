@@ -157,7 +157,10 @@
   .bu-accueil-membre .gr-zone > .rev:has(.am-question), .bu-accueil-membre .gr-zone > .rev:has(.a-temoin),
   .bu-accueil-membre .gr-zone > .rev:has(.bu-domaines), .bu-accueil-membre .gr-zone > .rev:has(.am-pierre) { grid-column: 1 / -1; }
   .bu-accueil-membre .am-pierre { border-radius: 24px; margin: 0 !important; padding: 34px 40px 44px !important; }
-  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > section.a-section:has(.am-offres) { grid-column: 1 / -1; }
+  /* quand l'aparté occupe la colonne de droite, les offres (et les questions) passent en pleine largeur, sur deux colonnes */
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > .rev:has(.am-offres) { grid-column: 1 / -1; }
+  .bu-accueil-membre .gr-zone > .rev:has(.am-offres) .am-offres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; }
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:empty) > .rev:has(.am-offres):not(:has(.am-question)) .am-offres { grid-template-columns: minmax(0, 1fr); }
   .bu-accueil-membre .gr-zone > .rev:has(.eventail) .eventail { max-width: 460px; margin-left: auto; margin-right: auto; }
   .bu-accueil-membre .gr-zone > .rev:has(.am-anneaux) .am-anneaux { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .bu-accueil-membre .bu-cote > * { margin-left: 0 !important; margin-right: 0 !important; }

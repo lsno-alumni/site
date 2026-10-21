@@ -14,10 +14,10 @@ export default async function PageBibliotheque() {
   const moi = await utilisateurCourant();
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-bib">
       <header className="n-tete tete-promo1" style={{ paddingBottom: 18 }}>
         <RetourDynamique secours="/" libelle="Retour" />
-        <h1 style={{ marginTop: 8 }}>Annales<br />et <em>sujets</em></h1>
+        <h1 style={{ marginTop: 8 }}>Annales <br />et <em>sujets</em></h1>
         <p className="cpt">Les sujets du bac et de l&apos;école, gardés par les anciens pour les cadets.</p>
       </header>
       <Bibliotheque moi={{ id: moi.id, role: moi.role }} />

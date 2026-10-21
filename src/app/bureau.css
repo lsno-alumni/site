@@ -168,6 +168,8 @@
   .page.avec-tabbar { max-width: none; margin: 0 0 0 var(--bu-rail); padding-bottom: 40px !important; transition: margin-left .25s cubic-bezier(.22,1,.36,1); }
   /* en attendant leur mise en page propre, les écrans membres gardent une colonne lisible */
   .page.avec-tabbar:not([class*=" bu-"]) > * { max-width: 760px; margin-left: auto; margin-right: auto; }
+  .page.avec-tabbar:not([class*=" bu-"]) > .n-tete { border-radius: 24px; margin-top: 24px; }
+  .page.avec-tabbar:not([class*=" bu-"]) > .n-tete::before { animation: none; }
   .page.avec-tabbar .gr-zone-icone { display: none; }   /* le glisser-rafraîchir est un geste de téléphone */
 
   /* ---------- l'accueil connecté : le fil des sections à gauche, l'aparté à droite ---------- */
@@ -432,6 +434,50 @@
   .bu-offre .o-posteur { grid-column: 2; grid-row: 2 / span 5; position: sticky; top: 20px; margin: 28px 0 0; padding: 18px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); }
   .bu-offre .o-reactions { margin-left: 0; margin-right: 0; }
   .bu-offre .o-suite { grid-column: 1 / -1; }
+
+  /* ---------- les conseils : le sommaire des thèmes à gauche, les chapitres à droite ---------- */
+  .bu-conseils { max-width: clamp(1200px, 84%, 1600px); margin-left: auto; margin-right: auto; padding: 24px 40px 40px; }
+  .bu-conseils > .gr-zone { display: grid; grid-template-columns: 260px minmax(0, 1fr); column-gap: 36px; align-items: start; }   /* le contenu est dans la zone du glisser-rafraîchir */
+  .bu-conseils > .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 32px 40px 28px !important; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: 22px; }
+  .bu-conseils > .n-tete::before { animation: none; }
+  .bu-conseils > .n-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; }
+  .bu-conseils > .n-tete h1 br { display: none; }
+  .bu-conseils > .n-tete .cpt { font-size: 15px; }
+  .bu-conseils > .n-tete .n-vers-conseils { position: absolute; top: 22px; right: 24px; }
+  .bu-conseils > .n-tete .retour, .bu-bib > .n-tete .retour { position: absolute; top: 22px; left: 24px; margin: 0; }
+  .bu-conseils .n-panneau { grid-column: 1; position: sticky; top: 20px; margin: 0; padding: 16px 12px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-conseils .n-panneau .n-filtres { display: grid; gap: 2px; overflow: visible; padding: 0; touch-action: auto; }
+  .bu-conseils .n-panneau .n-filtres::before { content: "Thèmes"; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); padding: 0 10px 8px; }
+  .bu-conseils .n-panneau .puce { border: 0; border-radius: 12px; text-align: left; white-space: normal; padding: 9px 12px; font-size: 13.5px; }
+  .bu-conseils .n-panneau .puce.en-vue { background: rgba(var(--accent-rgb), .1); color: var(--texte); }
+  .bu-conseils .n-panneau .puce.active { background: var(--bleu-clair); color: var(--sur-accent); }
+  .bu-conseils .c-liste { grid-column: 2; padding: 0; }
+  .bu-conseils .c-chapitre { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 40px; }
+  .bu-conseils .c-tete { grid-column: 1 / -1; margin: 0 0 4px; }
+  .bu-conseils .c-tete .a-titre { font-size: 30px; }
+  .bu-conseils .c-chapitre .a-temoin { margin: 0; }
+  .bu-conseils .c-chapitre .a-temoin.c-ouverture { grid-column: 1 / -1; }   /* la première voix du thème, en pleine largeur */
+  .bu-conseils .c-liste .vide { padding-top: 60px; }
+  .bu-conseils .n-cloture { grid-column: 1 / -1; border-radius: 24px; margin: 20px 0 0; padding: 48px 40px !important; }
+
+  /* ---------- la bibliothèque : proposer et filtrer à gauche, les fiches à droite ---------- */
+  .bu-bib { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 36px; max-width: clamp(1200px, 84%, 1600px); margin-left: auto; margin-right: auto; padding: 24px 40px 40px; align-items: start; }
+  .bu-bib > .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 32px 40px 28px !important; min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end; margin-bottom: 22px; }
+  .bu-bib > .n-tete::before { animation: none; }
+  .bu-bib > .n-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; }
+  .bu-bib > .n-tete h1 br { display: none; }
+  .bu-bib > .n-tete .cpt { font-size: 15px; max-width: 60ch; }
+  .bu-bib .bib { display: contents; }
+  .bu-bib .bib-actions { grid-column: 1; grid-row: 2; justify-content: stretch; }
+  .bu-bib .bib-actions .btn { width: 100%; justify-content: center; padding: 13px 18px; }
+  .bu-bib .bib-filtres { grid-column: 1; grid-row: 3; position: sticky; top: 20px; margin-top: 14px; padding: 16px 14px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); gap: 10px; }
+  .bu-bib .bib-filtres::before { content: "Affiner"; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); }
+  .bu-bib .bib-selects { grid-template-columns: 1fr; }
+  .bu-bib .bib-liste { grid-column: 2; grid-row: 2 / span 4; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+  @media (min-width: 1800px) { .bu-bib .bib-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .bu-bib .bib-ouvrir { height: 100%; }
+  .bu-bib .pu-vide, .bu-bib .bib-attente, .bu-bib .bib > .fiche { grid-column: 2; }
+  .bu-bib .bib-attente { text-align: left; }
 
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }

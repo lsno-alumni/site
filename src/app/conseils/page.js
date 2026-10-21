@@ -11,11 +11,11 @@ export const metadata = { title: "Conseils aux cadets — LSNO Amicale" };
 export default async function PageConseils() {
   const [conseils, moi] = await Promise.all([listeConseils(), utilisateurCourant()]);
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-conseils">
       <header className="n-tete tete-promo1" style={{ paddingBottom: 18 }}>
         <RetourDynamique secours="/" libelle="Retour" />
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <h1 style={{ marginTop: 8 }}>Conseils<br />aux <em>cadets</em></h1>
+          <h1 style={{ marginTop: 8 }}>Conseils <br />aux <em>cadets</em></h1>
           {moi?.statut_compte === "valide" && (
             <Link href="/bibliotheque" className="n-vers-conseils" style={{ marginTop: 12 }}>
               <BookOpen size={14} strokeWidth={1.9} aria-hidden /> Annales

@@ -20,7 +20,9 @@
     display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); grid-template-rows: auto 1fr auto auto auto auto;
     color: var(--texte);
   }
-  .bu-accueil .a-hero::before { inset: 0 0 0 55%; background-position: 50% 30%; z-index: 0; }
+  /* photo immobile : le zoom lent du mobile (animation kb) ferait bouger son bord gauche et ouvrirait une fente sur la couture */
+  .bu-accueil .a-hero::before { inset: 0 0 0 55%; background-position: 50% 30%; z-index: 0; animation: none; transform: none; }
+  .bu-accueil .a-hero .pouss { display: none; }   /* la poussière dorée du mobile tomberait sur le papier comme des points */
   .bu-accueil .a-hero::after { inset: 0 0 0 55%; z-index: 0;
     background: linear-gradient(90deg, rgba(var(--fond-rgb), .55) 0%, rgba(var(--fond-rgb), 0) 18%), linear-gradient(180deg, rgba(var(--voile-rgb), .15), rgba(var(--voile-rgb), .55));
   }

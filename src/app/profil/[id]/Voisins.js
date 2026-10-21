@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { nomDomaine } from "@/lib/donnees";
+import Defilable from "@/components/Defilable";
 
 // Fin de page du profil consulté : d'autres anciens à découvrir, « aussi dans
 // la promo » puis « dans le même domaine ». Cartes polaroïd (mêmes classes
@@ -32,13 +33,13 @@ export default function Voisins({ voisins, promotion }) {
       {promo.length > 0 && (
         <>
           <h4>Aussi dans la promo {promotion}</h4>
-          <div className="voisins">{promo.map((m) => <Carte key={m.id} m={m} />)}</div>
+          <Defilable><div className="voisins">{promo.map((m) => <Carte key={m.id} m={m} />)}</div></Defilable>
         </>
       )}
       {domaine.length > 0 && (
         <>
           <h4>Dans le même domaine</h4>
-          <div className="voisins">{domaine.map((m) => <Carte key={m.id} m={m} />)}</div>
+          <Defilable><div className="voisins">{domaine.map((m) => <Carte key={m.id} m={m} />)}</div></Defilable>
         </>
       )}
     </section>

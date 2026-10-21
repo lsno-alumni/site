@@ -7,6 +7,7 @@
    ============================================================================ */
 .bu, .bu-nav, .bu-domaines, .bu-regle, .bu-pied, .bu-rail-tete { display: none; }
 .bu-groupe { display: contents; }   /* un groupe sans boîte : il ne range ses enfants en colonne qu'en grand écran */
+.bu-defil { display: contents; }    /* l'enveloppe d'une rangée qui défile : ses flèches n'existent qu'en grand écran */
 
 @media (min-width: 1024px) {
   .bu { display: revert; }   /* les mots et petits éléments « bu » réapparaissent (bloc : donner leur display) */
@@ -209,6 +210,14 @@
     background: var(--carte); color: var(--texte); border: 1px solid rgba(var(--texte-rgb), .14); box-shadow: 0 8px 22px -12px rgba(0,0,0,.5); transition: transform .2s, background .2s; }
   .bu-fleche:hover { transform: translateY(-50%) scale(1.08); }
   .bu-fleche.gauche { left: -6px; }  .bu-fleche.droite { right: -6px; }
+  /* une rangée qui défile (Defilable) : les flèches sur ses bords, effacées quand il n'y a plus rien de ce côté */
+  .bu-defil { display: block; position: relative; }
+  .bu-defil > .bu-fleche { top: 50%; width: 36px; height: 36px; }
+  .bu-defil > .bu-fleche.gauche { left: -12px; }  .bu-defil > .bu-fleche.droite { right: -12px; }
+  .bu-defil > .bu-fleche[disabled] { opacity: 0; pointer-events: none; }
+  .pub-arrivee .bu-fleche { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.3); }
+  .pub-arrivee .bu-fleche:hover { background: rgba(255,255,255,.26); }
+  .pub-arrivee .bu-defil > .bu-fleche.gauche { left: -8px; }  .pub-arrivee .bu-defil > .bu-fleche.droite { right: -8px; }
   .bu-accueil-membre .eventail { position: relative; }
   .bu-accueil-membre .eventail .bu-fleche { top: calc(50% - 22px); }   /* centrées sur les cartes, pas sur l'aide */
   .am-pierre .bu-fleche { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
@@ -296,7 +305,7 @@
      La photo du jardin en bandeau ; dessous, à gauche, la boîte « Quoi de neuf », les moments puis les
      publications (680 px, la largeur d'un texte qui se lit) ; à droite, les filtres qui restent sous la
      main, et les portes vers les questions et les événements. */
-  .bu-fil .gr-zone { display: grid; grid-template-columns: minmax(0, 680px) 340px; justify-content: center; column-gap: 40px; padding: 24px 40px 40px; align-items: start; }
+  .bu-fil .gr-zone { display: grid; grid-template-columns: minmax(0, clamp(680px, 47vw, 960px)) clamp(340px, 20vw, 400px); justify-content: center; column-gap: clamp(40px, 3vw, 56px); padding: 24px 40px 40px; align-items: start; }   /* 680 + 340 sur un portable, jusqu'à 960 + 400 sur un grand écran */
   .bu-fil .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 40px 40px 70px; min-height: 240px; display: flex; flex-direction: column; justify-content: flex-end; }
   .bu-fil .n-tete::before { animation: none; }
   .bu-fil .n-tete h1 { font-size: clamp(40px, 3.6vw, 54px); line-height: 1; }

@@ -24,6 +24,7 @@ import { CarteEvenement } from "@/app/evenements/Evenements";
 import { CalendarDays } from "lucide-react";
 import RailMoments from "@/app/fil/RailMoments";
 import AccesRapides from "@/components/AccesRapides";
+import Defilable from "@/components/Defilable";
 import Nouveau, { decouvrir } from "@/components/Nouveau";
 import useTempsReel from "@/lib/tempsReel";
 import { HelpCircle } from "lucide-react";
@@ -129,6 +130,7 @@ function Arrivees({ liste }) {
   return (
     <article className="pub pub-arrivee pub-arrivees">
       <small className="pub-etiquette">{liste.length} nouveaux membres · {depuis(liste[0].valide_le)}</small>
+      <Defilable>
       <div className="pub-arrivees-rail" role="list" aria-label="Nouveaux membres">
         {liste.map((m) => (
           <Link key={m.id} href={`/profil/${m.id}`} className="pub-arrivee-mini" role="listitem">
@@ -139,6 +141,7 @@ function Arrivees({ liste }) {
           </Link>
         ))}
       </div>
+      </Defilable>
     </article>
   );
 }

@@ -108,7 +108,7 @@
   /* ---------- le pied : trois colonnes sur la photo du jardin ---------- */
   .bu-accueil .pied-public { margin-top: 90px; padding: 110px 48px 56px; }
   .bu-accueil .pied-public .bu-pied { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; max-width: 1180px; margin: 0 auto; text-align: left; align-items: start; }
-  .bu-accueil .pied-public .bu-pied h4 { margin: 0 0 10px; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--bleu-texte); }
+  .bu-accueil .pied-public .bu-pied h4 { margin: 0 0 10px; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: #8FBBFF; }   /* sur la photo sombre du jardin : bleu clair, lisible dans les deux thèmes */
   .bu-accueil .pied-public .bu-pied a { display: block; color: #D9D2C4; padding: 4px 0; }
   .bu-accueil .pied-public .bu-pied a:hover { color: #fff; }
   .bu-accueil .pied-public > .ecusson, .bu-accueil .pied-public > .tagline, .bu-accueil .pied-public > p { display: none; }

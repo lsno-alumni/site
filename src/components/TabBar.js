@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Megaphone, CircleUser, MessageCircle, Newspaper } from "lucide-react";
+import { Users, Megaphone, CircleUser, MessageCircle, Newspaper, Lightbulb, MessageCircleQuestion, CalendarDays, BookOpen, Sparkles, Info, ShieldCheck } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
@@ -23,6 +23,17 @@ const ONGLETS = [
   { href: "/messages", Icone: MessageCircle, nom: "Messages" },
   { href: "/mon-profil", Icone: CircleUser, nom: "Mon profil" },
 ];
+// grand écran seulement (le rail a la place) : les écrans qui, sur téléphone, se rejoignent par
+// l'accueil, le menu ou Mon profil. Rendus dans un bloc « bu », donc absents de l'écran mobile.
+const PLUS = [
+  { href: "/conseils", Icone: Lightbulb, nom: "Conseils" },
+  { href: "/questions", Icone: MessageCircleQuestion, nom: "Questions" },
+  { href: "/evenements", Icone: CalendarDays, nom: "Événements" },
+  { href: "/bibliotheque", Icone: BookOpen, nom: "Annales et sujets" },
+  { href: "/nouveautes", Icone: Sparkles, nom: "Nouveautés" },
+  { href: "/a-propos", Icone: Info, nom: "À propos" },
+];
+const PLUS_ADMIN = { href: "/admin", Icone: ShieldCheck, nom: "Validation" };
 
 // Cache au niveau MODULE : survit aux navigations client (contrairement à
 // l'état React qui se réinitialise à chaque remontage de la TabBar) → dès la
@@ -163,6 +174,7 @@ export default function TabBar({ actif }) {
     return () => window.removeEventListener("online", retour);
   }, []);
   const cachee = useCacherAuDefilement();
+  const chemin = usePathname();
 
   // la page libère la place réservée à la barre quand il n'y en a pas
   useEffect(() => {
@@ -254,6 +266,15 @@ export default function TabBar({ actif }) {
           {o.nom === "Fil" && moments > 0 && actif !== "Fil" && <span className="tab-point" aria-label={`${moments} moment${moments > 1 ? "s" : ""} à voir`} />}
         </Link>
       ))}
+      {/* grand écran : le reste du site, sous un filet (bloc caché sur mobile) */}
+      <div className="bu bu-rail-plus">
+        {[...PLUS, ...(["delegue", "admin"].includes(role) ? [PLUS_ADMIN] : [])].map((o) => (
+          <Link key={o.href} href={o.href} className={`tab${chemin?.startsWith(o.href) ? " on" : ""}`}>
+            <o.Icone size={19} strokeWidth={1.8} aria-hidden />
+            {o.nom}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }

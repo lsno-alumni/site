@@ -51,8 +51,11 @@ async function capturer(p, route, fichier) {
   await p.waitForTimeout(2500);   // compteurs (figés par reducedMotion), chiffres chargés après coup
   await p.evaluate(() => { document.documentElement.setAttribute("data-theme", localStorage.getItem("lsno-theme")); window.scrollTo(0, 0); });
   // faire défiler pour déclencher les apparitions, puis remonter
-  await p.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 500) { window.scrollTo({ top: y, behavior: "instant" }); await new Promise((r) => setTimeout(r, 120)); } window.scrollTo({ top: 0, behavior: "instant" }); });   // « instant » : avec le défilement doux, 60 ms ne suffisaient pas et les sections du bas restaient invisibles en grand écran
+  await p.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 500) { window.scrollTo({ top: y, behavior: "instant" }); await new Promise((r) => setTimeout(r, 120)); } window.scrollTo({ top: 0, behavior: "instant" }); document.querySelectorAll("*").forEach((el) => { if (el.scrollLeft) el.scrollLeft = 0; }); });   // les bandeaux de chapitres (Conditions, Mon profil) suivent le défilement : on les ramène au début   // « instant » : avec le défilement doux, 60 ms ne suffisaient pas et les sections du bas restaient invisibles en grand écran
   await p.waitForTimeout(1500);
+  // les bandeaux de chapitres se recentrent en douceur après coup : remis au début juste avant la photo
+  await p.evaluate(() => document.querySelectorAll("*").forEach((el) => { if (el.scrollLeft) el.scrollLeft = 0; }));
+  await p.waitForTimeout(200);
   await p.screenshot({ path: fichier, fullPage: true });
 }
 

@@ -21,6 +21,8 @@ export default function FeuilleProfilModal({ p, contacts, demande, id, voisins }
         <TeteProfil p={p} />
       </>}
     >
+      {/* grand écran : ouvrir la vraie page (navigation complète, hors route interceptée) ; caché sur mobile */}
+      <a href={`/profil/${id}`} className="bu bu-pleine-page">Pleine page ↗</a>
       <SuiteProfil p={p} contacts={contacts} demande={demande} id={id} voisins={voisins} />
     </FeuilleGlissante>
   );

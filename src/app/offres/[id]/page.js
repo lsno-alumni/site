@@ -38,7 +38,7 @@ export default async function PageOffre({ params }) {
     if (!o) notFound();
     const [suite, interactions] = await Promise.all([suiteOffre(id, o.domaine), lireInteractions("offre", id)]);
     return (
-      <main className="page page-profil avec-tabbar">
+      <main className="page page-profil avec-tabbar bu-offre">
         <RafraichirPage>
           <CouvertureOffre o={o} jours={joursRestants(o.date_limite)}>
             <Retour secours="/offres" />

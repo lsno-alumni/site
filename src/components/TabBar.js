@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Megaphone, CircleUser, MessageCircle, Newspaper, Lightbulb, MessageCircleQuestion, CalendarDays, BookOpen, Sparkles, Info, ShieldCheck } from "lucide-react";
+import { Users, Megaphone, CircleUser, MessageCircle, Newspaper, Lightbulb, MessageCircleQuestion, CalendarDays, BookOpen, Sparkles, Info, ShieldCheck, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { creerClientNavigateur } from "@/lib/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
 import { sautRecent, derniereAdresse } from "@/components/SuiviNavigation";
@@ -176,6 +176,14 @@ export default function TabBar({ actif }) {
   }, []);
   const cachee = useCacherAuDefilement();
   const chemin = usePathname();
+  // grand écran : le rail se replie sur ses icônes (classe sur <html>, lue par bureau.css, mémorisée ; posée dès le chargement par SCRIPT_INITIAL)
+  const [replie, setReplie] = useState(false);
+  useEffect(() => { setReplie(document.documentElement.classList.contains("bu-rail-replie")); }, []);   // eslint-disable-line react-hooks/set-state-in-effect
+  const basculerRail = () => {
+    const r = !replie; setReplie(r);
+    document.documentElement.classList.toggle("bu-rail-replie", r);
+    try { localStorage.setItem("lsno_rail", r ? "replie" : "ouvert"); } catch { /* ignore */ }
+  };
 
   // la page libère la place réservée à la barre quand il n'y en a pas
   useEffect(() => {
@@ -260,7 +268,7 @@ export default function TabBar({ actif }) {
           production seulement) et gardés 5 min — le premier tap est instantané */}
       {onglets.map((o) => (
         <Link key={o.href} href={o.href} scroll={false} prefetch={true} onClick={(e) => auTap(e, o)}
-          className={`tab${actif === o.nom ? " on" : ""}`}>
+          className={`tab${actif === o.nom ? " on" : ""}`} title={o.nom}>
           <o.Icone size={19} strokeWidth={1.8} aria-hidden />
           {o.nom}
           {o.nom === "Messages" && nonLu > 0 && <span className="tab-pastille" aria-label={`${nonLu} non lus`}>{nonLu > 99 ? "99+" : nonLu}</span>}
@@ -268,7 +276,7 @@ export default function TabBar({ actif }) {
         </Link>
       ))}
       {["delegue", "admin"].includes(role) && (
-        <Link href={VALIDATION.href} className={`tab bu${actif === "Validation" ? " on" : ""}`}>
+        <Link href={VALIDATION.href} className={`tab bu${actif === "Validation" ? " on" : ""}`} title={VALIDATION.nom}>
           <VALIDATION.Icone size={19} strokeWidth={1.8} aria-hidden />
           {VALIDATION.nom}
         </Link>
@@ -276,12 +284,15 @@ export default function TabBar({ actif }) {
       {/* grand écran : le reste du site, sous un filet (bloc caché sur mobile) */}
       <div className="bu bu-rail-plus">
         {PLUS.map((o) => (
-          <Link key={o.href} href={o.href} className={`tab${chemin?.startsWith(o.href) ? " on" : ""}`}>
+          <Link key={o.href} href={o.href} className={`tab${chemin?.startsWith(o.href) ? " on" : ""}`} title={o.nom}>
             <o.Icone size={19} strokeWidth={1.8} aria-hidden />
             {o.nom}
           </Link>
         ))}
       </div>
+      <button type="button" className="bu bu-rail-bascule" onClick={basculerRail} aria-label={replie ? "Déplier le menu" : "Replier le menu"} title={replie ? "Déplier le menu" : "Replier le menu"}>
+        {replie ? <PanelLeftOpen size={18} aria-hidden /> : <PanelLeftClose size={18} aria-hidden />}
+      </button>
     </nav>
   );
 }

@@ -16,7 +16,7 @@ const nom = (route, theme, largeur) => `${route === "/" ? "accueil" : route.slic
 const init = (theme) => `
   (() => { let g = 123456789; Math.random = () => { g = (g * 1103515245 + 12345) & 0x7fffffff; return g / 0x7fffffff; }; })();
   localStorage.setItem("lsno-theme", "${theme}");
-  const poser = () => { const s = document.createElement("style"); s.textContent = "nextjs-portal{display:none!important} *,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;caret-color:transparent!important} .np-zone{visibility:hidden!important}";   /* le nuage de pays bouge en continu (animation physique) : masqué, son cadre reste mesuré */ (document.head || document.documentElement).appendChild(s); };
+  const poser = () => { const s = document.createElement("style"); s.textContent = "nextjs-portal{display:none!important} *,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;caret-color:transparent!important} .np-zone{visibility:hidden!important} .bu-roue-mobile .nb,.cache3d .nb{visibility:hidden!important}";   /* roue 3D : ses compteurs ne s'animent que quand la carte passe devant → masqués eux aussi */   /* le nuage de pays bouge en continu (animation physique) : masqué, son cadre reste mesuré */ (document.head || document.documentElement).appendChild(s); };
   if (document.head) poser(); else document.addEventListener("DOMContentLoaded", poser);`;
 
 async function connecter(p) {
@@ -28,11 +28,12 @@ async function connecter(p) {
 }
 async function capturer(p, route, fichier) {
   await p.goto(BASE + route, { timeout: 240000, waitUntil: "domcontentloaded" });
-  await p.waitForTimeout(2500);
+  try { await p.waitForLoadState("networkidle", { timeout: 15000 }); } catch { /* flux temps réel : on n'attend pas plus */ }
+  await p.waitForTimeout(2500);   // compteurs (figés par reducedMotion), chiffres chargés après coup
   await p.evaluate(() => { document.documentElement.setAttribute("data-theme", localStorage.getItem("lsno-theme")); window.scrollTo(0, 0); });
   // faire défiler pour déclencher les apparitions, puis remonter
   await p.evaluate(async () => { for (let y = 0; y < document.documentElement.scrollHeight; y += 600) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); } window.scrollTo(0, 0); });
-  await p.waitForTimeout(800);
+  await p.waitForTimeout(1500);
   await p.screenshot({ path: fichier, fullPage: true });
 }
 
@@ -40,7 +41,7 @@ async function capturer(p, route, fichier) {
   const navigateur = await chromium.launch();
   if (mode === "bureau") {
     for (const largeur of [1280, 1440]) for (const theme of ["clair", "sombre"]) {
-      const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, locale: "fr-FR" }); await ctx.addInitScript(init(theme));
+      const ctx = await navigateur.newContext({ viewport: { width: largeur, height: 900 }, locale: "fr-FR", reducedMotion: "reduce" }); await ctx.addInitScript(init(theme));
       const p = await ctx.newPage(); await p.route(/challenges\.cloudflare\.com/, (r) => r.abort()); const connecte = await connecter(p);
       const dossier = path.join(DOSSIER, "bureau"); fs.mkdirSync(dossier, { recursive: true });
       for (const route of (connecte ? [...PUBLICS, ...MEMBRES] : PUBLICS)) await capturer(p, route, path.join(dossier, nom(route, theme, largeur)));
@@ -50,7 +51,7 @@ async function capturer(p, route, fichier) {
   }
   const dossier = path.join(DOSSIER, mode === "ref" ? "mobile-ref" : "mobile-apres"); fs.mkdirSync(dossier, { recursive: true });
   for (const theme of ["clair", "sombre"]) {
-    const ctx = await navigateur.newContext({ ...devices["Pixel 7"], locale: "fr-FR" }); await ctx.addInitScript(init(theme));
+    const ctx = await navigateur.newContext({ ...devices["Pixel 7"], locale: "fr-FR", reducedMotion: "reduce" }); await ctx.addInitScript(init(theme));
     const p = await ctx.newPage(); await p.route(/challenges\.cloudflare\.com/, (r) => r.abort()); const connecte = await connecter(p);
     for (const route of (connecte ? [...new Set([...PUBLICS, ...MEMBRES])] : PUBLICS)) await capturer(p, route, path.join(dossier, nom(route, theme)));
     await ctx.close();

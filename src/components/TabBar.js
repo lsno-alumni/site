@@ -234,13 +234,16 @@ export default function TabBar({ actif }) {
   }, []);
 
   const auTap = (e, o) => {
+    // « déjà là » = l'onglet est allumé ET on est sur son écran. Sur Questions, Événements ou Nouveautés,
+    // l'onglet Fil est allumé (ces écrans dépendent du fil) mais un tap doit MENER au fil, pas recharger
+    const dejaLa = actif === o.nom && chemin?.startsWith(o.href);
     // une nouvelle version attend : un tap d'onglet devient une navigation complète, qui la charge
     if (nouvelleVersionPrete() && !saisieEnCours()) {
       e.preventDefault();
-      window.location.assign(actif === o.nom ? o.href : (derniereAdresse(o.href) ?? o.href));
+      window.location.assign(dejaLa ? o.href : (derniereAdresse(o.href) ?? o.href));
       return;
     }
-    if (actif === o.nom) {
+    if (dejaLa) {
       e.preventDefault();
       // déjà en haut : on recharge (même geste que tirer vers le bas) ; sinon on remonte
       if (window.scrollY <= 40) { window.dispatchEvent(new CustomEvent("lsno:rafraichir")); routeur.refresh(); }

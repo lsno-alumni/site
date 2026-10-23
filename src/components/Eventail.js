@@ -89,7 +89,7 @@ export default function Eventail({ membres }) {
           {membres.map((m, i) => <i key={m.id} className={i === actif ? "on" : ""} />)}
         </div>
       )}
-      {n > 1 && <p className="eventail-aide"><span className="bu-tel">Glisse pour voir les suivants</span><span className="bu">Clique sur une carte pour voir le profil ; les flèches font défiler.</span></p>}
+      {n > 1 && <p className="eventail-aide"><span className="bu-tel">Glisse pour voir les suivants</span><span className="bu">Les flèches, ou un clic sur une carte voisine</span></p>}
     </div>
   );
 }

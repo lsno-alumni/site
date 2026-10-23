@@ -611,7 +611,10 @@
   .bu-conditions .cg-titre { scroll-margin-top: 24px; }
   .bu-conditions > .pied-sceau, .bu-conditions > .sceau { grid-column: 1 / -1; }
 
-  /* ---------- 404 : la feuille au centre ---------- */
+  /* ---------- 404, et les pages « réservé aux membres » (profil ou offre vus sans session) : la feuille au centre ---------- */
+  .page.page-sceau:not([class*=" bu-"]) { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; padding-top: 10px; }
+  /* la silhouette d'une conversation qui s'ouvre : à la place de la conversation (le rail, puis la colonne de la liste encore vide) */
+  .bu-conv-attente { margin-left: calc(var(--bu-rail) + 380px); max-width: none; min-height: 100vh; }
   .bu-404 { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; }
   .bu-404 > .f-tete::before { animation: none; }
 

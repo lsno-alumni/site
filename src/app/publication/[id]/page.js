@@ -23,7 +23,7 @@ export default async function PagePublication({ params }) {
   const moderateur = moi.role === "admin" || moi.role === "delegue";
   if (r.publication.masquee && !moderateur && r.publication.auteur.id !== moi.id) notFound();
   return (
-    <main className="page page-profil avec-tabbar">
+    <main className="page page-profil avec-tabbar bu-lecture">
       <RafraichirPage>
         <div className="pu-page">
           <div className="pu-bandeau"><Retour secours="/fil" /></div>

@@ -2,7 +2,7 @@
 // les bulles arrivent (de la mémoire d'onglet, puis du serveur).
 export default function ChargementConversation() {
   return (
-    <main className="page">
+    <main className="page bu-conv-attente">
       <div className="msg-page" aria-hidden>
         <header className="msg-tete">
           <span className="sk" style={{ width: 36, height: 36, borderRadius: "50%", marginLeft: 6 }} />

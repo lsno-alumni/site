@@ -8,6 +8,7 @@
 .bu, .bu-nav, .bu-domaines, .bu-regle, .bu-pied, .bu-rail-tete { display: none; }
 .bu-groupe { display: contents; }   /* un groupe sans boîte : il ne range ses enfants en colonne qu'en grand écran */
 .bu-defil { display: contents; }    /* l'enveloppe d'une rangée qui défile : ses flèches n'existent qu'en grand écran */
+.bu-haut { display: none; }         /* le bouton « remonter » (rendu ≥ 1024 seulement, ceinture et bretelles) */
 
 @media (min-width: 1024px) {
   .bu { display: revert; }   /* les mots et petits éléments « bu » réapparaissent (bloc : donner leur display) */
@@ -618,6 +619,27 @@
   .bu-404 { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; }
   .bu-404 > .f-tete::before { animation: none; }
 
+  /* ---------- fluidité : survols, arrivée des pages, bouton « remonter », focus ---------- */
+  .bu-haut { display: grid; place-items: center; position: fixed; right: 36px; bottom: 100px; z-index: 44; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(var(--texte-rgb), .14); background: var(--carte); color: var(--texte); cursor: pointer; box-shadow: 0 12px 28px -14px rgba(0,0,0,.5); opacity: 0; translate: 0 12px; pointer-events: none; transition: opacity .25s, translate .25s, background .2s; }
+  .bu-haut.la { opacity: 1; translate: 0 0; pointer-events: auto; }
+  .bu-haut:hover { background: rgba(var(--texte-rgb), .06); }
+  /* les pages qui ont déjà un bouton flottant en bas à droite (la plume) : le « remonter » monte au-dessus */
+  .bu-fil .fil-fab ~ .bu-haut, .bu-questions .fil-fab ~ .bu-haut, .bu-evenements .fil-fab ~ .bu-haut { bottom: 100px; }
+  /* les cartes répondent à la souris : légère montée et contour accentué, mêmes gestes partout */
+  .pub:hover, .qa-carte:hover, .ev-carte:hover, .bib-ouvrir:hover, .msg-ligne:hover, .o-mini:hover, .am-offre:hover, .am-anneau-bloc:hover, .nv-carte:hover, .fiche.demande:hover, .ap-pas li:hover { translate: 0 -2px; border-color: rgba(var(--accent-rgb), .45); transition: translate .2s, border-color .2s, box-shadow .2s; }
+  .pub, .qa-carte, .ev-carte, .bib-ouvrir, .msg-ligne, .o-mini, .am-offre, .nv-carte { transition: translate .2s, border-color .2s, box-shadow .2s; }
+  .voisins .polaroid:hover, .eventail-pile .polaroid.devant:hover { translate: 0 -4px; box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 24px 44px -18px rgba(31,34,48,.6), 0 0 0 1px rgba(var(--accent-rgb), .25); }
+  .voisins .polaroid { transition: translate .2s, box-shadow .3s; }
+  .btn:hover { box-shadow: 0 10px 24px -12px rgba(0,0,0,.45); translate: 0 -1px; }
+  .btn-or:hover { filter: brightness(1.06); }
+  .puce:hover:not(.active) { border-color: rgba(var(--accent-rgb), .45); color: var(--texte); }
+  .tab { transition: background .2s, color .2s; }
+  .tab:focus-visible, .fiche:focus-visible, .pub-ouvrir:focus-visible, .qa-carte:focus-visible, .msg-ligne:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
+  /* la molette dans un panneau ou une fenêtre ne fait pas défiler la page derrière */
+  .fg-feuille, .bu-conv-liste, .dq-feuille { overscroll-behavior: contain; }
+  /* barres de défilement fines dans les panneaux */
+  .fg-feuille { scrollbar-width: thin; }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }
@@ -694,4 +716,22 @@
     animation: bu-monte .8s cubic-bezier(.22,1,.36,1) .25s both;
   }
   .bu-entree .f-preuve { animation: bu-monte .8s cubic-bezier(.22,1,.36,1) .5s both; }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  /* chaque écran arrive en fondu léger, et ses premières cartes se posent en escalier */
+  /* opacité seule : un déplacement sur <main> en ferait le conteneur des éléments fixes qu'il abrite (rail, plume, barre d'enregistrement) */
+  .page.avec-tabbar, .page.bu-conv { animation: bu-page .32s ease-out backwards; }
+  @keyframes bu-page { from { opacity: 0; } to { opacity: 1; } }
+  .bu-annuaire .n-liste > .fiche:nth-child(-n+12), .bu-offres .n-liste > .fiche:nth-child(-n+8), .bu-fil .fil-liste > *:nth-child(-n+6),
+  .bu-questions .qa-liste > *:nth-child(-n+8), .bu-evenements .qa-liste > *:nth-child(-n+8), .bu-bib .bib-liste > li:nth-child(-n+8), .bu-nouveautes .nv-carte:nth-child(-n+8) { animation: bu-monte .5s cubic-bezier(.22,1,.36,1) backwards; animation-delay: calc(var(--i, 0) * 40ms); }   /* backwards : une fois posée, la carte reprend ses survols (both figerait son transform) */
+  .bu-annuaire .n-liste > .fiche:nth-child(2), .bu-offres .n-liste > .fiche:nth-child(2), .bu-fil .fil-liste > *:nth-child(2), .bu-questions .qa-liste > *:nth-child(2), .bu-bib .bib-liste > li:nth-child(2), .bu-nouveautes .nv-carte:nth-child(2) { --i: 1; }
+  .bu-annuaire .n-liste > .fiche:nth-child(3), .bu-offres .n-liste > .fiche:nth-child(3), .bu-fil .fil-liste > *:nth-child(3), .bu-questions .qa-liste > *:nth-child(3), .bu-bib .bib-liste > li:nth-child(3), .bu-nouveautes .nv-carte:nth-child(3) { --i: 2; }
+  .bu-annuaire .n-liste > .fiche:nth-child(4), .bu-offres .n-liste > .fiche:nth-child(4), .bu-fil .fil-liste > *:nth-child(4), .bu-questions .qa-liste > *:nth-child(4), .bu-bib .bib-liste > li:nth-child(4), .bu-nouveautes .nv-carte:nth-child(4) { --i: 3; }
+  .bu-annuaire .n-liste > .fiche:nth-child(5), .bu-offres .n-liste > .fiche:nth-child(5), .bu-fil .fil-liste > *:nth-child(5), .bu-questions .qa-liste > *:nth-child(5), .bu-bib .bib-liste > li:nth-child(5), .bu-nouveautes .nv-carte:nth-child(5) { --i: 4; }
+  .bu-annuaire .n-liste > .fiche:nth-child(6), .bu-offres .n-liste > .fiche:nth-child(6), .bu-fil .fil-liste > *:nth-child(6), .bu-questions .qa-liste > *:nth-child(6), .bu-bib .bib-liste > li:nth-child(6), .bu-nouveautes .nv-carte:nth-child(6) { --i: 5; }
+  .bu-annuaire .n-liste > .fiche:nth-child(n+7) { --i: 6; }
+  /* le rail replié / déplié glisse, l'onglet actif aussi */
+  .tabbar .bu-rail-tete img { transition: transform .25s; }
+  .bu-rail-replie .tabbar .bu-rail-tete img { transform: scale(1.08); }
 }

@@ -3,6 +3,8 @@ import SuiviNavigation from "@/components/SuiviNavigation";
 import Theme from "@/components/Theme";
 import CompleterProfil from "@/components/CompleterProfil";
 import VeilleVersion from "@/components/VeilleVersion";
+import SeulementBureau from "@/components/SeulementBureau";
+import ConfortBureau from "@/components/ConfortBureau";
 import { SCRIPT_INITIAL } from "@/lib/theme";
 import "./globals.css";
 import "./ecrans.css";
@@ -85,6 +87,8 @@ export default function RootLayout({ children }) {
         {children}
         <CompleterProfil />
         <VeilleVersion />
+        {/* grand écran seulement : bouton « remonter », touche « / » pour chercher (rien sur téléphone) */}
+        <SeulementBureau><ConfortBureau /></SeulementBureau>
         {/* mémorise la profondeur de navigation et les positions de défilement,
             pour un « ← Retour » fiable (voir SuiviNavigation.js) */}
         <SuiviNavigation />

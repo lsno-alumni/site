@@ -484,7 +484,7 @@
   @media (min-width: 1800px) { .bu-bib .bib-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .bu-bib .bib-ouvrir { height: 100%; }
   .bu-bib .pu-vide, .bu-bib .bib-attente, .bu-bib .bib > .fiche { grid-column: 2; }
-  .bu-bib .pu-vide { grid-row: 2; align-self: start; margin: 0; padding: 40px 32px; border-radius: 20px; border: 1px dashed var(--ligne); background: var(--carte); font-size: 16px; line-height: 1.6; max-width: 60ch; }
+  .bu-bib .pu-vide { grid-row: 2 / span 4; align-self: start;   /* sur plusieurs rangées : sa hauteur ne pousse plus les filtres vers le bas */ margin: 0; padding: 40px 32px; border-radius: 20px; border: 1px dashed var(--ligne); background: var(--carte); font-size: 16px; line-height: 1.6; max-width: 60ch; }
   .bu-bib .bib-attente { text-align: left; }
 
   /* ---------- questions et événements : le registre, comme l'annuaire ---------- */

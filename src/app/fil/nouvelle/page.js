@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { utilisateurCourant } from "@/lib/api";
 import { nomDomaine } from "@/lib/donnees";
 import Composer from "./Composer";
+import TabBar from "@/components/TabBar";
+import SeulementBureau from "@/components/SeulementBureau";
 
 export const metadata = { title: "Publier — LSNO Amicale" };
 export const dynamic = "force-dynamic";
@@ -12,8 +14,10 @@ export default async function PageNouvelle() {
   const moi = await utilisateurCourant();
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   return (
-    <main className="page">
+    <main className="page bu-formulaire">
       <Composer moi={{ prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, promo: moi.promotions?.numero, domaine: nomDomaine(moi.domaine, moi.domaine_precision, true) }} />
+      {/* grand écran seulement : le rail reste là (sur téléphone, ces écrans sont des feuilles sans barre) */}
+      <SeulementBureau><TabBar actif="Fil" /></SeulementBureau>
     </main>
   );
 }

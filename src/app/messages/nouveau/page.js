@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { utilisateurCourant } from "@/lib/api";
 import { Suspense } from "react";
 import NouvelleConversation from "./NouvelleConversation";
+import TabBar from "@/components/TabBar";
+import SeulementBureau from "@/components/SeulementBureau";
 
 export const metadata = { title: "Nouvelle conversation — LSNO Amicale" };
 export const dynamic = "force-dynamic";
@@ -12,8 +14,10 @@ export default async function PageNouvelleConversation() {
   const moi = await utilisateurCourant();
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   return (
-    <main className="page">
+    <main className="page bu-formulaire">
       <Suspense fallback={null}><NouvelleConversation /></Suspense>
+      {/* grand écran seulement : le rail reste là (sur téléphone, ces écrans sont des feuilles sans barre) */}
+      <SeulementBureau><TabBar actif="Messages" /></SeulementBureau>
     </main>
   );
 }

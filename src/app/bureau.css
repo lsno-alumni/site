@@ -561,6 +561,54 @@
   .bu-admin .sec-admin, .bu-admin > .n-liste > .grande-partie { padding: 20px 24px 24px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); margin-top: 6px; }
   .bu-admin > .n-liste > .grande-partie { border-top: 1px solid var(--ligne); }
 
+  /* ---------- À propos : le manifeste et les chiffres, puis deux colonnes ---------- */
+  .bu-apropos { max-width: clamp(1100px, 80%, 1400px); margin-left: auto; margin-right: auto; padding: 24px 40px 40px; }
+  .bu-apropos > .f-tete { border-radius: 24px; min-height: 240px; padding: 32px 40px 30px !important; }
+  .bu-apropos > .f-tete::before { animation: none; }
+  .bu-apropos > .f-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; }
+  .bu-apropos > .f-tete .retour { position: absolute; top: 22px; left: 24px; margin: 0; }
+  .bu-apropos > .ap-manifeste { max-width: 70ch; font-size: 17px; padding: 28px 8px 8px; margin-top: 0 !important; background: none; border: 0; box-shadow: none; }   /* sur mobile, le manifeste est une feuille qui chevauche la photo */
+  .bu-apropos > .ap-stats { margin: 18px 0 0; border-radius: 20px; }
+  .bu-apropos > .ap-stats .a-stat span { font-size: 11px; }
+  .bu-apropos > .ap-section:has(.ap-nouveautes) { padding: 28px 0 0; }
+  .bu-apropos .ap-nouveautes { max-width: 560px; }
+  /* comment ça marche | les délégués, côte à côte */
+  .bu-apropos > .ap-section:has(.ap-pas) { display: inline-block; vertical-align: top; width: calc(50% - 20px); padding: 34px 0 6px; }
+  .bu-apropos > .ap-delegues { display: inline-block; vertical-align: top; width: calc(50% - 20px); margin-left: 40px; padding: 34px 0 6px; }
+  .bu-apropos .ap-delegues .voisins { margin: 0; padding-left: 0; }
+  .bu-apropos > .ap-photos { padding: 34px 0 6px; }
+  .bu-apropos .carrousel { border-radius: 24px; }
+  .bu-apropos > .ap-installer { padding: 16px 0 8px; }
+  .bu-apropos > .n-cloture { border-radius: 24px; margin-top: 28px; padding: 36px 40px !important; }
+
+  /* ---------- Nouveautés : les cartes en deux colonnes ---------- */
+  .bu-nouveautes { max-width: clamp(1100px, 80%, 1400px); margin-left: auto; margin-right: auto; padding: 24px 40px 40px; }
+  .bu-nouveautes > .f-tete, .bu-nouveautes > .n-tete { border-radius: 24px; min-height: 220px; padding: 32px 40px 30px !important; }
+  .bu-nouveautes > .f-tete::before, .bu-nouveautes > .n-tete::before { animation: none; }
+  .bu-nouveautes .nv-corps { padding: 24px 0 40px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .bu-nouveautes .nv-refaire { grid-column: 1 / -1; margin-top: -54px; margin-left: 24px; }
+  .bu-nouveautes .nv-carte { grid-template-columns: 1fr 120px; padding: 20px; }
+  .bu-nouveautes .nv-cadre { width: 120px; }
+
+  /* ---------- Conditions : le sommaire à gauche, le texte à droite ---------- */
+  .bu-conditions { max-width: clamp(1100px, 80%, 1400px); margin-left: auto; margin-right: auto; padding: 24px 40px 40px; display: grid; grid-template-columns: 280px minmax(0, 1fr); column-gap: 40px; align-items: start; }
+  .bu-conditions > .f-tete { grid-column: 1 / -1; border-radius: 24px; min-height: 220px; padding: 32px 40px 30px !important; }
+  .bu-conditions > .f-tete::before { animation: none; }
+  .bu-conditions > .f-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; }
+  .bu-conditions > .f-tete .retour { position: absolute; top: 22px; left: 24px; margin: 0; }
+  .bu-conditions > .cg-sommaire { grid-column: 1; position: sticky; top: 20px; margin: 24px 0 0; padding: 14px 12px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-conditions > .cg-sommaire .n-filtres { display: grid; gap: 2px; overflow: visible; padding: 0; touch-action: auto; }
+  .bu-conditions > .cg-sommaire .n-filtres::before { content: "Sommaire"; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); padding: 0 10px 8px; }
+  .bu-conditions > .cg-sommaire .puce { border: 0; border-radius: 12px; text-align: left; white-space: normal; padding: 9px 12px; font-size: 13.5px; }
+  .bu-conditions > .cg-sommaire .puce.en-vue { background: rgba(var(--accent-rgb), .1); color: var(--texte); font-weight: 600; }
+  .bu-conditions > .cg-corps { grid-column: 2; margin-top: 24px; padding: 8px 36px 36px; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); max-width: none; font-size: 15px; }
+  .bu-conditions .cg-titre { scroll-margin-top: 24px; }
+  .bu-conditions > .pied-sceau, .bu-conditions > .sceau { grid-column: 1 / -1; }
+
+  /* ---------- 404 : la feuille au centre ---------- */
+  .bu-404 { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; }
+  .bu-404 > .f-tete::before { animation: none; }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }

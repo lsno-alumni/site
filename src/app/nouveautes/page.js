@@ -11,7 +11,7 @@ export default async function PageNouveautes() {
   const moi = await utilisateurCourant();
   if (!moi || moi.statut_compte !== "valide") redirect("/connexion");
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-nouveautes">
       <Nouveautes />
       <TabBar actif="Fil" />
     </main>

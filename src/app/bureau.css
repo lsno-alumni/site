@@ -285,6 +285,10 @@
      Même composant, même contenu : la position et le mouvement changent, le geste de glissement
      n'a plus de sens (le panneau ne se tire pas), la croix et la touche Échap ferment. */
   .fg-scrim { background: rgba(var(--voile-rgb), .32); }
+  /* en sombre, panneau et fenêtre se détachent du fond assombri : voile plus dense, liseré clair, ombre portée */
+  :root[data-theme="sombre"] .fg-scrim { background: rgba(0, 0, 0, .72); }
+  :root[data-theme="sombre"] .fg-feuille { box-shadow: 0 0 0 1px rgba(255,255,255,.12), -30px 0 70px -24px rgba(0,0,0,.8); }
+  :root[data-theme="sombre"] .fg-feuille.fg-fenetre { box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 40px 90px -30px rgba(0,0,0,.9); }
   .fg-feuille {
     left: auto; right: 0; top: 0 !important; bottom: 0; height: auto !important; width: min(620px, 48vw); max-width: none; margin: 0;
     border-radius: 0; transform: none !important; overflow-y: auto !important; overscroll-behavior: contain;

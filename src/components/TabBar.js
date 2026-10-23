@@ -276,7 +276,7 @@ export default function TabBar({ actif }) {
         </Link>
       ))}
       {["delegue", "admin"].includes(role) && (
-        <Link href={VALIDATION.href} className={`tab bu${actif === "Validation" ? " on" : ""}`} title={VALIDATION.nom}>
+        <Link href={VALIDATION.href} prefetch={true} className={`tab bu${actif === "Validation" ? " on" : ""}`} title={VALIDATION.nom}>
           <VALIDATION.Icone size={19} strokeWidth={1.8} aria-hidden />
           {VALIDATION.nom}
         </Link>
@@ -284,7 +284,7 @@ export default function TabBar({ actif }) {
       {/* grand écran : le reste du site, sous un filet (bloc caché sur mobile) */}
       <div className="bu bu-rail-plus">
         {PLUS.map((o) => (
-          <Link key={o.href} href={o.href} className={`tab${chemin?.startsWith(o.href) ? " on" : ""}`} title={o.nom}>
+          <Link key={o.href} href={o.href} prefetch={true} className={`tab${chemin?.startsWith(o.href) ? " on" : ""}`} title={o.nom}>
             <o.Icone size={19} strokeWidth={1.8} aria-hidden />
             {o.nom}
           </Link>

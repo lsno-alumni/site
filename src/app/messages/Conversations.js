@@ -42,6 +42,20 @@ function Vignette({ c }) {
   return a ? <Avatar profil={{ prenom: a.prenom, nom: a.nom, photo: a.photo_url }} className="msg-vignette" /> : <span className="msg-vignette avatar-init">?</span>;
 }
 
+// grand écran : la colonne de liste (aside défilant) retrouve sa position d'une conversation à l'autre
+function MemoireColonne() {
+  useEffect(() => {
+    const aside = document.querySelector(".bu-conv-liste");
+    if (!aside) return;
+    const y = memoire.lire("messages.colonne");
+    if (y) aside.scrollTop = y;
+    const noter = () => memoire.ecrire("messages.colonne", aside.scrollTop);
+    aside.addEventListener("scroll", noter, { passive: true });
+    return () => aside.removeEventListener("scroll", noter);
+  }, []);
+  return null;
+}
+
 // enColonne : rendue à gauche d'une conversation ouverte (grand écran) — pas de restauration de défilement, ligne active marquée
 export default function Conversations({ moi, enColonne = false }) {
   const routeur = useRouter();
@@ -213,6 +227,7 @@ export default function Conversations({ moi, enColonne = false }) {
       )}
       <div className={`toast${toast ? " la" : ""}`} role="status">{toast}</div>
       {!enColonne && <RestaurerDefilement />}
+      {enColonne && <MemoireColonne />}
     </>
     </GlisserRafraichir>
   );

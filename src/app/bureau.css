@@ -539,6 +539,28 @@
   /* la barre « modifications non enregistrées » : en bas de la colonne du formulaire, pas au-dessus d'une barre d'onglets */
   .bu-mon-profil > .mp-barre { left: auto; right: 36px; bottom: 28px !important; max-width: 460px; margin: 0; }
 
+  /* ---------- l'espace admin / délégué : le sommaire à gauche, les sections à droite ---------- */
+  .bu-admin { display: grid; grid-template-columns: 260px minmax(0, clamp(760px, 56vw, 980px)); justify-content: center; column-gap: 40px; padding: 24px 40px 40px; align-items: start; }
+  .bu-admin > .n-tete { grid-column: 1 / -1; border-radius: 24px; min-height: 220px; padding: 32px 40px 28px !important; display: flex; flex-direction: column; justify-content: flex-end; }
+  .bu-admin > .n-tete::before { animation: none; }
+  .bu-admin > .n-tete h1 { font-size: clamp(38px, 3.4vw, 52px); line-height: 1.02; }
+  .bu-admin > .n-tete h1 br { display: none; }
+  .bu-admin > .n-tete .cpt { font-size: 15px; }
+  .bu-admin > .ad-sommaire { grid-column: 1; position: sticky; top: 20px; margin: 24px 0 0; padding: 14px 12px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
+  .bu-admin > .ad-sommaire .n-filtres { display: grid; gap: 2px; overflow: visible; padding: 0; touch-action: auto; }
+  .bu-admin > .ad-sommaire .n-filtres::before { content: "Sections"; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--bleu-texte); padding: 0 10px 8px; }
+  .bu-admin > .ad-sommaire .puce { border: 0; border-radius: 12px; text-align: left; white-space: normal; padding: 9px 12px; font-size: 13.5px; }
+  .bu-admin > .ad-sommaire .puce.en-vue { background: rgba(var(--accent-rgb), .1); color: var(--texte); font-weight: 600; }
+  .bu-admin > .n-liste { grid-column: 2; margin-top: 24px; padding: 0; gap: 14px; }
+  .bu-admin:not(:has(> .ad-sommaire)) > .n-liste { grid-column: 1 / -1; max-width: 980px; }   /* délégué : pas de sommaire, les sections prennent la place */
+  .bu-admin .ad-chapitre { scroll-margin-top: 24px; }
+  .bu-admin .fiche.demande { display: flex; align-items: center; gap: 16px; }
+  .bu-admin .fiche.demande .haut { flex: 1; background: none; backdrop-filter: none; }
+  .bu-admin .fiche.demande .pied { width: 320px; flex-shrink: 0; background: none; border-top: 0; padding-right: 16px; }
+  .bu-admin .ad-stats { border-radius: 20px; }
+  .bu-admin .sec-admin, .bu-admin > .n-liste > .grande-partie { padding: 20px 24px 24px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); margin-top: 6px; }
+  .bu-admin > .n-liste > .grande-partie { border-top: 1px solid var(--ligne); }
+
   /* ---------- qui fait quoi : la grille des domaines remplace la roue ---------- */
   .bu-accueil .a-section { max-width: var(--bu-large); margin: 0 auto; padding: 72px 48px 10px; }
   .bu-accueil .a-titre { font-size: 40px; }

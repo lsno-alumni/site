@@ -171,12 +171,12 @@ export default function Validation() {
 
   return (
     <GlisserRafraichir onRafraichir={charger}>
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-admin">
       <header className="n-tete tete-eleves ad-tete" id="sec-demandes">
         <p className="tagline">
           {moi?.role === "admin" ? "Espace admin · toutes promotions" : `Espace délégué · Promo ${moi?.promotions?.numero ?? "…"}`}
         </p>
-        <h1 style={{ marginTop: 8 }}>Demandes<br />d&apos;inscription</h1>
+        <h1 style={{ marginTop: 8 }}>Demandes <br />d&apos;inscription</h1>
         <p className="cpt">
           {demandes.length > 0 ? `${demandes.length} en attente` : "Tout est à jour ✓"}
         </p>

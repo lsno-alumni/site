@@ -7,7 +7,7 @@ export const metadata = { title: "Page introuvable — LSNO Amicale" };
 
 export default function Introuvable() {
   return (
-    <main className="page page-sceau">
+    <main className="page page-sceau bu-404">
       <header className="f-tete tete-portail" style={{ paddingTop: 20 }}>
         <h1>Cette page<br />n&apos;existe <em>pas.</em></h1>
         <p>Le lien est peut-être ancien, ou mal recopié.</p>

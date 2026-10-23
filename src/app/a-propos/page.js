@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Defilable from "@/components/Defilable";
 import TabBar from "@/components/TabBar";
 import Carrousel from "@/components/Carrousel3D";
 import Compteur from "@/components/Compteur";
@@ -28,7 +29,7 @@ export default async function APropos() {
     : [[], null];
 
   return (
-    <main className="page avec-tabbar">
+    <main className="page avec-tabbar bu-apropos">
       <header className="f-tete tete-campus" style={{ paddingTop: 20 }}>
         <RetourDynamique secours="/" libelle="Retour" />
         <h1>À propos<br />du <em>réseau</em></h1>
@@ -94,6 +95,7 @@ export default async function APropos() {
         {membre && delegues.length > 0 ? (
           <>
             <p className="a-sous">Les délégués reconnaissent leurs camarades et valident les inscriptions de leur promotion.</p>
+            <Defilable>
             <div className="voisins">
               {delegues.map((m) => (
                 <Link key={m.id} href={`/profil/${m.id}`} className="polaroid" draggable={false}>
@@ -111,6 +113,7 @@ export default async function APropos() {
                 </Link>
               ))}
             </div>
+            </Defilable>
           </>
         ) : (
           <p className="a-sous">

@@ -3,6 +3,8 @@ import { utilisateurCourant, lireEvenementServeur } from "@/lib/api";
 import { nomDomaine } from "@/lib/donnees";
 import { urlMedia } from "@/lib/fil";
 import FormulaireEvenement from "./FormulaireEvenement";
+import TabBar from "@/components/TabBar";
+import SeulementBureau from "@/components/SeulementBureau";
 
 export const metadata = { title: "Organiser un événement — LSNO Amicale" };
 export const dynamic = "force-dynamic";
@@ -17,9 +19,11 @@ export default async function PageNouvelEvenement({ searchParams }) {
   const initial = base ? { ...base, ...(depuis ? { id: null, debut: null, fin: null, affiche_chemin: null } : { afficheUrl: base.affiche_chemin ? urlMedia(base.affiche_chemin) : null }) } : null;
   if (modifier && (!base || !base.est_moi)) redirect("/evenements");
   return (
-    <main className="page">
+    <main className="page bu-formulaire">
       <FormulaireEvenement initial={initial} modifier={Boolean(modifier)}
         moi={{ id: moi.id, prenom: moi.prenom, nom: moi.nom, photo: moi.photo_url, role: moi.role, promo: moi.promotions?.numero, domaineNom: nomDomaine(moi.domaine, moi.domaine_precision, true) }} />
+      {/* grand écran seulement : le rail reste là (sur téléphone, ces écrans sont des feuilles sans barre) */}
+      <SeulementBureau><TabBar actif="Fil" /></SeulementBureau>
     </main>
   );
 }

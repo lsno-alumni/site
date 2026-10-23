@@ -518,8 +518,16 @@
   .bu-lecture .qa-details, .bu-lecture .ev-description-texte { font-size: 16px; }
   .bu-lecture .com-saisie { position: static; background: transparent; border-top: 1px solid var(--ligne); }   /* la saisie fait partie de la carte */
 
-  /* ---------- les formulaires en pleine page (poser une question, organiser, publier) : une feuille centrée ---------- */
-  .page:not(.avec-tabbar):not([class*=" bu-"]):not(.page-sceau) { max-width: 720px; margin: 32px auto; border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; }
+  /* ---------- les formulaires en pleine page (publier, poser une question, organiser, nouvelle conversation, groupes) :
+     une feuille centrée dans l'espace à droite du rail, qui reste là ---------- */
+  .page.bu-formulaire { max-width: 720px; margin: 32px auto; margin-left: calc(var(--bu-rail) + max(40px, (100% - var(--bu-rail) - 720px) / 2)); border-radius: 24px; border: 1px solid var(--ligne); background: var(--carte); min-height: 0; overflow: hidden; transition: margin-left .25s cubic-bezier(.22,1,.36,1); }
+  .bu-formulaire .cp { min-height: 0; }
+  /* ---------- les moments (lecteur plein écran et création) : une scène au format téléphone, centrée sur le fond sombre ---------- */
+  .mo-lecteur .mo-barres, .mo-lecteur .mo-tete, .mo-lecteur .mo-pied, .mo-lecteur .nm-choix { width: min(100%, 560px); margin-left: auto; margin-right: auto; }
+  .mo-lecteur .mo-scene { max-width: 100%; }
+  .mo-lecteur .mo-scene img, .mo-lecteur .mo-scene video { max-width: min(100%, calc((100vh - 170px) * 9 / 16)); margin: 0 auto; }
+  .mo-lecteur .mo-legende { left: 50%; translate: -50% 0; width: min(100% - 28px, 520px); right: auto; }
+  .mo-lecteur .mo-fleche.gauche { left: max(8px, calc(50% - 400px)); }  .mo-lecteur .mo-fleche.droite { right: max(8px, calc(50% - 400px)); }
 
   /* ---------- Mon profil : la fiche et le sommaire à gauche, le formulaire à droite ---------- */
   .bu-mon-profil { display: grid; grid-template-columns: 300px minmax(0, clamp(760px, 56vw, 980px)); grid-template-rows: auto auto 1fr auto; justify-content: center; column-gap: 40px; padding: 24px 40px 40px; align-items: start; }

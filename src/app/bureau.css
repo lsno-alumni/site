@@ -203,6 +203,8 @@
   /* l'aparté (invitations, moments, événements) puis les offres se suivent dans la colonne de droite, à côté des arrivées */
   .bu-accueil-membre .gr-zone > .bu-cote:not(:empty) { grid-column: 2; }
   .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > .rev:has(.am-offres):not(:has(.am-question)) { grid-column: 2; }
+  /* et le témoin vient combler la case sous les arrivées, à côté des offres (sinon un trou, que « le monde » comblait en laissant le reste vide) */
+  .bu-accueil-membre .gr-zone:has(> .bu-cote:not(:empty)) > .rev.rev:has(.a-temoin) { grid-column: auto; }
   /* rien à droite des arrivées (ni aparté, ni offres) : le témoin y monte */
   .bu-accueil-membre .gr-zone:has(> .bu-cote:empty):not(:has(.am-offres)) > .rev.rev:has(.a-temoin) { grid-column: auto; order: -1; }
   /* pas d'arrivées : les offres prennent leur place, à côté de l'aparté */
@@ -238,13 +240,9 @@
   .pub-arrivee .bu-defil > .bu-fleche.gauche { left: -8px; }  .pub-arrivee .bu-defil > .bu-fleche.droite { right: -8px; }
   .bu-accueil-membre .eventail { position: relative; }
   .bu-accueil-membre .eventail .bu-fleche { top: calc(50% - 22px); }   /* centrées sur les cartes, pas sur l'aide */
-  /* à la souris, l'éventail (cartes qui se chevauchent, noms qui transparaissent) devient une rangée nette qui défile */
-  .bu-accueil-membre .eventail-pile { display: flex; gap: 12px; height: auto; padding: 8px 36px 14px; scroll-padding-inline: 36px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; perspective: none; touch-action: auto; }
-  .bu-accueil-membre .eventail-pile::-webkit-scrollbar { display: none; }
-  .bu-accueil-membre .eventail-pile .polaroid { position: relative; left: 0; top: 0; margin: 0; flex: 0 0 132px; transform: none !important; opacity: 1 !important; pointer-events: auto !important; scroll-snap-align: start; transition: box-shadow .3s, translate .2s; }
-  .bu-accueil-membre .eventail-pile .polaroid:hover { translate: 0 -3px; }
-  .bu-accueil-membre .eventail-points { display: none; }
-  .bu-accueil-membre .eventail .bu-fleche { top: 50%; }
+  /* l'éventail garde sa forme ; plus haut, pour que les cartes de derrière ne recouvrent pas les points ni l'aide */
+  .bu-accueil-membre .eventail-pile { height: 236px; }
+  .bu-accueil-membre .eventail-points { margin-top: 10px; }
   .am-pierre .bu-fleche { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
   .am-pierre .bu-fleche:hover { background: rgba(255,255,255,.22); }
   .am-pierre .roue3d-zone .bu-fleche.gauche { left: 6px; }  .am-pierre .roue3d-zone .bu-fleche.droite { right: 6px; }

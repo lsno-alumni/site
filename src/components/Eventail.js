@@ -46,12 +46,18 @@ export default function Eventail({ membres }) {
     if (i !== actif) { e.preventDefault(); setActif(i); }
   };
 
+  // grand écran : les cartes sont en rangée (bureau.css) et les flèches la font défiler ; sinon elles changent la carte de face
+  const fleche = (sens) => {
+    const pile = zone.current?.querySelector(".eventail-pile");
+    if (pile && pile.scrollWidth > pile.clientWidth + 2) { pile.scrollBy({ left: sens * pile.clientWidth * 0.8, behavior: "smooth" }); return; }
+    setActif((a) => (a + sens + n) % n);
+  };
   return (
     <div className="eventail" ref={zone} role="group" aria-label="Nouveaux membres">
       {/* grand écran : deux flèches de part et d'autre (cachées sur mobile, où l'on glisse) */}
       {n > 1 && <>
-        <button type="button" className="bu bu-fleche gauche" aria-label="Carte précédente" onPointerDown={(e) => e.stopPropagation()} onClick={() => setActif((a) => (a - 1 + n) % n)}><ChevronLeft size={20} aria-hidden /></button>
-        <button type="button" className="bu bu-fleche droite" aria-label="Carte suivante" onPointerDown={(e) => e.stopPropagation()} onClick={() => setActif((a) => (a + 1) % n)}><ChevronRight size={20} aria-hidden /></button>
+        <button type="button" className="bu bu-fleche gauche" aria-label="Carte précédente" onPointerDown={(e) => e.stopPropagation()} onClick={() => fleche(-1)}><ChevronLeft size={20} aria-hidden /></button>
+        <button type="button" className="bu bu-fleche droite" aria-label="Carte suivante" onPointerDown={(e) => e.stopPropagation()} onClick={() => fleche(1)}><ChevronRight size={20} aria-hidden /></button>
       </>}
       <div className="eventail-pile" style={{ "--n": n }}>
         {membres.map((m, i) => {
@@ -83,7 +89,7 @@ export default function Eventail({ membres }) {
           {membres.map((m, i) => <i key={m.id} className={i === actif ? "on" : ""} />)}
         </div>
       )}
-      {n > 1 && <p className="eventail-aide"><span className="bu-tel">Glisse pour voir les suivants</span><span className="bu">Les flèches, ou un clic sur une carte voisine</span></p>}
+      {n > 1 && <p className="eventail-aide"><span className="bu-tel">Glisse pour voir les suivants</span><span className="bu">Clique sur une carte pour voir le profil ; les flèches font défiler.</span></p>}
     </div>
   );
 }

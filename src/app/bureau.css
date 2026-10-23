@@ -238,6 +238,13 @@
   .pub-arrivee .bu-defil > .bu-fleche.gauche { left: -8px; }  .pub-arrivee .bu-defil > .bu-fleche.droite { right: -8px; }
   .bu-accueil-membre .eventail { position: relative; }
   .bu-accueil-membre .eventail .bu-fleche { top: calc(50% - 22px); }   /* centrées sur les cartes, pas sur l'aide */
+  /* à la souris, l'éventail (cartes qui se chevauchent, noms qui transparaissent) devient une rangée nette qui défile */
+  .bu-accueil-membre .eventail-pile { display: flex; gap: 12px; height: auto; padding: 8px 36px 14px; scroll-padding-inline: 36px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; perspective: none; touch-action: auto; }
+  .bu-accueil-membre .eventail-pile::-webkit-scrollbar { display: none; }
+  .bu-accueil-membre .eventail-pile .polaroid { position: relative; left: 0; top: 0; margin: 0; flex: 0 0 132px; transform: none !important; opacity: 1 !important; pointer-events: auto !important; scroll-snap-align: start; transition: box-shadow .3s, translate .2s; }
+  .bu-accueil-membre .eventail-pile .polaroid:hover { translate: 0 -3px; }
+  .bu-accueil-membre .eventail-points { display: none; }
+  .bu-accueil-membre .eventail .bu-fleche { top: 50%; }
   .am-pierre .bu-fleche { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
   .am-pierre .bu-fleche:hover { background: rgba(255,255,255,.22); }
   .am-pierre .roue3d-zone .bu-fleche.gauche { left: 6px; }  .am-pierre .roue3d-zone .bu-fleche.droite { right: 6px; }
@@ -246,14 +253,14 @@
      En haut la photo de promotion avec le titre et la recherche ; à gauche une colonne de filtres
      qui reste sous la main ; à droite les fiches en grille, groupées par lettre. */
   .bu-annuaire .gr-zone { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 32px; row-gap: 0; max-width: clamp(1240px, 86%, 1700px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
-  .bu-annuaire .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
+  .bu-annuaire .n-tete { grid-column: 1 / -1; position: relative; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
   .bu-annuaire .n-tete::before { animation: none; }
   .bu-annuaire .n-tete > div:first-child { grid-column: 1; grid-row: 1; align-items: center !important; }
   .bu-annuaire .n-tete h1 { font-size: clamp(40px, 3.6vw, 54px); line-height: 1; }
   .bu-annuaire .n-tete .cpt { grid-column: 1; grid-row: 2; font-size: 15px; margin-top: 8px; }
   .bu-annuaire .n-cherche { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; align-self: end; }
   .bu-annuaire .n-cherche input { font-size: 15px; padding: 16px 0; }
-  .bu-annuaire .n-vers-conseils { order: 2; }
+  .bu-annuaire .n-vers-conseils { position: absolute; top: 22px; right: 24px; margin: 0; }
   /* la colonne des filtres */
   .bu-annuaire .n-panneau { grid-column: 1; position: sticky; top: 20px; z-index: 5; margin: 0; padding: 18px 16px 16px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
   .bu-annuaire .n-panneau .n-filtres { flex-wrap: wrap; overflow: visible; padding: 0 0 14px; gap: 6px; touch-action: auto; }
@@ -401,7 +408,7 @@
      Bandeau avec le titre, la recherche et « Proposer une offre » ; filtres en colonne à gauche ;
      offres en cartes sur deux ou trois colonnes. */
   .bu-offres .gr-zone { display: grid; grid-template-columns: 290px minmax(0, 1fr); column-gap: 32px; max-width: clamp(1240px, 86%, 1700px); margin: 0 auto; padding: 24px 40px 40px; align-items: start; }
-  .bu-offres .n-tete { grid-column: 1 / -1; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
+  .bu-offres .n-tete { grid-column: 1 / -1; position: relative; border-radius: 24px; padding: 36px 40px 30px; min-height: 230px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); align-items: end; column-gap: 48px; margin-bottom: 26px; }
   .bu-offres .n-tete::before { animation: none; }
   .bu-offres .n-tete > div:first-child { grid-column: 1; grid-row: 1; align-items: center !important; }
   .bu-offres .n-tete h1 { font-size: clamp(36px, 3.2vw, 50px); line-height: 1; }
@@ -409,7 +416,7 @@
   .bu-offres .n-tete > .btn-or { grid-column: 1; grid-row: 3; justify-self: start; }
   .bu-offres .n-cherche { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; align-self: end; }
   .bu-offres .n-cherche input { font-size: 15px; padding: 16px 0; }
-  .bu-offres .n-vers-conseils { order: 2; }
+  .bu-offres .n-vers-conseils { position: absolute; top: 22px; right: 24px; margin: 0; }
   /* le formulaire « Proposer une offre » : sur la colonne des cartes, en carte */
   .bu-offres .f-corps { grid-column: 2; padding: 22px 24px 18px; border-radius: 20px; border: 1px solid var(--ligne); background: var(--carte); margin-bottom: 20px; }
   .bu-offres .n-panneau { grid-column: 1; position: sticky; top: 20px; z-index: 5; margin: 0; padding: 18px 16px 16px; border-radius: 20px; border: 1px solid var(--ligne); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 14px 30px -22px rgba(0,0,0,.45); }
@@ -479,6 +486,7 @@
   @media (min-width: 1800px) { .bu-bib .bib-liste { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .bu-bib .bib-ouvrir { height: 100%; }
   .bu-bib .pu-vide, .bu-bib .bib-attente, .bu-bib .bib > .fiche { grid-column: 2; }
+  .bu-bib .pu-vide { grid-row: 2; align-self: start; margin: 0; padding: 40px 32px; border-radius: 20px; border: 1px dashed var(--ligne); background: var(--carte); font-size: 16px; line-height: 1.6; max-width: 60ch; }
   .bu-bib .bib-attente { text-align: left; }
 
   /* ---------- questions et événements : le registre, comme l'annuaire ---------- */

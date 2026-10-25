@@ -35,6 +35,16 @@ export function cartesPour(role) {
   return CARTES.filter((c) => !c.roles || c.roles.includes(role));
 }
 
+// grand écran : les mêmes services, à la souris et au clavier (affichés à la place des gestes, bureau.css)
+export const GESTES_BUREAU = [
+  { titre: "Clic droit ou « ⋯ »", texte: "sur un message ou une conversation : les options." },
+  { titre: "Touche /", texte: "met le curseur dans la recherche de l’écran." },
+  { titre: "Échap", texte: "ferme un panneau, une fenêtre ou le lecteur de moments." },
+  { titre: "Les flèches", texte: "font défiler les cartes, la roue des promotions et les rangées." },
+  { titre: "Le menu de gauche", texte: "se replie sur ses icônes avec le bouton du bas." },
+  { titre: "Le bouton ↑", texte: "en bas à droite remonte en haut des longues listes." },
+];
+
 export const GESTES = [
   { titre: "Glisser vers la droite", texte: "sur un message : tu y réponds." },
   { titre: "Appui long", texte: "sur un message ou une conversation : les options." },

@@ -87,6 +87,12 @@ le réseau de tous se renforce.
   `/nouveautes` avec les gestes à connaître
 - **Gestes** : glisser-rafraîchir sur toutes les listes, feuilles glissantes pour les
   profils, offres, événements et créations, onglets qui retrouvent position et filtres
+- **Version bureau** (octobre 2026) : à partir de 1024 px de large, chaque écran a sa propre
+  composition — rail de navigation à gauche (repliable, avec tous les écrans), accueil en
+  double page, annuaire et offres en registre (filtres en colonne, cartes en grille), fiches en
+  **panneau latéral** au lieu de la feuille, messagerie en **vue partagée** (liste | conversation),
+  formulaires en fenêtre, sommaires collants, flèches sur tout ce qui défile, touche `/` pour
+  chercher. Le mobile n'a pas bougé d'un pixel : c'est garanti par un outil (voir CONTRIBUTING)
 
 **Pour les délégués et les admins**
 
@@ -161,7 +167,7 @@ le réseau de tous se renforce.
 |---|---|---|
 | Front | Next.js 16 (App Router, JavaScript) | **CSS pur — pas de Tailwind** (choix assumé) ; routes parallèles et interceptées pour les feuilles |
 | Base & auth | Supabase (PostgreSQL) | La sécurité vit dans la base : **Row Level Security** partout ; Realtime pour le direct |
-| Hébergement | Vercel | Déploiement automatique à chaque push sur `main` ; aperçu par branche (`social`) pour les tests en cercle fermé |
+| Hébergement | Vercel | Déploiement automatique à chaque push sur `main` ; aperçu par branche pour les tests en cercle fermé, protégé par une connexion Vercel |
 | Emails | Brevo | SMTP (authentification) + API appelée **par la base** (pg_net) |
 | Notifications | Web Push (VAPID) | `public/sw.js` + route `/api/push`, appelée par la base |
 | Fichiers | Supabase Storage | 3 buckets : `photos` (profils), `ressources` (pièces jointes des offres et des questions), `medias` (fil, moments, messages, événements) |
@@ -179,8 +185,11 @@ avant d'en ajouter une.
   appliqué par les politiques RLS (`dans_le_cercle`). Ne jamais « contourner » côté client.
 - **La chaîne de confiance descend** : admins → délégués (valident leur promotion,
   modèrent) → membres. Un trigger interdit l'auto-promotion.
-- **Mobile d'abord** : le réseau vit sur WhatsApp, sur des téléphones parfois en 3G.
-  Tout écran se vérifie à **340 px** de large, et sans défilement horizontal.
+- **Mobile d'abord, et un vrai grand écran** : le réseau vit sur WhatsApp, sur des téléphones
+  parfois en 3G. Tout écran se vérifie à **340 px** de large, et sans défilement horizontal.
+  Depuis octobre 2026, le grand écran (≥ 1024 px) a sa propre mise en page dans un seul
+  fichier, `src/app/bureau.css`, entièrement sous une requête de média : rien de ce qu'il
+  contient ne peut toucher le téléphone, et un outil le vérifie au pixel près.
 - **Fraîcheur avant tout, mais plus de rechargement brutal** : les pages dynamiques sont
   gardées 30 s côté client (`staleTimes`), une mémoire d'onglet (`src/lib/memoire.js`)
   retrouve listes, filtres et position instantanément, et chaque écriture appelle
@@ -201,16 +210,19 @@ src/app/            pages (App Router) : accueil, annuaire, profil, offres, cons
                     fil, publication, messages (+ groupes), questions, evenements,
                     nouveautes, mon-profil, admin, inscription, connexion, a-propos,
                     conditions… ; les dossiers @modal/(..)xxx sont les feuilles glissantes
+                    (panneaux ou fenêtres en grand écran) ; bureau.css = la mise en page ≥ 1024 px
 src/app/api/push/   route d'envoi des notifications (appelée par la base)
 src/components/     composants partagés (Avatar, TabBar, FeuilleGlissante, Notifications,
-                    TourNouveautes, Nouveau, Collage, Visionneuse…)
+                    TourNouveautes, Nouveau, Collage, Visionneuse… ; Defilable, SeulementBureau,
+                    ConfortBureau pour le grand écran)
 src/lib/            données de référence (domaines, pays, promotions), clients Supabase,
                     et un module par brique : fil, messages, questions, moments,
                     evenements, offres, mentions, tempsReel, erreurs, memoire, tour
 src/middleware.js   protection des routes (vérification locale du jeton + double auth)
-supabase/           schema.sql + migration-02…83 : tables, RLS, triggers, crons ;
+supabase/           schema.sql + migration-02…86 : tables, RLS, triggers, crons ;
                     verif-migrations.sql, verif-sante.sql
-outils/             banc d'essai PGlite (banc_essai.js + banc/essai-*.sql), verif_sql.py
+outils/             banc d'essai PGlite (banc_essai.js + banc/essai-*.sql), verif_sql.py,
+                    garantie mobile du grand écran (bureau-ref.js, bureau-diff.py, bureau-garde-css.js)
 public/             images du lycée, icônes, illustrations, captures du tour, sw.js
 ```
 

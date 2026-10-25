@@ -62,7 +62,8 @@ qu'en HTTPS (ou sur `localhost`, exception des navigateurs).
 
 ```
 src/app/            pages (App Router)          src/components/  composants partagés
-src/app/api/push/   envoi des notifications     src/lib/         un module par brique + Supabase
+src/app/bureau.css  mise en page ≥ 1024 px      src/lib/         un module par brique + Supabase
+src/app/api/push/   envoi des notifications     outils/bureau-*  garantie « le mobile ne bouge pas »
 src/middleware.js   protection des routes       supabase/        tables, RLS, triggers, crons
 public/             images, icônes, sw.js       outils/banc/     banc d'essai + scénarios SQL
 ```
@@ -96,6 +97,9 @@ Deux réflexes utiles :
 - **Mobile d'abord** : vérifie chaque écran à **340 px** de large (outils dev → mode
   responsive). Le réseau vit sur des téléphones, parfois en 3G — pas de librairie lourde,
   pas d'image non compressée.
+- **Le grand écran ne touche jamais au téléphone** : toute règle pour ≥ 1024 px va dans
+  `src/app/bureau.css`, sous sa requête de média — jamais dans `ecrans.css` ni `globals.css`
+  (section « Le grand écran » plus bas).
 - **Design sobre** : un accent, icônes Lucide (jamais d'emojis dans l'interface, sauf les
   réactions choisies par les membres), vraies photos du lycée et vraies matières.
 - **Pas de nouvelle dépendance** sans en discuter d'abord. Hors Next et React, le projet
@@ -150,6 +154,42 @@ vrais membres. Règles apprises à nos dépens :
 `signInWithPassword()` crée TOUJOURS une session valide (niveau « aal1 »), même quand un second facteur va être demandé — c'est ainsi que Supabase fonctionne, la vérification du code se fait SUR cette session. **Une session aal1 EST une session valide.** Toute vérification qui se contente de « existe-t-il une session ? » laisse donc passer un compte protégé qui n'a jamais saisi son code — c'est le bug fermé par la migration 46 (le bouton « retour » depuis l'écran du code suffisait à atterrir sur l'accueil connecté).
 
 **Règle à respecter dans tout nouveau point d'entrée** (nouvelle page publique dual-usage à la « / », nouvel appel direct à `getUser()`/`getClaims()`…) : ne jamais traiter « une session existe » comme équivalent à « ce membre est pleinement authentifié ». Vérifier en plus, pour les rôles delegue/admin, `profiles.double_auth_active` contre `aal` du jeton (`getClaims().data.claims.aal`, gratuit) — modèle dans `src/middleware.js` et `utilisateurCourant()` (`src/lib/api.js`).
+
+## Le grand écran (octobre 2026)
+
+Le site a une vraie version bureau à partir de **1024 px** de large : rail de navigation à
+gauche, écrans en colonnes, fiches en panneau latéral, messagerie en vue partagée, formulaires
+en fenêtre. Elle tient en **un seul fichier**, `src/app/bureau.css`, importé après `ecrans.css`,
+et obéit à trois règles que tu dois garder :
+
+1. **Tout sous `@media (min-width: 1024px)`.** La seule chose admise hors média, c'est la
+   règle de base qui cache les éléments propres au grand écran (`.bu, .bu-nav, … { display: none }`)
+   et les enveloppes transparentes (`.bu-groupe`, `.bu-defil` en `display: contents`).
+   `node outils/bureau-garde-css.js` le vérifie et refuse le reste : lance-le avant de proposer.
+2. **Un élément qui n'existe qu'en grand écran porte une classe `bu-…`** dans le JSX (il est
+   dans le DOM mais invisible sur mobile, donc les pixels ne bougent pas). Les mots qui changent
+   (« touche » / « clique sur ») sont deux phrases jumelles, `bu-tel` et `bu`. Un bloc qui coûte
+   (requêtes, temps réel) ne se rend qu'en grand écran via `SeulementBureau` (après montage, jamais
+   côté serveur) — c'est ainsi que la liste des conversations s'ajoute à côté d'une conversation.
+3. **La garantie « le mobile ne bouge pas »** : `outils/bureau-ref.js ref` photographie les
+   écrans mobiles (Pixel 7, deux thèmes) depuis l'état propre, `apres` les rephotographie après
+   tes changements, et `python outils/bureau-diff.py` compare au pixel près. Les écrans à contenu
+   vivant (accueil, fil, profil…) sont signalés `~`, pas KO : regarde-les à l'œil. Les écrans
+   connectés exigent `B_EMAIL`/`B_MDP` (compte de test) et le captcha coupé ; `ROUTES=accueil,fil`
+   pour n'en refaire que quelques-uns ; `bureau` produit les captures 1280/1440 à relire.
+
+Composants et classes à connaître : `Defilable` (flèches gauche/droite sur une rangée qui
+défile), `ConfortBureau` (bouton « remonter », touche `/` = recherche, Échap), les classes de
+page `bu-annuaire`, `bu-fil`, `bu-conv`, `bu-offres`, `bu-lecture`, `bu-formulaire`… posées sur
+`<main>`, et les deux formes des feuilles interceptées : `.fg-feuille` (panneau à droite) et
+`.fg-fenetre` (fenêtre centrée, quand la feuille s'ouvre entière). Le rail se replie
+(`--bu-rail` 232 → 76 px, classe `bu-rail-replie` sur `<html>`, mémorisée).
+
+Pièges déjà rencontrés : un déplacement animé sur `<main>` en fait le conteneur des éléments
+fixes (rail, plume, barre d'enregistrement) → n'animer que l'opacité ; une animation d'entrée
+en `fill: both` fige le `transform` et tue les survols → `backwards` ; un bloc qui s'étend sur
+deux rangées d'une grille partage sa hauteur entre elles → rangées explicites ; la vraie feuille
+qui relaie la silhouette d'attente ne doit pas rejouer l'entrée → délai négatif `--ecoule`.
 
 ## Pièges connus (tu gagneras du temps)
 
@@ -356,7 +396,8 @@ vrais membres. Règles apprises à nos dépens :
 ## Le circuit d'une contribution
 
 1. Crée une branche sur ton fork : `git checkout -b ma-modif`.
-2. Code, teste en local (y compris à 340 px), `npm run build` doit passer sans erreur.
+2. Code, teste en local (à 340 px **et** à 1280 px), `npm run build` doit passer sans erreur ;
+   si tu as touché `bureau.css`, `node outils/bureau-garde-css.js` et la garantie mobile.
 3. Pousse et ouvre une **Pull Request** vers `main` du dépôt, en décrivant : le problème,
    la solution, ce que tu as testé. Une capture d'écran mobile aide beaucoup. Chaque branche a son aperçu Vercel.
 4. Un mainteneur relit, discute si besoin, et merge. **Le merge sur `main` déploie

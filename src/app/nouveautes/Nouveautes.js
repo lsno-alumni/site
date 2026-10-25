@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Check, PlayCircle } from "lucide-react";
 import RetourDynamique from "@/components/RetourDynamique";
 import TourNouveautes from "@/components/TourNouveautes";
-import { GESTES, cartesPour, useTourEtat } from "@/lib/tour";
+import { GESTES, GESTES_BUREAU, cartesPour, useTourEtat } from "@/lib/tour";
 
 // La page « Nouveautés » : les cartes du tour en version lisible, les gestes
 // à connaître, et « Refaire le tour ».
@@ -37,7 +37,8 @@ export default function Nouveautes() {
         <section className="nv-gestes">
           <h2>Les gestes à connaître</h2>
           <dl>
-            {GESTES.map((g) => <div key={g.titre}><dt>{g.titre}</dt><dd>{g.texte}</dd></div>)}
+            {GESTES.map((g) => <div key={g.titre} className="bu-tel"><dt>{g.titre}</dt><dd>{g.texte}</dd></div>)}
+            {GESTES_BUREAU.map((g) => <div key={g.titre} className="bu"><dt>{g.titre}</dt><dd>{g.texte}</dd></div>)}
           </dl>
         </section>
       </div>
